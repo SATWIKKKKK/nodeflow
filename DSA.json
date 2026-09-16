@@ -1,0 +1,2690 @@
+[
+  {
+    "title": "Java Collections/STL",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maths",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count all Digits of a Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count number of odd digits in a number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse a number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Palindrome Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Return the Largest Digit in a Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Factorial of a given number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if the Number is Armstrong",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check for Perfect Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check for Prime Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count of Prime Numbers till N",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "GCD of Two Numbers",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "LCM of two numbers",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Divisors of a Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Arrays",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Array Elements",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count of odd numbers in array",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if the Array is Sorted I",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse an array",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Hashing",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Highest Occurring Element in an Array",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Second Highest Occurring Element",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Highest and Lowest Frequency",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Strings",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse a String II",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Palindrome Check",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Largest Odd Number in a String",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Common Prefix",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Isomorphic String",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rotate String",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Valid Anagram",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sort Characters by Frequency",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Recursion",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Recursion Theory",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Recursion Concepts with Parameters",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of First N Numbers",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Factorial of a Given Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Array Elements",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse a String I",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if String is Palindrome or Not",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if a Number is Prime or Not",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse an array",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if the Array is Sorted II",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Digits in a Given Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Fibonacci Number",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Selection Sort",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bubble Sort",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion Sorting",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Merge Sorting",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Quick Sorting",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Linear Search",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Largest Element",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Second Largest Element",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Consecutive Ones",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Left Rotate Array by One",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Left Rotate Array by K Places",
+    "topicGroup": "Basics Sorting Arrays",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Move Zeros to End",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Remove duplicates from sorted array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find missing number",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Union of two sorted arrays",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Intersection of two sorted arrays",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Majority Element-I",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Leaders in an Array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rearrange array elements by sign",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print the matrix in spiral manner",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Pascal's Triangle I",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Pascal's Triangle II",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Pascal's Triangle III",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rotate matrix by 90 degrees",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Two Sum",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "3 Sum",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "4 Sum",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sort an array of 0's 1's and 2's",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Kadane's Algorithm",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Next Permutation",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Majority Element-II",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the repeating and missing number",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count Inversions",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse Pairs",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Product Subarray in an Array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Merge two sorted arrays without extra space",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Consecutive Sequence in an Array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest subarray with sum K",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count subarrays with given sum",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count subarrays with given xor K",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search X in sorted array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Lower Bound",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Upper Bound",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search insert position",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Floor and Ceil in Sorted Array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "First and last occurrence",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search in rotated sorted array-I",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search in rotated sorted array-II",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find minimum in Rotated Sorted Array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find out how many times the array is rotated",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Single element in sorted array",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find square root of a number",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find Nth root of a number",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the smallest divisor",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Koko eating bananas",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum days to make M bouquets",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Aggressive Cows",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Book Allocation Problem",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find peak element",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Median of 2 sorted arrays",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Kth element of 2 sorted arrays",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimize Max Distance to Gas Station",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Split array - largest sum",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find row with maximum 1's",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search in a 2D matrix",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search in 2D matrix - II",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find Peak Element - II",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Matrix Median",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Pow(x,n)",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Generate Parentheses",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Power Set",
+    "topicGroup": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if there exists a subsequence with sum K",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count all subsequences with sum K",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Combination Sum",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Combination Sum II",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Subsets I",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Subsets II",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Combination Sum III",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Letter Combinations of a Phone Number",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Palindrome partitioning",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Word Search",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "N Queen",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rat in a Maze",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "M Coloring Problem",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sudoku Solver",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Introduction to Singly LinkedList",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Traversal in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Deletion in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Deletion of the head of LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Deletion of the tail of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Deletion of the Kth element of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete the element with value X",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion at the head of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion at the tail of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion at the Kth position of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion before the value X in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Introduction to Doubly LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Deletion in Doubly LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insertion in DLL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Convert Array to Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete head of Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete Tail of Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete Kth Element of Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Removing given node in Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert node before head in Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert node before tail in Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert node before (kth node) in Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert before given node in Doubly Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Add two numbers in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Segregate odd and even nodes in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sort a Linked List of 0's 1's and 2's",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Remove Nth node from the back of the LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse a LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Add one to a number represented by Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find Middle of Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete the middle node in LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if LL is palindrome or not",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the intersection point of Y LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Detect a loop in Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the starting point in LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Length of loop in LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse LL in group of given size K",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rotate a Linked List",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Merge two Sorted Lists",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Flattening of LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sort LL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Clone a LL with random and next pointer",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete all occurrences of a key in DLL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Remove duplicated from sorted DLL",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": "linked_list",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bit Manipulation Minimum Bit Flips to Convert Number",
+    "topicGroup": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Single Number - I",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Single Number - II",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Single Number - III",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Divide two numbers without multiplication and division",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Power Set Bit Manipulation",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "XOR of numbers in a given range",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Assign Cookies",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Lemonade Change",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Jump Game - I",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest Job First",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Job sequencing Problem",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "N meetings in one room",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Non-overlapping Intervals",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert Interval",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum number of platforms required for a railway",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Valid Paranthesis Checker",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Candy",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Points You Can Obtain from Cards",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Substring Without Repeating Characters",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Max Consecutive Ones III",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Fruit Into Baskets",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Substring With At Most K Distinct Characters",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Repeating Character Replacement",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum Window Substring",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of Substrings Containing All Three Characters",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Binary Subarrays With Sum",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count number of Nice subarrays",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implementation using different DS",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Stack using Arrays",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Queue using Arrays",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Stack using Queue",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Queue using Stack",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement stack using Linkedlist",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement queue using Linkedlist",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Balanced Paranthesis",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Next Greater Element",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Next Greater Element - 2",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Asteroid Collision",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Subarray Minimums",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sum of Subarray Ranges",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Remove K Digits",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Min Stack",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Sliding Window Maximum",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Trapping Rainwater",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Largest rectangle in a histogram",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Rectangles",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Stock span problem",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Celebrity Problem",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "LRU Cache",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "LFU Cache",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Inorder Traversal",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Preorder Traversal",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Postorder Traversal",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Level Order Traversal",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Pre, Post, Inorder in one traversal",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Binary Tree Maximum Depth in BT",
+    "topicGroup": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if two trees are identical or not",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check for balanced binary tree",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Diameter of Binary Tree",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum path sum",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check for symmetrical BTs",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Zig Zag or Spiral Traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Boundary Traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Vertical Order Traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Top View of BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bottom view of BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Right/Left View of BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print root to node path in BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "LCA in BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Width of BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print all nodes at a distance of K in BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum time taken to burn the BT from a given Node",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count total nodes in a complete BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Requirements needed to construct a unique BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Construct a BT from Preorder and Inorder",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Construct a BT from Postorder and Inorder",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Serialize and De-serialize BT",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Morris Inorder Traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Morris Preorder Traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Search in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Floor and Ceil in a BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Insert a given node in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Delete a node in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Kth Smallest and Largest element in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if a tree is a BST or not",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "LCA in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Construct a BST from a preorder traversal",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Inorder successor and predecessor in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "BST iterator",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Two sum in BST",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Correct BST with two nodes swapped",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Largest BST in Binary Tree",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Heapify Algorithm",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Build heap from a given Array",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Min Heap",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Implement Max Heap",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Check if an array represents a min heap",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Convert Min Heap to Max Heap",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Heap Sort",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "K-th Largest element in an array",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Kth largest element in a stream of running integers",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Traversal Techniques",
+    "topicGroup": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Connected Components",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of provinces",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of islands",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Flood fill algorithm",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of enclaves",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rotten Oranges",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Distance of nearest cell having one",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Surrounded Regions",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of distinct islands",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Detect a cycle in an undirected graph",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bipartite graph",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Topological sort or Kahn's algorithm",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Detect a cycle in a directed graph",
+    "topicGroup": "Graphs Cycles Binary Tree (Medium) Construction Problems",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find eventual safe states",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Course Schedule I",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Course Schedule II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Alien Dictionary",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest path in DAG",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest path in undirected graph with unit weights",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Word ladder I",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Word ladder II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Dijkstra's algorithm",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print Shortest Path",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest Distance in a Binary Maze",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Path with minimum effort",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Cheapest flight within K stops",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum multiplications to reach end",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of ways to arrive at destination",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bellman ford algorithm",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Floyd warshall algorithm",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the city with the smallest number of neighbors",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "MST theory",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Disjoint Set",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Find the MST weight",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of operations to make network connected",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Accounts merge",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of islands II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Making a large island",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Most stones removed with same row or column",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Kosaraju's algorithm",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Bridges in graph",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Articulation point in graph",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Climbing stairs",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Frog Jump",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Frog jump with K distances",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum sum of non adjacent elements",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "House robber",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Ninja's training",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Grid unique paths",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Unique paths II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum Falling Path Sum",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Triangle",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Cherry pickup II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Best time to buy and sell stock",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Best time to buy and sell stock II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Best time to buy and sell stock III",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Best time to buy and sell stock IV",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Best time to buy and sell stock with transaction fees",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Subset sum equals to target",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Partition equal subset sum",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Partition a set into two subsets with minimum absolute sum difference",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count subsets with sum K",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count partitions with given difference",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "0 and 1 Knapsack",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum coins",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Target sum",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Coin change II",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Unbounded knapsack",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rod cutting problem",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Increasing Subsequence",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print Longest Increasing Subsequence",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Largest Divisible Subset",
+    "topicGroup": "Graphs Hard Dynamic Programming Shortest Path Algo Minimum Spanning Tree Hard Problems DP on Grids DP on Stocks DP on subsequences LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest String Chain",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Bitonic Subsequence",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of Longest Increasing Subsequences",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest common subsequence",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest common substring",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest palindromic subsequence",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum insertions to make string palindrome",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum insertions or deletions to convert string A to B",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest common supersequence",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Distinct subsequences",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Edit distance",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Wildcard matching",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Matrix chain multiplication",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum cost to cut the stick",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Burst balloons",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Palindrome partitioning II",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Trie Implementation and Operations",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Trie Implementation and Advanced Operations",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest Word with All Prefixes",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Number of distinct substrings in a string",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum XOR of two numbers in an array",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Maximum Xor with an element from an array",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Reverse every word in a string",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Minimum number of bracket reversals to make an expression balanced",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count and say",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Rabin Karp Algorithm",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Z function",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "KMP Algorithm or LPS array",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": "array",
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Shortest Palindrome",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Longest happy prefix",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Print all primes till N",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Prime factorisation of a Number",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  },
+  {
+    "title": "Count primes in range L to R",
+    "topicGroup": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "structureType": null,
+    "difficulty": null,
+    "sourceLink": null
+  }
+]

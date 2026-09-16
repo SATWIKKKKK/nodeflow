@@ -1,0 +1,2046 @@
+[
+  {
+    "id": "sum-array-elements",
+    "sourceTitle": "Sum of Array Elements",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Sum Array Elements",
+    "description": "Return the total of every integer in the input array. The replay should make each running-total update visible.",
+    "constraints": [
+      "The input array may be empty.",
+      "Each value is an integer.",
+      "Return one integer: the final sum."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [2, 4, 6] },
+        "output": 12,
+        "explanation": "The accumulator visits 2, then 4, then 6."
+      },
+      {
+        "input": { "nums": [] },
+        "output": 0
+      }
+    ],
+    "signature": {
+      "functionName": "sum_array",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def sum_array(nums):\n    total = 0\n    return total\n",
+    "referenceCode": "def sum_array(nums):\n    total = 0\n    for value in nums:\n        total += value\n    return total\n",
+    "defaultInput": { "nums": [2, 4, 6] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [2, 4, 6] }, "expectedOutput": 12, "visible": true },
+      { "id": "sample-2", "input": { "nums": [] }, "expectedOutput": 0, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [-3, 7, 1] }, "expectedOutput": 5, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [10, -10, 5, 2] }, "expectedOutput": 7, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "count-odd-array",
+    "sourceTitle": "Count of odd numbers in array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Count Odd Values",
+    "description": "Count how many entries in the array are odd. The trace should show the counter change only when an odd value is inspected.",
+    "constraints": [
+      "The input array may be empty.",
+      "Negative odd numbers count as odd.",
+      "Return one integer: the number of odd values."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 3, 8] },
+        "output": 2
+      },
+      {
+        "input": { "nums": [2, 4, 6] },
+        "output": 0
+      }
+    ],
+    "signature": {
+      "functionName": "count_odds",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def count_odds(nums):\n    count = 0\n    return count\n",
+    "referenceCode": "def count_odds(nums):\n    count = 0\n    for value in nums:\n        if value % 2 != 0:\n            count += 1\n    return count\n",
+    "defaultInput": { "nums": [1, 2, 3, 8] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 3, 8] }, "expectedOutput": 2, "visible": true },
+      { "id": "sample-2", "input": { "nums": [2, 4, 6] }, "expectedOutput": 0, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [-5, -2, 0, 9] }, "expectedOutput": 2, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [] }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "reverse-array-values",
+    "sourceTitle": "Reverse an array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Reverse Array Values",
+    "description": "Return a new array with the same values in reverse order. The replay should make every appended value inspectable.",
+    "constraints": [
+      "The input array may be empty.",
+      "Keep the values unchanged.",
+      "Return a new array in reverse order."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 3] },
+        "output": [3, 2, 1]
+      },
+      {
+        "input": { "nums": [7] },
+        "output": [7]
+      }
+    ],
+    "signature": {
+      "functionName": "reverse_array",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def reverse_array(nums):\n    result = []\n    return result\n",
+    "referenceCode": "def reverse_array(nums):\n    result = []\n    for index in range(len(nums) - 1, -1, -1):\n        result.append(nums[index])\n    return result\n",
+    "defaultInput": { "nums": [1, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 3] }, "expectedOutput": [3, 2, 1], "visible": true },
+      { "id": "sample-2", "input": { "nums": [7] }, "expectedOutput": [7], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-1, 0, 5, 9] }, "expectedOutput": [9, 5, 0, -1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "array-sorted-check",
+    "sourceTitle": "Check if the Array is Sorted I",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Check Sorted Order",
+    "description": "Return true when every value is less than or equal to the value after it. The replay should show the first place where order fails.",
+    "constraints": [
+      "The input array may be empty.",
+      "Repeated equal values are allowed.",
+      "Return a boolean."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 2, 5] },
+        "output": true
+      },
+      {
+        "input": { "nums": [1, 3, 2] },
+        "output": false
+      }
+    ],
+    "signature": {
+      "functionName": "is_sorted",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "bool"
+    },
+    "starterCode": "def is_sorted(nums):\n    return True\n",
+    "referenceCode": "def is_sorted(nums):\n    for index in range(1, len(nums)):\n        if nums[index] < nums[index - 1]:\n            return False\n    return True\n",
+    "defaultInput": { "nums": [1, 2, 2, 5] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 2, 5] }, "expectedOutput": true, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 3, 2] }, "expectedOutput": false, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": true, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-4, -4, 0, 8] }, "expectedOutput": true, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "highest-occurring-array",
+    "sourceTitle": "Highest Occurring Element in an Array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Most Frequent Value",
+    "description": "Return the value that appears most often. If several values tie, return the one that first reached that highest count in the left-to-right scan.",
+    "constraints": [
+      "The input array has at least one value.",
+      "Values are integers.",
+      "Return one integer from the array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [4, 1, 4, 2, 4] },
+        "output": 4
+      },
+      {
+        "input": { "nums": [7, 8, 7, 8] },
+        "output": 7
+      }
+    ],
+    "signature": {
+      "functionName": "most_frequent",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def most_frequent(nums):\n    return nums[0]\n",
+    "referenceCode": "def most_frequent(nums):\n    counts = {}\n    best_value = nums[0]\n    best_count = 0\n    for value in nums:\n        counts[value] = counts.get(value, 0) + 1\n        if counts[value] > best_count:\n            best_value = value\n            best_count = counts[value]\n    return best_value\n",
+    "defaultInput": { "nums": [4, 1, 4, 2, 4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [4, 1, 4, 2, 4] }, "expectedOutput": 4, "visible": true },
+      { "id": "sample-2", "input": { "nums": [7, 8, 7, 8] }, "expectedOutput": 7, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [-1, -1, 3, 3, 3] }, "expectedOutput": 3, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [5] }, "expectedOutput": 5, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "left-rotate-array-one",
+    "sourceTitle": "Left Rotate Array by One",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Left Rotate Once",
+    "description": "Return a new array where the first value moves to the end and every other value shifts one place left.",
+    "constraints": [
+      "The input array may be empty.",
+      "Keep all values in the result.",
+      "Return the rotated array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [10, 20, 30, 40] },
+        "output": [20, 30, 40, 10]
+      },
+      {
+        "input": { "nums": [5] },
+        "output": [5]
+      }
+    ],
+    "signature": {
+      "functionName": "rotate_left_once",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def rotate_left_once(nums):\n    return nums\n",
+    "referenceCode": "def rotate_left_once(nums):\n    if len(nums) <= 1:\n        return nums[:]\n    result = []\n    for index in range(1, len(nums)):\n        result.append(nums[index])\n    result.append(nums[0])\n    return result\n",
+    "defaultInput": { "nums": [10, 20, 30, 40] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [10, 20, 30, 40] }, "expectedOutput": [20, 30, 40, 10], "visible": true },
+      { "id": "sample-2", "input": { "nums": [5] }, "expectedOutput": [5], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-1, 0, 8] }, "expectedOutput": [0, 8, -1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "left-rotate-array-k",
+    "sourceTitle": "Left Rotate Array by K Places",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Left Rotate by K",
+    "description": "Return the array after k left rotations. The trace should make the normalized rotation count and the rebuilt order visible.",
+    "constraints": [
+      "The input array may be empty.",
+      "k is a non-negative integer.",
+      "Return the rotated array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 3, 4, 5], "k": 2 },
+        "output": [3, 4, 5, 1, 2]
+      },
+      {
+        "input": { "nums": [1, 2, 3], "k": 5 },
+        "output": [3, 1, 2]
+      }
+    ],
+    "signature": {
+      "functionName": "rotate_left",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "array"
+    },
+    "starterCode": "def rotate_left(nums, k):\n    return nums\n",
+    "referenceCode": "def rotate_left(nums, k):\n    if len(nums) == 0:\n        return []\n    shift = k % len(nums)\n    result = []\n    for index in range(shift, len(nums)):\n        result.append(nums[index])\n    for index in range(0, shift):\n        result.append(nums[index])\n    return result\n",
+    "defaultInput": { "nums": [1, 2, 3, 4, 5], "k": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 3, 4, 5], "k": 2 }, "expectedOutput": [3, 4, 5, 1, 2], "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 2, 3], "k": 5 }, "expectedOutput": [3, 1, 2], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [], "k": 4 }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [9, 8, 7, 6], "k": 0 }, "expectedOutput": [9, 8, 7, 6], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "union-sorted-arrays",
+    "sourceTitle": "Union of two sorted arrays",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Union of Sorted Arrays",
+    "description": "Return every distinct value that appears in either sorted array, preserving sorted order in the result.",
+    "constraints": [
+      "Both input arrays are sorted in nondecreasing order.",
+      "Either input may be empty.",
+      "Return a sorted array with no duplicates."
+    ],
+    "examples": [
+      {
+        "input": { "left": [1, 1, 2, 5], "right": [2, 3, 5, 8] },
+        "output": [1, 2, 3, 5, 8]
+      },
+      {
+        "input": { "left": [], "right": [4, 4] },
+        "output": [4]
+      }
+    ],
+    "signature": {
+      "functionName": "union_sorted",
+      "parameters": [
+        { "name": "left", "kind": "array" },
+        { "name": "right", "kind": "array" }
+      ],
+      "returnKind": "array"
+    },
+    "starterCode": "def union_sorted(left, right):\n    result = []\n    return result\n",
+    "referenceCode": "def union_sorted(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) or j < len(right):\n        if j >= len(right) or (i < len(left) and left[i] <= right[j]):\n            value = left[i]\n            i += 1\n        else:\n            value = right[j]\n            j += 1\n        if len(result) == 0 or result[-1] != value:\n            result.append(value)\n    return result\n",
+    "defaultInput": { "left": [1, 1, 2, 5], "right": [2, 3, 5, 8] },
+    "testCases": [
+      { "id": "sample-1", "input": { "left": [1, 1, 2, 5], "right": [2, 3, 5, 8] }, "expectedOutput": [1, 2, 3, 5, 8], "visible": true },
+      { "id": "sample-2", "input": { "left": [], "right": [4, 4] }, "expectedOutput": [4], "visible": true },
+      { "id": "hidden-1", "input": { "left": [-2, 0, 0], "right": [-3, -2, 5] }, "expectedOutput": [-3, -2, 0, 5], "visible": false },
+      { "id": "hidden-2", "input": { "left": [], "right": [] }, "expectedOutput": [], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "intersection-sorted-arrays",
+    "sourceTitle": "Intersection of two sorted arrays",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Intersection of Sorted Arrays",
+    "description": "Return the distinct values that appear in both sorted arrays. The replay should show both cursors moving through the inputs.",
+    "constraints": [
+      "Both input arrays are sorted in nondecreasing order.",
+      "Only include each shared value once.",
+      "Return a sorted array."
+    ],
+    "examples": [
+      {
+        "input": { "left": [1, 2, 2, 3], "right": [2, 2, 4] },
+        "output": [2]
+      },
+      {
+        "input": { "left": [1, 5, 9], "right": [2, 4, 6] },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "intersection_sorted",
+      "parameters": [
+        { "name": "left", "kind": "array" },
+        { "name": "right", "kind": "array" }
+      ],
+      "returnKind": "array"
+    },
+    "starterCode": "def intersection_sorted(left, right):\n    result = []\n    return result\n",
+    "referenceCode": "def intersection_sorted(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] == right[j]:\n            value = left[i]\n            if len(result) == 0 or result[-1] != value:\n                result.append(value)\n            i += 1\n            j += 1\n        elif left[i] < right[j]:\n            i += 1\n        else:\n            j += 1\n    return result\n",
+    "defaultInput": { "left": [1, 2, 2, 3], "right": [2, 2, 4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "left": [1, 2, 2, 3], "right": [2, 2, 4] }, "expectedOutput": [2], "visible": true },
+      { "id": "sample-2", "input": { "left": [1, 5, 9], "right": [2, 4, 6] }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "left": [-3, -1, 0, 0], "right": [-1, 0, 0, 8] }, "expectedOutput": [-1, 0], "visible": false },
+      { "id": "hidden-2", "input": { "left": [], "right": [1] }, "expectedOutput": [], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "leaders-in-array",
+    "sourceTitle": "Leaders in an Array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Find Array Leaders",
+    "description": "Return every value that is greater than or equal to all values on its right. The scan runs from right to left so each new leader is visible.",
+    "constraints": [
+      "The input array may be empty.",
+      "The rightmost value is always a leader when present.",
+      "Return leaders in their original left-to-right order."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [16, 17, 4, 3, 5, 2] },
+        "output": [17, 5, 2]
+      },
+      {
+        "input": { "nums": [5, 4, 3] },
+        "output": [5, 4, 3]
+      }
+    ],
+    "signature": {
+      "functionName": "array_leaders",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def array_leaders(nums):\n    leaders = []\n    return leaders\n",
+    "referenceCode": "def array_leaders(nums):\n    leaders = []\n    best = None\n    for index in range(len(nums) - 1, -1, -1):\n        value = nums[index]\n        if best is None or value >= best:\n            leaders.append(value)\n            best = value\n    result = []\n    for index in range(len(leaders) - 1, -1, -1):\n        result.append(leaders[index])\n    return result\n",
+    "defaultInput": { "nums": [16, 17, 4, 3, 5, 2] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [16, 17, 4, 3, 5, 2] }, "expectedOutput": [17, 5, 2], "visible": true },
+      { "id": "sample-2", "input": { "nums": [5, 4, 3] }, "expectedOutput": [5, 4, 3], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [1, 2, 3, 4] }, "expectedOutput": [4], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified test cases."
+  },
+  {
+    "id": "traversal-linked-list",
+    "sourceTitle": "Traversal in Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Collect Linked List Values",
+    "description": "Walk from the head node to the end of the chain and return the values in visit order. The replay should make the cursor movement obvious.",
+    "constraints": [
+      "The list may be empty.",
+      "Each node stores an integer value.",
+      "Return an array of visited values."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3] },
+        "output": [1, 2, 3]
+      },
+      {
+        "input": { "head": [] },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "list_values",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def list_values(head):\n    values = []\n    return values\n",
+    "referenceCode": "def list_values(head):\n    values = []\n    current = head\n    while current is not None:\n        values.append(current.val)\n        current = current.next\n    return values\n",
+    "defaultInput": { "head": [1, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3] }, "expectedOutput": [1, 2, 3], "visible": true },
+      { "id": "sample-2", "input": { "head": [] }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "head": [9] }, "expectedOutput": [9], "visible": false },
+      { "id": "hidden-2", "input": { "head": [-1, 0, 5] }, "expectedOutput": [-1, 0, 5], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "delete-linked-list-head",
+    "sourceTitle": "Deletion of the head of LL",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Delete the Head Node",
+    "description": "Remove the first node from a singly linked list and return the new head. The replay should show the head reference move to the second node.",
+    "constraints": [
+      "The list may be empty.",
+      "Do not create a replacement list.",
+      "Return the new head node."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3] },
+        "output": [2, 3]
+      },
+      {
+        "input": { "head": [7] },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "delete_head",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def delete_head(head):\n    return head\n",
+    "referenceCode": "def delete_head(head):\n    if head is None:\n        return None\n    return head.next\n",
+    "defaultInput": { "head": [1, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3] }, "expectedOutput": [2, 3], "visible": true },
+      { "id": "sample-2", "input": { "head": [7] }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [4, 5] }, "expectedOutput": [5], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "delete-linked-list-tail",
+    "sourceTitle": "Deletion of the tail of Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Delete the Tail Node",
+    "description": "Remove the last node from a singly linked list and return the original head. The trace should show the pointer before the tail being cut.",
+    "constraints": [
+      "The list may be empty.",
+      "A single-node list becomes empty.",
+      "Return the head of the shortened list."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3] },
+        "output": [1, 2]
+      },
+      {
+        "input": { "head": [7] },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "delete_tail",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def delete_tail(head):\n    return head\n",
+    "referenceCode": "def delete_tail(head):\n    if head is None or head.next is None:\n        return None\n    current = head\n    while current.next.next is not None:\n        current = current.next\n    current.next = None\n    return head\n",
+    "defaultInput": { "head": [1, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3] }, "expectedOutput": [1, 2], "visible": true },
+      { "id": "sample-2", "input": { "head": [7] }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [4, 5] }, "expectedOutput": [4], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "delete-linked-list-kth",
+    "sourceTitle": "Deletion of the Kth element of Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Delete the Kth Node",
+    "description": "Remove the kth node from a singly linked list using one-based indexing. If k is outside the list, return the original chain unchanged.",
+    "constraints": [
+      "k is one-based.",
+      "The list may be empty.",
+      "Return the head after deletion."
+    ],
+    "examples": [
+      {
+        "input": { "head": [10, 20, 30, 40], "k": 3 },
+        "output": [10, 20, 40]
+      },
+      {
+        "input": { "head": [5], "k": 1 },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "delete_kth",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def delete_kth(head, k):\n    return head\n",
+    "referenceCode": "def delete_kth(head, k):\n    if head is None or k < 1:\n        return head\n    if k == 1:\n        return head.next\n    current = head\n    index = 1\n    while current is not None and index < k - 1:\n        current = current.next\n        index += 1\n    if current is not None and current.next is not None:\n        current.next = current.next.next\n    return head\n",
+    "defaultInput": { "head": [10, 20, 30, 40], "k": 3 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [10, 20, 30, 40], "k": 3 }, "expectedOutput": [10, 20, 40], "visible": true },
+      { "id": "sample-2", "input": { "head": [5], "k": 1 }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "head": [], "k": 1 }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [1, 2, 3], "k": 9 }, "expectedOutput": [1, 2, 3], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "insert-linked-list-head",
+    "sourceTitle": "Insertion at the head of Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Insert at the Head",
+    "description": "Create one new node and place it before the current head. The trace should show the new node pointing into the existing chain.",
+    "constraints": [
+      "The list may be empty.",
+      "Create exactly one new ListNode for the inserted value.",
+      "Return the new head node."
+    ],
+    "examples": [
+      {
+        "input": { "head": [2, 3], "value": 1 },
+        "output": [1, 2, 3]
+      },
+      {
+        "input": { "head": [], "value": 5 },
+        "output": [5]
+      }
+    ],
+    "signature": {
+      "functionName": "insert_head",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "value", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def insert_head(head, value):\n    return head\n",
+    "referenceCode": "def insert_head(head, value):\n    node = ListNode(value)\n    node.next = head\n    return node\n",
+    "defaultInput": { "head": [2, 3], "value": 1 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [2, 3], "value": 1 }, "expectedOutput": [1, 2, 3], "visible": true },
+      { "id": "sample-2", "input": { "head": [], "value": 5 }, "expectedOutput": [5], "visible": true },
+      { "id": "hidden-1", "input": { "head": [9], "value": 9 }, "expectedOutput": [9, 9], "visible": false },
+      { "id": "hidden-2", "input": { "head": [-1, 0], "value": -5 }, "expectedOutput": [-5, -1, 0], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "insert-linked-list-tail",
+    "sourceTitle": "Insertion at the tail of Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Insert at the Tail",
+    "description": "Create one new node and attach it after the current tail. The replay should show the traversal finding the last node before rewiring.",
+    "constraints": [
+      "The list may be empty.",
+      "Create exactly one new ListNode for the inserted value.",
+      "Return the head of the updated chain."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2], "value": 3 },
+        "output": [1, 2, 3]
+      },
+      {
+        "input": { "head": [], "value": 7 },
+        "output": [7]
+      }
+    ],
+    "signature": {
+      "functionName": "insert_tail",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "value", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def insert_tail(head, value):\n    return head\n",
+    "referenceCode": "def insert_tail(head, value):\n    node = ListNode(value)\n    if head is None:\n        return node\n    current = head\n    while current.next is not None:\n        current = current.next\n    current.next = node\n    return head\n",
+    "defaultInput": { "head": [1, 2], "value": 3 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2], "value": 3 }, "expectedOutput": [1, 2, 3], "visible": true },
+      { "id": "sample-2", "input": { "head": [], "value": 7 }, "expectedOutput": [7], "visible": true },
+      { "id": "hidden-1", "input": { "head": [5], "value": 6 }, "expectedOutput": [5, 6], "visible": false },
+      { "id": "hidden-2", "input": { "head": [-1, 0], "value": 2 }, "expectedOutput": [-1, 0, 2], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "insert-linked-list-kth",
+    "sourceTitle": "Insertion at the Kth position of Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Insert at the Kth Position",
+    "description": "Insert a new node before the kth existing position using one-based indexing. Inserting at length plus one appends to the tail; invalid k leaves the list unchanged.",
+    "constraints": [
+      "k is one-based.",
+      "Create one new ListNode only when insertion is valid.",
+      "Return the head of the updated chain."
+    ],
+    "examples": [
+      {
+        "input": { "head": [10, 30], "k": 2, "value": 20 },
+        "output": [10, 20, 30]
+      },
+      {
+        "input": { "head": [], "k": 1, "value": 5 },
+        "output": [5]
+      }
+    ],
+    "signature": {
+      "functionName": "insert_kth",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "k", "kind": "int" },
+        { "name": "value", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def insert_kth(head, k, value):\n    return head\n",
+    "referenceCode": "def insert_kth(head, k, value):\n    if k < 1:\n        return head\n    node = ListNode(value)\n    if k == 1:\n        node.next = head\n        return node\n    current = head\n    index = 1\n    while current is not None and index < k - 1:\n        current = current.next\n        index += 1\n    if current is None:\n        return head\n    node.next = current.next\n    current.next = node\n    return head\n",
+    "defaultInput": { "head": [10, 30], "k": 2, "value": 20 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [10, 30], "k": 2, "value": 20 }, "expectedOutput": [10, 20, 30], "visible": true },
+      { "id": "sample-2", "input": { "head": [], "k": 1, "value": 5 }, "expectedOutput": [5], "visible": true },
+      { "id": "hidden-1", "input": { "head": [1, 2], "k": 3, "value": 3 }, "expectedOutput": [1, 2, 3], "visible": false },
+      { "id": "hidden-2", "input": { "head": [1, 2], "k": 5, "value": 9 }, "expectedOutput": [1, 2], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "insert-linked-list-before-value",
+    "sourceTitle": "Insertion before the value X in Linked List",
+    "topic": "Linked List",
+    "difficulty": "Easy",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Insert Before a Value",
+    "description": "Insert one new node immediately before the first node whose value matches the target. If the target is absent, return the chain unchanged.",
+    "constraints": [
+      "The list may be empty.",
+      "Only the first matching target is used.",
+      "Return the head of the updated chain."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 3, 4], "target": 3, "value": 2 },
+        "output": [1, 2, 3, 4]
+      },
+      {
+        "input": { "head": [3, 4], "target": 3, "value": 2 },
+        "output": [2, 3, 4]
+      }
+    ],
+    "signature": {
+      "functionName": "insert_before_value",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "target", "kind": "int" },
+        { "name": "value", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def insert_before_value(head, target, value):\n    return head\n",
+    "referenceCode": "def insert_before_value(head, target, value):\n    if head is None:\n        return head\n    if head.val == target:\n        node = ListNode(value)\n        node.next = head\n        return node\n    current = head\n    while current.next is not None and current.next.val != target:\n        current = current.next\n    if current.next is not None:\n        node = ListNode(value)\n        node.next = current.next\n        current.next = node\n    return head\n",
+    "defaultInput": { "head": [1, 3, 4], "target": 3, "value": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 3, 4], "target": 3, "value": 2 }, "expectedOutput": [1, 2, 3, 4], "visible": true },
+      { "id": "sample-2", "input": { "head": [3, 4], "target": 3, "value": 2 }, "expectedOutput": [2, 3, 4], "visible": true },
+      { "id": "hidden-1", "input": { "head": [1, 2], "target": 9, "value": 5 }, "expectedOutput": [1, 2], "visible": false },
+      { "id": "hidden-2", "input": { "head": [], "target": 1, "value": 0 }, "expectedOutput": [], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "remove-nth-from-back-linked-list",
+    "sourceTitle": "Remove Nth node from the back of the LL",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Remove Nth From the Back",
+    "description": "Remove the node that is n positions from the end of the list and return the updated head. The replay should make the fast and slow cursors visible.",
+    "constraints": [
+      "n is at least one.",
+      "If n is larger than the list length, leave the list unchanged.",
+      "Return the head after deletion."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3, 4, 5], "n": 2 },
+        "output": [1, 2, 3, 5]
+      },
+      {
+        "input": { "head": [1], "n": 1 },
+        "output": []
+      }
+    ],
+    "signature": {
+      "functionName": "remove_nth_from_back",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "n", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def remove_nth_from_back(head, n):\n    return head\n",
+    "referenceCode": "def remove_nth_from_back(head, n):\n    dummy = ListNode(0)\n    dummy.next = head\n    fast = dummy\n    for step in range(n):\n        if fast.next is None:\n            return head\n        fast = fast.next\n    slow = dummy\n    while fast.next is not None:\n        fast = fast.next\n        slow = slow.next\n    slow.next = slow.next.next\n    return dummy.next\n",
+    "defaultInput": { "head": [1, 2, 3, 4, 5], "n": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3, 4, 5], "n": 2 }, "expectedOutput": [1, 2, 3, 5], "visible": true },
+      { "id": "sample-2", "input": { "head": [1], "n": 1 }, "expectedOutput": [], "visible": true },
+      { "id": "hidden-1", "input": { "head": [1, 2], "n": 3 }, "expectedOutput": [1, 2], "visible": false },
+      { "id": "hidden-2", "input": { "head": [7, 8, 9], "n": 3 }, "expectedOutput": [8, 9], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "delete-middle-linked-list",
+    "sourceTitle": "Delete the middle node in LL",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Delete the Middle Node",
+    "description": "Delete the middle node of a singly linked list. When the list has an even length, delete the later middle node.",
+    "constraints": [
+      "A zero- or one-node list becomes empty.",
+      "Use slow and fast pointers or an equivalent one-pass approach.",
+      "Return the head after deletion."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3, 4, 5] },
+        "output": [1, 2, 4, 5]
+      },
+      {
+        "input": { "head": [1, 2, 3, 4] },
+        "output": [1, 2, 4]
+      }
+    ],
+    "signature": {
+      "functionName": "delete_middle",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def delete_middle(head):\n    return head\n",
+    "referenceCode": "def delete_middle(head):\n    if head is None or head.next is None:\n        return None\n    slow = head\n    fast = head\n    previous = None\n    while fast is not None and fast.next is not None:\n        previous = slow\n        slow = slow.next\n        fast = fast.next.next\n    previous.next = slow.next\n    return head\n",
+    "defaultInput": { "head": [1, 2, 3, 4, 5] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3, 4, 5] }, "expectedOutput": [1, 2, 4, 5], "visible": true },
+      { "id": "sample-2", "input": { "head": [1, 2, 3, 4] }, "expectedOutput": [1, 2, 4], "visible": true },
+      { "id": "hidden-1", "input": { "head": [9] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [] }, "expectedOutput": [], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "palindrome-linked-list",
+    "sourceTitle": "Check if LL is palindrome or not",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Check Linked List Palindrome",
+    "description": "Return true if the linked-list values read the same forward and backward. The trace should show values being collected before comparison.",
+    "constraints": [
+      "The list may be empty.",
+      "Only node values matter.",
+      "Return a boolean."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 2, 1] },
+        "output": true
+      },
+      {
+        "input": { "head": [1, 2, 3] },
+        "output": false
+      }
+    ],
+    "signature": {
+      "functionName": "is_palindrome",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "bool"
+    },
+    "starterCode": "def is_palindrome(head):\n    return False\n",
+    "referenceCode": "def is_palindrome(head):\n    values = []\n    current = head\n    while current is not None:\n        values.append(current.val)\n        current = current.next\n    left = 0\n    right = len(values) - 1\n    while left < right:\n        if values[left] != values[right]:\n            return False\n        left += 1\n        right -= 1\n    return True\n",
+    "defaultInput": { "head": [1, 2, 2, 1] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 2, 1] }, "expectedOutput": true, "visible": true },
+      { "id": "sample-2", "input": { "head": [1, 2, 3] }, "expectedOutput": false, "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": true, "visible": false },
+      { "id": "hidden-2", "input": { "head": [4] }, "expectedOutput": true, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "add-one-linked-list",
+    "sourceTitle": "Add one to a number represented by Linked List",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Add One to Linked Digits",
+    "description": "The list stores a non-negative integer with the most significant digit first. Add one and return the updated digits as a linked list.",
+    "constraints": [
+      "Each node value is a digit from 0 to 9.",
+      "The list may be empty, representing zero.",
+      "Return the head of the result list."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 9] },
+        "output": [1, 3, 0]
+      },
+      {
+        "input": { "head": [9, 9] },
+        "output": [1, 0, 0]
+      }
+    ],
+    "signature": {
+      "functionName": "add_one",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def add_one(head):\n    return head\n",
+    "referenceCode": "def add_one(head):\n    def reverse(node):\n        prev = None\n        current = node\n        while current is not None:\n            nxt = current.next\n            current.next = prev\n            prev = current\n            current = nxt\n        return prev\n\n    if head is None:\n        return ListNode(1)\n    rev = reverse(head)\n    current = rev\n    carry = 1\n    previous = None\n    while current is not None and carry:\n        total = current.val + carry\n        current.val = total % 10\n        carry = total // 10\n        previous = current\n        current = current.next\n    if carry:\n        previous.next = ListNode(carry)\n    return reverse(rev)\n",
+    "defaultInput": { "head": [1, 2, 9] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 9] }, "expectedOutput": [1, 3, 0], "visible": true },
+      { "id": "sample-2", "input": { "head": [9, 9] }, "expectedOutput": [1, 0, 0], "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": [1], "visible": false },
+      { "id": "hidden-2", "input": { "head": [4, 5, 6] }, "expectedOutput": [4, 5, 7], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "segregate-odd-even-linked-list",
+    "sourceTitle": "Segregate odd and even nodes in Linked List",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Group Odd Then Even Values",
+    "description": "Return a list where nodes with odd values appear before nodes with even values, preserving the original relative order inside each group.",
+    "constraints": [
+      "The list may be empty.",
+      "Odd/even is based on node value.",
+      "Reuse existing nodes so pointer rewires are visible."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3, 4, 5] },
+        "output": [1, 3, 5, 2, 4]
+      },
+      {
+        "input": { "head": [2, 4, 1] },
+        "output": [1, 2, 4]
+      }
+    ],
+    "signature": {
+      "functionName": "group_odd_even_values",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def group_odd_even_values(head):\n    return head\n",
+    "referenceCode": "def group_odd_even_values(head):\n    odd_dummy = ListNode(0)\n    even_dummy = ListNode(0)\n    odd_tail = odd_dummy\n    even_tail = even_dummy\n    current = head\n    while current is not None:\n        nxt = current.next\n        current.next = None\n        if current.val % 2 != 0:\n            odd_tail.next = current\n            odd_tail = current\n        else:\n            even_tail.next = current\n            even_tail = current\n        current = nxt\n    odd_tail.next = even_dummy.next\n    return odd_dummy.next if odd_dummy.next is not None else even_dummy.next\n",
+    "defaultInput": { "head": [1, 2, 3, 4, 5] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3, 4, 5] }, "expectedOutput": [1, 3, 5, 2, 4], "visible": true },
+      { "id": "sample-2", "input": { "head": [2, 4, 1] }, "expectedOutput": [1, 2, 4], "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [2, 4, 6] }, "expectedOutput": [2, 4, 6], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "sort-linked-list-zero-one-two",
+    "sourceTitle": "Sort a Linked List of 0's 1's and 2's",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Sort Zero One Two List",
+    "description": "The linked list contains only 0, 1, and 2 values. Return the list sorted so all 0s come first, then 1s, then 2s.",
+    "constraints": [
+      "Every node value is 0, 1, or 2.",
+      "The list may be empty.",
+      "Return the sorted linked list."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 0, 1, 2, 0] },
+        "output": [0, 0, 1, 1, 2, 2]
+      },
+      {
+        "input": { "head": [2, 2] },
+        "output": [2, 2]
+      }
+    ],
+    "signature": {
+      "functionName": "sort_zero_one_two",
+      "parameters": [{ "name": "head", "kind": "linked_list" }],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def sort_zero_one_two(head):\n    return head\n",
+    "referenceCode": "def sort_zero_one_two(head):\n    counts = [0, 0, 0]\n    current = head\n    while current is not None:\n        counts[current.val] += 1\n        current = current.next\n    current = head\n    value = 0\n    while current is not None:\n        while counts[value] == 0:\n            value += 1\n        current.val = value\n        counts[value] -= 1\n        current = current.next\n    return head\n",
+    "defaultInput": { "head": [1, 2, 0, 1, 2, 0] },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 0, 1, 2, 0] }, "expectedOutput": [0, 0, 1, 1, 2, 2], "visible": true },
+      { "id": "sample-2", "input": { "head": [2, 2] }, "expectedOutput": [2, 2], "visible": true },
+      { "id": "hidden-1", "input": { "head": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [1, 0, 1] }, "expectedOutput": [0, 1, 1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "rotate-linked-list",
+    "sourceTitle": "Rotate a Linked List",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Rotate Linked List Right",
+    "description": "Rotate the linked list to the right by k places and return the new head. The trace should show the tail reconnecting and the new tail being cut.",
+    "constraints": [
+      "k is non-negative.",
+      "The list may be empty.",
+      "Return the rotated linked list."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3, 4, 5], "k": 2 },
+        "output": [4, 5, 1, 2, 3]
+      },
+      {
+        "input": { "head": [0, 1, 2], "k": 4 },
+        "output": [2, 0, 1]
+      }
+    ],
+    "signature": {
+      "functionName": "rotate_right",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def rotate_right(head, k):\n    return head\n",
+    "referenceCode": "def rotate_right(head, k):\n    if head is None or head.next is None or k == 0:\n        return head\n    length = 1\n    tail = head\n    while tail.next is not None:\n        tail = tail.next\n        length += 1\n    shift = k % length\n    if shift == 0:\n        return head\n    tail.next = head\n    steps_to_new_tail = length - shift\n    new_tail = tail\n    while steps_to_new_tail > 0:\n        new_tail = new_tail.next\n        steps_to_new_tail -= 1\n    new_head = new_tail.next\n    new_tail.next = None\n    return new_head\n",
+    "defaultInput": { "head": [1, 2, 3, 4, 5], "k": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3, 4, 5], "k": 2 }, "expectedOutput": [4, 5, 1, 2, 3], "visible": true },
+      { "id": "sample-2", "input": { "head": [0, 1, 2], "k": 4 }, "expectedOutput": [2, 0, 1], "visible": true },
+      { "id": "hidden-1", "input": { "head": [], "k": 3 }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "head": [1, 2], "k": 2 }, "expectedOutput": [1, 2], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list test cases."
+  },
+  {
+    "id": "remove-duplicates-sorted-array-reviewed",
+    "sourceTitle": "Remove duplicates from sorted array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Remove Sorted Duplicates",
+    "description": "Return a compact array containing one copy of each value from a sorted input. The trace should show the write cursor only moving when a new value is accepted.",
+    "constraints": [
+      "The input array is sorted in nondecreasing order.",
+      "The input may be empty.",
+      "Return a new compact array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 1, 2, 2, 3] },
+        "output": [1, 2, 3]
+      },
+      {
+        "input": { "nums": [4, 4, 4] },
+        "output": [4]
+      }
+    ],
+    "signature": {
+      "functionName": "remove_sorted_duplicates",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def remove_sorted_duplicates(nums):\n    return nums\n",
+    "referenceCode": "def remove_sorted_duplicates(nums):\n    compact = []\n    previous = None\n    seen_any = False\n    for value in nums:\n        if not seen_any or value != previous:\n            compact.append(value)\n            previous = value\n            seen_any = True\n    return compact\n",
+    "defaultInput": { "nums": [1, 1, 2, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 1, 2, 2, 3] }, "expectedOutput": [1, 2, 3], "visible": true },
+      { "id": "sample-2", "input": { "nums": [4, 4, 4] }, "expectedOutput": [4], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-2, -2, 0, 1, 1] }, "expectedOutput": [-2, 0, 1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "rearrange-array-by-sign",
+    "sourceTitle": "Rearrange array elements by sign",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Alternate Signs",
+    "description": "Given an array with the same number of positive and negative values, return a new array that alternates positive, negative, positive, negative while preserving order inside each sign group.",
+    "constraints": [
+      "The input has an equal number of positive and negative values.",
+      "Zero does not appear in these tests.",
+      "Return a newly arranged array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [3, 1, -2, -5, 2, -4] },
+        "output": [3, -2, 1, -5, 2, -4]
+      },
+      {
+        "input": { "nums": [1, -1] },
+        "output": [1, -1]
+      }
+    ],
+    "signature": {
+      "functionName": "alternate_signs",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def alternate_signs(nums):\n    return nums\n",
+    "referenceCode": "def alternate_signs(nums):\n    positives = []\n    negatives = []\n    for value in nums:\n        if value > 0:\n            positives.append(value)\n        else:\n            negatives.append(value)\n    result = []\n    for index in range(len(positives)):\n        result.append(positives[index])\n        result.append(negatives[index])\n    return result\n",
+    "defaultInput": { "nums": [3, 1, -2, -5, 2, -4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [3, 1, -2, -5, 2, -4] }, "expectedOutput": [3, -2, 1, -5, 2, -4], "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, -1] }, "expectedOutput": [1, -1], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [5, 6, -1, -2] }, "expectedOutput": [5, -1, 6, -2], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [9, -3, 7, -4] }, "expectedOutput": [9, -3, 7, -4], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "sort-array-zero-one-two",
+    "sourceTitle": "Sort an array of 0's 1's and 2's",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Sort Zero One Two Array",
+    "description": "The array contains only 0, 1, and 2 values. Return the sorted array so every 0 appears first, then every 1, then every 2.",
+    "constraints": [
+      "Every value is 0, 1, or 2.",
+      "The input may be empty.",
+      "Return a sorted array."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [2, 0, 2, 1, 1, 0] },
+        "output": [0, 0, 1, 1, 2, 2]
+      },
+      {
+        "input": { "nums": [1, 1] },
+        "output": [1, 1]
+      }
+    ],
+    "signature": {
+      "functionName": "sort_zero_one_two_array",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "array"
+    },
+    "starterCode": "def sort_zero_one_two_array(nums):\n    return nums\n",
+    "referenceCode": "def sort_zero_one_two_array(nums):\n    counts = [0, 0, 0]\n    for value in nums:\n        counts[value] += 1\n    result = []\n    for value in range(3):\n        for _ in range(counts[value]):\n            result.append(value)\n    return result\n",
+    "defaultInput": { "nums": [2, 0, 2, 1, 1, 0] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [2, 0, 2, 1, 1, 0] }, "expectedOutput": [0, 0, 1, 1, 2, 2], "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 1] }, "expectedOutput": [1, 1], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": [], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [2, 2, 0] }, "expectedOutput": [0, 2, 2], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "maximum-product-subarray",
+    "sourceTitle": "Maximum Product Subarray in an Array",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Maximum Product Subarray",
+    "description": "Return the largest product of any non-empty contiguous subarray. The replay should show why both the best and worst running products matter.",
+    "constraints": [
+      "The input has at least one integer.",
+      "Subarrays are contiguous.",
+      "Return one integer product."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [2, 3, -2, 4] },
+        "output": 6
+      },
+      {
+        "input": { "nums": [-2, 0, -1] },
+        "output": 0
+      }
+    ],
+    "signature": {
+      "functionName": "max_product_subarray",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def max_product_subarray(nums):\n    return 0\n",
+    "referenceCode": "def max_product_subarray(nums):\n    best = nums[0]\n    high = nums[0]\n    low = nums[0]\n    for index in range(1, len(nums)):\n        value = nums[index]\n        if value < 0:\n            temp = high\n            high = low\n            low = temp\n        high = max(value, high * value)\n        low = min(value, low * value)\n        best = max(best, high)\n    return best\n",
+    "defaultInput": { "nums": [2, 3, -2, 4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [2, 3, -2, 4] }, "expectedOutput": 6, "visible": true },
+      { "id": "sample-2", "input": { "nums": [-2, 0, -1] }, "expectedOutput": 0, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [-2, 3, -4] }, "expectedOutput": 24, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [5] }, "expectedOutput": 5, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "merge-sorted-arrays-extra-space",
+    "sourceTitle": "Merge two sorted arrays without extra space",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Merge Two Sorted Arrays",
+    "description": "Return one sorted array containing every value from the two sorted inputs. The visual trace focuses on the two read cursors and the growing result.",
+    "constraints": [
+      "Both input arrays are sorted in nondecreasing order.",
+      "Either input may be empty.",
+      "Return a new sorted array."
+    ],
+    "examples": [
+      {
+        "input": { "left": [1, 3, 5], "right": [2, 4, 6] },
+        "output": [1, 2, 3, 4, 5, 6]
+      },
+      {
+        "input": { "left": [], "right": [1, 2] },
+        "output": [1, 2]
+      }
+    ],
+    "signature": {
+      "functionName": "merge_sorted_arrays",
+      "parameters": [
+        { "name": "left", "kind": "array" },
+        { "name": "right", "kind": "array" }
+      ],
+      "returnKind": "array"
+    },
+    "starterCode": "def merge_sorted_arrays(left, right):\n    return []\n",
+    "referenceCode": "def merge_sorted_arrays(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    while i < len(left):\n        result.append(left[i])\n        i += 1\n    while j < len(right):\n        result.append(right[j])\n        j += 1\n    return result\n",
+    "defaultInput": { "left": [1, 3, 5], "right": [2, 4, 6] },
+    "testCases": [
+      { "id": "sample-1", "input": { "left": [1, 3, 5], "right": [2, 4, 6] }, "expectedOutput": [1, 2, 3, 4, 5, 6], "visible": true },
+      { "id": "sample-2", "input": { "left": [], "right": [1, 2] }, "expectedOutput": [1, 2], "visible": true },
+      { "id": "hidden-1", "input": { "left": [-3, 0], "right": [-2, 5] }, "expectedOutput": [-3, -2, 0, 5], "visible": false },
+      { "id": "hidden-2", "input": { "left": [1, 1], "right": [] }, "expectedOutput": [1, 1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "longest-consecutive-array",
+    "sourceTitle": "Longest Consecutive Sequence in an Array",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Longest Consecutive Run",
+    "description": "Return the length of the longest run of consecutive integer values present in the array, regardless of their original order.",
+    "constraints": [
+      "The input may be empty.",
+      "Duplicate values do not extend a run.",
+      "Return one integer length."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [100, 4, 200, 1, 3, 2] },
+        "output": 4
+      },
+      {
+        "input": { "nums": [1, 2, 0, 1] },
+        "output": 3
+      }
+    ],
+    "signature": {
+      "functionName": "longest_consecutive",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def longest_consecutive(nums):\n    return 0\n",
+    "referenceCode": "def longest_consecutive(nums):\n    values = set(nums)\n    best = 0\n    for value in values:\n        if value - 1 not in values:\n            current = value\n            length = 1\n            while current + 1 in values:\n                current += 1\n                length += 1\n            best = max(best, length)\n    return best\n",
+    "defaultInput": { "nums": [100, 4, 200, 1, 3, 2] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [100, 4, 200, 1, 3, 2] }, "expectedOutput": 4, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 2, 0, 1] }, "expectedOutput": 3, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": 0, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-1, -2, -3, 7] }, "expectedOutput": 3, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "longest-subarray-sum-k",
+    "sourceTitle": "Longest subarray with sum K",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Longest Sum K Window",
+    "description": "Return the length of the longest contiguous subarray whose sum equals k. Prefix sums make each candidate window inspectable.",
+    "constraints": [
+      "The input may contain negative numbers.",
+      "Subarrays are contiguous.",
+      "Return zero when no subarray matches."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 3, 1, 1, 1, 1], "k": 3 },
+        "output": 3
+      },
+      {
+        "input": { "nums": [-1, 1, 1], "k": 1 },
+        "output": 3
+      }
+    ],
+    "signature": {
+      "functionName": "longest_sum_k",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def longest_sum_k(nums, k):\n    return 0\n",
+    "referenceCode": "def longest_sum_k(nums, k):\n    first_seen = {0: -1}\n    total = 0\n    best = 0\n    for index, value in enumerate(nums):\n        total += value\n        if total - k in first_seen:\n            best = max(best, index - first_seen[total - k])\n        if total not in first_seen:\n            first_seen[total] = index\n    return best\n",
+    "defaultInput": { "nums": [1, 2, 3, 1, 1, 1, 1], "k": 3 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 3, 1, 1, 1, 1], "k": 3 }, "expectedOutput": 3, "visible": true },
+      { "id": "sample-2", "input": { "nums": [-1, 1, 1], "k": 1 }, "expectedOutput": 3, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [5, -2, 3], "k": 6 }, "expectedOutput": 3, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [1, 2], "k": 9 }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "count-subarrays-sum-k",
+    "sourceTitle": "Count subarrays with given sum",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Count Sum K Subarrays",
+    "description": "Return how many contiguous subarrays have sum k. The replay should show the prefix-sum frequency map growing as matches are found.",
+    "constraints": [
+      "The input may contain negative numbers.",
+      "Subarrays are contiguous.",
+      "Return one integer count."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 1, 1], "k": 2 },
+        "output": 2
+      },
+      {
+        "input": { "nums": [1, -1, 0], "k": 0 },
+        "output": 3
+      }
+    ],
+    "signature": {
+      "functionName": "count_sum_k",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def count_sum_k(nums, k):\n    return 0\n",
+    "referenceCode": "def count_sum_k(nums, k):\n    counts = {0: 1}\n    total = 0\n    answer = 0\n    for value in nums:\n        total += value\n        answer += counts.get(total - k, 0)\n        counts[total] = counts.get(total, 0) + 1\n    return answer\n",
+    "defaultInput": { "nums": [1, 1, 1], "k": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 1, 1], "k": 2 }, "expectedOutput": 2, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, -1, 0], "k": 0 }, "expectedOutput": 3, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [3, 4, 7, 2, -3, 1, 4], "k": 7 }, "expectedOutput": 3, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [], "k": 0 }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "count-subarrays-xor-k",
+    "sourceTitle": "Count subarrays with given xor K",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Count XOR K Subarrays",
+    "description": "Return how many contiguous subarrays have xor equal to k. The replay should show the running xor and how previous prefixes create matches.",
+    "constraints": [
+      "Subarrays are contiguous.",
+      "Values are non-negative integers in these tests.",
+      "Return one integer count."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [4, 2, 2, 6, 4], "k": 6 },
+        "output": 4
+      },
+      {
+        "input": { "nums": [5, 6, 7, 8, 9], "k": 5 },
+        "output": 2
+      }
+    ],
+    "signature": {
+      "functionName": "count_xor_k",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def count_xor_k(nums, k):\n    return 0\n",
+    "referenceCode": "def count_xor_k(nums, k):\n    counts = {0: 1}\n    prefix = 0\n    answer = 0\n    for value in nums:\n        prefix = prefix ^ value\n        answer += counts.get(prefix ^ k, 0)\n        counts[prefix] = counts.get(prefix, 0) + 1\n    return answer\n",
+    "defaultInput": { "nums": [4, 2, 2, 6, 4], "k": 6 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [4, 2, 2, 6, 4], "k": 6 }, "expectedOutput": 4, "visible": true },
+      { "id": "sample-2", "input": { "nums": [5, 6, 7, 8, 9], "k": 5 }, "expectedOutput": 2, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [], "k": 3 }, "expectedOutput": 0, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [1, 1, 1], "k": 0 }, "expectedOutput": 2, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "search-x-sorted-array",
+    "sourceTitle": "Search X in sorted array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Search Sorted Array",
+    "description": "Return the index of target in a sorted array, or -1 when it is absent. The trace should make the shrinking binary-search window visible.",
+    "constraints": [
+      "The input array is sorted in increasing order.",
+      "All values are unique in these tests.",
+      "Return an integer index or -1."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 3, 5, 7, 9], "target": 7 },
+        "output": 3
+      },
+      {
+        "input": { "nums": [1, 3, 5], "target": 2 },
+        "output": -1
+      }
+    ],
+    "signature": {
+      "functionName": "search_sorted",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "target", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def search_sorted(nums, target):\n    return -1\n",
+    "referenceCode": "def search_sorted(nums, target):\n    left = 0\n    right = len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1\n",
+    "defaultInput": { "nums": [1, 3, 5, 7, 9], "target": 7 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 3, 5, 7, 9], "target": 7 }, "expectedOutput": 3, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 3, 5], "target": 2 }, "expectedOutput": -1, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [], "target": 4 }, "expectedOutput": -1, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [-4, -1, 0, 8], "target": -4 }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "floor-ceil-sorted-array",
+    "sourceTitle": "Floor and Ceil in Sorted Array",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Floor and Ceil",
+    "description": "Return the largest value less than or equal to target and the smallest value greater than or equal to target. Use -1 for a missing side.",
+    "constraints": [
+      "The input array is sorted in increasing order.",
+      "Values are unique in these tests.",
+      "Return a two-element array: [floor, ceil]."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 2, 8, 10, 11], "target": 9 },
+        "output": [8, 10]
+      },
+      {
+        "input": { "nums": [2, 4], "target": 1 },
+        "output": [-1, 2]
+      }
+    ],
+    "signature": {
+      "functionName": "floor_ceil",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "target", "kind": "int" }
+      ],
+      "returnKind": "array"
+    },
+    "starterCode": "def floor_ceil(nums, target):\n    return [-1, -1]\n",
+    "referenceCode": "def floor_ceil(nums, target):\n    floor_value = -1\n    ceil_value = -1\n    left = 0\n    right = len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] <= target:\n            floor_value = nums[mid]\n            left = mid + 1\n        else:\n            right = mid - 1\n    left = 0\n    right = len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] >= target:\n            ceil_value = nums[mid]\n            right = mid - 1\n        else:\n            left = mid + 1\n    return [floor_value, ceil_value]\n",
+    "defaultInput": { "nums": [1, 2, 8, 10, 11], "target": 9 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 2, 8, 10, 11], "target": 9 }, "expectedOutput": [8, 10], "visible": true },
+      { "id": "sample-2", "input": { "nums": [2, 4], "target": 1 }, "expectedOutput": [-1, 2], "visible": true },
+      { "id": "hidden-1", "input": { "nums": [2, 4], "target": 9 }, "expectedOutput": [4, -1], "visible": false },
+      { "id": "hidden-2", "input": { "nums": [], "target": 3 }, "expectedOutput": [-1, -1], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "search-rotated-array",
+    "sourceTitle": "Search in rotated sorted array-I",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Search Rotated Array",
+    "description": "Return the index of target in a rotated sorted array with unique values, or -1 if the target is absent.",
+    "constraints": [
+      "The original array was sorted increasing, then rotated.",
+      "Values are unique.",
+      "Return an integer index or -1."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [4, 5, 6, 7, 0, 1, 2], "target": 0 },
+        "output": 4
+      },
+      {
+        "input": { "nums": [4, 5, 6, 7, 0, 1, 2], "target": 3 },
+        "output": -1
+      }
+    ],
+    "signature": {
+      "functionName": "search_rotated",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "target", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def search_rotated(nums, target):\n    return -1\n",
+    "referenceCode": "def search_rotated(nums, target):\n    left = 0\n    right = len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[left] <= nums[mid]:\n            if nums[left] <= target < nums[mid]:\n                right = mid - 1\n            else:\n                left = mid + 1\n        else:\n            if nums[mid] < target <= nums[right]:\n                left = mid + 1\n            else:\n                right = mid - 1\n    return -1\n",
+    "defaultInput": { "nums": [4, 5, 6, 7, 0, 1, 2], "target": 0 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [4, 5, 6, 7, 0, 1, 2], "target": 0 }, "expectedOutput": 4, "visible": true },
+      { "id": "sample-2", "input": { "nums": [4, 5, 6, 7, 0, 1, 2], "target": 3 }, "expectedOutput": -1, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1], "target": 1 }, "expectedOutput": 0, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [3, 1], "target": 1 }, "expectedOutput": 1, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "search-rotated-array-duplicates",
+    "sourceTitle": "Search in rotated sorted array-II",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Search Rotated Array With Duplicates",
+    "description": "Return true if target exists in a rotated sorted array that may contain duplicate values.",
+    "constraints": [
+      "The original array was sorted nondecreasing, then rotated.",
+      "Duplicate values may appear.",
+      "Return a boolean."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [2, 5, 6, 0, 0, 1, 2], "target": 0 },
+        "output": true
+      },
+      {
+        "input": { "nums": [2, 5, 6, 0, 0, 1, 2], "target": 3 },
+        "output": false
+      }
+    ],
+    "signature": {
+      "functionName": "search_rotated_duplicates",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "target", "kind": "int" }
+      ],
+      "returnKind": "bool"
+    },
+    "starterCode": "def search_rotated_duplicates(nums, target):\n    return False\n",
+    "referenceCode": "def search_rotated_duplicates(nums, target):\n    left = 0\n    right = len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return True\n        if nums[left] == nums[mid] and nums[mid] == nums[right]:\n            left += 1\n            right -= 1\n        elif nums[left] <= nums[mid]:\n            if nums[left] <= target < nums[mid]:\n                right = mid - 1\n            else:\n                left = mid + 1\n        else:\n            if nums[mid] < target <= nums[right]:\n                left = mid + 1\n            else:\n                right = mid - 1\n    return False\n",
+    "defaultInput": { "nums": [2, 5, 6, 0, 0, 1, 2], "target": 0 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [2, 5, 6, 0, 0, 1, 2], "target": 0 }, "expectedOutput": true, "visible": true },
+      { "id": "sample-2", "input": { "nums": [2, 5, 6, 0, 0, 1, 2], "target": 3 }, "expectedOutput": false, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 1, 1, 1], "target": 1 }, "expectedOutput": true, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [], "target": 5 }, "expectedOutput": false, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "minimum-rotated-array",
+    "sourceTitle": "Find minimum in Rotated Sorted Array",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Minimum in Rotated Array",
+    "description": "Return the minimum value in a rotated sorted array with unique values. The trace should reveal which half still contains the pivot.",
+    "constraints": [
+      "The input array has at least one value.",
+      "Values are unique.",
+      "Return one integer."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [3, 4, 5, 1, 2] },
+        "output": 1
+      },
+      {
+        "input": { "nums": [11, 13, 15, 17] },
+        "output": 11
+      }
+    ],
+    "signature": {
+      "functionName": "minimum_rotated",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def minimum_rotated(nums):\n    return nums[0]\n",
+    "referenceCode": "def minimum_rotated(nums):\n    left = 0\n    right = len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        if nums[mid] > nums[right]:\n            left = mid + 1\n        else:\n            right = mid\n    return nums[left]\n",
+    "defaultInput": { "nums": [3, 4, 5, 1, 2] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [3, 4, 5, 1, 2] }, "expectedOutput": 1, "visible": true },
+      { "id": "sample-2", "input": { "nums": [11, 13, 15, 17] }, "expectedOutput": 11, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [2, 1] }, "expectedOutput": 1, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [7] }, "expectedOutput": 7, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "rotation-count-array",
+    "sourceTitle": "Find out how many times the array is rotated",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Rotation Count",
+    "description": "Return how many left rotations produced the current rotated sorted array. This equals the index of the minimum value.",
+    "constraints": [
+      "The input array may be empty.",
+      "Values are unique in these tests.",
+      "Return an integer rotation count."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [4, 5, 1, 2, 3] },
+        "output": 2
+      },
+      {
+        "input": { "nums": [1, 2, 3] },
+        "output": 0
+      }
+    ],
+    "signature": {
+      "functionName": "rotation_count",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def rotation_count(nums):\n    return 0\n",
+    "referenceCode": "def rotation_count(nums):\n    if len(nums) == 0:\n        return 0\n    left = 0\n    right = len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        if nums[mid] > nums[right]:\n            left = mid + 1\n        else:\n            right = mid\n    return left\n",
+    "defaultInput": { "nums": [4, 5, 1, 2, 3] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [4, 5, 1, 2, 3] }, "expectedOutput": 2, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 2, 3] }, "expectedOutput": 0, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [] }, "expectedOutput": 0, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [2, 3, 4, 5, 1] }, "expectedOutput": 4, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "single-element-sorted-array",
+    "sourceTitle": "Single element in sorted array",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Single Element in Pairs",
+    "description": "Every value in the sorted array appears exactly twice except one value. Return the value that appears once.",
+    "constraints": [
+      "The array has odd length.",
+      "Exactly one value appears once.",
+      "Return the single integer value."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 1, 2, 3, 3, 4, 4] },
+        "output": 2
+      },
+      {
+        "input": { "nums": [5] },
+        "output": 5
+      }
+    ],
+    "signature": {
+      "functionName": "single_in_pairs",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "int"
+    },
+    "starterCode": "def single_in_pairs(nums):\n    return nums[0]\n",
+    "referenceCode": "def single_in_pairs(nums):\n    left = 0\n    right = len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        if mid % 2 == 1:\n            mid -= 1\n        if nums[mid] == nums[mid + 1]:\n            left = mid + 2\n        else:\n            right = mid\n    return nums[left]\n",
+    "defaultInput": { "nums": [1, 1, 2, 3, 3, 4, 4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 1, 2, 3, 3, 4, 4] }, "expectedOutput": 2, "visible": true },
+      { "id": "sample-2", "input": { "nums": [5] }, "expectedOutput": 5, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 1, 2, 2, 9] }, "expectedOutput": 9, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [0, 7, 7] }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified one-dimensional array test cases."
+  },
+  {
+    "id": "sorted-rotated-array-check",
+    "sourceTitle": "Check if the Array is Sorted II",
+    "topic": "Array",
+    "difficulty": "Easy",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Sorted After One Rotation",
+    "description": "Return true when the array is nondecreasing after zero or one rotation. The trace should make every drop between adjacent values visible.",
+    "constraints": [
+      "Duplicate values are allowed.",
+      "An empty or single-value array is considered sorted.",
+      "Return a boolean."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [3, 4, 5, 1, 2] },
+        "output": true
+      },
+      {
+        "input": { "nums": [2, 1, 3, 4] },
+        "output": false
+      }
+    ],
+    "signature": {
+      "functionName": "is_sorted_rotated",
+      "parameters": [{ "name": "nums", "kind": "array" }],
+      "returnKind": "bool"
+    },
+    "starterCode": "def is_sorted_rotated(nums):\n    return True\n",
+    "referenceCode": "def is_sorted_rotated(nums):\n    n = len(nums)\n    if n <= 1:\n        return True\n    drops = 0\n    for index in range(n):\n        next_index = (index + 1) % n\n        if nums[index] > nums[next_index]:\n            drops += 1\n            if drops > 1:\n                return False\n    return True\n",
+    "defaultInput": { "nums": [3, 4, 5, 1, 2] },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [3, 4, 5, 1, 2] }, "expectedOutput": true, "visible": true },
+      { "id": "sample-2", "input": { "nums": [2, 1, 3, 4] }, "expectedOutput": false, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 2, 3] }, "expectedOutput": true, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [2, 2, 3, 1] }, "expectedOutput": true, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified sorted-rotation cases."
+  },
+  {
+    "id": "kth-element-two-sorted-arrays",
+    "sourceTitle": "Kth element of 2 sorted arrays",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Kth Element Across Two Sorted Arrays",
+    "description": "Return the 1-indexed kth value from the merged order of two sorted arrays without asking the user to build the full answer.",
+    "constraints": [
+      "Both arrays are sorted in nondecreasing order.",
+      "k is between 1 and the combined length of the arrays.",
+      "Return one integer value."
+    ],
+    "examples": [
+      {
+        "input": { "nums1": [2, 3, 6, 7, 9], "nums2": [1, 4, 8, 10], "k": 5 },
+        "output": 6
+      },
+      {
+        "input": { "nums1": [1, 2], "nums2": [3, 4, 5], "k": 4 },
+        "output": 4
+      }
+    ],
+    "signature": {
+      "functionName": "kth_sorted_value",
+      "parameters": [
+        { "name": "nums1", "kind": "array" },
+        { "name": "nums2", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def kth_sorted_value(nums1, nums2, k):\n    return 0\n",
+    "referenceCode": "def kth_sorted_value(nums1, nums2, k):\n    i = 0\n    j = 0\n    taken = 0\n    answer = 0\n    while taken < k:\n        if j >= len(nums2) or (i < len(nums1) and nums1[i] <= nums2[j]):\n            answer = nums1[i]\n            i += 1\n        else:\n            answer = nums2[j]\n            j += 1\n        taken += 1\n    return answer\n",
+    "defaultInput": { "nums1": [2, 3, 6, 7, 9], "nums2": [1, 4, 8, 10], "k": 5 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums1": [2, 3, 6, 7, 9], "nums2": [1, 4, 8, 10], "k": 5 }, "expectedOutput": 6, "visible": true },
+      { "id": "sample-2", "input": { "nums1": [1, 2], "nums2": [3, 4, 5], "k": 4 }, "expectedOutput": 4, "visible": true },
+      { "id": "hidden-1", "input": { "nums1": [1, 3], "nums2": [2], "k": 2 }, "expectedOutput": 2, "visible": false },
+      { "id": "hidden-2", "input": { "nums1": [], "nums2": [5, 6], "k": 1 }, "expectedOutput": 5, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified sorted-array merge cases."
+  },
+  {
+    "id": "split-array-largest-sum",
+    "sourceTitle": "Split array - largest sum",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Minimize the Largest Split Sum",
+    "description": "Split the array into k non-empty contiguous parts and return the smallest possible value of the largest part sum.",
+    "constraints": [
+      "The input array is non-empty.",
+      "Values are non-negative integers.",
+      "k is between 1 and the array length."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [7, 2, 5, 10, 8], "k": 2 },
+        "output": 18
+      },
+      {
+        "input": { "nums": [1, 2, 3, 4, 5], "k": 2 },
+        "output": 9
+      }
+    ],
+    "signature": {
+      "functionName": "split_array_largest_sum",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def split_array_largest_sum(nums, k):\n    return sum(nums)\n",
+    "referenceCode": "def split_array_largest_sum(nums, k):\n    left = max(nums)\n    right = sum(nums)\n    answer = right\n\n    while left <= right:\n        limit = (left + right) // 2\n        parts = 1\n        current = 0\n        for value in nums:\n            if current + value > limit:\n                parts += 1\n                current = value\n            else:\n                current += value\n\n        if parts <= k:\n            answer = limit\n            right = limit - 1\n        else:\n            left = limit + 1\n\n    return answer\n",
+    "defaultInput": { "nums": [7, 2, 5, 10, 8], "k": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [7, 2, 5, 10, 8], "k": 2 }, "expectedOutput": 18, "visible": true },
+      { "id": "sample-2", "input": { "nums": [1, 2, 3, 4, 5], "k": 2 }, "expectedOutput": 9, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 4, 4], "k": 3 }, "expectedOutput": 4, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [5, 5, 5], "k": 1 }, "expectedOutput": 15, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified binary-search answer cases."
+  },
+  {
+    "id": "binary-subarrays-with-sum",
+    "sourceTitle": "Binary Subarrays With Sum",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Count Binary Subarrays by Sum",
+    "description": "Return how many contiguous subarrays in a binary array add up exactly to goal. The replay should expose the prefix count that proves each match.",
+    "constraints": [
+      "Every array value is either 0 or 1.",
+      "goal is a non-negative integer.",
+      "Return one integer count."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 0, 1, 0, 1], "goal": 2 },
+        "output": 4
+      },
+      {
+        "input": { "nums": [0, 0, 0, 0], "goal": 0 },
+        "output": 10
+      }
+    ],
+    "signature": {
+      "functionName": "count_binary_subarrays",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "goal", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def count_binary_subarrays(nums, goal):\n    return 0\n",
+    "referenceCode": "def count_binary_subarrays(nums, goal):\n    seen = {0: 1}\n    prefix = 0\n    count = 0\n    for value in nums:\n        prefix += value\n        count += seen.get(prefix - goal, 0)\n        seen[prefix] = seen.get(prefix, 0) + 1\n    return count\n",
+    "defaultInput": { "nums": [1, 0, 1, 0, 1], "goal": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 0, 1, 0, 1], "goal": 2 }, "expectedOutput": 4, "visible": true },
+      { "id": "sample-2", "input": { "nums": [0, 0, 0, 0], "goal": 0 }, "expectedOutput": 10, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 1, 1], "goal": 2 }, "expectedOutput": 2, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [], "goal": 0 }, "expectedOutput": 0, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified prefix-count array cases."
+  },
+  {
+    "id": "count-nice-subarrays",
+    "sourceTitle": "Count number of Nice subarrays",
+    "topic": "Array",
+    "difficulty": "Medium",
+    "structureType": "array",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Count Subarrays With K Odds",
+    "description": "Return how many contiguous subarrays contain exactly k odd values. The trace should show the odd-prefix counter doing the bookkeeping.",
+    "constraints": [
+      "The input array may be empty.",
+      "k is a non-negative integer.",
+      "Return one integer count."
+    ],
+    "examples": [
+      {
+        "input": { "nums": [1, 1, 2, 1, 1], "k": 3 },
+        "output": 2
+      },
+      {
+        "input": { "nums": [2, 4, 6], "k": 1 },
+        "output": 0
+      }
+    ],
+    "signature": {
+      "functionName": "count_nice_subarrays",
+      "parameters": [
+        { "name": "nums", "kind": "array" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "int"
+    },
+    "starterCode": "def count_nice_subarrays(nums, k):\n    return 0\n",
+    "referenceCode": "def count_nice_subarrays(nums, k):\n    seen = {0: 1}\n    odd_prefix = 0\n    count = 0\n    for value in nums:\n        if value % 2 != 0:\n            odd_prefix += 1\n        count += seen.get(odd_prefix - k, 0)\n        seen[odd_prefix] = seen.get(odd_prefix, 0) + 1\n    return count\n",
+    "defaultInput": { "nums": [1, 1, 2, 1, 1], "k": 3 },
+    "testCases": [
+      { "id": "sample-1", "input": { "nums": [1, 1, 2, 1, 1], "k": 3 }, "expectedOutput": 2, "visible": true },
+      { "id": "sample-2", "input": { "nums": [2, 4, 6], "k": 1 }, "expectedOutput": 0, "visible": true },
+      { "id": "hidden-1", "input": { "nums": [1, 2, 1, 2, 1], "k": 2 }, "expectedOutput": 4, "visible": false },
+      { "id": "hidden-2", "input": { "nums": [2, 2, 1, 2], "k": 1 }, "expectedOutput": 6, "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified odd-prefix array cases."
+  },
+  {
+    "id": "add-two-numbers-linked-list",
+    "sourceTitle": "Add two numbers in Linked List",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Add Two Linked-List Numbers",
+    "description": "Each list stores a number in reverse digit order. Return a new linked list holding the sum in the same reverse order.",
+    "constraints": [
+      "Each node stores one digit from 0 through 9.",
+      "Either input list may be empty.",
+      "Return the head of the summed list."
+    ],
+    "examples": [
+      {
+        "input": { "list1": [2, 4, 3], "list2": [5, 6, 4] },
+        "output": [7, 0, 8]
+      },
+      {
+        "input": { "list1": [0], "list2": [0] },
+        "output": [0]
+      }
+    ],
+    "signature": {
+      "functionName": "add_two_numbers",
+      "parameters": [
+        { "name": "list1", "kind": "linked_list" },
+        { "name": "list2", "kind": "linked_list" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def add_two_numbers(list1, list2):\n    return list1 or list2\n",
+    "referenceCode": "def add_two_numbers(list1, list2):\n    dummy = ListNode(0)\n    tail = dummy\n    carry = 0\n    a = list1\n    b = list2\n\n    while a is not None or b is not None or carry:\n        total = carry\n        if a is not None:\n            total += a.val\n            a = a.next\n        if b is not None:\n            total += b.val\n            b = b.next\n        carry = total // 10\n        tail.next = ListNode(total % 10)\n        tail = tail.next\n\n    return dummy.next\n",
+    "defaultInput": { "list1": [2, 4, 3], "list2": [5, 6, 4] },
+    "testCases": [
+      { "id": "sample-1", "input": { "list1": [2, 4, 3], "list2": [5, 6, 4] }, "expectedOutput": [7, 0, 8], "visible": true },
+      { "id": "sample-2", "input": { "list1": [0], "list2": [0] }, "expectedOutput": [0], "visible": true },
+      { "id": "hidden-1", "input": { "list1": [9, 9, 9, 9], "list2": [9, 9] }, "expectedOutput": [8, 9, 0, 0, 1], "visible": false },
+      { "id": "hidden-2", "input": { "list1": [], "list2": [1, 2] }, "expectedOutput": [1, 2], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified reverse-digit linked-list cases."
+  },
+  {
+    "id": "reverse-linked-list-k-group",
+    "sourceTitle": "Reverse LL in group of given size K",
+    "topic": "Linked List",
+    "difficulty": "Medium",
+    "structureType": "linked_list",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-13",
+    "title": "Reverse Linked List in K-Groups",
+    "description": "Reverse every complete group of k nodes and leave the final shorter group untouched. Pointer rewires should be visible in the replay.",
+    "constraints": [
+      "k is at least 1.",
+      "Only complete groups of k nodes are reversed.",
+      "Return the head of the updated list."
+    ],
+    "examples": [
+      {
+        "input": { "head": [1, 2, 3, 4, 5], "k": 2 },
+        "output": [2, 1, 4, 3, 5]
+      },
+      {
+        "input": { "head": [1, 2, 3, 4, 5], "k": 3 },
+        "output": [3, 2, 1, 4, 5]
+      }
+    ],
+    "signature": {
+      "functionName": "reverse_k_group",
+      "parameters": [
+        { "name": "head", "kind": "linked_list" },
+        { "name": "k", "kind": "int" }
+      ],
+      "returnKind": "linked_list"
+    },
+    "starterCode": "def reverse_k_group(head, k):\n    return head\n",
+    "referenceCode": "def reverse_k_group(head, k):\n    if k <= 1 or head is None:\n        return head\n\n    dummy = ListNode(0)\n    dummy.next = head\n    group_prev = dummy\n\n    while True:\n        kth = group_prev\n        for _ in range(k):\n            kth = kth.next\n            if kth is None:\n                return dummy.next\n\n        group_next = kth.next\n        prev = group_next\n        current = group_prev.next\n        while current is not group_next:\n            nxt = current.next\n            current.next = prev\n            prev = current\n            current = nxt\n\n        old_group_head = group_prev.next\n        group_prev.next = kth\n        group_prev = old_group_head\n",
+    "defaultInput": { "head": [1, 2, 3, 4, 5], "k": 2 },
+    "testCases": [
+      { "id": "sample-1", "input": { "head": [1, 2, 3, 4, 5], "k": 2 }, "expectedOutput": [2, 1, 4, 3, 5], "visible": true },
+      { "id": "sample-2", "input": { "head": [1, 2, 3, 4, 5], "k": 3 }, "expectedOutput": [3, 2, 1, 4, 5], "visible": true },
+      { "id": "hidden-1", "input": { "head": [1, 2], "k": 3 }, "expectedOutput": [1, 2], "visible": false },
+      { "id": "hidden-2", "input": { "head": [1, 2, 3, 4], "k": 1 }, "expectedOutput": [1, 2, 3, 4], "visible": false }
+    ],
+    "reviewNotes": "Original Noesis wording and hand-verified singly linked-list rewiring cases."
+  }
+]

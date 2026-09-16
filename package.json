@@ -1,0 +1,29 @@
+{
+  "name": "nodeflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c green,blue \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
+    "build": "npm run build --workspace shared && npm run build --workspace backend && npm run build --workspace frontend",
+    "smoke": "npm run smoke --workspace backend",
+    "verify:auth": "npm run verify:auth --workspace backend",
+    "verify:queue": "npm run verify:queue --workspace backend",
+    "verify:problems": "npm run verify:problems --workspace backend",
+    "verify:progress": "npm run verify:progress --workspace backend",
+    "verify:reviewed": "npm run verify:reviewed --workspace backend",
+    "verify:ui": "npm run verify:ui --workspace frontend",
+    "ingest:metadata": "npm run ingest:metadata --workspace backend",
+    "ingest:drafts": "npm run ingest:drafts --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "playwright": "^1.62.1",
+    "typescript": "^5.9.2"
+  }
+}

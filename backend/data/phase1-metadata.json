@@ -1,0 +1,746 @@
+[
+  {
+    "title": "Arrays",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sum of Array Elements",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Count of odd numbers in array",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Check if the Array is Sorted I",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Reverse an array",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Highest Occurring Element in an Array",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sum of Array Elements",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Reverse an array",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Check if the Array is Sorted II",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Left Rotate Array by One",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Left Rotate Array by K Places",
+    "topic": "Basics Sorting Arrays",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Remove duplicates from sorted array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Union of two sorted arrays",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Intersection of two sorted arrays",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Leaders in an Array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Rearrange array elements by sign",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Print the matrix in spiral manner",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Rotate matrix by 90 degrees",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sort an array of 0's 1's and 2's",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Maximum Product Subarray in an Array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Merge two sorted arrays without extra space",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Longest Consecutive Sequence in an Array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Longest subarray with sum K",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Count subarrays with given sum",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Count subarrays with given xor K",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Search X in sorted array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Floor and Ceil in Sorted Array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Search in rotated sorted array-I",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Search in rotated sorted array-II",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Find minimum in Rotated Sorted Array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Find out how many times the array is rotated",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Single element in sorted array",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Median of 2 sorted arrays",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Kth element of 2 sorted arrays",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Split array - largest sum",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Search in a 2D matrix",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Search in 2D matrix - II",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Matrix Median",
+    "topic": "Arrays Medium Arrays Hard Arrays Hashing Binary Search BS(2D Arrays) Recursion",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Traversal in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Deletion in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Deletion of the head of LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Deletion of the tail of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Deletion of the Kth element of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion at the head of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion at the tail of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion at the Kth position of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion before the value X in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Introduction to Doubly LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Deletion in Doubly LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insertion in DLL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Convert Array to Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Delete head of Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Delete Tail of Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Delete Kth Element of Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Removing given node in Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insert node before head in Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insert node before tail in Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insert node before (kth node) in Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Insert before given node in Doubly Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Add two numbers in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Segregate odd and even nodes in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sort a Linked List of 0's 1's and 2's",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Remove Nth node from the back of the LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Reverse a LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Add one to a number represented by Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Find Middle of Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Delete the middle node in LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Check if LL is palindrome or not",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Find the intersection point of Y LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Detect a loop in Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Find the starting point in LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Length of loop in LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Reverse LL in group of given size K",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Rotate a Linked List",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Flattening of LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sort LL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Clone a LL with random and next pointer",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Delete all occurrences of a key in DLL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Remove duplicated from sorted DLL",
+    "topic": "Recursion Hard Recursion Medium Recursion Single linked list Double Linked List Logic Building Linked list Medium Linked list (Hard)",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "linked_list",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Binary Subarrays With Sum",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Count number of Nice subarrays",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Implement Stack using Arrays",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Implement Queue using Arrays",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sum of Subarray Minimums",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Sum of Subarray Ranges",
+    "topic": "Binary Tree Traversal Greedy Algorithms Greedy Hard Sliding Window/2Pointer Stack/Queue Implementation Stack/Queue FAQs Bit Manipulation",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Build heap from a given Array",
+    "topic": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Check if an array represents a min heap",
+    "topic": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "K-th Largest element in an array",
+    "topic": "Binary Tree Traversal Constant Space Binary Search Tree Heaps Graphs Traversal",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Matrix chain multiplication",
+    "topic": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Maximum XOR of two numbers in an array",
+    "topic": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "Maximum Xor with an element from an array",
+    "topic": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  },
+  {
+    "title": "KMP Algorithm or LPS array",
+    "topic": "Tries Strings(Advanced) Maths DP on strings MCM DP LIS",
+    "difficulty": null,
+    "sourceLink": null,
+    "structureType": "array",
+    "status": "metadata_only"
+  }
+]

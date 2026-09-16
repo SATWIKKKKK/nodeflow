@@ -1,0 +1,2063 @@
+[
+ {
+  "id": "count-digits",
+  "sourceTitle": "Count all Digits of a Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Count the Digits",
+  "description": "Given a non-negative integer n, return how many digits it has when written in base 10. Watch the number shrink one digit at a time as you divide it by 10.",
+  "constraints": [
+   "0 <= n <= 10^9",
+   "0 has one digit."
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 4096
+    },
+    "output": 4,
+    "explanation": "4096 \u2192 409 \u2192 40 \u2192 4 \u2192 0 takes four divisions."
+   },
+   {
+    "input": {
+     "n": 0
+    },
+    "output": 1
+   }
+  ],
+  "signature": {
+   "functionName": "count_digits",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def count_digits(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def count_digits(n):\n    if n == 0:\n        return 1\n    count = 0\n    while n > 0:\n        n //= 10\n        count += 1\n    return count\n",
+  "defaultInput": {
+   "n": 4096
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 4096
+    },
+    "expectedOutput": 4,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": 1,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 7
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 10
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 999999999
+    },
+    "expectedOutput": 9,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 1000000000
+    },
+    "expectedOutput": 10,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "count-odd-digits",
+  "sourceTitle": "Count number of odd digits in a number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Count the Odd Digits",
+  "description": "Given a non-negative integer n, return how many of its digits are odd (1, 3, 5, 7 or 9).",
+  "constraints": [
+   "0 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 5623
+    },
+    "output": 2,
+    "explanation": "5 and 3 are odd."
+   },
+   {
+    "input": {
+     "n": 2048
+    },
+    "output": 0
+   }
+  ],
+  "signature": {
+   "functionName": "count_odd_digits",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def count_odd_digits(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def count_odd_digits(n):\n    odd = 0\n    while n > 0:\n        digit = n % 10\n        if digit % 2 == 1:\n            odd += 1\n        n //= 10\n    return odd\n",
+  "defaultInput": {
+   "n": 5623
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 5623
+    },
+    "expectedOutput": 2,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 2048
+    },
+    "expectedOutput": 0,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": 0,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 13579
+    },
+    "expectedOutput": 5,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 1000000001
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 7
+    },
+    "expectedOutput": 1,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "reverse-number",
+  "sourceTitle": "Reverse a number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Reverse a Number",
+  "description": "Given a non-negative integer n, return the number formed by its digits in reverse order. Leading zeros in the result disappear, so 1200 becomes 21.",
+  "constraints": [
+   "0 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 1234
+    },
+    "output": 4321
+   },
+   {
+    "input": {
+     "n": 1200
+    },
+    "output": 21,
+    "explanation": "The trailing zeros become leading zeros and drop off."
+   }
+  ],
+  "signature": {
+   "functionName": "reverse_number",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "long"
+  },
+  "starterCode": "def reverse_number(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def reverse_number(n):\n    reversed_value = 0\n    while n > 0:\n        reversed_value = reversed_value * 10 + n % 10\n        n //= 10\n    return reversed_value\n",
+  "defaultInput": {
+   "n": 1234
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 1234
+    },
+    "expectedOutput": 4321,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 1200
+    },
+    "expectedOutput": 21,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": 0,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 7
+    },
+    "expectedOutput": 7,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 1000000000
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 987654321
+    },
+    "expectedOutput": 123456789,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "palindrome-number",
+  "sourceTitle": "Palindrome Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Palindrome Number",
+  "description": "Return true if the integer n reads the same forwards and backwards, and false otherwise. Negative numbers are never palindromes because of the minus sign. Solve it without converting n to a string.",
+  "constraints": [
+   "-10^9 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 12321
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "n": -121
+    },
+    "output": false,
+    "explanation": "The minus sign only appears on the left."
+   },
+   {
+    "input": {
+     "n": 10
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "is_palindrome_number",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_palindrome_number(n):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_palindrome_number(n):\n    if n < 0:\n        return False\n    original = n\n    reversed_value = 0\n    while n > 0:\n        reversed_value = reversed_value * 10 + n % 10\n        n //= 10\n    return reversed_value == original\n",
+  "defaultInput": {
+   "n": 12321
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 12321
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": -121
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "sample-3",
+    "input": {
+     "n": 10
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 7
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 123321
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 1000000001
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "n": 123
+    },
+    "expectedOutput": false,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "largest-digit",
+  "sourceTitle": "Return the Largest Digit in a Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Largest Digit",
+  "description": "Given a non-negative integer n, return its largest digit.",
+  "constraints": [
+   "0 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 25843
+    },
+    "output": 8
+   },
+   {
+    "input": {
+     "n": 0
+    },
+    "output": 0
+   }
+  ],
+  "signature": {
+   "functionName": "largest_digit",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def largest_digit(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def largest_digit(n):\n    best = 0\n    while n > 0:\n        best = max(best, n % 10)\n        n //= 10\n    return best\n",
+  "defaultInput": {
+   "n": 25843
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 25843
+    },
+    "expectedOutput": 8,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": 0,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 11111
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 90000
+    },
+    "expectedOutput": 9,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 123456789
+    },
+    "expectedOutput": 9,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 5
+    },
+    "expectedOutput": 5,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "factorial",
+  "sourceTitle": "Factorial of a given number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Factorial",
+  "description": "Return n!, the product of every integer from 1 to n. By definition 0! is 1.",
+  "constraints": [
+   "0 <= n <= 20",
+   "The answer fits in a 64-bit integer."
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 5
+    },
+    "output": 120,
+    "explanation": "1 \u00d7 2 \u00d7 3 \u00d7 4 \u00d7 5"
+   },
+   {
+    "input": {
+     "n": 0
+    },
+    "output": 1
+   }
+  ],
+  "signature": {
+   "functionName": "factorial",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "long"
+  },
+  "starterCode": "def factorial(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def factorial(n):\n    result = 1\n    for value in range(2, n + 1):\n        result *= value\n    return result\n",
+  "defaultInput": {
+   "n": 5
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 5
+    },
+    "expectedOutput": 120,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": 1,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 10
+    },
+    "expectedOutput": 3628800,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 20
+    },
+    "expectedOutput": 2432902008176640000,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 13
+    },
+    "expectedOutput": 6227020800,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "armstrong-number",
+  "sourceTitle": "Check if the Number is Armstrong",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Armstrong Number",
+  "description": "A number with k digits is an Armstrong number when the sum of each digit raised to the power k equals the number itself. Return whether n is an Armstrong number.",
+  "constraints": [
+   "0 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 153
+    },
+    "output": true,
+    "explanation": "1\u00b3 + 5\u00b3 + 3\u00b3 = 153"
+   },
+   {
+    "input": {
+     "n": 154
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "is_armstrong",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_armstrong(n):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_armstrong(n):\n    digits = len(str(n))\n    total = 0\n    value = n\n    while value > 0:\n        total += (value % 10) ** digits\n        value //= 10\n    return total == n\n",
+  "defaultInput": {
+   "n": 153
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 153
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 154
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 0
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 9
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 9474
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 9475
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "n": 370
+    },
+    "expectedOutput": true,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "perfect-number",
+  "sourceTitle": "Check for Perfect Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Perfect Number",
+  "description": "A perfect number equals the sum of its proper divisors (every positive divisor except itself). Return whether n is perfect. Checking divisors only up to \u221an keeps it fast.",
+  "constraints": [
+   "1 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 28
+    },
+    "output": true,
+    "explanation": "1 + 2 + 4 + 7 + 14 = 28"
+   },
+   {
+    "input": {
+     "n": 12
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "is_perfect",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_perfect(n):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_perfect(n):\n    if n < 2:\n        return False\n    total = 1\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            total += d\n            if d != n // d:\n                total += n // d\n        d += 1\n    return total == n\n",
+  "defaultInput": {
+   "n": 28
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 28
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 12
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 6
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 496
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 8128
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "n": 33550336
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-6",
+    "input": {
+     "n": 999999937
+    },
+    "expectedOutput": false,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "prime-check",
+  "sourceTitle": "Check for Prime Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Is It Prime?",
+  "description": "Return whether n is prime: greater than 1 and divisible only by 1 and itself.",
+  "constraints": [
+   "1 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 29
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "n": 91
+    },
+    "output": false,
+    "explanation": "91 = 7 \u00d7 13"
+   }
+  ],
+  "signature": {
+   "functionName": "is_prime",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_prime(n):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_prime(n):\n    if n < 2:\n        return False\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            return False\n        d += 1\n    return True\n",
+  "defaultInput": {
+   "n": 29
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 29
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 91
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 2
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 4
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 999999937
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "n": 1000000000
+    },
+    "expectedOutput": false,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "count-primes-up-to-n",
+  "sourceTitle": "Count of Prime Numbers till N",
+  "topic": "Math",
+  "difficulty": "Medium",
+  "structureType": "array",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Count Primes up to N",
+  "description": "Return how many prime numbers p satisfy 2 <= p <= n. A sieve that crosses out multiples in a boolean array is the classic approach.",
+  "constraints": [
+   "0 <= n <= 10^5"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 10
+    },
+    "output": 4,
+    "explanation": "2, 3, 5 and 7"
+   },
+   {
+    "input": {
+     "n": 1
+    },
+    "output": 0
+   }
+  ],
+  "signature": {
+   "functionName": "count_primes",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def count_primes(n):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def count_primes(n):\n    if n < 2:\n        return 0\n    is_prime = [True] * (n + 1)\n    is_prime[0] = is_prime[1] = False\n    p = 2\n    while p * p <= n:\n        if is_prime[p]:\n            for multiple in range(p * p, n + 1, p):\n                is_prime[multiple] = False\n        p += 1\n    return sum(1 for flag in is_prime if flag)\n",
+  "defaultInput": {
+   "n": 10
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 10
+    },
+    "expectedOutput": 4,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": 0,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 2
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 30
+    },
+    "expectedOutput": 10,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 100
+    },
+    "expectedOutput": 25,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 100000
+    },
+    "expectedOutput": 9592,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "gcd-two-numbers",
+  "sourceTitle": "GCD of Two Numbers",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Greatest Common Divisor",
+  "description": "Return the greatest common divisor of two positive integers a and b. Euclid's algorithm replaces (a, b) with (b, a mod b) until b is zero.",
+  "constraints": [
+   "1 <= a, b <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "a": 48,
+     "b": 18
+    },
+    "output": 6
+   },
+   {
+    "input": {
+     "a": 7,
+     "b": 13
+    },
+    "output": 1
+   }
+  ],
+  "signature": {
+   "functionName": "gcd",
+   "parameters": [
+    {
+     "name": "a",
+     "kind": "int"
+    },
+    {
+     "name": "b",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def gcd(a, b):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a\n",
+  "defaultInput": {
+   "a": 48,
+   "b": 18
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "a": 48,
+     "b": 18
+    },
+    "expectedOutput": 6,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "a": 7,
+     "b": 13
+    },
+    "expectedOutput": 1,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "a": 1,
+     "b": 1
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "a": 1000000000,
+     "b": 10
+    },
+    "expectedOutput": 10,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "a": 270,
+     "b": 192
+    },
+    "expectedOutput": 6,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "a": 17,
+     "b": 17
+    },
+    "expectedOutput": 17,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "lcm-two-numbers",
+  "sourceTitle": "LCM of two numbers",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "number",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Least Common Multiple",
+  "description": "Return the least common multiple of two positive integers a and b. It equals a \u00d7 b divided by their greatest common divisor.",
+  "constraints": [
+   "1 <= a, b <= 10^6",
+   "The answer fits in a 64-bit integer."
+  ],
+  "examples": [
+   {
+    "input": {
+     "a": 4,
+     "b": 6
+    },
+    "output": 12
+   },
+   {
+    "input": {
+     "a": 5,
+     "b": 7
+    },
+    "output": 35
+   }
+  ],
+  "signature": {
+   "functionName": "lcm",
+   "parameters": [
+    {
+     "name": "a",
+     "kind": "int"
+    },
+    {
+     "name": "b",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "long"
+  },
+  "starterCode": "def lcm(a, b):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def lcm(a, b):\n    x, y = a, b\n    while y:\n        x, y = y, x % y\n    return a // x * b\n",
+  "defaultInput": {
+   "a": 4,
+   "b": 6
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "a": 4,
+     "b": 6
+    },
+    "expectedOutput": 12,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "a": 5,
+     "b": 7
+    },
+    "expectedOutput": 35,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "a": 1,
+     "b": 1
+    },
+    "expectedOutput": 1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "a": 1000000,
+     "b": 999999
+    },
+    "expectedOutput": 999999000000,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "a": 12,
+     "b": 18
+    },
+    "expectedOutput": 36,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "a": 9,
+     "b": 3
+    },
+    "expectedOutput": 9,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "divisors-of-number",
+  "sourceTitle": "Divisors of a Number",
+  "topic": "Math",
+  "difficulty": "Easy",
+  "structureType": "array",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "All Divisors",
+  "description": "Return every positive divisor of n in increasing order.",
+  "constraints": [
+   "1 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 12
+    },
+    "output": [
+     1,
+     2,
+     3,
+     4,
+     6,
+     12
+    ]
+   },
+   {
+    "input": {
+     "n": 1
+    },
+    "output": [
+     1
+    ]
+   }
+  ],
+  "signature": {
+   "functionName": "divisors",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def divisors(n):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def divisors(n):\n    small = []\n    large = []\n    d = 1\n    while d * d <= n:\n        if n % d == 0:\n            small.append(d)\n            if d != n // d:\n                large.append(n // d)\n        d += 1\n    return small + large[::-1]\n",
+  "defaultInput": {
+   "n": 12
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 12
+    },
+    "expectedOutput": [
+     1,
+     2,
+     3,
+     4,
+     6,
+     12
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": [
+     1
+    ],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 36
+    },
+    "expectedOutput": [
+     1,
+     2,
+     3,
+     4,
+     6,
+     9,
+     12,
+     18,
+     36
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 97
+    },
+    "expectedOutput": [
+     1,
+     97
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 1000000000
+    },
+    "expectedOutput": [
+     1,
+     2,
+     4,
+     5,
+     8,
+     10,
+     16,
+     20,
+     25,
+     32,
+     40,
+     50,
+     64,
+     80,
+     100,
+     125,
+     128,
+     160,
+     200,
+     250,
+     256,
+     320,
+     400,
+     500,
+     512,
+     625,
+     640,
+     800,
+     1000,
+     1250,
+     1280,
+     1600,
+     2000,
+     2500,
+     2560,
+     3125,
+     3200,
+     4000,
+     5000,
+     6250,
+     6400,
+     8000,
+     10000,
+     12500,
+     12800,
+     15625,
+     16000,
+     20000,
+     25000,
+     31250,
+     32000,
+     40000,
+     50000,
+     62500,
+     64000,
+     78125,
+     80000,
+     100000,
+     125000,
+     156250,
+     160000,
+     200000,
+     250000,
+     312500,
+     320000,
+     390625,
+     400000,
+     500000,
+     625000,
+     781250,
+     800000,
+     1000000,
+     1250000,
+     1562500,
+     1600000,
+     1953125,
+     2000000,
+     2500000,
+     3125000,
+     3906250,
+     4000000,
+     5000000,
+     6250000,
+     7812500,
+     8000000,
+     10000000,
+     12500000,
+     15625000,
+     20000000,
+     25000000,
+     31250000,
+     40000000,
+     50000000,
+     62500000,
+     100000000,
+     125000000,
+     200000000,
+     250000000,
+     500000000,
+     1000000000
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 2
+    },
+    "expectedOutput": [
+     1,
+     2
+    ],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "primes-up-to-n",
+  "sourceTitle": "Print all primes till N",
+  "topic": "Math",
+  "difficulty": "Medium",
+  "structureType": "array",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "List Primes up to N",
+  "description": "Return every prime number from 2 to n (inclusive) in increasing order.",
+  "constraints": [
+   "1 <= n <= 10^4"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 20
+    },
+    "output": [
+     2,
+     3,
+     5,
+     7,
+     11,
+     13,
+     17,
+     19
+    ]
+   },
+   {
+    "input": {
+     "n": 1
+    },
+    "output": []
+   }
+  ],
+  "signature": {
+   "functionName": "primes_up_to",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def primes_up_to(n):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def primes_up_to(n):\n    if n < 2:\n        return []\n    sieve = [True] * (n + 1)\n    sieve[0] = sieve[1] = False\n    p = 2\n    while p * p <= n:\n        if sieve[p]:\n            for multiple in range(p * p, n + 1, p):\n                sieve[multiple] = False\n        p += 1\n    return [value for value in range(n + 1) if sieve[value]]\n",
+  "defaultInput": {
+   "n": 20
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 20
+    },
+    "expectedOutput": [
+     2,
+     3,
+     5,
+     7,
+     11,
+     13,
+     17,
+     19
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": [],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 2
+    },
+    "expectedOutput": [
+     2
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 50
+    },
+    "expectedOutput": [
+     2,
+     3,
+     5,
+     7,
+     11,
+     13,
+     17,
+     19,
+     23,
+     29,
+     31,
+     37,
+     41,
+     43,
+     47
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 3
+    },
+    "expectedOutput": [
+     2,
+     3
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 1000
+    },
+    "expectedOutput": [
+     2,
+     3,
+     5,
+     7,
+     11,
+     13,
+     17,
+     19,
+     23,
+     29,
+     31,
+     37,
+     41,
+     43,
+     47,
+     53,
+     59,
+     61,
+     67,
+     71,
+     73,
+     79,
+     83,
+     89,
+     97,
+     101,
+     103,
+     107,
+     109,
+     113,
+     127,
+     131,
+     137,
+     139,
+     149,
+     151,
+     157,
+     163,
+     167,
+     173,
+     179,
+     181,
+     191,
+     193,
+     197,
+     199,
+     211,
+     223,
+     227,
+     229,
+     233,
+     239,
+     241,
+     251,
+     257,
+     263,
+     269,
+     271,
+     277,
+     281,
+     283,
+     293,
+     307,
+     311,
+     313,
+     317,
+     331,
+     337,
+     347,
+     349,
+     353,
+     359,
+     367,
+     373,
+     379,
+     383,
+     389,
+     397,
+     401,
+     409,
+     419,
+     421,
+     431,
+     433,
+     439,
+     443,
+     449,
+     457,
+     461,
+     463,
+     467,
+     479,
+     487,
+     491,
+     499,
+     503,
+     509,
+     521,
+     523,
+     541,
+     547,
+     557,
+     563,
+     569,
+     571,
+     577,
+     587,
+     593,
+     599,
+     601,
+     607,
+     613,
+     617,
+     619,
+     631,
+     641,
+     643,
+     647,
+     653,
+     659,
+     661,
+     673,
+     677,
+     683,
+     691,
+     701,
+     709,
+     719,
+     727,
+     733,
+     739,
+     743,
+     751,
+     757,
+     761,
+     769,
+     773,
+     787,
+     797,
+     809,
+     811,
+     821,
+     823,
+     827,
+     829,
+     839,
+     853,
+     857,
+     859,
+     863,
+     877,
+     881,
+     883,
+     887,
+     907,
+     911,
+     919,
+     929,
+     937,
+     941,
+     947,
+     953,
+     967,
+     971,
+     977,
+     983,
+     991,
+     997
+    ],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "prime-factorisation",
+  "sourceTitle": "Prime factorisation of a Number",
+  "topic": "Math",
+  "difficulty": "Medium",
+  "structureType": "array",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Prime Factorisation",
+  "description": "Return the prime factors of n in increasing order, repeating each factor as many times as it divides n. For n = 1 return an empty list.",
+  "constraints": [
+   "1 <= n <= 10^9"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 60
+    },
+    "output": [
+     2,
+     2,
+     3,
+     5
+    ]
+   },
+   {
+    "input": {
+     "n": 13
+    },
+    "output": [
+     13
+    ]
+   }
+  ],
+  "signature": {
+   "functionName": "prime_factors",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def prime_factors(n):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def prime_factors(n):\n    factors = []\n    d = 2\n    while d * d <= n:\n        while n % d == 0:\n            factors.append(d)\n            n //= d\n        d += 1\n    if n > 1:\n        factors.append(n)\n    return factors\n",
+  "defaultInput": {
+   "n": 60
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 60
+    },
+    "expectedOutput": [
+     2,
+     2,
+     3,
+     5
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 13
+    },
+    "expectedOutput": [
+     13
+    ],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": [],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 1024
+    },
+    "expectedOutput": [
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 999999937
+    },
+    "expectedOutput": [
+     999999937
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 1000000000
+    },
+    "expectedOutput": [
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "n": 360
+    },
+    "expectedOutput": [
+     2,
+     2,
+     2,
+     3,
+     3,
+     5
+    ],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "count-primes-in-ranges",
+  "sourceTitle": "Count primes in range L to R",
+  "topic": "Math",
+  "difficulty": "Medium",
+  "structureType": "array",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Primes in Ranges",
+  "description": "You are given several queries, each a pair [L, R]. For every query return how many primes lie in the closed range from L to R. Build one sieve and a prefix count so each query is answered in constant time.",
+  "constraints": [
+   "1 <= number of queries <= 1000",
+   "1 <= L <= R <= 10^5"
+  ],
+  "examples": [
+   {
+    "input": {
+     "queries": [
+      [
+       1,
+       10
+      ],
+      [
+       10,
+       20
+      ]
+     ]
+    },
+    "output": [
+     4,
+     4
+    ],
+    "explanation": "2, 3, 5, 7 and then 11, 13, 17, 19"
+   },
+   {
+    "input": {
+     "queries": [
+      [
+       14,
+       16
+      ]
+     ]
+    },
+    "output": [
+     0
+    ]
+   }
+  ],
+  "signature": {
+   "functionName": "count_primes_in_ranges",
+   "parameters": [
+    {
+     "name": "queries",
+     "kind": "matrix"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def count_primes_in_ranges(queries):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def count_primes_in_ranges(queries):\n    limit = max((right for _, right in queries), default=1)\n    sieve = [True] * (limit + 1)\n    sieve[0] = False\n    if limit >= 1:\n        sieve[1] = False\n    p = 2\n    while p * p <= limit:\n        if sieve[p]:\n            for multiple in range(p * p, limit + 1, p):\n                sieve[multiple] = False\n        p += 1\n    prefix = [0] * (limit + 1)\n    for value in range(1, limit + 1):\n        prefix[value] = prefix[value - 1] + (1 if sieve[value] else 0)\n    return [prefix[right] - prefix[left - 1] for left, right in queries]\n",
+  "defaultInput": {
+   "queries": [
+    [
+     1,
+     10
+    ],
+    [
+     10,
+     20
+    ]
+   ]
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "queries": [
+      [
+       1,
+       10
+      ],
+      [
+       10,
+       20
+      ]
+     ]
+    },
+    "expectedOutput": [
+     4,
+     4
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "queries": [
+      [
+       14,
+       16
+      ]
+     ]
+    },
+    "expectedOutput": [
+     0
+    ],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "queries": [
+      [
+       1,
+       1
+      ]
+     ]
+    },
+    "expectedOutput": [
+     0
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "queries": [
+      [
+       2,
+       2
+      ],
+      [
+       1,
+       100
+      ],
+      [
+       50,
+       60
+      ]
+     ]
+    },
+    "expectedOutput": [
+     1,
+     25,
+     2
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "queries": [
+      [
+       1,
+       100000
+      ],
+      [
+       99990,
+       100000
+      ]
+     ]
+    },
+    "expectedOutput": [
+     9592,
+     1
+    ],
+    "visible": false
+   }
+  ]
+ }
+]

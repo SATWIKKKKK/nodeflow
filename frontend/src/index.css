@@ -1,0 +1,614 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+
+/* Design system: see DESIGN.md at the repo root. Every token lives here. */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-blueprint-bg: #fbf9f9;
+  --color-blueprint-line: #c7c0c0;
+  --color-blueprint-accent: #000000;
+  --color-blueprint-muted: #4d4d4d;
+
+  --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out var(--delay, 0ms) 1 none;
+
+  @keyframes cell-ripple {
+    0% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 0.4;
+    }
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-inset: var(--surface-inset);
+  --color-panel: var(--panel);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #fbf9f9;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --primary: #1a1a1a;
+  --primary-hover: #303031;
+  --primary-foreground: #ffffff;
+  --muted: oklch(0.95 0.004 20);
+  --muted-foreground: #4d4d4d;
+  --border: oklch(0.78 0.004 20);
+  --ring: oklch(0.55 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --surface-hover: #f5f3f3;
+  --surface-inset: #f3f0f0;
+  --panel: #fbf9f9;
+}
+
+.dark {
+  --background: #050505;
+  --foreground: #f4f4f4;
+  --card: oklch(0.205 0 0);
+  --primary: #f3ecec;
+  --primary-hover: #e9dddd;
+  --primary-foreground: #111111;
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: #b7b7b7;
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.556 0 0);
+  --surface-hover: #181818;
+  --surface-inset: #202020;
+  --panel: #101010;
+  --color-blueprint-line: #3a3a3a;
+  --color-blueprint-muted: #b7b7b7;
+  --color-blueprint-bg: #151515;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--color-blueprint-line);
+  }
+
+  html {
+    font-family: var(--font-sans);
+  }
+
+  html,
+  body,
+  #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-size: 16px;
+  }
+
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 16%, transparent);
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 180ms;
+    transition-timing-function: ease;
+  }
+
+  button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  button:not(:disabled):active {
+    transform: translateY(0);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark button:not(:disabled):hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Opt-out for buttons that sit inside dense controls (tabs, list rows). */
+  button.no-lift:not(:disabled):hover,
+  button.no-lift:not(:disabled):active {
+    transform: none;
+    box-shadow: none;
+  }
+
+  :is(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--ring) 70%, transparent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 480px) {
+    button,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"] {
+      min-height: 44px;
+    }
+
+    form button,
+    form input[type="submit"] {
+      width: 100%;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-blueprint-line);
+    border-radius: 9999px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------- Typography ---------- */
+
+@utility text-display-xl {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 6.8vw, 56px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+@utility text-hero {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+  line-height: 1.05;
+}
+
+@utility text-cta {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  line-height: 1.05;
+}
+
+@utility text-headline-lg {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.75rem, 5.6vw, 40px);
+  line-height: 1.18;
+}
+
+@utility text-metric {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  line-height: 1;
+}
+
+@utility text-headline-md {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.35rem, 4.8vw, 28px);
+  line-height: 1.28;
+  font-style: italic;
+}
+
+@utility text-headline-sm {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+@utility text-body-md {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@utility text-body-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+@utility text-technical-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@utility text-ui-label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.15;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* ---------- Surfaces ---------- */
+
+@utility surface-card {
+  border: 1.25px solid var(--color-blueprint-line);
+  border-radius: 0.75rem;
+  background: var(--card);
+  padding: 1.5rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035),
+    0 14px 34px rgba(0, 0, 0, 0.08);
+
+  @media (min-width: 640px) {
+    padding: 1.75rem;
+  }
+}
+
+/* surface-card without padding, for cards that are split into ruled regions. */
+@utility surface-frame {
+  border: 1.25px solid var(--color-blueprint-line);
+  border-radius: 0.75rem;
+  background: var(--card);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035),
+    0 14px 34px rgba(0, 0, 0, 0.08);
+}
+
+@utility surface-card-compact {
+  border: 1.25px solid var(--color-blueprint-line);
+  border-radius: 0.75rem;
+  background: var(--card);
+  padding: 1rem 1.25rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035),
+    0 10px 26px rgba(0, 0, 0, 0.07);
+
+  @media (min-width: 640px) {
+    padding: 1.125rem 1.25rem;
+  }
+}
+
+@utility surface-inset {
+  border: 1.25px solid var(--color-blueprint-line);
+  border-radius: 0.75rem;
+  background: var(--surface-inset);
+  padding: 1rem;
+
+  @media (min-width: 640px) {
+    padding: 1.125rem;
+  }
+}
+
+/* Anchors styled as buttons get the same lift as real buttons. */
+@utility lift {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  &:is(.dark *):hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ---------- Blueprint backgrounds ---------- */
+
+@utility landing-blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(17, 24, 39, 0.07) 1.25px, transparent 1.25px),
+    linear-gradient(to bottom, rgba(17, 24, 39, 0.07) 1.25px, transparent 1.25px);
+  background-size: 40px 40px;
+  background-position: center top;
+
+  &:is(.dark *) {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1.25px, transparent 1.25px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1.25px, transparent 1.25px);
+  }
+}
+
+@utility blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(26, 26, 26, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 26, 26, 0.12) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+
+  &:is(.dark *) {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.095) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.095) 1px, transparent 1px);
+  }
+}
+
+@utility bg-technical-grid {
+  background-image:
+    linear-gradient(to right, rgba(26, 26, 26, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 26, 26, 0.12) 1px, transparent 1px);
+  background-size: 64px 64px;
+
+  &:is(.dark *) {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  }
+}
+
+.ripple-cell {
+  border: 0.5px solid rgba(17, 24, 39, 0.08);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.dark .ripple-cell {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(15, 23, 42, 0.06);
+  box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.1);
+}
+
+/* ---------- Chrome ---------- */
+
+.app-header {
+  background: var(--background);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.dark .app-header {
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.landing-navbar {
+  background: var(--card);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.08);
+}
+
+.dark .landing-navbar {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+}
+
+.landing-primary-action {
+  background: #111111;
+  color: #ffffff;
+}
+
+.landing-primary-action:hover {
+  background: #303031;
+}
+
+.dark .landing-primary-action {
+  background: #f3ecec;
+  color: #111111;
+}
+
+.dark .landing-primary-action:hover {
+  background: #e9dddd;
+}
+
+.landing-cta-panel {
+  border: 1px solid #f3ecec;
+  background: #050505;
+  color: #ffffff;
+  outline: 1px solid rgba(243, 236, 236, 0.86);
+  outline-offset: 3px;
+}
+
+.landing-cta-button {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #111111;
+}
+
+.landing-cta-button:hover {
+  background: #f5f3f3;
+}
+
+.check-icon {
+  color: #16a34a;
+}
+
+.dark .check-icon {
+  color: #4ade80;
+}
+
+.progress-fill {
+  background: #16a34a;
+}
+
+.dark .progress-fill {
+  background: #22c55e;
+}
+
+.language-tag {
+  background: #123d8a;
+  color: #ffffff;
+  border-color: rgba(147, 197, 253, 0.35);
+}
+
+.badge-current {
+  border-color: var(--color-blueprint-line);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.dark .badge-current {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+.status-error {
+  border-color: #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
+}
+
+.dark .status-error {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: #2a1010;
+  color: #fecaca;
+}
+
+.status-warning {
+  border-color: rgba(252, 211, 77, 0.6);
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.dark .status-warning {
+  border-color: rgba(252, 211, 77, 0.3);
+  background: #2b1d08;
+  color: #ffe4b5;
+}
+
+/* ---------- Workspace: editor and transport ---------- */
+
+.cm-playback-line {
+  background: var(--surface-hover) !important;
+  box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.cm-playback-gutter {
+  color: var(--foreground) !important;
+  font-weight: 600;
+}
+
+.trace-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.trace-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.trace-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--fill, 0%),
+    var(--color-blueprint-line) var(--fill, 0%)
+  );
+}
+
+.trace-range::-moz-range-track {
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--color-blueprint-line);
+}
+
+.trace-range::-moz-range-progress {
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--primary);
+}
+
+.trace-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border-radius: 9999px;
+  border: 1.25px solid var(--primary);
+  background: var(--card);
+}
+
+.trace-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  border: 1.25px solid var(--primary);
+  background: var(--card);
+}
+
+.select-pill {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234d4d4d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+}
+
+.dark .select-pill {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23b7b7b7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.select-pill option {
+  background: var(--card);
+  color: var(--foreground);
+}

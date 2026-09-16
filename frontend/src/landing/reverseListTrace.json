@@ -1,0 +1,1326 @@
+{
+ "problemId": "reverse-linked-list",
+ "code": "def reverse_list(head):\n    previous = None\n    current = head\n    while current is not None:\n        nxt = current.next\n        current.next = previous\n        previous = current\n        current = nxt\n    return previous\n",
+ "input": {
+  "head": [
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "result": [
+  4,
+  3,
+  2,
+  1
+ ],
+ "runtimeMs": 2,
+ "trace": [
+  {
+   "line": 2,
+   "event": "line",
+   "variables": {
+    "head": "obj_1"
+   },
+   "heap": {
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    },
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": "obj_2"
+     }
+    }
+   }
+  },
+  {
+   "line": 3,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": null
+   },
+   "heap": {
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    },
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": "obj_2"
+     }
+    }
+   }
+  },
+  {
+   "line": 4,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": null,
+    "current": "obj_1"
+   },
+   "heap": {
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    },
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": "obj_2"
+     }
+    }
+   }
+  },
+  {
+   "line": 5,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": null,
+    "current": "obj_1"
+   },
+   "heap": {
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    },
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": "obj_2"
+     }
+    }
+   }
+  },
+  {
+   "line": 6,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": null,
+    "current": "obj_1",
+    "nxt": "obj_2"
+   },
+   "heap": {
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    },
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": "obj_2"
+     }
+    }
+   }
+  },
+  {
+   "line": 7,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": null,
+    "current": "obj_1",
+    "nxt": "obj_2"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 8,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_1",
+    "current": "obj_1",
+    "nxt": "obj_2"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 4,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_1",
+    "current": "obj_2",
+    "nxt": "obj_2"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 5,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_1",
+    "current": "obj_2",
+    "nxt": "obj_2"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 6,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_1",
+    "current": "obj_2",
+    "nxt": "obj_3"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 7,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_1",
+    "current": "obj_2",
+    "nxt": "obj_3"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    }
+   }
+  },
+  {
+   "line": 8,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_2",
+    "current": "obj_2",
+    "nxt": "obj_3"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    }
+   }
+  },
+  {
+   "line": 4,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_2",
+    "current": "obj_3",
+    "nxt": "obj_3"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    }
+   }
+  },
+  {
+   "line": 5,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_2",
+    "current": "obj_3",
+    "nxt": "obj_3"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    }
+   }
+  },
+  {
+   "line": 6,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_2",
+    "current": "obj_3",
+    "nxt": "obj_4"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_4"
+     }
+    }
+   }
+  },
+  {
+   "line": 7,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_2",
+    "current": "obj_3",
+    "nxt": "obj_4"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    }
+   }
+  },
+  {
+   "line": 8,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_3",
+    "current": "obj_3",
+    "nxt": "obj_4"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    }
+   }
+  },
+  {
+   "line": 4,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_3",
+    "current": "obj_4",
+    "nxt": "obj_4"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    }
+   }
+  },
+  {
+   "line": 5,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_3",
+    "current": "obj_4",
+    "nxt": "obj_4"
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    }
+   }
+  },
+  {
+   "line": 6,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_3",
+    "current": "obj_4",
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": null
+     }
+    }
+   }
+  },
+  {
+   "line": 7,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_3",
+    "current": "obj_4",
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 8,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_4",
+    "current": "obj_4",
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 4,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_4",
+    "current": null,
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 9,
+   "event": "line",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_4",
+    "current": null,
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": "obj_3"
+     }
+    }
+   }
+  },
+  {
+   "line": 9,
+   "event": "return",
+   "variables": {
+    "head": "obj_1",
+    "previous": "obj_4",
+    "current": null,
+    "nxt": null
+   },
+   "heap": {
+    "obj_1": {
+     "type": "ListNode",
+     "fields": {
+      "val": 1,
+      "next": null
+     }
+    },
+    "obj_2": {
+     "type": "ListNode",
+     "fields": {
+      "val": 2,
+      "next": "obj_1"
+     }
+    },
+    "obj_3": {
+     "type": "ListNode",
+     "fields": {
+      "val": 3,
+      "next": "obj_2"
+     }
+    },
+    "obj_4": {
+     "type": "ListNode",
+     "fields": {
+      "val": 4,
+      "next": "obj_3"
+     }
+    }
+   }
+  }
+ ],
+ "diffs": [
+  {
+   "created": [
+    "obj_4",
+    "obj_3",
+    "obj_2",
+    "obj_1"
+   ],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "head": {
+     "after": "obj_1"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "previous": {
+     "after": null
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "current": {
+     "after": "obj_1"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "nxt": {
+     "after": "obj_2"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [
+    {
+     "id": "obj_1",
+     "fields": [
+      "next"
+     ],
+     "before": {
+      "type": "ListNode",
+      "fields": {
+       "val": 1,
+       "next": "obj_2"
+      }
+     },
+     "after": {
+      "type": "ListNode",
+      "fields": {
+       "val": 1,
+       "next": null
+      }
+     }
+    }
+   ],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "previous": {
+     "before": null,
+     "after": "obj_1"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "current": {
+     "before": "obj_1",
+     "after": "obj_2"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "nxt": {
+     "before": "obj_2",
+     "after": "obj_3"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [
+    {
+     "id": "obj_2",
+     "fields": [
+      "next"
+     ],
+     "before": {
+      "type": "ListNode",
+      "fields": {
+       "val": 2,
+       "next": "obj_3"
+      }
+     },
+     "after": {
+      "type": "ListNode",
+      "fields": {
+       "val": 2,
+       "next": "obj_1"
+      }
+     }
+    }
+   ],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "previous": {
+     "before": "obj_1",
+     "after": "obj_2"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "current": {
+     "before": "obj_2",
+     "after": "obj_3"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "nxt": {
+     "before": "obj_3",
+     "after": "obj_4"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [
+    {
+     "id": "obj_3",
+     "fields": [
+      "next"
+     ],
+     "before": {
+      "type": "ListNode",
+      "fields": {
+       "val": 3,
+       "next": "obj_4"
+      }
+     },
+     "after": {
+      "type": "ListNode",
+      "fields": {
+       "val": 3,
+       "next": "obj_2"
+      }
+     }
+    }
+   ],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "previous": {
+     "before": "obj_2",
+     "after": "obj_3"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "current": {
+     "before": "obj_3",
+     "after": "obj_4"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "nxt": {
+     "before": "obj_4",
+     "after": null
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [
+    {
+     "id": "obj_4",
+     "fields": [
+      "next"
+     ],
+     "before": {
+      "type": "ListNode",
+      "fields": {
+       "val": 4,
+       "next": null
+      }
+     },
+     "after": {
+      "type": "ListNode",
+      "fields": {
+       "val": 4,
+       "next": "obj_3"
+      }
+     }
+    }
+   ],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "previous": {
+     "before": "obj_3",
+     "after": "obj_4"
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {
+    "current": {
+     "before": "obj_4",
+     "after": null
+    }
+   }
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  },
+  {
+   "created": [],
+   "deleted": [],
+   "mutated": [],
+   "variablesChanged": {}
+  }
+ ]
+}

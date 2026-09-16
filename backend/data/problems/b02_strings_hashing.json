@@ -1,0 +1,2140 @@
+[
+ {
+  "id": "second-most-frequent",
+  "sourceTitle": "Second Highest Occurring Element",
+  "topic": "Hashing",
+  "difficulty": "Easy",
+  "structureType": "hashmap",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Second Most Frequent Element",
+  "description": "Count how often each value appears in nums. Find the second-highest distinct frequency and return the smallest value that occurs exactly that many times. If every value shares one frequency, return -1.",
+  "constraints": [
+   "1 <= nums.length <= 10^4",
+   "-10^4 <= nums[i] <= 10^4"
+  ],
+  "examples": [
+   {
+    "input": {
+     "nums": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3
+     ]
+    },
+    "output": 2,
+    "explanation": "3 appears three times, 2 appears twice."
+   },
+   {
+    "input": {
+     "nums": [
+      4,
+      4,
+      4
+     ]
+    },
+    "output": -1
+   },
+   {
+    "input": {
+     "nums": [
+      1,
+      1,
+      2,
+      2,
+      3
+     ]
+    },
+    "output": 3,
+    "explanation": "1 and 2 tie on two; the next frequency is one, held by 3."
+   }
+  ],
+  "signature": {
+   "functionName": "second_most_frequent",
+   "parameters": [
+    {
+     "name": "nums",
+     "kind": "array"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def second_most_frequent(nums):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def second_most_frequent(nums):\n    counts = {}\n    for value in nums:\n        counts[value] = counts.get(value, 0) + 1\n    levels = sorted(set(counts.values()), reverse=True)\n    if len(levels) < 2:\n        return -1\n    target = levels[1]\n    return min(value for value, count in counts.items() if count == target)\n",
+  "defaultInput": {
+   "nums": [
+    1,
+    2,
+    2,
+    3,
+    3,
+    3
+   ]
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "nums": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3
+     ]
+    },
+    "expectedOutput": 2,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "nums": [
+      4,
+      4,
+      4
+     ]
+    },
+    "expectedOutput": -1,
+    "visible": true
+   },
+   {
+    "id": "sample-3",
+    "input": {
+     "nums": [
+      1,
+      1,
+      2,
+      2,
+      3
+     ]
+    },
+    "expectedOutput": 3,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "nums": [
+      7
+     ]
+    },
+    "expectedOutput": -1,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "nums": [
+      5,
+      6,
+      6,
+      7,
+      7,
+      8,
+      8,
+      8
+     ]
+    },
+    "expectedOutput": 6,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "nums": [
+      -1,
+      -1,
+      -2,
+      -3,
+      -3,
+      -3,
+      9,
+      9
+     ]
+    },
+    "expectedOutput": -1,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "nums": [
+      2,
+      1,
+      2,
+      1,
+      3,
+      3,
+      3,
+      4,
+      4
+     ]
+    },
+    "expectedOutput": 1,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "sum-highest-lowest-frequency",
+  "sourceTitle": "Sum of Highest and Lowest Frequency",
+  "topic": "Hashing",
+  "difficulty": "Easy",
+  "structureType": "hashmap",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Highest Plus Lowest Frequency",
+  "description": "Count how many times each distinct value appears in nums, then return the largest count plus the smallest count.",
+  "constraints": [
+   "1 <= nums.length <= 10^4",
+   "-10^4 <= nums[i] <= 10^4"
+  ],
+  "examples": [
+   {
+    "input": {
+     "nums": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3
+     ]
+    },
+    "output": 4,
+    "explanation": "Highest is 3 (for 3), lowest is 1 (for 1)."
+   },
+   {
+    "input": {
+     "nums": [
+      5,
+      5,
+      5,
+      5
+     ]
+    },
+    "output": 8
+   }
+  ],
+  "signature": {
+   "functionName": "sum_high_low_frequency",
+   "parameters": [
+    {
+     "name": "nums",
+     "kind": "array"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def sum_high_low_frequency(nums):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def sum_high_low_frequency(nums):\n    counts = {}\n    for value in nums:\n        counts[value] = counts.get(value, 0) + 1\n    return max(counts.values()) + min(counts.values())\n",
+  "defaultInput": {
+   "nums": [
+    1,
+    2,
+    2,
+    3,
+    3,
+    3
+   ]
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "nums": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3
+     ]
+    },
+    "expectedOutput": 4,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "nums": [
+      5,
+      5,
+      5,
+      5
+     ]
+    },
+    "expectedOutput": 8,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "nums": [
+      9
+     ]
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "nums": [
+      1,
+      2,
+      3,
+      4
+     ]
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "nums": [
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4
+     ]
+    },
+    "expectedOutput": 6,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "nums": [
+      -5,
+      -5,
+      0,
+      0,
+      0,
+      7
+     ]
+    },
+    "expectedOutput": 4,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "reverse-string-blocks",
+  "sourceTitle": "Reverse a String II",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Reverse in Blocks",
+  "description": "Walk through s in blocks of 2k characters. In each block, reverse the first k characters and leave the rest. If fewer than k characters remain, reverse all of them; if between k and 2k remain, reverse the first k.",
+  "constraints": [
+   "1 <= s.length <= 10^4",
+   "1 <= k <= 10^4",
+   "s contains lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "abcdefg",
+     "k": 2
+    },
+    "output": "bacdfeg"
+   },
+   {
+    "input": {
+     "s": "abcd",
+     "k": 4
+    },
+    "output": "dcba"
+   }
+  ],
+  "signature": {
+   "functionName": "reverse_blocks",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    },
+    {
+     "name": "k",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def reverse_blocks(s, k):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def reverse_blocks(s, k):\n    chars = list(s)\n    for start in range(0, len(chars), 2 * k):\n        left, right = start, min(start + k, len(chars)) - 1\n        while left < right:\n            chars[left], chars[right] = chars[right], chars[left]\n            left += 1\n            right -= 1\n    return \"\".join(chars)\n",
+  "defaultInput": {
+   "s": "abcdefg",
+   "k": 2
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "abcdefg",
+     "k": 2
+    },
+    "expectedOutput": "bacdfeg",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "abcd",
+     "k": 4
+    },
+    "expectedOutput": "dcba",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a",
+     "k": 1
+    },
+    "expectedOutput": "a",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "abcdefgh",
+     "k": 3
+    },
+    "expectedOutput": "cbadefhg",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "abc",
+     "k": 5
+    },
+    "expectedOutput": "cba",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "abcdefghij",
+     "k": 1
+    },
+    "expectedOutput": "abcdefghij",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "valid-palindrome",
+  "sourceTitle": "Palindrome Check",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Valid Palindrome",
+  "description": "Return whether s is a palindrome once you ignore every character that is not a letter or digit and treat upper and lower case as equal.",
+  "constraints": [
+   "1 <= s.length <= 2 * 10^5",
+   "s contains printable ASCII characters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "A man, a plan, a canal: Panama"
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "s": "race a car"
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "is_palindrome",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_palindrome(s):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_palindrome(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        if not s[left].isalnum():\n            left += 1\n        elif not s[right].isalnum():\n            right -= 1\n        elif s[left].lower() != s[right].lower():\n            return False\n        else:\n            left += 1\n            right -= 1\n    return True\n",
+  "defaultInput": {
+   "s": "A man, a plan, a canal: Panama"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "A man, a plan, a canal: Panama"
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "race a car"
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": " "
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "0P"
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "No lemon, no melon"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "ab_a"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "s": "a."
+    },
+    "expectedOutput": true,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "largest-odd-number-string",
+  "sourceTitle": "Largest Odd Number in a String",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Largest Odd Number in a String",
+  "description": "num is a string of digits. Return the largest odd number that is a non-empty prefix of num, written without leading zeros, or an empty string if no prefix is odd. (The largest odd prefix always ends at the last odd digit.)",
+  "constraints": [
+   "1 <= num.length <= 10^5",
+   "num contains only digits and may start with zeros."
+  ],
+  "examples": [
+   {
+    "input": {
+     "num": "52"
+    },
+    "output": "5"
+   },
+   {
+    "input": {
+     "num": "4206"
+    },
+    "output": ""
+   },
+   {
+    "input": {
+     "num": "0032"
+    },
+    "output": "3",
+    "explanation": "The prefix 003 is odd; without leading zeros it is 3."
+   }
+  ],
+  "signature": {
+   "functionName": "largest_odd_number",
+   "parameters": [
+    {
+     "name": "num",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def largest_odd_number(num):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def largest_odd_number(num):\n    end = len(num) - 1\n    while end >= 0 and int(num[end]) % 2 == 0:\n        end -= 1\n    if end < 0:\n        return \"\"\n    start = 0\n    while start < end and num[start] == \"0\":\n        start += 1\n    return num[start:end + 1]\n",
+  "defaultInput": {
+   "num": "52"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "num": "52"
+    },
+    "expectedOutput": "5",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "num": "4206"
+    },
+    "expectedOutput": "",
+    "visible": true
+   },
+   {
+    "id": "sample-3",
+    "input": {
+     "num": "0032"
+    },
+    "expectedOutput": "3",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "num": "35427"
+    },
+    "expectedOutput": "35427",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "num": "0"
+    },
+    "expectedOutput": "",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "num": "7"
+    },
+    "expectedOutput": "7",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "num": "00000001"
+    },
+    "expectedOutput": "1",
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "num": "2468013"
+    },
+    "expectedOutput": "2468013",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "longest-common-prefix",
+  "sourceTitle": "Longest Common Prefix",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Longest Common Prefix",
+  "description": "Return the longest string that every word in strs starts with. Return an empty string if they share no prefix.",
+  "constraints": [
+   "1 <= strs.length <= 200",
+   "0 <= strs[i].length <= 200",
+   "Words contain lowercase letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "strs": [
+      "flower",
+      "flow",
+      "flight"
+     ]
+    },
+    "output": "fl"
+   },
+   {
+    "input": {
+     "strs": [
+      "dog",
+      "racecar",
+      "car"
+     ]
+    },
+    "output": ""
+   }
+  ],
+  "signature": {
+   "functionName": "longest_common_prefix",
+   "parameters": [
+    {
+     "name": "strs",
+     "kind": "string_array"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def longest_common_prefix(strs):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def longest_common_prefix(strs):\n    prefix = strs[0]\n    for word in strs[1:]:\n        while not word.startswith(prefix):\n            prefix = prefix[:-1]\n    return prefix\n",
+  "defaultInput": {
+   "strs": [
+    "flower",
+    "flow",
+    "flight"
+   ]
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "strs": [
+      "flower",
+      "flow",
+      "flight"
+     ]
+    },
+    "expectedOutput": "fl",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "strs": [
+      "dog",
+      "racecar",
+      "car"
+     ]
+    },
+    "expectedOutput": "",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "strs": [
+      "alone"
+     ]
+    },
+    "expectedOutput": "alone",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "strs": [
+      "",
+      "abc"
+     ]
+    },
+    "expectedOutput": "",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "strs": [
+      "interview",
+      "internet",
+      "interval",
+      "intern"
+     ]
+    },
+    "expectedOutput": "inter",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "strs": [
+      "aaa",
+      "aa",
+      "aaaa"
+     ]
+    },
+    "expectedOutput": "aa",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "isomorphic-strings",
+  "sourceTitle": "Isomorphic String",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "hashmap",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Isomorphic Strings",
+  "description": "Two strings are isomorphic when the characters of s can be replaced, one for one, to produce t: each character maps to exactly one character and no two characters map to the same one. Return whether s and t are isomorphic.",
+  "constraints": [
+   "1 <= s.length == t.length <= 5 * 10^4",
+   "s and t contain printable ASCII characters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "egg",
+     "t": "add"
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "s": "foo",
+     "t": "bar"
+    },
+    "output": false
+   },
+   {
+    "input": {
+     "s": "paper",
+     "t": "title"
+    },
+    "output": true
+   }
+  ],
+  "signature": {
+   "functionName": "is_isomorphic",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    },
+    {
+     "name": "t",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_isomorphic(s, t):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_isomorphic(s, t):\n    forward = {}\n    backward = {}\n    for a, b in zip(s, t):\n        if forward.get(a, b) != b or backward.get(b, a) != a:\n            return False\n        forward[a] = b\n        backward[b] = a\n    return True\n",
+  "defaultInput": {
+   "s": "egg",
+   "t": "add"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "egg",
+     "t": "add"
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "foo",
+     "t": "bar"
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "sample-3",
+    "input": {
+     "s": "paper",
+     "t": "title"
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a",
+     "t": "b"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "badc",
+     "t": "baba"
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "abab",
+     "t": "cdcd"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "ab",
+     "t": "aa"
+    },
+    "expectedOutput": false,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "rotate-string",
+  "sourceTitle": "Rotate String",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Rotate String",
+  "description": "A shift moves the first character of a string to its end. Return whether some number of shifts turns s into goal.",
+  "constraints": [
+   "1 <= s.length, goal.length <= 100",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "abcde",
+     "goal": "cdeab"
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "s": "abcde",
+     "goal": "abced"
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "rotate_string",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    },
+    {
+     "name": "goal",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def rotate_string(s, goal):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def rotate_string(s, goal):\n    return len(s) == len(goal) and goal in s + s\n",
+  "defaultInput": {
+   "s": "abcde",
+   "goal": "cdeab"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "abcde",
+     "goal": "cdeab"
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "abcde",
+     "goal": "abced"
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a",
+     "goal": "a"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "aa",
+     "goal": "a"
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "abcabc",
+     "goal": "cabcab"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "xyz",
+     "goal": "zyx"
+    },
+    "expectedOutput": false,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "valid-anagram",
+  "sourceTitle": "Valid Anagram",
+  "topic": "String",
+  "difficulty": "Easy",
+  "structureType": "hashmap",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Valid Anagram",
+  "description": "Return whether t uses exactly the same letters as s, each the same number of times.",
+  "constraints": [
+   "1 <= s.length, t.length <= 5 * 10^4",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "anagram",
+     "t": "nagaram"
+    },
+    "output": true
+   },
+   {
+    "input": {
+     "s": "rat",
+     "t": "car"
+    },
+    "output": false
+   }
+  ],
+  "signature": {
+   "functionName": "is_anagram",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    },
+    {
+     "name": "t",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "bool"
+  },
+  "starterCode": "def is_anagram(s, t):\n    # Write your solution here.\n    return False\n",
+  "referenceCode": "def is_anagram(s, t):\n    if len(s) != len(t):\n        return False\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    for char in t:\n        if counts.get(char, 0) == 0:\n            return False\n        counts[char] -= 1\n    return True\n",
+  "defaultInput": {
+   "s": "anagram",
+   "t": "nagaram"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "anagram",
+     "t": "nagaram"
+    },
+    "expectedOutput": true,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "rat",
+     "t": "car"
+    },
+    "expectedOutput": false,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a",
+     "t": "a"
+    },
+    "expectedOutput": true,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "ab",
+     "t": "a"
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "aacc",
+     "t": "ccac"
+    },
+    "expectedOutput": false,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "listen",
+     "t": "silent"
+    },
+    "expectedOutput": true,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "sort-characters-by-frequency",
+  "sourceTitle": "Sort Characters by Frequency",
+  "topic": "String",
+  "difficulty": "Medium",
+  "structureType": "hashmap",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Sort Characters by Frequency",
+  "description": "Rearrange s so that characters appearing more often come first, with all copies of a character kept together. Characters with equal counts are ordered by character code (so 'A' comes before 'a').",
+  "constraints": [
+   "1 <= s.length <= 5 * 10^5",
+   "s contains letters and digits."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "tree"
+    },
+    "output": "eert",
+    "explanation": "e appears twice; r and t once each, and r comes first."
+   },
+   {
+    "input": {
+     "s": "Aabb"
+    },
+    "output": "bbAa"
+   }
+  ],
+  "signature": {
+   "functionName": "frequency_sort",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def frequency_sort(s):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def frequency_sort(s):\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    order = sorted(counts, key=lambda char: (-counts[char], char))\n    return \"\".join(char * counts[char] for char in order)\n",
+  "defaultInput": {
+   "s": "tree"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "tree"
+    },
+    "expectedOutput": "eert",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "Aabb"
+    },
+    "expectedOutput": "bbAa",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "z"
+    },
+    "expectedOutput": "z",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "cccaaa"
+    },
+    "expectedOutput": "aaaccc",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "2a554442f544asfasss"
+    },
+    "expectedOutput": "44444ssss555aaa22ff",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "abcABC112"
+    },
+    "expectedOutput": "112ABCabc",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "reverse-words",
+  "sourceTitle": "Reverse every word in a string",
+  "topic": "String",
+  "difficulty": "Medium",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Reverse the Words",
+  "description": "Return the words of s in reverse order, joined by single spaces. A word is a run of non-space characters; leading, trailing and repeated spaces all disappear.",
+  "constraints": [
+   "1 <= s.length <= 10^4",
+   "s contains at least one word."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "  the sky   is blue "
+    },
+    "output": "blue is sky the"
+   },
+   {
+    "input": {
+     "s": "hello"
+    },
+    "output": "hello"
+   }
+  ],
+  "signature": {
+   "functionName": "reverse_words",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def reverse_words(s):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def reverse_words(s):\n    words = []\n    index = len(s) - 1\n    while index >= 0:\n        while index >= 0 and s[index] == \" \":\n            index -= 1\n        end = index\n        while index >= 0 and s[index] != \" \":\n            index -= 1\n        if end >= 0 and end > index:\n            words.append(s[index + 1:end + 1])\n    return \" \".join(words)\n",
+  "defaultInput": {
+   "s": "  the sky   is blue "
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "  the sky   is blue "
+    },
+    "expectedOutput": "blue is sky the",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "hello"
+    },
+    "expectedOutput": "hello",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a good   example"
+    },
+    "expectedOutput": "example good a",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "   x   "
+    },
+    "expectedOutput": "x",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "one two three four"
+    },
+    "expectedOutput": "four three two one",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "Noesis traces code"
+    },
+    "expectedOutput": "code traces Noesis",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "min-bracket-reversals",
+  "sourceTitle": "Minimum number of bracket reversals to make an expression balanced",
+  "topic": "String",
+  "difficulty": "Medium",
+  "structureType": "stack",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Fewest Bracket Flips",
+  "description": "s contains only '{' and '}'. Flipping a bracket turns '{' into '}' or the reverse. Return the fewest flips that make s balanced, or -1 if that is impossible.",
+  "constraints": [
+   "1 <= s.length <= 10^5"
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "}}{{"
+    },
+    "output": 2,
+    "explanation": "Flip the first and the last bracket."
+   },
+   {
+    "input": {
+     "s": "{{{"
+    },
+    "output": -1
+   },
+   {
+    "input": {
+     "s": "{{}}"
+    },
+    "output": 0
+   }
+  ],
+  "signature": {
+   "functionName": "min_reversals",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "int"
+  },
+  "starterCode": "def min_reversals(s):\n    # Write your solution here.\n    return 0\n",
+  "referenceCode": "def min_reversals(s):\n    if len(s) % 2 == 1:\n        return -1\n    open_count = 0\n    close_count = 0\n    for char in s:\n        if char == \"{\":\n            open_count += 1\n        elif open_count > 0:\n            open_count -= 1\n        else:\n            close_count += 1\n    return (open_count + 1) // 2 + (close_count + 1) // 2\n",
+  "defaultInput": {
+   "s": "}}{{"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "}}{{"
+    },
+    "expectedOutput": 2,
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "{{{"
+    },
+    "expectedOutput": -1,
+    "visible": true
+   },
+   {
+    "id": "sample-3",
+    "input": {
+     "s": "{{}}"
+    },
+    "expectedOutput": 0,
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "}{{}}{{{"
+    },
+    "expectedOutput": 3,
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "}}}}"
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "{}{}{}"
+    },
+    "expectedOutput": 0,
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "}{"
+    },
+    "expectedOutput": 2,
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "s": "{{{{}}"
+    },
+    "expectedOutput": 1,
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "count-and-say",
+  "sourceTitle": "Count and say",
+  "topic": "String",
+  "difficulty": "Medium",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Count and Say",
+  "description": "The count-and-say sequence starts with \"1\". Each next term reads the previous one aloud in groups: \"21\" is \"one 2, one 1\", written \"1211\". Return the nth term.",
+  "constraints": [
+   "1 <= n <= 30"
+  ],
+  "examples": [
+   {
+    "input": {
+     "n": 1
+    },
+    "output": "1"
+   },
+   {
+    "input": {
+     "n": 4
+    },
+    "output": "1211",
+    "explanation": "1 \u2192 11 \u2192 21 \u2192 1211"
+   }
+  ],
+  "signature": {
+   "functionName": "count_and_say",
+   "parameters": [
+    {
+     "name": "n",
+     "kind": "int"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def count_and_say(n):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def count_and_say(n):\n    term = \"1\"\n    for _ in range(n - 1):\n        parts = []\n        index = 0\n        while index < len(term):\n            run = index\n            while run < len(term) and term[run] == term[index]:\n                run += 1\n            parts.append(str(run - index) + term[index])\n            index = run\n        term = \"\".join(parts)\n    return term\n",
+  "defaultInput": {
+   "n": 1
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "n": 1
+    },
+    "expectedOutput": "1",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "n": 4
+    },
+    "expectedOutput": "1211",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "n": 2
+    },
+    "expectedOutput": "11",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "n": 5
+    },
+    "expectedOutput": "111221",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "n": 10
+    },
+    "expectedOutput": "13211311123113112211",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "n": 15
+    },
+    "expectedOutput": "311311222113111231131112132112311321322112111312211312111322212311322113212221",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "rabin-karp-search",
+  "sourceTitle": "Rabin Karp Algorithm",
+  "topic": "String",
+  "difficulty": "Hard",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Pattern Search with Rolling Hash",
+  "description": "Return every index where pattern starts inside text, in increasing order. Compare rolling hashes of each window first and only check characters when the hashes agree.",
+  "constraints": [
+   "1 <= pattern.length <= text.length <= 10^5",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "text": "abababab",
+     "pattern": "aba"
+    },
+    "output": [
+     0,
+     2,
+     4
+    ]
+   },
+   {
+    "input": {
+     "text": "hello",
+     "pattern": "xyz"
+    },
+    "output": []
+   }
+  ],
+  "signature": {
+   "functionName": "find_occurrences",
+   "parameters": [
+    {
+     "name": "text",
+     "kind": "string"
+    },
+    {
+     "name": "pattern",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def find_occurrences(text, pattern):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def find_occurrences(text, pattern):\n    base, mod = 31, 1000000007\n    m, n = len(pattern), len(text)\n    if m > n:\n        return []\n    power = 1\n    for _ in range(m - 1):\n        power = power * base % mod\n    target = 0\n    window = 0\n    for i in range(m):\n        target = (target * base + ord(pattern[i])) % mod\n        window = (window * base + ord(text[i])) % mod\n    found = []\n    for start in range(n - m + 1):\n        if window == target and text[start:start + m] == pattern:\n            found.append(start)\n        if start + m < n:\n            window = (window - ord(text[start]) * power) % mod\n            window = (window * base + ord(text[start + m])) % mod\n    return found\n",
+  "defaultInput": {
+   "text": "abababab",
+   "pattern": "aba"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "text": "abababab",
+     "pattern": "aba"
+    },
+    "expectedOutput": [
+     0,
+     2,
+     4
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "text": "hello",
+     "pattern": "xyz"
+    },
+    "expectedOutput": [],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "text": "aaaaa",
+     "pattern": "aa"
+    },
+    "expectedOutput": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "text": "a",
+     "pattern": "a"
+    },
+    "expectedOutput": [
+     0
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "text": "geeksforgeeks",
+     "pattern": "geek"
+    },
+    "expectedOutput": [
+     0,
+     8
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "text": "abc",
+     "pattern": "abcd"
+    },
+    "expectedOutput": [],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "z-function",
+  "sourceTitle": "Z function",
+  "topic": "String",
+  "difficulty": "Hard",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Z-Array",
+  "description": "The Z-array of s stores, for each position i > 0, the length of the longest substring starting at i that is also a prefix of s. By convention z[0] is 0. Build it in linear time.",
+  "constraints": [
+   "1 <= s.length <= 10^5",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "aabxaab"
+    },
+    "output": [
+     0,
+     1,
+     0,
+     0,
+     3,
+     1,
+     0
+    ]
+   },
+   {
+    "input": {
+     "s": "aaaa"
+    },
+    "output": [
+     0,
+     3,
+     2,
+     1
+    ]
+   }
+  ],
+  "signature": {
+   "functionName": "z_array",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def z_array(s):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def z_array(s):\n    n = len(s)\n    z = [0] * n\n    left = right = 0\n    for i in range(1, n):\n        if i < right:\n            z[i] = min(right - i, z[i - left])\n        while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n            z[i] += 1\n        if i + z[i] > right:\n            left, right = i, i + z[i]\n    return z\n",
+  "defaultInput": {
+   "s": "aabxaab"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "aabxaab"
+    },
+    "expectedOutput": [
+     0,
+     1,
+     0,
+     0,
+     3,
+     1,
+     0
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "aaaa"
+    },
+    "expectedOutput": [
+     0,
+     3,
+     2,
+     1
+    ],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a"
+    },
+    "expectedOutput": [
+     0
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "abcabcab"
+    },
+    "expectedOutput": [
+     0,
+     0,
+     0,
+     5,
+     0,
+     0,
+     2,
+     0
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "abacaba"
+    },
+    "expectedOutput": [
+     0,
+     0,
+     1,
+     0,
+     3,
+     0,
+     1
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "zzzzzzzzzz"
+    },
+    "expectedOutput": [
+     0,
+     9,
+     8,
+     7,
+     6,
+     5,
+     4,
+     3,
+     2,
+     1
+    ],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "lps-array",
+  "sourceTitle": "KMP Algorithm or LPS array",
+  "topic": "String",
+  "difficulty": "Hard",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Prefix Function (LPS Array)",
+  "description": "For each position i in pattern, lps[i] is the length of the longest proper prefix of pattern[0..i] that is also a suffix of it. This table is what lets KMP search without backing up. Return lps.",
+  "constraints": [
+   "1 <= pattern.length <= 10^5",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "pattern": "aabaaab"
+    },
+    "output": [
+     0,
+     1,
+     0,
+     1,
+     2,
+     2,
+     3
+    ]
+   },
+   {
+    "input": {
+     "pattern": "abcd"
+    },
+    "output": [
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "signature": {
+   "functionName": "lps_array",
+   "parameters": [
+    {
+     "name": "pattern",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "array"
+  },
+  "starterCode": "def lps_array(pattern):\n    # Write your solution here.\n    return []\n",
+  "referenceCode": "def lps_array(pattern):\n    lps = [0] * len(pattern)\n    length = 0\n    i = 1\n    while i < len(pattern):\n        if pattern[i] == pattern[length]:\n            length += 1\n            lps[i] = length\n            i += 1\n        elif length > 0:\n            length = lps[length - 1]\n        else:\n            lps[i] = 0\n            i += 1\n    return lps\n",
+  "defaultInput": {
+   "pattern": "aabaaab"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "pattern": "aabaaab"
+    },
+    "expectedOutput": [
+     0,
+     1,
+     0,
+     1,
+     2,
+     2,
+     3
+    ],
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "pattern": "abcd"
+    },
+    "expectedOutput": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "pattern": "a"
+    },
+    "expectedOutput": [
+     0
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "pattern": "aaaa"
+    },
+    "expectedOutput": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "pattern": "abacabab"
+    },
+    "expectedOutput": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     2,
+     3,
+     2
+    ],
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "pattern": "ababaca"
+    },
+    "expectedOutput": [
+     0,
+     0,
+     1,
+     2,
+     3,
+     0,
+     1
+    ],
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "shortest-palindrome",
+  "sourceTitle": "Shortest Palindrome",
+  "topic": "String",
+  "difficulty": "Hard",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Shortest Palindrome",
+  "description": "You may only add characters to the front of s. Return the shortest palindrome you can make that way. It is s preceded by the reverse of whatever follows s's longest palindromic prefix.",
+  "constraints": [
+   "0 <= s.length <= 5 * 10^4",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "aacecaaa"
+    },
+    "output": "aaacecaaa"
+   },
+   {
+    "input": {
+     "s": "abcd"
+    },
+    "output": "dcbabcd"
+   }
+  ],
+  "signature": {
+   "functionName": "shortest_palindrome",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def shortest_palindrome(s):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def shortest_palindrome(s):\n    combined = s + \"#\" + s[::-1]\n    lps = [0] * len(combined)\n    for i in range(1, len(combined)):\n        length = lps[i - 1]\n        while length > 0 and combined[i] != combined[length]:\n            length = lps[length - 1]\n        if combined[i] == combined[length]:\n            length += 1\n        lps[i] = length\n    keep = lps[-1]\n    return s[keep:][::-1] + s\n",
+  "defaultInput": {
+   "s": "aacecaaa"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "aacecaaa"
+    },
+    "expectedOutput": "aaacecaaa",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "abcd"
+    },
+    "expectedOutput": "dcbabcd",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": ""
+    },
+    "expectedOutput": "",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "a"
+    },
+    "expectedOutput": "a",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "racecar"
+    },
+    "expectedOutput": "racecar",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "abb"
+    },
+    "expectedOutput": "bbabb",
+    "visible": false
+   },
+   {
+    "id": "hidden-5",
+    "input": {
+     "s": "aabba"
+    },
+    "expectedOutput": "abbaabba",
+    "visible": false
+   }
+  ]
+ },
+ {
+  "id": "longest-happy-prefix",
+  "sourceTitle": "Longest happy prefix",
+  "topic": "String",
+  "difficulty": "Hard",
+  "structureType": "string",
+  "reviewStatus": "verified",
+  "reviewedAt": "2026-09-16",
+  "title": "Longest Happy Prefix",
+  "description": "A happy prefix is a non-empty prefix of s that is also a suffix of s, but not all of s. Return the longest one, or an empty string if there is none.",
+  "constraints": [
+   "1 <= s.length <= 10^5",
+   "Lowercase English letters."
+  ],
+  "examples": [
+   {
+    "input": {
+     "s": "level"
+    },
+    "output": "l"
+   },
+   {
+    "input": {
+     "s": "ababab"
+    },
+    "output": "abab"
+   }
+  ],
+  "signature": {
+   "functionName": "longest_prefix",
+   "parameters": [
+    {
+     "name": "s",
+     "kind": "string"
+    }
+   ],
+   "returnKind": "string"
+  },
+  "starterCode": "def longest_prefix(s):\n    # Write your solution here.\n    return \"\"\n",
+  "referenceCode": "def longest_prefix(s):\n    lps = [0] * len(s)\n    length = 0\n    for i in range(1, len(s)):\n        while length > 0 and s[i] != s[length]:\n            length = lps[length - 1]\n        if s[i] == s[length]:\n            length += 1\n        lps[i] = length\n    return s[:lps[-1]]\n",
+  "defaultInput": {
+   "s": "level"
+  },
+  "testCases": [
+   {
+    "id": "sample-1",
+    "input": {
+     "s": "level"
+    },
+    "expectedOutput": "l",
+    "visible": true
+   },
+   {
+    "id": "sample-2",
+    "input": {
+     "s": "ababab"
+    },
+    "expectedOutput": "abab",
+    "visible": true
+   },
+   {
+    "id": "hidden-1",
+    "input": {
+     "s": "a"
+    },
+    "expectedOutput": "",
+    "visible": false
+   },
+   {
+    "id": "hidden-2",
+    "input": {
+     "s": "leetcodeleet"
+    },
+    "expectedOutput": "leet",
+    "visible": false
+   },
+   {
+    "id": "hidden-3",
+    "input": {
+     "s": "aaaa"
+    },
+    "expectedOutput": "aaa",
+    "visible": false
+   },
+   {
+    "id": "hidden-4",
+    "input": {
+     "s": "abc"
+    },
+    "expectedOutput": "",
+    "visible": false
+   }
+  ]
+ }
+]

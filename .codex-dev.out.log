@@ -1,0 +1,227 @@
+
+> nodeflow@0.1.0 dev
+> concurrently -k -n backend,frontend -c green,blue "npm:dev --workspace backend" "npm:dev --workspace frontend"
+
+[backend] 
+[backend] > nodeflow-backend@0.1.0 dev
+[backend] > tsx watch src/server.ts
+[backend] 
+[frontend] 
+[frontend] > nodeflow-frontend@0.1.0 dev
+[frontend] > vite --host 0.0.0.0 --port 5173
+[frontend] 
+[frontend] 
+[frontend]   [32m[1mVITE[22m v7.3.6[39m  [2mready in [0m[1m528[22m[2m[0m ms[22m
+[frontend] 
+[frontend]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[frontend]   [32m➜[39m  [1mNetwork[22m: [36mhttp://10.20.53.137:[1m5173[22m/[39m
+[frontend]   [32m➜[39m  [1mNetwork[22m: [36mhttp://172.20.64.1:[1m5173[22m/[39m
+[backend] Noesis backend listening on http://localhost:8787
+[backend] #0 building with "desktop-linux" instance using docker driver
+[backend] 
+[backend] #1 [internal] load build definition from Dockerfile
+[backend] #1 transferring dockerfile: 253B 0.0s done
+[backend] #1 DONE 0.0s
+[backend] 
+[backend] #2 [internal] load metadata for docker.io/library/python:3.14-alpine
+[backend] #2 DONE 1.6s
+[backend] 
+[backend] #3 [internal] load .dockerignore
+[backend] #3 transferring context: 2B done
+[backend] #3 DONE 0.0s
+[backend] 
+[backend] #4 [internal] load build context
+[backend] #4 transferring context: 148B 0.0s done
+[backend] #4 DONE 0.0s
+[backend] 
+[backend] #5 [1/4] FROM docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
+[backend] #5 resolve docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc 0.0s done
+[backend] #5 DONE 0.1s
+[backend] 
+[backend] #6 [2/4] RUN addgroup -S nodeflow && adduser -S nodeflow -G nodeflow
+[backend] #6 CACHED
+[backend] 
+[backend] #7 [3/4] WORKDIR /runner
+[backend] #7 CACHED
+[backend] 
+[backend] #8 [4/4] COPY src/execution/python/tracer.py /runner/tracer.py
+[backend] #8 CACHED
+[backend] 
+[backend] #9 exporting to image
+[backend] #9 exporting layers done
+[backend] #9 exporting manifest sha256:9c8b3fad6c03d5932daf2a5ae6c417f32f05a73cb0f66de3bde78f6d332affe9 done
+[backend] #9 exporting config sha256:ba9a65bfe5777d3c643724ca5f3da933267518d85bbf36d2ad4966f3713b907d done
+[backend] #9 exporting attestation manifest sha256:dff554648a73e80acaa721f77615a7c4734556a6494a56ecb5504a618fa67eae
+[backend] #9 exporting attestation manifest sha256:dff554648a73e80acaa721f77615a7c4734556a6494a56ecb5504a618fa67eae 0.0s done
+[backend] #9 exporting manifest list sha256:037c235cd299106a5d4a60f3836aa2a1619de4ca0130eac6686fe4c78521d8c1 0.0s done
+[backend] #9 naming to docker.io/library/nodeflow-python-sandbox:latest done
+[backend] #9 unpacking to docker.io/library/nodeflow-python-sandbox:latest 0.0s done
+[backend] #9 DONE 0.2s
+[backend] 10:24:55 am [tsx] change in ./src\server.ts Restarting...
+[backend] Noesis backend listening on http://localhost:8787
+[frontend] [2m10:25:32 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/lib/session.tsx, /src/workspace/WorkspacePage.tsx[22m
+[frontend] [2m10:25:41 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[frontend] [2m10:26:15 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[frontend] [2m10:26:25 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[frontend] [2m10:28:33 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m10:28:54 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m10:29:03 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m10:32:15 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[backend] 10:40:38 am [tsx] change in ./src\problems\ingest\schema.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 10:42:53 am [tsx] unlink in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] node:internal/modules/esm/resolve:274
+[backend]     throw new ERR_MODULE_NOT_FOUND(
+[backend]           ^
+[backend] 
+[backend] Error [E[backend] node:internal/modules/esm/resolve:274
+[backend]     throw new ERR_MODULE_NOT_FOUND(
+[backend]           ^
+[backend] 
+[backend] Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\KIIT\projects\nodeflow\backend\src\problems\reviewedPhase1.js' imported from C:\Users\KIIT\projects\nodeflow\backend\src\problems\seeds.ts
+[backend]     at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+[backend]     at moduleResolve (node:internal/modules/esm/resolve:864:10)
+[backend]     at defaultResolve (node:internal/modules/esm/resolve:990:11)
+[backend]     at #cachedDefaultResolve (node:internal/modules/esm/loader:718:20)
+[backend]     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:735:38)
+[backend]     at nextStep (node:internal/modules/customization_hooks:189:26)
+[backend]     at resolveBaseSync (file:///C:/Users/KIIT/projects/nodeflow/node_modules/tsx/dist/register-C4vWVmug.mjs:2:10932)
+[backend]     at resolveDirectorySync (file:///C:/Users/KIIT/projects/nodeflow/node_modules/tsx/dist/register-C4vWVmug.mjs:2:12238)
+[backend]     at resolveTsPathsSync (file:///C:/Users/KIIT/projects/nodeflow/node_modules/tsx/dist/register-C4vWVmug.mjs:2:13445)
+[backend]     at resolve (file:///C:/Users/KIIT/projects/nodeflow/node_modules/tsx/dist/register-C4vWVmug.mjs:2:15991) {
+[backend]   code: 'ERR_MODULE_NOT_FOUND',
+[ba[backend] 10:43:04 am [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 10:51:21 am [tsx] change in ./src\execution\dockerRunner.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:33:55 pm [tsx] change in ./src\auth\store.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:40:46 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:47:36 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:47:44 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] #0 building with "desktop-linux" instance using docker driver
+[backend] 
+[backend] #1 [internal] load build definition from Dockerfile
+[backend] #1 transferring dockerfile: 253B done
+[backend] #1 DONE 0.0s
+[backend] 
+[backend] #2 [internal] load metadata for docker.io/library/python:3.14-alpine
+[backend] #2 DONE 1.2s
+[backend] 
+[backend] #3 [internal] load .dockerignore
+[backend] #3 transferring context: 2B done
+[backend] #3 DONE 0.0s
+[backend] 
+[backend] #4 [internal] load build context
+[backend] #4 transferring context: 148B done
+[backend] #4 DONE 0.0s
+[backend] 
+[backend] #5 [1/4] FROM docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
+[backend] #5 resolve docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc 0.0s done
+[backend] #5 DONE 0.0s
+[backend] 
+[backend] #6 [2/4] RUN addgroup -S nodeflow && adduser -S nodeflow -G nodeflow
+[backend] #6 CACHED
+[backend] 
+[backend] #7 [3/4] WORKDIR /runner
+[backend] #7 CACHED
+[backend] 
+[backend] #8 [4/4] COPY src/execution/python/tracer.py /runner/tracer.py
+[backend] #8 CACHED
+[backend] 
+[backend] #9 exporting to image
+[backend] #9 exporting layers done
+[backend] #9 exporting manifest sha256:ace336abce1cc9a0a16f530e89227e80a364caa88843f2593d028c77fab6dd45 done
+[backend] #9 exporting config sha256:ee096138a3c2f90d99ba2498f3dad45d41327f7b182e5cf9ab8246f69d7365e5 done
+[backend] #9 exporting attestation manifest sha256:2d59db35e2228dfd17042a0e4bef4f070ad11c5474eab702bd7c7fa4729dd20b
+[backend] #9 exporting attestation manifest sha256:2d59db35e2228dfd17042a0e4bef4f070ad11c5474eab702bd7c7fa4729dd20b 0.0s done
+[backend] #9 exporting manifest list sha256:bcc2e6911d6391ad78e17303fa93fb56a078ca8506923c6d8d0f68970176125b 0.0s done
+[backend] #9 naming to docker.io/library/nodeflow-python-sandbox:latest done
+[backend] #9 unpacking to docker.io/library/nodeflow-python-sandbox:latest 0.0s done
+[backend] #9 DONE 0.1s
+[backend] 4:54:24 pm [tsx] change in ./src\problems\reviewedPhase1.ts Restarting...
+[backend] Noesis backend listening on http://localhost:8787
+[frontend] [2m5:06:17 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m5:07:11 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[backend] 5:10:02 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[frontend] [2m5:18:59 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[frontend] [2m5:20:05 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m5:26:05 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[frontend] [2m5:30:15 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles/global.css[22m
+[backend] 5:30:38 pm [tsx] change in ./src\problems\ingest\schema.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[frontend] npm error Lifecycle script `dev` failed with error:
+[frontend] npm error code 4294967295
+[frontend] npm error path C:\Users\KIIT\projects\nodeflow\frontend
+[frontend] npm error workspace nodeflow-frontend@0.1.0
+[frontend] npm error location C:\Users\KIIT\projects\nodeflow\frontend
+[frontend] npm error command failed
+[frontend] npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vite --host 0.0.0.0 --port 5173
+[frontend] npm run dev --workspace frontend exited with code 4294967295
+--> Sending SIGTERM to other processes..
+[backend] npm run dev --workspace backend exited with code 1
+nd] #9 DONE 0.1s
+[backend] 4:47:36 pm [tsx] change in ./src\problems\reviewedPhase1.ts Restarting...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:47:44 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 4:54:24 pm [tsx] change in ./src\problems\reviewedPhase1.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] #0 building with "desktop-linux" instance using docker driver
+[backend] 
+[backend] #1 [internal] load build definition from Dockerfile
+[backend] #1 transferring dockerfile: 253B 0.0s done
+[backend] #1 DONE 0.0s
+[backend] 
+[backend] #2 [internal] load metadata for docker.io/library/python:3.14-alpine
+[backend] #2 DONE 1.1s
+[backend] 
+[backend] #3 [internal] load .dockerignore
+[backend] #3 transferring context: 2B done
+[backend] #3 DONE 0.0s
+[backend] 
+[backend] #4 [internal] load build context
+[backend] #4 transferring context: 148B done
+[backend] #4 DONE 0.0s
+[backend] 
+[backend] #5 [1/4] FROM docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc
+[backend] #5 resolve docker.io/library/python:3.14-alpine@sha256:05b2b8b732ecd268fee8727a369f936f022d1321b59befd13c30ede22769dcdc 0.0s done
+[backend] #5 DONE 0.0s
+[backend] 
+[backend] #6 [2/4] RUN addgroup -S nodeflow && adduser -S nodeflow -G nodeflow
+[backend] #6 CACHED
+[backend] 
+[backend] #7 [3/4] WORKDIR /runner
+[backend] #7 CACHED
+[backend] 
+[backend] #8 [4/4] COPY src/execution/python/tracer.py /runner/tracer.py
+[backend] #8 CACHED
+[backend] 
+[backend] #9 exporting to image
+[backend] #9 exporting layers done
+[backend] #9 exporting manifest sha256:ace336abce1cc9a0a16f530e89227e80a364caa88843f2593d028c77fab6dd45 done
+[backend] #9 exporting config sha256:ee096138a3c2f90d99ba2498f3dad45d41327f7b182e5cf9ab8246f69d7365e5 done
+[backend] #9 exporting attestation manifest sha256:021c85eb82cea22f8663ffbeefd6bad43eb41cafd0637e1ac07c01bc4fa04c29 0.0s done
+[backend] #9 exporting manifest list sha256:8e9608f716d81e6c8b585c2c19dc7d501588717705298c2e08eed759af5d94ed 0.0s done
+[backend] #9 naming to docker.io/library/nodeflow-python-sandbox:latest done
+[backend] #9 unpacking to docker.io/library/nodeflow-python-sandbox:latest 0.0s done
+[backend] #9 DONE 0.1s
+[backend] 5:10:02 pm [tsx] change in ./src\problems\reviewedPhase1.ts Restarting...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 5:30:38 pm [tsx] change in ./src\problems\ingest\schema.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 6:03:05 pm [tsx] change in ./src\execution\service.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[frontend] [2m6:51:20 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mindex.html[22m
+[backend] 6:55:31 pm [tsx] change in ./src\progress\summary.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 6:55:39 pm [tsx] change in ./src\problems\ingest\schema.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 6:56:19 pm [tsx] change in ./src\problems\seeds.ts Restarting...
+[backend] Noesis backend listening on http://localhost:8787
+[backend] 7:00:23 pm [tsx] change in ./src\execution\dockerRunner.ts Rerunning...
+[backend] Noesis backend listening on http://localhost:8787

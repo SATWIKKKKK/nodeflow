@@ -1,0 +1,32 @@
+{
+  "name": "nodeflow-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "smoke": "tsx src/execution/smoke.ts",
+    "verify:auth": "tsx src/auth/verifyAuth.ts",
+    "verify:queue": "cross-env NOESIS_MAX_CONCURRENT_RUNS=1 tsx src/execution/verifyQueue.ts",
+    "ingest:metadata": "tsx src/problems/ingest/extractPhase1Metadata.ts",
+    "ingest:drafts": "tsx src/problems/ingest/generatePhase1Drafts.ts",
+    "verify:reviewed": "tsx src/problems/ingest/verifyReviewedPhase1.ts",
+    "verify:problems": "tsx src/problems/verifyProblems.ts",
+    "verify:progress": "tsx src/progress/verifyProgress.ts"
+  },
+  "dependencies": {
+    "@nodeflow/shared": "0.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.2.1",
+    "tsx": "^4.20.3",
+    "cross-env": "^10.0.0",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+frontend/dist/
+backend/dist/
+logs/
+output/
+backend/data/submissions.json
+.env
+.env.*
+!.env.example
