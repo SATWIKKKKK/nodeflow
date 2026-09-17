@@ -111,7 +111,7 @@ export default function PlaybackControls({
         </label>
 
         <span className="ml-auto text-technical-mono text-blueprint-muted" aria-live="off">
-          {empty ? "No trace yet" : `Step ${index + 1} / ${count}${line ? ` · line ${line}` : ""}`}
+          {empty ? "" : `Step ${index + 1} / ${count}${line ? ` · line ${line}` : ""}`}
         </span>
       </div>
 

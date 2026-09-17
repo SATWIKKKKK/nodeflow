@@ -1,10 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Problem } from "@nodeflow/shared";
 import { reviewedProblemListSchema, reviewedProblemToProblem } from "./ingest/schema.js";
+import { backendRoot } from "../paths.js";
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const reviewedPath = path.join(backendRoot, "data", "reviewed-phase1.json");
 /** One JSON file per topic batch; each holds an array of verified problem records. */
 const bankDir = path.join(backendRoot, "data", "problems");

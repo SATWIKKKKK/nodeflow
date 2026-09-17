@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useSession } from "../../lib/session";
 import { cn } from "../../lib/cn";
 import { Logo } from "../Logo";
@@ -11,8 +11,8 @@ import { AccountMenu } from "./AccountMenu";
 
 export const siteLinks = [
   { to: "/how-it-works", label: "How it works" },
-  { to: "/tracing", label: "Tracing" },
   { to: "/problems", label: "Problems" },
+  { to: "/classrooms", label: "Classrooms" },
   { to: "/pricing", label: "Pricing" }
 ];
 
@@ -31,12 +31,13 @@ export function SiteNavbar() {
     <div className="sticky top-3 z-40 mx-3 sm:top-4 sm:mx-4">
       <nav
         aria-label="Primary"
-        className="landing-navbar mx-auto max-w-[1440px] rounded-2xl border border-blueprint-line"
+        className="landing-navbar mx-auto max-w-5xl rounded-2xl border border-blueprint-line"
       >
-        <div className="flex min-h-14 items-center justify-between gap-4 px-4 py-2 sm:px-8 lg:px-12">
-          <Logo markClassName="h-8 sm:h-9" />
+        {/* Three columns so the links sit on the true centre line, whatever the side widths. */}
+        <div className="grid min-h-12 grid-cols-[1fr_auto] items-center gap-3 px-3 py-1.5 sm:px-5 lg:grid-cols-[1fr_auto_1fr]">
+          <Logo markClassName="h-7 sm:h-8" />
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center justify-center gap-1 lg:flex">
             {siteLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={navLinkClass}>
                 {link.label}
@@ -44,7 +45,7 @@ export function SiteNavbar() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             <ThemeToggle />
             <div className="hidden items-center gap-2 sm:flex">
               {session.user ? (
@@ -55,14 +56,9 @@ export function SiteNavbar() {
                   <AccountMenu />
                 </>
               ) : (
-                <>
-                  <NavLink to="/signin" className={cn(button.ghost, "px-4")}>
-                    Sign in
-                  </NavLink>
-                  <NavLink to="/problems" className={button.primary}>
-                    Start tracing <ArrowRight size={14} aria-hidden />
-                  </NavLink>
-                </>
+                <NavLink to="/signin" className={cn(button.ghost, "px-4")}>
+                  Sign in
+                </NavLink>
               )}
             </div>
             <button
@@ -88,7 +84,7 @@ export function SiteNavbar() {
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden lg:hidden"
             >
-              <div className="flex flex-col gap-1 border-t border-blueprint-line px-4 pb-4 pt-3 sm:px-8">
+              <div className="flex flex-col gap-1 border-t border-blueprint-line px-3 pb-4 pt-3 sm:px-5">
                 {siteLinks.map((link) => (
                   <NavLink
                     key={link.to}
@@ -118,14 +114,9 @@ export function SiteNavbar() {
                       </button>
                     </>
                   ) : (
-                    <>
-                      <NavLink to="/problems" className={cn(button.primary, "w-full py-3")}>
-                        Start tracing <ArrowRight size={14} aria-hidden />
-                      </NavLink>
-                      <NavLink to="/signin" className={cn(button.outline, "w-full")}>
-                        Sign in
-                      </NavLink>
-                    </>
+                    <NavLink to="/signin" className={cn(button.outline, "w-full")}>
+                      Sign in
+                    </NavLink>
                   )}
                 </div>
               </div>

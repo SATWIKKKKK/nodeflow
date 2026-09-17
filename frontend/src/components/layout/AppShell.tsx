@@ -14,6 +14,7 @@ import {
   MoonStar,
   SunMedium,
   Terminal,
+  Users,
   Workflow,
   X,
   type LucideIcon
@@ -38,7 +39,8 @@ const primaryNav: NavItem[] = [
   { to: "/problems", label: "Problems", icon: ListChecks },
   { to: "/workspace", label: "Workspace", icon: Terminal },
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { to: "/problem-map", label: "Problem map", icon: Layers3 }
+  { to: "/problem-map", label: "Problem map", icon: Layers3 },
+  { to: "/classrooms", label: "Classrooms", icon: Users }
 ];
 
 const learnNav: NavItem[] = [
@@ -52,8 +54,12 @@ const COLLAPSE_KEY = "noesis:sidebar-collapsed";
 const titles: Record<string, string> = {
   "/problems": "Problems",
   "/dashboard": "Dashboard",
-  "/problem-map": "Problem map"
+  "/problem-map": "Problem map",
+  "/classrooms": "Classrooms"
 };
+
+const titleFor = (pathname: string) =>
+  titles[pathname] ?? (pathname.startsWith("/classrooms/") ? "Classroom" : "Noesis");
 
 function SideLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const Icon = item.icon;
@@ -248,7 +254,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               <Menu size={16} aria-hidden />
             </button>
             <p className="min-w-0 flex-1 truncate text-ui-label text-blueprint-muted lg:flex-none lg:basis-40">
-              {titles[location.pathname] ?? "Noesis"}
+              {titleFor(location.pathname)}
             </p>
             <div className="hidden flex-1 justify-center lg:flex">
               <ProblemSearch />

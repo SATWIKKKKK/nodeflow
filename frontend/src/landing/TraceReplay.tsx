@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import type { HeapObject, TraceDiff, TraceStep } from "@nodeflow/shared";
 import { cn } from "../lib/cn";
 import recorded from "./reverseListTrace.json";
@@ -20,8 +20,8 @@ interface DemoTrace {
 
 const demo = recorded as unknown as DemoTrace;
 const codeLines = demo.code.replace(/\n$/, "").split("\n");
-const STEP_MS = 950;
-const END_HOLD_MS = 2200;
+const STEP_MS = 620;
+const END_HOLD_MS = 900;
 
 const HEIGHT = 236;
 const NODE_Y = 124;
@@ -141,7 +141,7 @@ function arrowFor(fromId: string, toId: string | null, layout: Layout): Arrow {
 /**
  * Loops the recording forever while it is on screen: each step holds for
  * STEP_MS, the finished list holds a little longer, then it starts over.
- * Hovering pauses it so a step can be read; nothing else controls it.
+ * Nothing pauses it; scrolling it out of view only saves the timers.
  */
 function useLoopingPlayback(count: number, active: boolean) {
   const [index, setIndex] = useState(0);
@@ -159,14 +159,10 @@ function useLoopingPlayback(count: number, active: boolean) {
 export function TraceReplay() {
   const count = demo.trace.length;
   const root = useRef<HTMLDivElement>(null);
-  const inView = useInView(root, { amount: 0.3 });
-  const reduceMotion = useReducedMotion();
+  // A small margin starts playback just before the replay scrolls into view.
+  const inView = useInView(root, { amount: 0.05, margin: "0px 0px 200px 0px" });
   const layout = useCompact() ? COMPACT : WIDE;
-  const [hovered, setHovered] = useState(false);
-
-  // Reduced motion shows the finished reversal as a still instead of looping.
-  const playedIndex = useLoopingPlayback(count, inView && !reduceMotion && !hovered);
-  const index = reduceMotion ? count - 1 : playedIndex;
+  const index = useLoopingPlayback(count, inView);
 
   const step = demo.trace[index];
   const diff = demo.diffs[index];
@@ -211,12 +207,7 @@ export function TraceReplay() {
     .join("; ");
 
   return (
-    <div
-      ref={root}
-      className="surface-frame overflow-hidden"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div ref={root} className="surface-frame overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3.5 sm:px-6">
         <div className="flex items-center gap-3">
           <span className="text-technical-mono text-primary">reverse_list.py</span>
@@ -297,7 +288,7 @@ export function TraceReplay() {
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{ pathLength: 1, opacity: 1 }}
                     exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                    transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
                   />
                 );
               })}
@@ -405,17 +396,6 @@ export function TraceReplay() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 border-t border-blueprint-line px-5 py-4 sm:px-6">
-        <span className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-blueprint-line" aria-hidden>
-          <span
-            className="absolute inset-y-0 left-0 w-full origin-left bg-primary transition-transform duration-500 ease-out"
-            style={{ transform: `scaleX(${index / (count - 1)})` }}
-          />
-        </span>
-        <span className="shrink-0 text-technical-mono text-blueprint-muted">
-          Step {String(index + 1).padStart(2, "0")} / {count} · line {step.line}
-        </span>
-      </div>
     </div>
   );
 }

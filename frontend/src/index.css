@@ -612,3 +612,20 @@
   background: var(--card);
   color: var(--foreground);
 }
+
+/* Hero accent: the Python tag's deep blue in light mode, its light-blue edge in dark mode. */
+.hero-accent {
+  color: #123d8a;
+}
+
+.dark .hero-accent {
+  color: #93c5fd;
+}
+
+/* Horizontal chip rows scroll by drag, wheel or the arrow buttons; the bar itself is hidden. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -2,9 +2,9 @@ import { spawn, spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Language, ProblemParameter, ProblemSignature, TraceStep } from "@nodeflow/shared";
 import { configFor, type LanguageConfig } from "./languages.js";
+import { backendRoot } from "../paths.js";
 
 export interface RunnerPayload {
   code: string;
@@ -19,6 +19,8 @@ export interface RunnerPayload {
   cases?: Array<{ input: Record<string, unknown> }>;
   trace?: boolean;
   stepLimit: number;
+  /** Live preview: stop at stepLimit instead of finishing the run untraced (Python). */
+  stopAtStepLimit?: boolean;
   visualizeLimit: number;
   caseTimeoutMs?: number;
 }
@@ -62,7 +64,6 @@ export type RawBatchResponse =
   | { ok: true; cases: Array<RawRunnerSuccess | RawRunnerError> }
   | RawRunnerError;
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
 /** Images are checked (and built if missing) once per process, per content hash. */
 const readyImages = new Set<string>();
 
@@ -120,6 +121,15 @@ export const runInDocker = async <T = RawRunnerResponse>(
   timeoutMs?: number,
   language: Language = "python"
 ): Promise<T | RawRunnerError> => {
+  if (process.env.NOESIS_SANDBOX === "off") {
+    // Hosted builds without Docker (e.g. the Vercel preview) answer every run the same way.
+    return {
+      ok: false,
+      errorType: "Platform Error",
+      message:
+        "This deployment has no code sandbox, so Run, Test and Submit are unavailable here. Run Noesis locally with Docker to execute code."
+    };
+  }
   const config = configFor(language);
   const effectiveTimeout = timeoutMs ?? config.timeoutMs;
 

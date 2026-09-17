@@ -54,14 +54,14 @@ const phases = [
     points: [
       "Every problem on the DSA sheet, verified in the sandbox",
       "Traces for Python, C++ and Java",
-      "Stacks, queues, trees, graphs, grids and maps in the trace"
+      "Custom input and classrooms with shared progress"
     ]
   },
   {
     name: "Later",
     status: "Planned",
     title: "Beyond the sheet",
-    points: ["Custom input for your own test cases", "Hosted classrooms", "Shared progress for teams"]
+    points: ["Paid plans for larger courses", "Private problem banks for teams", "Sign-in with Google"]
   }
 ];
 

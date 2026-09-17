@@ -13,7 +13,8 @@
     "ingest:drafts": "tsx src/problems/ingest/generatePhase1Drafts.ts",
     "verify:reviewed": "tsx src/problems/ingest/verifyReviewedPhase1.ts",
     "verify:problems": "tsx src/problems/verifyProblems.ts",
-    "verify:progress": "tsx src/progress/verifyProgress.ts"
+    "verify:progress": "tsx src/progress/verifyProgress.ts",
+    "verify:starters": "tsx src/problems/verifyStarters.ts"
   },
   "dependencies": {
     "@nodeflow/shared": "0.1.0",

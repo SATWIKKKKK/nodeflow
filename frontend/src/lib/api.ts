@@ -1,9 +1,13 @@
 import type {
   AuthResponse,
   AuthUser,
+  ClassroomDetail,
+  ClassroomSummary,
   ExecutionResponse,
+  ExpectedOutputResponse,
   Language,
   LivePreviewResponse,
+  ProblemSummary,
   ProgressSummary,
   PublicProblem,
   SubmitResponse,
@@ -14,8 +18,11 @@ const jsonHeaders = {
   "Content-Type": "application/json"
 };
 
+/** Empty in development (Vite proxies /api); set VITE_API_URL when the API lives on another host. */
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
-  const response = await fetch(path, init);
+  const response = await fetch(`${API_BASE}${path}`, init);
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || `Request failed with ${response.status}`);
@@ -36,7 +43,9 @@ export interface DsaSummary {
 }
 
 export const api = {
-  problems: () => request<PublicProblem[]>("/api/problems"),
+  health: () => request<{ ok: boolean; sandbox?: boolean; accounts?: boolean }>("/api/health"),
+  problems: () => request<ProblemSummary[]>("/api/problems"),
+  problem: (id: string) => request<PublicProblem>(`/api/problems/${encodeURIComponent(id)}`),
   dsaSummary: () => request<DsaSummary>("/api/dsa-summary"),
   progress: (token?: string | null) =>
     request<ProgressSummary>("/api/progress", {
@@ -57,12 +66,20 @@ export const api = {
     problemId: string,
     code: string,
     signal?: AbortSignal,
-    language: Language = "python"
+    language: Language = "python",
+    input?: Record<string, unknown>
   ) =>
     request<LivePreviewResponse>("/api/live-preview", {
       method: "POST",
       headers: jsonHeaders,
-      body: JSON.stringify({ problemId, code, language }),
+      body: JSON.stringify({ problemId, code, language, input }),
+      signal
+    }),
+  expected: (problemId: string, input: Record<string, unknown>, signal?: AbortSignal) =>
+    request<ExpectedOutputResponse>("/api/expected", {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ problemId, input }),
       signal
     }),
   test: (problemId: string, code: string, language: Language = "python") =>
@@ -109,6 +126,49 @@ export const api = {
       method: "POST",
       headers: authHeaders(token)
     }),
+  classrooms: (token?: string | null) =>
+    request<{ classrooms: ClassroomSummary[] }>("/api/classrooms", { headers: authHeaders(token) }),
+  classroom: (id: string, token?: string | null) =>
+    request<ClassroomDetail>(`/api/classrooms/${encodeURIComponent(id)}`, { headers: authHeaders(token) }),
+  createClassroom: (name: string, token?: string | null) =>
+    request<ClassroomDetail>("/api/classrooms", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ name })
+    }),
+  joinClassroom: (code: string, token?: string | null) =>
+    request<ClassroomDetail>("/api/classrooms/join", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ code })
+    }),
+  renameClassroom: (id: string, name: string, token?: string | null) =>
+    request<ClassroomDetail>(`/api/classrooms/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: authHeaders(token),
+      body: JSON.stringify({ name })
+    }),
+  deleteClassroom: (id: string, token?: string | null) =>
+    request<{ ok: boolean }>(`/api/classrooms/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: authHeaders(token)
+    }),
+  setAssignments: (id: string, problemIds: string[], token?: string | null) =>
+    request<ClassroomDetail>(`/api/classrooms/${encodeURIComponent(id)}/assignments`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify({ problemIds })
+    }),
+  rotateJoinCode: (id: string, token?: string | null) =>
+    request<ClassroomDetail>(`/api/classrooms/${encodeURIComponent(id)}/join-code`, {
+      method: "POST",
+      headers: authHeaders(token)
+    }),
+  removeMember: (id: string, memberId: string, token?: string | null) =>
+    request<{ ok: boolean }>(
+      `/api/classrooms/${encodeURIComponent(id)}/members/${encodeURIComponent(memberId)}`,
+      { method: "DELETE", headers: authHeaders(token) }
+    ),
   resetPassword: (email: string) =>
     request<{ ok: boolean }>("/api/auth/reset", {
       method: "POST",

@@ -58,14 +58,17 @@ export const INFO_PAGES: InfoPageContent[] = [
           "Step-by-step playback for arrays, lists, stacks, queues, trees, graphs, grids and maps.",
           "The full DSA sheet, from basic maths to tries.",
           "Run, Test and Submit, with a live preview while you type.",
+          "Custom input for your own test cases, checked against the reference solution.",
+          "Classrooms with join codes, assignments and a shared progress board.",
           "Local accounts and a progress dashboard built from your submissions."
         ]
       },
       {
         title: "Planned",
         points: [
-          "Custom input for your own test cases.",
-          "Hosted classrooms and shared progress."
+          "Paid plans with reserved sandbox capacity for larger courses.",
+          "Private problem banks for teams.",
+          "Sign-in with Google."
         ]
       }
     ]

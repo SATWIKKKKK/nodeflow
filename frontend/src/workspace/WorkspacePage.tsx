@@ -1,16 +1,19 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   AlertCircle,
   AlertTriangle,
   ArrowLeft,
   Check,
   ChevronDown,
-  CircleDashed,
   Loader2,
   Lock,
+  Maximize2,
+  Minimize2,
   Play,
   RefreshCw,
+  RotateCcw,
+  Sparkles,
   X
 } from "lucide-react";
 import {
@@ -18,6 +21,7 @@ import {
   expandTrace,
   LANGUAGE_LABELS,
   LANGUAGE_TRACING,
+  outputsMatch,
   SUPPORTED_LANGUAGES,
   type CaseResult,
   type ExecutionResponse,
@@ -28,7 +32,9 @@ import {
   type TraceStep
 } from "@nodeflow/shared";
 import { api } from "../lib/api";
+import { readError } from "../lib/errors";
 import { loadProblems, structureLabel } from "../lib/problems";
+import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { LogoMark } from "../components/Logo";
@@ -38,7 +44,21 @@ import { AccountMenu } from "../components/layout/AccountMenu";
 import { button, chip, field } from "../components/ui";
 import { TraceDiagram } from "../trace/TraceDiagram";
 import CodeEditorPane from "./CodeEditorPane";
+import { CustomInputPanel, parseCustomInput, pretty } from "./CustomInputPanel";
 import PlaybackControls from "./PlaybackControls";
+import {
+  clearDraft,
+  readCachedProblem,
+  readCachedTrace,
+  readCustomInput,
+  readDraft,
+  readLanguage,
+  writeCachedProblem,
+  writeCachedTrace,
+  writeCustomInput,
+  writeDraft,
+  writeLanguage
+} from "./persist";
 import { baseNodeId, buildLineIndex, buildSceneGraph } from "./scene/graph";
 
 // three.js is ~1MB. Splitting it out lets the editor, problem header and
@@ -46,11 +66,13 @@ import { baseNodeId, buildLineIndex, buildSceneGraph } from "./scene/graph";
 const Scene3D = lazy(() => import("./scene/Scene3D"));
 
 /** Compiled languages pay for a compile per preview, so they wait longer. */
-const PREVIEW_DEBOUNCE_MS: Record<Language, number> = { python: 650, cpp: 1600, java: 1600 };
-const STEP_BASE_MS = 700;
+const PREVIEW_DEBOUNCE_MS: Record<Language, number> = { python: 450, cpp: 1200, java: 1200 };
+const STEP_BASE_MS = 600;
 const STUCK_AFTER_MS = 4500;
 /** A run this slow means the sandbox is cold, queued, or wedged. */
 const SLOW_RUN_MS = 20000;
+/** Typing, then this long with no Run/Test/Submit, earns a nudge. */
+const IDLE_NUDGE_MS = 30_000;
 
 type StuckReason = "playback" | "sandbox";
 type TraceSource = "preview" | "run";
@@ -80,20 +102,28 @@ interface TraceState {
   diffs: TraceDiff[];
 }
 
+interface PreviewJob {
+  key: string;
+  owner: string;
+  problemId: string;
+  code: string;
+  language: Language;
+  input?: Record<string, unknown>;
+}
+
+interface CustomCheck {
+  input: Record<string, unknown>;
+  expected?: unknown;
+  message?: string;
+  pending: boolean;
+}
+
 const EMPTY_TRACE: TraceState = { trace: [], diffs: [] };
 
 const show = (value: unknown) => JSON.stringify(value);
 
-/** Pulls `message` out of a JSON error body; request errors carry the raw body. */
-const readError = (error: unknown, fallback: string) => {
-  if (!(error instanceof Error)) return fallback;
-  try {
-    const parsed = JSON.parse(error.message) as { message?: string };
-    return parsed.message ?? error.message;
-  } catch {
-    return error.message || fallback;
-  }
-};
+/** Everything that determines a preview's result. */
+const previewKeyOf = (language: Language, inputKey: string, code: string) => JSON.stringify([language, inputKey, code]);
 
 const panelTitle = "text-ui-label text-blueprint-muted";
 
@@ -140,9 +170,7 @@ function CaseRow({ result, index }: { result: CaseResult; index: number }) {
           )}
         </span>
         <span className="text-sm font-medium text-primary">Case {index + 1}</span>
-        <span className="text-technical-mono text-blueprint-muted">
-          {result.visible ? "visible" : "hidden"}
-        </span>
+        <span className="text-technical-mono text-blueprint-muted">{result.visible ? "visible" : "hidden"}</span>
         <span className="ml-auto text-xs text-blueprint-muted">
           {passed ? "Passed" : result.status === "error" ? "Error" : "Wrong answer"}
         </span>
@@ -178,11 +206,17 @@ function CaseRow({ result, index }: { result: CaseResult; index: number }) {
 
 export default function WorkspacePage() {
   const session = useSession();
+  const server = useServerStatus();
+  const navigate = useNavigate();
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
 
-  const [problems, setProblems] = useState<PublicProblem[]>([]);
-  const [language, setLanguage] = useState<Language>("python");
-  const [code, setCode] = useState("");
+  const [problem, setProblem] = useState<PublicProblem | null>(() =>
+    routeProblemId ? readCachedProblem(routeProblemId) : null
+  );
+  const [language, setLanguageState] = useState<Language>(readLanguage);
+  // Code and custom input remember which problem (and language) they belong to, so
+  // a render caught mid-switch never previews one problem's code against another.
+  const [editor, setEditor] = useState({ owner: "", code: "" });
 
   const [traceState, setTraceState] = useState<TraceState>(EMPTY_TRACE);
   const [traceSource, setTraceSource] = useState<TraceSource | null>(null);
@@ -194,11 +228,23 @@ export default function WorkspacePage() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const [busy, setBusy] = useState<"run" | "test" | "submit" | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
   const [execution, setExecution] = useState<ExecutionResponse | null>(null);
   const [judgement, setJudgement] = useState<TestResponse | null>(null);
+  const [customCheck, setCustomCheck] = useState<CustomCheck | null>(null);
   const [notice, setNotice] = useState("");
   const [ranAt, setRanAt] = useState("");
   const [statementOpen, setStatementOpen] = useState(true);
+  const [editorFullscreen, setEditorFullscreen] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  // Custom input, per problem.
+  const [custom, setCustom] = useState({ owner: "", enabled: false, text: "" });
+  const [serverInputError, setServerInputError] = useState("");
+
+  // Idle nudge: counts user edits since the last Run/Test/Submit.
+  const [edits, setEdits] = useState(0);
+  const [idle, setIdle] = useState(false);
 
   // Edge-case surfaces.
   const [staleTrace, setStaleTrace] = useState(false);
@@ -206,6 +252,22 @@ export default function WorkspacePage() {
   const [stuck, setStuck] = useState<StuckReason | null>(null);
 
   const previewAbort = useRef<AbortController | null>(null);
+  const queuedPreview = useRef<PreviewJob | null>(null);
+  const previewSeq = useRef(0);
+  const appliedSeq = useRef(0);
+  const ownerRef = useRef("");
+  const lastPreviewKey = useRef("");
+  const lastTraceJson = useRef("");
+  const problemId = problem?.id ?? "";
+  const editorOwner = `${problemId}:${language}`;
+  const code = editor.code;
+  const codeReady = Boolean(problemId) && editor.owner === editorOwner;
+  const customReady = Boolean(problemId) && custom.owner === problemId;
+  ownerRef.current = editorOwner;
+  const customEnabled = customReady && custom.enabled;
+  const customText = customReady ? custom.text : "";
+  const setCustomEnabled = (enabled: boolean) => setCustom((current) => ({ ...current, enabled }));
+  const setCustomText = (text: string) => setCustom((current) => ({ ...current, text }));
 
   const setSceneMode = (mode: SceneMode) => {
     setSceneModeState(mode);
@@ -216,127 +278,264 @@ export default function WorkspacePage() {
     }
   };
 
-  const problem = useMemo(() => {
-    if (!problems.length) return null;
-    return problems.find((entry) => entry.id === routeProblemId) ?? problems[0];
-  }, [problems, routeProblemId]);
+  const setLanguage = (next: Language) => {
+    setLanguageState(next);
+    writeLanguage(next);
+  };
 
-  // Keyed on the id, not the object: the problems array gets a fresh identity on
-  // every refetch, and resetting off object identity wiped live state.
-  const activeProblemId = problem?.id ?? "";
-  const tracingSupported = LANGUAGE_TRACING[language];
+  // --- problem loading ------------------------------------------------------
 
   useEffect(() => {
     let mounted = true;
 
-    loadProblems()
-      .then((list) => {
-        if (mounted) setProblems(list);
+    if (!routeProblemId) {
+      // /workspace on its own opens the first problem in the bank.
+      loadProblems()
+        .then((list) => mounted && list[0] && navigate(`/workspace/${list[0].id}`, { replace: true }))
+        .catch(() => mounted && setNotice("Could not load problems. Check that the Noesis backend is running, then reload."));
+      return () => {
+        mounted = false;
+      };
+    }
+
+    const cached = readCachedProblem(routeProblemId);
+    setProblem((current) => (current?.id === routeProblemId ? current : cached));
+    api
+      .problem(routeProblemId)
+      .then((fresh) => {
+        if (!mounted) return;
+        writeCachedProblem(fresh);
+        // Keep the object stable when nothing changed, so nothing downstream resets.
+        setProblem((current) => (current && JSON.stringify(current) === JSON.stringify(fresh) ? current : fresh));
       })
       .catch(() => {
-        if (mounted) setNotice("Could not load problems. Check that the Noesis backend is running, then reload.");
+        if (mounted && !cached) setNotice("Could not load this problem. Check that the Noesis backend is running, then reload.");
       });
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [routeProblemId, navigate]);
 
   useEffect(() => {
     document.title = problem ? `${problem.title} · Noesis` : "Workspace · Noesis";
   }, [problem]);
 
-  // Looked up through a ref so the reset below can depend on the problem *id*
-  // alone. Depending on the object re-fired this effect whenever the problems
-  // array got a new identity, wiping a trace that had just arrived.
-  const problemsRef = useRef<PublicProblem[]>([]);
-  problemsRef.current = problems;
+  // --- custom input ---------------------------------------------------------
 
-  // Switching problem or language reloads the matching starter stub.
+  const problemRef = useRef<PublicProblem | null>(null);
+  problemRef.current = problem;
+
   useEffect(() => {
-    const target = problemsRef.current.find((entry) => entry.id === activeProblemId);
+    const target = problemRef.current;
     if (!target) return;
+    const saved = readCustomInput(target.id);
+    setCustom({ owner: target.id, enabled: saved?.enabled ?? false, text: saved?.text ?? pretty(target.defaultInput) });
+    setServerInputError("");
+    setCustomCheck(null);
+  }, [problemId]);
 
-    setCode(target.starterCodeByLanguage?.[language] ?? target.starterCode ?? "");
-    setTraceState(EMPTY_TRACE);
-    setTraceSource(null);
-    setTraceInfo({ truncated: false });
-    setExecution(null);
-    setJudgement(null);
-    setIndex(0);
-    setPlaying(false);
-    setSelectedNode(null);
-    setStaleTrace(false);
-    setLoopWarning(null);
-    setRanAt("");
-  }, [activeProblemId, language]);
+  useEffect(() => {
+    if (!customReady || !customText) return;
+    writeCustomInput(problemId, { enabled: customEnabled, text: customText });
+  }, [customReady, problemId, customEnabled, customText]);
+
+  const parsedInput = useMemo(() => parseCustomInput(customText), [customText]);
+  const customInput = customEnabled && parsedInput.value ? parsedInput.value : undefined;
+  const inputKey = customInput ? JSON.stringify(customInput) : "default";
+  const customError = customEnabled ? parsedInput.error ?? serverInputError : "";
+
+  useEffect(() => setServerInputError(""), [customText]);
+
+  // --- traces ---------------------------------------------------------------
 
   /** Applies an execution result, preserving the last good trace on failure. */
   const applyExecution = useCallback((response: ExecutionResponse, fromPreview: boolean) => {
     // A quiet preview failure must not replace a real run's output.
     if (!fromPreview || response.ok) setExecution(response);
 
-    if (response.ok) {
-      setTraceState(toTraceState(response));
-      setTraceInfo({ truncated: Boolean(response.traceTruncated), note: response.traceNote });
+    const usable = response.ok || (response.trace?.length ?? 0) > 0;
+    if (usable) {
+      const json = JSON.stringify(response.trace ?? []);
+      // An unchanged trace (a comment or whitespace edit) keeps the scene and cursor where they are.
+      const same = fromPreview && json === lastTraceJson.current;
+      lastTraceJson.current = json;
+      if (!same) {
+        const next = toTraceState(response);
+        setTraceState(next);
+        // A preview shows where the code has got to; a Run replays from the top.
+        setIndex(fromPreview ? Math.max(0, next.trace.length - 1) : 0);
+        setPlaying(!fromPreview && next.trace.length > 1);
+      }
       setTraceSource(fromPreview ? "preview" : "run");
-      setIndex(0);
+      setTraceInfo(
+        response.ok
+          ? { truncated: Boolean(response.traceTruncated), note: response.traceNote }
+          : {
+              truncated: true,
+              note: LOOP_ERRORS.has(response.errorType)
+                ? fromPreview
+                  ? `The preview stops after ${response.trace?.length ?? 0} steps. If this should finish sooner, a loop may never exit.`
+                  : "As written, this code never finishes, so the replay stops at the step limit."
+                : undefined
+            }
+      );
       setStaleTrace(false);
-      setLoopWarning(null);
-      return;
+    } else {
+      // Nothing usable came back — hold whatever was last valid.
+      setStaleTrace(fromPreview);
     }
 
-    if (LOOP_ERRORS.has(response.errorType)) {
+    if (response.ok) {
+      setLoopWarning(null);
+    } else if (!fromPreview && LOOP_ERRORS.has(response.errorType)) {
       setLoopWarning(
         response.errorType === "Time Limit Exceeded"
           ? "Execution hit the time limit. This usually means a loop never exits."
           : "Execution hit the step limit. This usually means a loop never exits."
       );
     }
-
-    // A partial trace is still worth playing; it shows where it got stuck.
-    const partial = response.trace ?? [];
-    if (partial.length) {
-      setTraceState(toTraceState(response));
-      setTraceInfo({ truncated: true });
-      setTraceSource(fromPreview ? "preview" : "run");
-      setIndex(0);
-      setStaleTrace(false);
-      return;
-    }
-
-    // Nothing usable came back — hold whatever was last valid.
-    setStaleTrace(fromPreview);
   }, []);
 
-  // Debounced live preview. Mid-typing syntax errors are expected, so a failed
-  // preview holds the previous scene instead of clearing it.
+  // Switching problem or language loads the draft (or starter) and, when the
+  // cache holds a trace for exactly that code, paints it straight away.
   useEffect(() => {
-    if (!problem || !code.trim() || !tracingSupported) return;
+    const target = problemRef.current;
+    if (!target) return;
 
-    const timer = window.setTimeout(() => {
-      previewAbort.current?.abort();
-      const controller = new AbortController();
-      previewAbort.current = controller;
+    const starter = target.starterCodeByLanguage?.[language] ?? target.starterCode ?? "";
+    const initial = readDraft(target.id, language) ?? starter;
+    setEditor({ owner: `${target.id}:${language}`, code: initial });
+    setTraceState(EMPTY_TRACE);
+    setTraceSource(null);
+    setTraceInfo({ truncated: false });
+    setExecution(null);
+    setJudgement(null);
+    setCustomCheck(null);
+    setIndex(0);
+    setPlaying(false);
+    setSelectedNode(null);
+    setStaleTrace(false);
+    setLoopWarning(null);
+    setRanAt("");
+    setEdits(0);
+    setIdle(false);
+    lastPreviewKey.current = "";
+    lastTraceJson.current = "";
+    // Anything still running belongs to the previous problem or language.
+    previewAbort.current?.abort();
+    previewAbort.current = null;
+    queuedPreview.current = null;
+    appliedSeq.current = ++previewSeq.current;
+    setPreviewBusy(false);
 
-      api
-        .livePreview(problem.id, code, controller.signal, language)
-        .then((response) => applyExecution(response.execution, true))
-        .catch((error) => {
-          if (error instanceof DOMException && error.name === "AbortError") return;
-          setStaleTrace(true);
-        });
-    }, PREVIEW_DEBOUNCE_MS[language]);
+    const saved = readCustomInput(target.id);
+    const savedInput = saved?.enabled ? parseCustomInput(saved.text).value : undefined;
+    const key = previewKeyOf(language, savedInput ? JSON.stringify(savedInput) : "default", initial);
+    const cached = readCachedTrace(target.id, language, key);
+    if (cached) {
+      lastPreviewKey.current = key;
+      applyExecution(cached, true);
+    }
+  }, [problemId, language, applyExecution]);
+
+  const handleCodeChange = useCallback(
+    (next: string) => {
+      setEditor((current) => ({ ...current, code: next }));
+      setEdits((count) => count + 1);
+      if (problemId) writeDraft(problemId, language, next);
+    },
+    [problemId, language]
+  );
+
+  // Live preview. The first trace for a page is requested immediately; later
+  // ones wait for a pause in typing. Mid-typing syntax errors are expected, so a
+  // failed preview holds the previous scene instead of clearing it.
+  const stepCount = traceState.trace.length;
+  const hasTrace = stepCount > 0;
+
+  // One preview runs at a time. While it runs, only the newest code waits its
+  // turn, so a slow sandbox still shows each result instead of cancelling every
+  // request while the learner keeps typing.
+  const startPreview = useRef<(job: PreviewJob) => void>(() => undefined);
+  startPreview.current = (job: PreviewJob) => {
+    const seq = ++previewSeq.current;
+    const controller = new AbortController();
+    previewAbort.current = controller;
+    setPreviewBusy(true);
+
+    api
+      .livePreview(job.problemId, job.code, controller.signal, job.language, job.input)
+      .then((response) => {
+        if (seq < appliedSeq.current || ownerRef.current !== job.owner) return;
+        appliedSeq.current = seq;
+        lastPreviewKey.current = job.key;
+        if (response.inputError) {
+          setServerInputError(response.inputError);
+          return;
+        }
+        applyExecution(response.execution, true);
+        if (response.execution.ok) writeCachedTrace(job.problemId, job.language, job.key, response.execution);
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (ownerRef.current !== job.owner) return;
+        const message = readError(error, "");
+        if (message.startsWith("Custom input:")) setServerInputError(message.replace(/^Custom input:\s*/, ""));
+        else setStaleTrace(true);
+      })
+      .finally(() => {
+        if (previewAbort.current !== controller) return;
+        previewAbort.current = null;
+        const next = queuedPreview.current;
+        queuedPreview.current = null;
+        if (next && next.owner === ownerRef.current && next.key !== lastPreviewKey.current) startPreview.current(next);
+        else setPreviewBusy(false);
+      });
+  };
+
+  useEffect(() => {
+    if (!server.sandbox || !problem || !codeReady || !customReady || !code.trim() || !LANGUAGE_TRACING[language]) return;
+    if (customEnabled && !customInput) return;
+
+    const key = previewKeyOf(language, inputKey, code);
+    if (key === lastPreviewKey.current) return;
+    const job: PreviewJob = { key, owner: editorOwner, problemId: problem.id, code, language, input: customInput };
+
+    const timer = window.setTimeout(
+      () => {
+        if (previewAbort.current) queuedPreview.current = job;
+        else startPreview.current(job);
+      },
+      hasTrace ? PREVIEW_DEBOUNCE_MS[language] : 0
+    );
 
     return () => window.clearTimeout(timer);
-  }, [problem, code, language, tracingSupported, applyExecution]);
+    // hasTrace only picks the delay; it must not re-arm the timer by itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [server.sandbox, problem, code, codeReady, customReady, language, inputKey, customEnabled, editorOwner]);
 
   useEffect(() => () => previewAbort.current?.abort(), []);
 
-  const { trace, diffs } = traceState;
-  const stepCount = trace.length;
+  // Idle nudge: after typing, a long pause with no Run/Test/Submit.
+  useEffect(() => {
+    setIdle(false);
+    if (edits === 0) return;
+    const timer = window.setTimeout(() => setIdle(true), IDLE_NUDGE_MS);
+    return () => window.clearTimeout(timer);
+  }, [edits]);
 
-  // Playback advances the trace cursor only — never the camera.
+  // Fullscreen editor closes on Escape.
+  useEffect(() => {
+    if (!editorFullscreen) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setEditorFullscreen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [editorFullscreen]);
+
+  const { trace, diffs } = traceState;
+
+  // Playback advances the trace cursor only — never the camera. It plays once and stops.
   useEffect(() => {
     if (!playing || stepCount === 0) return;
 
@@ -360,8 +559,7 @@ export default function WorkspacePage() {
     return () => window.clearTimeout(timer);
   }, [playing, index]);
 
-  // Cause two: a run that never comes back. This is the one users actually hit,
-  // when the sandbox image is cold or the queue is saturated.
+  // Cause two: a run that never comes back.
   useEffect(() => {
     if (!busy) return;
     const timer = window.setTimeout(() => setStuck("sandbox"), SLOW_RUN_MS);
@@ -433,34 +631,61 @@ export default function WorkspacePage() {
     [lineIndex, index]
   );
 
+  const settleAction = () => {
+    setEdits(0);
+    setIdle(false);
+  };
+
   const runCode = useCallback(async () => {
     if (!problem) return;
+    if (customEnabled && !customInput) {
+      setNotice(`Fix the custom input first: ${customError || "it is not valid JSON."}`);
+      return;
+    }
+    settleAction();
     setBusy("run");
     setNotice("");
     setJudgement(null);
+    setCustomCheck(null);
+
+    const input = customInput ?? problem.defaultInput;
+    const expectedRequest = customInput ? api.expected(problem.id, customInput).catch(() => null) : null;
+    if (customInput) setCustomCheck({ input: customInput, pending: true });
 
     try {
-      const response = await api.run(problem.id, code, problem.defaultInput, language);
+      const response = await api.run(problem.id, code, input, language);
       applyExecution(response, false);
       // A successful run that prints nothing used to look like nothing happened.
       setRanAt(
-        response.ok
-          ? `Ran in ${Math.round(response.runtimeMs)}ms and returned ${JSON.stringify(response.result)}`
-          : ""
+        response.ok ? `Ran in ${Math.round(response.runtimeMs)}ms and returned ${JSON.stringify(response.result)}` : ""
       );
+      if (expectedRequest && customInput) {
+        const expected = await expectedRequest;
+        setCustomCheck({
+          input: customInput,
+          pending: false,
+          expected: expected?.ok ? expected.expectedOutput : undefined,
+          message: expected?.ok ? undefined : expected?.message ?? "Could not compute the expected output."
+        });
+      }
     } catch (error) {
-      setNotice(readError(error, "Run failed."));
+      const message = readError(error, "Run failed.");
+      if (message.startsWith("Custom input:")) setServerInputError(message.replace(/^Custom input:\s*/, ""));
+      setNotice(message);
+      setCustomCheck(null);
     } finally {
       setBusy(null);
     }
-  }, [problem, code, language, applyExecution]);
+  }, [problem, code, language, applyExecution, customEnabled, customInput, customError]);
 
   const runJudge = useCallback(
     async (mode: "test" | "submit") => {
       if (!problem) return;
+      settleAction();
       setBusy(mode);
       setNotice("");
       setRanAt("");
+      setCustomCheck(null);
 
       try {
         const response =
@@ -477,24 +702,37 @@ export default function WorkspacePage() {
     [problem, code, language, session.token]
   );
 
+  const resetCode = () => {
+    if (!problem) return;
+    clearDraft(problem.id, language);
+    setEditor({ owner: editorOwner, code: problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? "" });
+    setConfirmReset(false);
+    settleAction();
+  };
+
   const failedExecution = execution && !execution.ok ? execution : null;
   const passedCount = judgement ? judgement.cases.filter((entry) => entry.status === "passed").length : 0;
   const hasOutput = Boolean(
-    loopWarning || notice || failedExecution || ranAt || judgement || (execution?.ok && execution.stdout) || busy
+    loopWarning ||
+      notice ||
+      failedExecution ||
+      ranAt ||
+      judgement ||
+      customCheck ||
+      (execution?.ok && execution.stdout) ||
+      busy
   );
+  const customMatch =
+    customCheck && !customCheck.pending && customCheck.message === undefined && execution?.ok
+      ? outputsMatch(execution.result, customCheck.expected, problem?.signature.compare ?? "exact")
+      : null;
 
-  const sceneStatus = !tracingSupported
-    ? `${LANGUAGE_LABELS[language]} · no visual trace`
-    : stepCount === 0
-      ? "Waiting for a trace"
-      : traceSource === "preview"
-        ? "Live preview"
-        : "Run trace";
+  const loadingScene = !hasTrace && server.sandbox && (previewBusy || busy === "run" || !problem);
 
   const actionButton = (mode: "run" | "test" | "submit", label: string, primary = false) => (
     <button
       type="button"
-      onClick={() => (mode === "run" ? runCode() : runJudge(mode))}
+      onClick={() => (mode === "run" ? void runCode() : void runJudge(mode))}
       disabled={busy !== null || !problem}
       className={cn(primary ? button.primary : button.outlineSm, "px-4 py-2")}
       style={{ minHeight: 0, width: "auto" }}
@@ -520,112 +758,30 @@ export default function WorkspacePage() {
             <ArrowLeft size={14} aria-hidden />
             <span className="hidden sm:inline">Problems</span>
           </NavLink>
-          <p className="min-w-0 flex-1 truncate text-sm font-medium text-primary">
-            {problem?.title ?? (notice ? "Workspace" : "Loading…")}
-          </p>
+          <div className="min-w-0 flex-1">
+            {problem ? (
+              <p className="truncate text-sm font-medium text-primary">{problem.title}</p>
+            ) : (
+              <span className="block h-3 w-40 animate-pulse rounded-full bg-surface-inset" aria-hidden />
+            )}
+          </div>
           <ThemeToggle />
           <AccountMenu />
         </div>
       </header>
 
-      <div className="grid flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto]">
-        {/* Problem statement */}
-        <section
-          aria-label="Problem"
-          className="surface-frame overflow-hidden lg:col-start-2 lg:row-start-1"
-        >
-          <div className="flex items-start justify-between gap-3 px-5 pt-4">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                {problem ? (
-                  <>
-                    <span className={cn(chip.small, "text-primary")}>{problem.topic}</span>
-                    <span className={cn(chip.small, "text-blueprint-muted")}>{problem.difficulty}</span>
-                    {structureLabel(problem.structureType).toLowerCase() !== problem.topic.toLowerCase() && (
-                      <span className="text-technical-mono text-blueprint-muted">
-                        {structureLabel(problem.structureType)}
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <span className={panelTitle}>Problem</span>
-                )}
-              </div>
-              <h1 className="mt-2 text-headline-sm text-primary">{problem?.title ?? "Loading problem…"}</h1>
-            </div>
-            <button
-              type="button"
-              onClick={() => setStatementOpen((open) => !open)}
-              aria-expanded={statementOpen}
-              aria-controls="problem-statement"
-              className={cn(button.icon, "h-9 w-9")}
-              style={{ minHeight: 0 }}
-              aria-label={statementOpen ? "Collapse problem statement" : "Expand problem statement"}
-            >
-              <ChevronDown
-                size={16}
-                aria-hidden
-                className={cn("transition-transform duration-300", statementOpen && "rotate-180")}
-              />
-            </button>
-          </div>
+      {!server.sandbox && (
+        <p className="status-warning mx-3 mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm sm:mx-4" role="status">
+          <AlertTriangle size={15} aria-hidden className="shrink-0" />
+          This deployment has no code sandbox, so traces, Run, Test and Submit only work when Noesis runs with Docker.
+        </p>
+      )}
 
-          {statementOpen && (
-            <div
-              id="problem-statement"
-              className="max-h-[38vh] overflow-y-auto px-5 pb-6 pt-3 lg:max-h-[30vh]"
-              // Fade the bottom edge so a clipped statement reads as scrollable.
-              style={{ maskImage: "linear-gradient(to bottom, black calc(100% - 28px), transparent)" }}
-            >
-              {problem ? (
-                <>
-                  <p className="text-body-md text-primary">{problem.description}</p>
-
-                  {problem.examples.length > 0 && (
-                    <div className="mt-4 grid gap-2">
-                      {problem.examples.slice(0, 2).map((example, exampleIndex) => (
-                        <div key={exampleIndex} className="surface-inset py-3 font-mono text-xs leading-relaxed sm:py-3">
-                          <p className="text-blueprint-muted">
-                            input <span className="text-primary">{show(example.input)}</span>
-                          </p>
-                          <p className="text-blueprint-muted">
-                            output <span className="text-primary">{show(example.output)}</span>
-                          </p>
-                          {example.explanation && (
-                            <p className="mt-1 font-sans text-[13px] text-blueprint-muted">{example.explanation}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {problem.constraints.length > 0 && (
-                    <ul className="mt-4 grid gap-1.5">
-                      {problem.constraints.map((constraint) => (
-                        <li key={constraint} className="flex gap-2 text-sm text-blueprint-muted">
-                          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blueprint-muted" aria-hidden />
-                          {constraint}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : notice ? (
-                <p className="text-body-md text-blueprint-muted">{notice}</p>
-              ) : (
-                <div className="grid gap-2" aria-hidden>
-                  <span className="h-3 w-5/6 animate-pulse rounded-full bg-surface-inset" />
-                  <span className="h-3 w-2/3 animate-pulse rounded-full bg-surface-inset" />
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* Scene + transport */}
+      <div className="grid flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        {/* Scene + transport: 60% on desktop. */}
         <section
           aria-label="Data structure visualization"
-          className="surface-frame flex h-[62vh] min-h-[380px] flex-col overflow-hidden lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:h-auto lg:min-h-0"
+          className="surface-frame order-2 flex h-[62vh] min-h-[380px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
         >
           <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-4 py-2.5 sm:px-5">
             <div
@@ -650,64 +806,103 @@ export default function WorkspacePage() {
                 </button>
               ))}
             </div>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                traceSource === "preview" && stepCount > 0
-                  ? "badge-current"
-                  : "border-blueprint-line text-blueprint-muted"
+            <span className="flex items-center gap-2">
+              {previewBusy && hasTrace && (
+                <Loader2 size={14} aria-label="Updating trace" className="animate-spin text-blueprint-muted" />
               )}
-            >
-              {stepCount === 0 && tracingSupported && <CircleDashed size={12} aria-hidden />}
-              {sceneStatus}
+              {hasTrace && (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+                    traceSource === "preview" ? "badge-current" : "border-blueprint-line text-blueprint-muted"
+                  )}
+                >
+                  {traceSource === "preview" ? (customInput ? "Live · custom input" : "Live preview") : "Run trace"}
+                </span>
+              )}
             </span>
           </div>
 
           <div className="relative min-h-0 flex-1">
             {sceneMode === "trace" ? (
-              stepCount > 0 ? (
-                <TraceDiagram trace={trace} diffs={diffs} index={Math.min(index, stepCount - 1)} signature={problem?.signature} />
+              hasTrace ? (
+                <TraceDiagram
+                  trace={trace}
+                  diffs={diffs}
+                  index={Math.min(index, stepCount - 1)}
+                  signature={problem?.signature}
+                />
               ) : (
                 <div className="blueprint-grid h-full bg-card opacity-60" />
               )
             ) : (
-            <Suspense
-              fallback={
-                <div className="flex h-full items-center justify-center bg-card">
-                  <span className="text-technical-mono text-blueprint-muted">Loading renderer…</span>
-                </div>
-              }
-            >
-              <Scene3D
-                graph={graph}
-                activeIds={activeIds}
-                selectedId={selectedNode}
-                onSelectNode={handleSelectNode}
-                onWebGLError={() => setStuck("playback")}
-              />
-            </Suspense>
+              <Suspense
+                fallback={
+                  <div className="flex h-full items-center justify-center bg-card">
+                    <Loader2 size={22} aria-label="Loading 3D view" className="animate-spin text-blueprint-muted" />
+                  </div>
+                }
+              >
+                <Scene3D
+                  graph={graph}
+                  activeIds={activeIds}
+                  selectedId={selectedNode}
+                  onSelectNode={handleSelectNode}
+                  onWebGLError={() => setStuck("playback")}
+                />
+              </Suspense>
             )}
 
-            {stepCount === 0 && tracingSupported && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-                <p className="max-w-xs rounded-2xl border border-blueprint-line bg-card/90 px-5 py-4 text-center text-body-md text-blueprint-muted backdrop-blur-sm">
-                  Start typing or press Run. The scene is drawn from the trace your code produces.
-                </p>
+            {loadingScene && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <Loader2 size={24} aria-label="Loading trace" className="animate-spin text-blueprint-muted" />
               </div>
             )}
 
-            {((staleTrace && stepCount > 0) || !tracingSupported || (stepCount > 0 && (traceInfo.truncated || traceInfo.note))) && (
+            {hasTrace && (staleTrace || traceInfo.truncated || traceInfo.note) && (
               <div className="pointer-events-none absolute inset-x-4 top-3 flex justify-center">
                 <p className="max-w-md rounded-full border border-blueprint-line bg-card/95 px-3 py-1.5 text-center text-xs text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]">
-                  {!tracingSupported
-                    ? `${LANGUAGE_LABELS[language]} runs and judges, but does not produce a visual trace yet.`
-                    : staleTrace
-                      ? "Code is mid-edit, so this is the last trace that ran."
-                      : traceInfo.note ?? `Replay shows the first ${stepCount} steps; the rest ran without recording.`}
+                  {staleTrace
+                    ? "Code is mid-edit, so this is the last trace that ran."
+                    : traceInfo.note ?? `Replay shows the first ${stepCount} steps; the rest ran without recording.`}
                 </p>
               </div>
             )}
           </div>
+
+          {idle && (
+            <div className="flex items-center gap-3 border-t border-blueprint-line bg-surface-inset px-4 py-2.5 sm:px-5" role="status">
+              <Sparkles size={16} aria-hidden className="hero-accent shrink-0" />
+              <p className="min-w-0 flex-1 text-sm font-medium text-primary">What&apos;s next, DSA champ? Go ahead!</p>
+              <button
+                type="button"
+                onClick={() => void runCode()}
+                disabled={busy !== null}
+                className={cn(button.outlineSm, "px-3 py-1.5 text-[11px]")}
+                style={{ minHeight: 0 }}
+              >
+                Run
+              </button>
+              <button
+                type="button"
+                onClick={() => void runJudge("test")}
+                disabled={busy !== null}
+                className={cn(button.outlineSm, "hidden px-3 py-1.5 text-[11px] sm:inline-flex")}
+                style={{ minHeight: 0 }}
+              >
+                Test
+              </button>
+              <button
+                type="button"
+                onClick={() => setIdle(false)}
+                className={cn(button.icon, "h-7 w-7")}
+                style={{ minHeight: 0 }}
+                aria-label="Dismiss"
+              >
+                <X size={13} aria-hidden />
+              </button>
+            </div>
+          )}
 
           <PlaybackControls
             index={index}
@@ -721,126 +916,311 @@ export default function WorkspacePage() {
           />
         </section>
 
-        {/* Editor */}
-        <section
-          aria-label="Code editor"
-          className="surface-frame flex h-[64vh] min-h-[360px] flex-col overflow-hidden lg:col-start-2 lg:row-start-2 lg:h-auto lg:min-h-[260px]"
-        >
-          <div className="flex flex-wrap items-center gap-2 border-b border-blueprint-line px-4 py-2.5">
-            <label className="min-w-0 flex-1 sm:flex-none">
-              <span className="sr-only">Language</span>
-              <select
-                value={language}
-                onChange={(event) => setLanguage(event.target.value as Language)}
-                className={cn(field.select, "h-9 w-full text-xs sm:w-auto")}
-              >
-                {SUPPORTED_LANGUAGES.map((option) => (
-                  <option key={option} value={option}>
-                    {LANGUAGE_LABELS[option]}
-                    {LANGUAGE_TRACING[option] ? "" : " (no visual trace)"}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto [&>button]:flex-1 sm:[&>button]:flex-none">
-              {actionButton("run", "Run", true)}
-              {actionButton("test", "Test")}
-              {actionButton("submit", "Submit")}
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1">
-            <CodeEditorPane
-              value={code}
-              language={language}
-              activeLine={activeLine}
-              onChange={setCode}
-              onLineClick={handleLineClick}
-            />
-          </div>
-        </section>
-
-        {/* Output */}
-        <section
-          aria-label="Output"
-          aria-live="polite"
-          className="surface-frame overflow-hidden lg:col-start-2 lg:row-start-3"
-        >
-          <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3">
-            <span className={panelTitle}>Output</span>
-            {judgement && (
-              <span
-                className={cn(
-                  "rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                  judgement.verdict === "Accepted" ? "badge-current" : "status-error"
+        {/* Right column: 40% on desktop, one scroll from statement to output. On phones its
+            panels join the page grid so the statement can sit above the scene. */}
+        <div className="contents lg:col-start-2 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:gap-4 lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+          {/* Problem statement */}
+          <section aria-label="Problem" className="surface-frame order-1 shrink-0 overflow-hidden lg:order-none">
+            <div className="flex items-start justify-between gap-3 px-5 pt-4">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  {problem ? (
+                    <>
+                      <span className={cn(chip.small, "text-primary")}>{problem.topic}</span>
+                      <span className={cn(chip.small, "text-blueprint-muted")}>{problem.difficulty}</span>
+                      {structureLabel(problem.structureType).toLowerCase() !== problem.topic.toLowerCase() && (
+                        <span className="text-technical-mono text-blueprint-muted">
+                          {structureLabel(problem.structureType)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="h-5 w-24 animate-pulse rounded-full bg-surface-inset" aria-hidden />
+                  )}
+                </div>
+                {problem ? (
+                  <h1 className="mt-2 text-headline-sm text-primary">{problem.title}</h1>
+                ) : (
+                  <span className="mt-3 block h-6 w-56 animate-pulse rounded-full bg-surface-inset" aria-hidden />
                 )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setStatementOpen((open) => !open)}
+                aria-expanded={statementOpen}
+                aria-controls="problem-statement"
+                className={cn(button.icon, "h-9 w-9")}
+                style={{ minHeight: 0 }}
+                aria-label={statementOpen ? "Collapse problem statement" : "Expand problem statement"}
               >
-                {judgement.verdict} · {passedCount}/{judgement.cases.length}
-              </span>
-            )}
-          </div>
+                <ChevronDown
+                  size={16}
+                  aria-hidden
+                  className={cn("transition-transform duration-300", statementOpen && "rotate-180")}
+                />
+              </button>
+            </div>
 
-          <div className="grid max-h-[40vh] gap-3 overflow-y-auto px-5 py-4 lg:max-h-[24vh]">
-            {!hasOutput && (
-              <p className="text-body-md text-blueprint-muted">
-                <span className="font-medium text-primary">Run</span> executes once and draws the trace.{" "}
-                <span className="font-medium text-primary">Test</span> checks the visible cases.{" "}
-                <span className="font-medium text-primary">Submit</span> checks all of them
-                {session.user ? " and saves the result." : "."}
-              </p>
-            )}
+            {statementOpen ? (
+              <div id="problem-statement" className="px-5 pb-5 pt-3">
+                {problem ? (
+                  <>
+                    <p className="text-body-md text-primary">{problem.description}</p>
 
-            {busy && (
-              <p className="flex items-center gap-2 text-sm text-blueprint-muted">
-                <Loader2 size={14} aria-hidden className="animate-spin" />
-                {busy === "run" ? "Running in the sandbox…" : busy === "test" ? "Testing visible cases…" : "Judging every case…"}
-              </p>
-            )}
+                    {problem.examples.length > 0 && (
+                      <div className="mt-4 grid gap-2">
+                        {problem.examples.slice(0, 3).map((example, exampleIndex) => (
+                          <div key={exampleIndex} className="surface-inset py-3 font-mono text-xs leading-relaxed sm:py-3">
+                            <p className="break-words text-blueprint-muted">
+                              input <span className="text-primary">{show(example.input)}</span>
+                            </p>
+                            <p className="break-words text-blueprint-muted">
+                              output <span className="text-primary">{show(example.output)}</span>
+                            </p>
+                            {example.explanation && (
+                              <p className="mt-1 font-sans text-[13px] text-blueprint-muted">{example.explanation}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-            {loopWarning && (
-              <p className="status-warning flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
-                <AlertTriangle size={15} aria-hidden className="shrink-0" />
-                {loopWarning}
-              </p>
+                    {problem.constraints.length > 0 && (
+                      <ul className="mt-4 grid gap-1.5">
+                        {problem.constraints.map((constraint) => (
+                          <li key={constraint} className="flex gap-2 text-sm text-blueprint-muted">
+                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blueprint-muted" aria-hidden />
+                            {constraint}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : notice ? (
+                  <p className="text-body-md text-blueprint-muted">{notice}</p>
+                ) : (
+                  <div className="grid gap-2" aria-hidden>
+                    <span className="h-3 w-5/6 animate-pulse rounded-full bg-surface-inset" />
+                    <span className="h-3 w-2/3 animate-pulse rounded-full bg-surface-inset" />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="pb-4" />
             )}
+          </section>
 
-            {notice && (
-              <div className="status-warning rounded-xl border px-4 py-3 text-sm">
-                <p className="flex items-center gap-2 font-semibold">
-                  <AlertTriangle size={15} aria-hidden /> Noesis could not complete that request
+          {/* Editor */}
+          <section
+            aria-label="Code editor"
+            className={cn(
+              "surface-frame order-3 flex flex-col overflow-hidden lg:order-none",
+              editorFullscreen ? "fixed inset-2 z-[60] shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:inset-4" : "h-[64vh] min-h-[380px] shrink-0"
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-2 border-b border-blueprint-line px-4 py-2.5">
+              <label className="min-w-0 flex-1 sm:flex-none">
+                <span className="sr-only">Language</span>
+                <select
+                  value={language}
+                  onChange={(event) => setLanguage(event.target.value as Language)}
+                  className={cn(field.select, "h-9 w-full text-xs sm:w-auto")}
+                >
+                  {SUPPORTED_LANGUAGES.map((option) => (
+                    <option key={option} value={option}>
+                      {LANGUAGE_LABELS[option]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={() => setConfirmReset(true)}
+                disabled={!problem}
+                className={cn(button.icon, "h-9 w-9")}
+                style={{ minHeight: 0 }}
+                aria-label="Reset code to the starter"
+                title="Reset code"
+              >
+                <RotateCcw size={14} aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorFullscreen((value) => !value)}
+                className={cn(button.icon, "h-9 w-9")}
+                style={{ minHeight: 0 }}
+                aria-label={editorFullscreen ? "Exit fullscreen editor" : "Fullscreen editor"}
+                title={editorFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
+              >
+                {editorFullscreen ? <Minimize2 size={14} aria-hidden /> : <Maximize2 size={14} aria-hidden />}
+              </button>
+              <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto [&>button]:flex-1 sm:[&>button]:flex-none">
+                {actionButton("run", "Run", true)}
+                {actionButton("test", "Test")}
+                {actionButton("submit", "Submit")}
+              </div>
+            </div>
+
+            <div className="min-h-0 flex-1">
+              <CodeEditorPane
+                value={codeReady ? code : ""}
+                language={language}
+                activeLine={activeLine}
+                onChange={handleCodeChange}
+                onLineClick={handleLineClick}
+              />
+            </div>
+          </section>
+          {editorFullscreen && (
+            <div className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm" aria-hidden onClick={() => setEditorFullscreen(false)} />
+          )}
+
+          {/* Custom input */}
+          {problem && (
+            <div className="order-4 lg:order-none">
+              <CustomInputPanel
+                problem={problem}
+                enabled={customEnabled}
+                text={customText}
+                error={customError}
+                onEnabled={setCustomEnabled}
+                onText={setCustomText}
+              />
+            </div>
+          )}
+
+          {/* Output */}
+          <section aria-label="Output" aria-live="polite" className="surface-frame order-5 shrink-0 overflow-hidden lg:order-none">
+            <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3">
+              <span className={panelTitle}>Output</span>
+              {judgement && (
+                <span
+                  className={cn(
+                    "rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+                    judgement.verdict === "Accepted" ? "badge-current" : "status-error"
+                  )}
+                >
+                  {judgement.verdict} · {passedCount}/{judgement.cases.length}
+                </span>
+              )}
+            </div>
+
+            <div className="grid gap-3 px-5 py-4">
+              {!hasOutput && (
+                <p className="text-body-md text-blueprint-muted">
+                  <span className="font-medium text-primary">Run</span> executes once and replays the trace.{" "}
+                  <span className="font-medium text-primary">Test</span> checks the visible cases.{" "}
+                  <span className="font-medium text-primary">Submit</span> checks all of them
+                  {session.user ? " and saves the result." : "."}
                 </p>
-                <p className="mt-1 break-words">{notice}</p>
-              </div>
-            )}
+              )}
 
-            {failedExecution && !loopWarning && <ExecutionErrorNote execution={failedExecution} />}
+              {busy && (
+                <p className="flex items-center gap-2 text-sm text-blueprint-muted">
+                  <Loader2 size={14} aria-hidden className="animate-spin" />
+                  {busy === "run" ? "Running in the sandbox…" : busy === "test" ? "Testing visible cases…" : "Judging every case…"}
+                </p>
+              )}
 
-            {ranAt && !failedExecution && (
-              <p className="flex items-center gap-2 text-sm text-primary">
-                <Check size={14} aria-hidden className="check-icon shrink-0" />
-                <span className="break-all font-mono text-xs">{ranAt}</span>
-              </p>
-            )}
+              {loopWarning && (
+                <p className="status-warning flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
+                  <AlertTriangle size={15} aria-hidden className="shrink-0" />
+                  {loopWarning}
+                </p>
+              )}
 
-            {execution?.ok && execution.stdout ? (
-              <div>
-                <p className="text-technical-mono text-blueprint-muted">stdout</p>
-                <pre className="surface-inset mt-1.5 overflow-x-auto py-3 font-mono text-xs leading-relaxed text-primary sm:py-3">
-                  {execution.stdout}
-                </pre>
-              </div>
-            ) : null}
+              {notice && (
+                <div className="status-warning rounded-xl border px-4 py-3 text-sm">
+                  <p className="flex items-center gap-2 font-semibold">
+                    <AlertTriangle size={15} aria-hidden /> Noesis could not complete that request
+                  </p>
+                  <p className="mt-1 break-words">{notice}</p>
+                </div>
+              )}
 
-            {judgement && (
-              <ul className="divide-y divide-blueprint-line">
-                {judgement.cases.map((result, caseIndex) => (
-                  <CaseRow key={result.id} result={result} index={caseIndex} />
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
+              {failedExecution && !loopWarning && <ExecutionErrorNote execution={failedExecution} />}
+
+              {ranAt && !failedExecution && (
+                <p className="flex items-center gap-2 text-sm text-primary">
+                  <Check size={14} aria-hidden className="check-icon shrink-0" />
+                  <span className="break-all font-mono text-xs">{ranAt}</span>
+                </p>
+              )}
+
+              {customCheck && (
+                <div className="surface-inset grid gap-1.5 py-3 font-mono text-xs sm:py-3">
+                  <p className="text-technical-mono text-blueprint-muted">custom input</p>
+                  <p className="break-all text-primary">{show(customCheck.input)}</p>
+                  {customCheck.pending ? (
+                    <p className="flex items-center gap-2 text-blueprint-muted">
+                      <Loader2 size={12} aria-hidden className="animate-spin" /> Checking against the reference solution…
+                    </p>
+                  ) : customCheck.message ? (
+                    <p className="font-sans text-[13px] text-blueprint-muted">{customCheck.message}</p>
+                  ) : (
+                    <>
+                      <p className="break-all text-blueprint-muted">
+                        expected <span className="text-primary">{show(customCheck.expected)}</span>
+                      </p>
+                      {customMatch !== null && (
+                        <p
+                          className={cn(
+                            "mt-1 flex items-center gap-2 font-sans text-[13px] font-semibold",
+                            customMatch ? "text-primary" : "text-red-700 dark:text-red-300"
+                          )}
+                        >
+                          {customMatch ? (
+                            <Check size={14} aria-hidden className="check-icon" />
+                          ) : (
+                            <X size={14} aria-hidden />
+                          )}
+                          {customMatch ? "Matches the reference solution" : "Differs from the reference solution"}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {execution?.ok && execution.stdout ? (
+                <div>
+                  <p className="text-technical-mono text-blueprint-muted">stdout</p>
+                  <pre className="surface-inset mt-1.5 max-h-64 overflow-auto py-3 font-mono text-xs leading-relaxed text-primary sm:py-3">
+                    {execution.stdout}
+                  </pre>
+                </div>
+              ) : null}
+
+              {judgement && (
+                <ul className="divide-y divide-blueprint-line">
+                  {judgement.cases.map((result, caseIndex) => (
+                    <CaseRow key={result.id} result={result} index={caseIndex} />
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
+
+      <Modal
+        open={confirmReset}
+        onClose={() => setConfirmReset(false)}
+        eyebrow="Editor"
+        title="Reset to the starter code?"
+        actions={
+          <>
+            <button type="button" className={button.outlineSm} onClick={() => setConfirmReset(false)}>
+              Keep my code
+            </button>
+            <button type="button" className={button.primary} onClick={resetCode}>
+              Reset
+            </button>
+          </>
+        }
+      >
+        Your saved {LANGUAGE_LABELS[language]} draft for this problem will be replaced.
+      </Modal>
 
       <Modal
         open={stuck !== null}

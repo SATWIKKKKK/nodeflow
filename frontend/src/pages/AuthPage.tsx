@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import { api } from "../lib/api";
 import { useSession } from "../lib/session";
@@ -37,12 +37,16 @@ const readError = (error: unknown) => {
   }
 };
 
+/** Only same-site paths are honoured, so a crafted ?next= cannot send people off-site. */
+const safeNext = (value: string | null) => (value && /^\/(?![/\\])/.test(value) ? value : "/problems");
+
 /**
  * Signing in or up lands on the problem list — that is the entry point to the
- * product, so both flows converge there rather than on a marketing page.
+ * product — unless a page sent the learner here with ?next=.
  */
 export default function AuthPage({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const session = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,7 +72,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
       if (mode === "signup") await session.signUp(email, password);
       else await session.signIn(email, password);
 
-      navigate("/problems");
+      navigate(safeNext(params.get("next")));
     } catch (requestError) {
       setError(readError(requestError));
     } finally {

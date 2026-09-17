@@ -11,3 +11,8 @@ backend/data/submissions.json
 __pycache__/
 *.pyc
 *.tsbuildinfo
+.vercel/
+
+.vercel
+backend/data/auth.json
+backend/data/classrooms.json

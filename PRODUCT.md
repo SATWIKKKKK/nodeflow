@@ -38,14 +38,18 @@ visualization is the differentiator over a plain online judge.
 
 - Core loop inside the workspace: pick a problem → write code → **Run** / **Test** / **Submit** →
   step through the trace with playback controls (next, previous, play with speed, reset).
-- **Run** executes once against the problem's default input and replaces the trace; it does not judge.
-  (Custom input is specified in `SKIILS.md` but not built in the workspace yet.)
+- **Run** executes once against the problem's default input, or the learner's custom input, and
+  replays the trace; it does not judge. With custom input, the reference solution's answer is shown
+  next to the learner's.
 - **Test** runs the visible sample cases and lists each result with expected vs actual output.
   This is the main debugging loop and is used far more than Submit.
 - **Submit** runs the full case set (visible + hidden), persists the verdict, and never reveals hidden
   inputs or expected outputs (only "failed on hidden case #N").
-- **Live preview** retraces the default input on a debounce while typing, and keeps the last valid
-  scene visible while code is mid-edit.
+- **Live preview** retraces the code while typing and keeps the last valid scene visible while code is
+  mid-edit. After 30 seconds of typing without Run/Test/Submit, the workspace nudges the learner.
+- **Layout:** the trace takes 60% of the workspace; the statement, editor, custom input and output share
+  one scrolling column. The editor can go fullscreen.
+- **Classrooms:** owners share a join code, assign problems and see a shared progress board.
 - The workspace shows a 2D trace by default (the same diagram style as the landing-page replay:
   arrays, lists, stacks, queues, trees, graphs, grids, maps, call stack). The older 3D scene is one
   toggle away. A fullscreen editor is specified in `SKIILS.md` but not built yet. The problem
@@ -82,8 +86,11 @@ visualization is the differentiator over a plain online judge.
 - **Pricing:** only a free tier exists. The paid tiers and their prices are undecided; payment
   integration does not exist yet.
 - **Roadmap:** Phase 1 (arrays, lists, Python) shipped; Phase 2 (the whole sheet, all structures,
-  C++/Java traces) is current; custom input, AI hints and review, and hosted classrooms come later.
-  None of these has dates.
+  C++/Java traces, custom input, classrooms) is current; paid plans for larger courses, private
+  problem banks, AI hints and Google sign-in come later. None of these has dates.
+- **Hosting:** the full product runs where Docker is available. The Vercel deployment
+  (https://noesis-dsa.vercel.app) serves the site and problem bank only; code execution and accounts are
+  switched off there and the UI says so.
 - **Terminology:** trace, step, heap, diff, scene, structure type, Run / Test / Submit, live preview,
   phase.
 

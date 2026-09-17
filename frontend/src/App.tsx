@@ -16,6 +16,8 @@ const TracingPage = lazy(() => import("./pages/TracingPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ProblemMapPage = lazy(() => import("./pages/ProblemMapPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ClassroomsPage = lazy(() => import("./pages/ClassroomsPage"));
+const ClassroomPage = lazy(() => import("./pages/ClassroomPage"));
 const InfoPage = lazy(() => import("./pages/InfoPage"));
 
 /**
@@ -78,6 +80,8 @@ export default function App() {
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/problem-map" element={<ProblemMapPage />} />
+          <Route path="/classrooms" element={<ClassroomsPage />} />
+          <Route path="/classrooms/:classroomId" element={<ClassroomPage />} />
         </Route>
 
         {/* The workspace is a full-viewport tool with its own slim header. */}

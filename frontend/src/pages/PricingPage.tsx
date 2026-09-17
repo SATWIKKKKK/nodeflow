@@ -12,19 +12,19 @@ const plans = [
     body: "The whole workspace, for anyone learning.",
     available: true,
     points: [
-      "Python tracing and step-by-step playback",
-      "Run, Test, Submit and live preview",
-      "Every live problem in the bank",
-      "Progress dashboard with a free account"
+      "Tracing for Python, C++ and Java",
+      "Run, Test, Submit, live preview and custom input",
+      "Every problem on the DSA sheet",
+      "Classrooms with shared progress, on a free account"
     ]
   },
   {
-    name: "Classroom",
+    name: "Classroom Pro",
     price: "Not set",
     cadence: "planned",
-    body: "For instructors running a course on data structures.",
+    body: "For instructors running a whole course on data structures.",
     available: false,
-    points: ["Shared progress across a class", "Accounts for every student", "Managed sandbox capacity"]
+    points: ["Reserved sandbox capacity for a class", "Progress exports and deadlines", "Everything in Free"]
   },
   {
     name: "Team Lab",
@@ -32,7 +32,7 @@ const plans = [
     cadence: "planned",
     body: "For groups that want their own problems.",
     available: false,
-    points: ["Private problem banks", "Review workflows for new problems", "Everything in Classroom"]
+    points: ["Private problem banks", "Review workflows for new problems", "Everything in Classroom Pro"]
   }
 ];
 
@@ -48,7 +48,7 @@ export default function PricingPage() {
               Free while the core gets <em className="italic">proven</em>.
             </>
           }
-          lead="Everything Noesis does today is free. Plans for classrooms and teams are on the roadmap, and their prices have not been decided."
+          lead="Everything Noesis does today is free, classrooms included. Paid plans for larger courses and teams are on the roadmap, and their prices have not been decided."
         />
 
         <div className="grid gap-5 lg:grid-cols-3">
@@ -111,7 +111,7 @@ export default function PricingPage() {
 
         <div className="surface-inset mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-2xl text-body-md text-blueprint-muted">
-            Classroom and Team Lab are ideas, not products yet. Their features and prices will be listed here once
+            Classroom Pro and Team Lab are ideas, not products yet. Their features and prices will be listed here once
             they are decided.
           </p>
           <NavLink to="/roadmap" className={button.text}>

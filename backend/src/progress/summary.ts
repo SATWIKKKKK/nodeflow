@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   STRUCTURE_TYPES,
   type StructureType,
@@ -11,6 +10,7 @@ import {
   type SubmissionSummary
 } from "@nodeflow/shared";
 import { problems } from "../problems/seeds.js";
+import { dataDir } from "../paths.js";
 
 interface StoredSubmission {
   submissionId: string;
@@ -22,8 +22,6 @@ interface StoredSubmission {
   timestamp: string;
 }
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const dataDir = path.join(backendRoot, "data");
 const submissionsPath = path.join(dataDir, "submissions.json");
 
 export const readSubmissions = (): StoredSubmission[] => {

@@ -1,8 +1,7 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Language } from "@nodeflow/shared";
+import { backendRoot } from "../paths.js";
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
 export interface LanguageConfig {
   id: Language;

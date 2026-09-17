@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { AuthResponse, AuthUser } from "@nodeflow/shared";
+import { dataDir } from "../paths.js";
 
 interface StoredUser extends AuthUser {
   passwordHash: string;
@@ -21,8 +21,6 @@ interface AuthStore {
   resetRequests: Array<{ email: string; requestedAt: string }>;
 }
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const dataDir = path.join(backendRoot, "data");
 const authPath = path.join(dataDir, "auth.json");
 const lockPath = `${authPath}.lock`;
 
@@ -172,4 +170,14 @@ export const recordResetRequest = (email: string) => {
   updateStore((store) => {
     store.resetRequests.push({ email: normalizeEmail(email), requestedAt: new Date().toISOString() });
   });
+};
+
+/** Public records for the given user ids (unknown ids are skipped). */
+export const usersById = (ids: string[]): Map<string, AuthUser> => {
+  const wanted = new Set(ids);
+  return new Map(
+    readStore()
+      .users.filter((user) => wanted.has(user.id))
+      .map((user) => [user.id, publicUser(user)])
+  );
 };

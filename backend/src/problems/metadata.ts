@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { StructureType } from "@nodeflow/shared";
+import { backendRoot, repoRoot } from "../paths.js";
 
 interface SheetEntry {
   title: string;
@@ -11,8 +11,6 @@ interface SheetEntry {
   sourceLink: string | null;
 }
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const repoRoot = path.resolve(backendRoot, "..");
 const dsaPath = path.join(repoRoot, "DSA.json");
 const bankFiles = (): string[] => {
   const bankDir = path.join(backendRoot, "data", "problems");

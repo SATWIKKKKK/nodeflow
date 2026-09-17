@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import type { ProgressSummary } from "@nodeflow/shared";
 import { api, type DsaSummary } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
+import { Pagination, paginate } from "../components/Pagination";
 import { SectionHeading } from "../components/SectionHeading";
 import { Spinner } from "../components/PageLoader";
 import { button, container } from "../components/ui";
 
+const TOPICS_PER_PAGE = 8;
+
 export default function ProblemMapPage() {
+  const [params, setParams] = useSearchParams();
   const session = useSession();
   const { problems, loading, error } = useProblems();
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
@@ -52,6 +56,14 @@ export default function ProblemMapPage() {
     }
     return [...map.entries()].sort((a, b) => b[1].total - a[1].total);
   }, [problems, solved]);
+
+  const paged = paginate(byTopic, Number(params.get("page") ?? "1") || 1, TOPICS_PER_PAGE);
+  const setPage = (page: number) => {
+    const next = new URLSearchParams(params);
+    if (page > 1) next.set("page", String(page));
+    else next.delete("page");
+    setParams(next, { replace: true });
+  };
 
   const metrics = [
     { label: "published", value: loading ? "—" : problems.length, note: "playable in the workspace today" },
@@ -100,7 +112,7 @@ export default function ProblemMapPage() {
           </div>
         ) : (
           <ul className="divide-y divide-blueprint-line">
-            {byTopic.map(([topic, row]) => {
+            {paged.items.map(([topic, row]) => {
               const percent = row.total ? (row.done / row.total) * 100 : 0;
               const mix = [
                 row.easy && `${row.easy} easy`,
@@ -111,24 +123,34 @@ export default function ProblemMapPage() {
                 .join(" · ");
 
               return (
-                <li key={topic} className="grid gap-3 px-5 py-5 sm:grid-cols-[12rem_1fr_5rem] sm:items-center sm:px-6">
-                  <div>
-                    <p className="text-ui-label text-primary">{topic}</p>
-                    <p className="mt-1 text-xs text-blueprint-muted">{mix}</p>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-surface-inset" aria-hidden>
-                    <div
-                      className="progress-fill h-full rounded-full transition-[width] duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                  <p className="text-technical-mono text-primary sm:text-right">
-                    {row.done} / {row.total}
-                  </p>
+                <li key={topic}>
+                  <NavLink
+                    to={`/problems?topic=${encodeURIComponent(topic)}`}
+                    className="grid gap-3 px-5 py-5 transition-colors hover:bg-surface-hover sm:grid-cols-[12rem_1fr_5rem] sm:items-center sm:px-6"
+                  >
+                    <div>
+                      <p className="text-ui-label text-primary">{topic}</p>
+                      <p className="mt-1 text-xs text-blueprint-muted">{mix}</p>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-surface-inset" aria-hidden>
+                      <div
+                        className="progress-fill h-full rounded-full transition-[width] duration-500"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <p className="text-technical-mono text-primary sm:text-right">
+                      {row.done} / {row.total}
+                    </p>
+                  </NavLink>
                 </li>
               );
             })}
           </ul>
+        )}
+        {!loading && !error && paged.pages > 1 && (
+          <div className="border-t border-blueprint-line px-5 py-4 sm:px-6">
+            <Pagination page={paged.page} pages={paged.pages} onPage={setPage} label="Topic pages" />
+          </div>
         )}
       </section>
 

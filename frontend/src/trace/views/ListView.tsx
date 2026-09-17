@@ -113,7 +113,8 @@ export function ListView({ view }: { view: ListViewModel }) {
                   dashed && !edge.changed && "opacity-70"
                 )}
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1, d: edgePath(edge, from, to, doubly) }}
+                // d is not animated: framer cannot morph a line into a curve and emits "undefined".
+                animate={{ pathLength: 1, opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
               />

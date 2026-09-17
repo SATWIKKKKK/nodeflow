@@ -7,7 +7,6 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
-  Clock3,
   Code2,
   History,
   Layers3,
@@ -105,7 +104,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: "Is Noesis free?",
-    a: "Yes. The only plan today is free. Plans for classrooms and teams are on the roadmap, and their prices have not been set."
+    a: "Yes. Everything, classrooms included, is free today. Paid plans for larger courses and teams are on the roadmap, and their prices have not been set."
   }
 ];
 
@@ -220,13 +219,8 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
-          <p className="inline-flex items-center gap-2 rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-ui-label text-blueprint-muted">
-            <Activity size={15} aria-hidden className="text-primary" />
-            Traced from your real code
-          </p>
-
-          <h1 className="mt-6 max-w-3xl text-balance text-hero text-primary">
-            Watch your own code <em className="italic">rewire</em> the list.
+          <h1 className="max-w-3xl text-balance text-hero text-primary">
+            Watch your own code <em className="hero-accent italic">rewire</em> the list.
           </h1>
 
           <p className="mt-6 max-w-xl text-[clamp(1rem,2vw,1.2rem)] leading-8 text-blueprint-muted">
@@ -242,8 +236,6 @@ export default function LandingPage() {
               Watch a real trace
             </a>
           </div>
-
-          <p className="mt-6 text-technical-mono text-blueprint-muted">No account needed to run your code</p>
         </motion.div>
       </section>
 
@@ -331,7 +323,7 @@ export default function LandingPage() {
               className="mb-8"
               eyebrow="Scope"
               title="Honest about what is live."
-              lead="Noesis shows only what works today. Everything else is on the roadmap and labelled that way."
+              lead="Noesis shows only what works today, and every item below is live."
             />
             <p className="text-ui-label text-primary">Live now</p>
             <ul className="mt-4 grid gap-3">
@@ -343,18 +335,6 @@ export default function LandingPage() {
               ].map((item) => (
                 <li key={item} className="flex gap-3 text-body-md text-primary">
                   <Check size={16} aria-hidden className="check-icon mt-1 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-8 text-ui-label text-primary">Planned</p>
-            <ul className="mt-4 grid gap-3">
-              {[
-                "Custom input for your own test cases",
-                "Hosted classrooms and shared progress"
-              ].map((item) => (
-                <li key={item} className="flex gap-3 text-body-md text-blueprint-muted">
-                  <Clock3 size={16} aria-hidden className="mt-1 shrink-0" />
                   <span>{item}</span>
                 </li>
               ))}
