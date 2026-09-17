@@ -23,14 +23,14 @@ import { useProblems } from "../lib/problems";
 import { cn } from "../lib/cn";
 import { TraceReplay } from "./TraceReplay";
 
-const PLANNED_BANK = 388;
-const STEP_LIMIT = 7000;
+// Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
+const STEP_LIMIT = 4000;
 
 const steps: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
     icon: Code2,
     title: "Write",
-    body: "Pick a problem and write a Python solution. The editor opens with the function signature already in place."
+    body: "Pick a problem and write a solution in Python, C++ or Java. The editor opens with the function signature already in place."
   },
   {
     icon: Terminal,
@@ -89,7 +89,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: "Which languages can I use?",
-    a: "Python, C++ and Java all run and are judged. Only Python produces a visual trace today; the other two get theirs later."
+    a: "Python, C++ and Java. All three run in the sandbox, are judged against the same tests, and produce the same step-by-step visual trace."
   },
   {
     q: "Is it safe to run my code?",
@@ -97,11 +97,11 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: "What if my loop never ends?",
-    a: `The run stops at the time limit or after ${STEP_LIMIT.toLocaleString("en-US")} traced steps, and the workspace tells you a loop probably never exits. Whatever was traced before that point can still be replayed.`
+    a: `The run stops at the time limit or after ${STEP_LIMIT.toLocaleString("en-US")} traced steps (1,500 for C++ and Java), and the workspace tells you a loop probably never exits. Whatever was traced before that point can still be replayed.`
   },
   {
-    q: "Why mostly arrays and linked lists?",
-    a: "They are where the tracer and the scene were proven first. A first stack and a first queue problem are live too. Trees, graphs and recursion come next, and they will only appear once they actually work."
+    q: "Which topics are covered?",
+    a: "The whole DSA sheet: arrays, strings, hashing, recursion and backtracking, binary search, linked lists, stacks and queues, trees and BSTs, heaps, graphs, dynamic programming and tries. Every problem is checked in the sandbox against its reference solution before it goes live."
   },
   {
     q: "Is Noesis free?",
@@ -183,8 +183,9 @@ export default function LandingPage() {
     const count = (type: string) => problems.filter((problem) => problem.structureType === type).length;
     return {
       total: problems.length,
-      arrays: count("array"),
-      lists: count("linked_list")
+      topics: new Set(problems.map((problem) => problem.topic)).size,
+      trees: count("tree"),
+      graphs: count("graph")
     };
   }, [problems]);
 
@@ -193,15 +194,15 @@ export default function LandingPage() {
       label: "live now",
       value: bank.total ? String(bank.total) : "—",
       note: bank.total
-        ? `problems, led by ${bank.arrays} arrays and ${bank.lists} linked lists`
+        ? `problems across ${bank.topics} topics, from arrays to graphs`
         : "Loading the live bank"
     },
     {
-      label: "planned",
-      value: String(PLANNED_BANK),
-      note: "questions, each reviewed before it goes live"
+      label: "trees and graphs",
+      value: bank.total ? String(bank.trees + bank.graphs) : "—",
+      note: "problems drawn as real node-and-edge diagrams"
     },
-    { label: "languages", value: "3", note: "all judged; Python is traced, C++ and Java are not yet" },
+    { label: "languages", value: "3", note: "Python, C++ and Java, all judged and all traced" },
     {
       label: "step limit",
       value: STEP_LIMIT.toLocaleString("en-US"),
@@ -229,7 +230,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-[clamp(1rem,2vw,1.2rem)] leading-8 text-blueprint-muted">
-            Noesis runs your Python in a sandbox, records every object at every line, and replays it step by
+            Noesis runs your Python, C++ or Java in a sandbox, records every object at every line, and replays it step by
             step, so you can point at the exact line where a pointer went wrong.
           </p>
 
@@ -335,8 +336,8 @@ export default function LandingPage() {
             <p className="text-ui-label text-primary">Live now</p>
             <ul className="mt-4 grid gap-3">
               {[
-                "Python tracing with step-by-step playback",
-                "Arrays and singly linked lists in the scene",
+                "Step-by-step tracing for Python, C++ and Java",
+                "Arrays, lists, stacks, queues, trees, graphs, grids and maps in the trace",
                 "Run, Test, Submit and live preview",
                 "Progress dashboard built from your submissions"
               ].map((item) => (
@@ -349,9 +350,8 @@ export default function LandingPage() {
             <p className="mt-8 text-ui-label text-primary">Planned</p>
             <ul className="mt-4 grid gap-3">
               {[
-                "Trees, graphs, stacks, queues and recursion",
-                "Visual traces for C++ and Java",
-                `The full ${PLANNED_BANK}-question bank`
+                "Custom input for your own test cases",
+                "Hosted classrooms and shared progress"
               ].map((item) => (
                 <li key={item} className="flex gap-3 text-body-md text-blueprint-muted">
                   <Clock3 size={16} aria-hidden className="mt-1 shrink-0" />

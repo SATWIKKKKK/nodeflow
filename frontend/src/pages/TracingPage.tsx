@@ -23,13 +23,13 @@ const pipeline = [
   {
     icon: Shapes,
     title: "Draw",
-    body: "The scene keeps one node per heap id and only animates what a diff names, so structure changes read as motion."
+    body: "The trace keeps one shape per heap id and only highlights what a diff names, so a moved pointer reads as a moved arrow."
   }
 ];
 
 const limits = [
-  { value: "7,000", label: "steps per run", note: "then the run stops and reports a likely infinite loop" },
-  { value: "1,500", label: "steps per live preview", note: "a tighter budget, since it reruns while you type" },
+  { value: "4,000", label: "steps per run", note: "in Python (1,500 in C++ and Java), then the run stops and reports a likely infinite loop" },
+  { value: "1,500", label: "steps per live preview", note: "in Python (500 in C++ and Java), since it reruns while you type" },
   { value: "64", label: "items per list", note: "longer lists are cut off in the snapshot and marked as truncated" },
   { value: "2", label: "runs at once", note: "by default; the rest wait in a queue instead of piling up" }
 ];
@@ -134,11 +134,12 @@ export default function TracingPage() {
           </div>
 
           <div className="surface-inset mt-10 max-w-3xl">
-            <p className="text-ui-label text-primary">Why only Python is visualized</p>
+            <p className="text-ui-label text-primary">How each language is traced</p>
             <p className="mt-2 text-body-md text-blueprint-muted">
-              The scene is built from real interpreter state, not from reading your source code. C++ and Java
-              already run and are judged correctly, but their sandboxes do not emit a trace yet, so the workspace
-              says so instead of showing an empty scene.
+              The trace is built from real program state, never from reading your source. Python is recorded with
+              the interpreter's own trace hook, C++ is stepped under gdb, and Java is stepped through the JVM's
+              debugger interface. All three produce the same heap snapshots, so the picture works the same way
+              whichever language you write in.
             </p>
           </div>
         </div>

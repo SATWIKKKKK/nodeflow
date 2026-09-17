@@ -48,9 +48,19 @@ export function useProblems() {
   return { problems, error, loading };
 }
 
-export const structureLabel = (structureType: string) => {
-  if (structureType === "linked_list") return "Linked list";
-  if (structureType === "stack") return "Stack";
-  if (structureType === "queue") return "Queue";
-  return "Array";
+const STRUCTURE_LABELS: Record<string, string> = {
+  array: "Array",
+  string: "String",
+  matrix: "Matrix",
+  linked_list: "Linked list",
+  stack: "Stack",
+  queue: "Queue",
+  hashmap: "Hash map",
+  tree: "Tree",
+  heap: "Heap",
+  graph: "Graph",
+  trie: "Trie",
+  number: "Number"
 };
+
+export const structureLabel = (structureType: string) => STRUCTURE_LABELS[structureType] ?? "Array";

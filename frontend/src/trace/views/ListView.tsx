@@ -3,6 +3,7 @@ import { cn } from "../../lib/cn";
 import type { ListEdgeModel, ListNodeModel, ListViewModel } from "../model";
 import { ArrowMarkers } from "./ArrowMarkers";
 import { PointerTags } from "./PointerTags";
+import { placeAt } from "./placeAt";
 
 /**
  * Linked lists in the landing-page style: ink circles, arrows that draw in when
@@ -122,30 +123,31 @@ export function ListView({ view }: { view: ListViewModel }) {
 
         <AnimatePresence initial={false}>
           {view.nodes.map((node) => (
-            <motion.g
-              key={node.id}
-              initial={{ opacity: 0, scale: 0.6, x: cx(node), y: cy(node) }}
-              animate={{ opacity: 1, scale: 1, x: cx(node), y: cy(node) }}
-              exit={{ opacity: 0, scale: 0.6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            >
-              <circle
-                r={RADIUS}
-                strokeWidth={1.75}
-                className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
-              />
-              <text
-                y={5}
-                textAnchor="middle"
-                className={cn(
-                  "font-mono text-[14px] font-medium transition-[fill] duration-300",
-                  node.changed ? "fill-primary-foreground" : "fill-primary"
-                )}
+            <g key={node.id} style={placeAt(cx(node), cy(node))}>
+              <motion.g
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ type: "spring", stiffness: 260, damping: 28 }}
               >
-                {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
-              </text>
-              <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
-            </motion.g>
+                <circle
+                  r={RADIUS}
+                  strokeWidth={1.75}
+                  className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
+                />
+                <text
+                  y={5}
+                  textAnchor="middle"
+                  className={cn(
+                    "font-mono text-[14px] font-medium transition-[fill] duration-300",
+                    node.changed ? "fill-primary-foreground" : "fill-primary"
+                  )}
+                >
+                  {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
+                </text>
+                <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
+              </motion.g>
+            </g>
           ))}
         </AnimatePresence>
       </svg>

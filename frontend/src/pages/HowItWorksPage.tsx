@@ -28,7 +28,7 @@ const loop = [
 ];
 
 const anatomy = [
-  { label: "Scene", note: "Your data structure, one object per heap id. Drag to orbit, click a node to jump to the line that changed it." },
+  { label: "Trace", note: "Your data structures drawn as they are at the current step, with pointers and changed cells marked. A 3D view is one toggle away." },
   { label: "Playback", note: "Reset, step back, play, step forward, speed and a scrubber across the whole trace." },
   { label: "Problem", note: "Statement, examples and constraints, with topic and difficulty." },
   { label: "Editor", note: "The line being replayed is highlighted. Click any line to jump to the step where it ran." },
@@ -38,7 +38,7 @@ const anatomy = [
 const phases = [
   {
     name: "Phase 1",
-    status: "Current",
+    status: "Shipped",
     title: "Arrays and linked lists",
     points: [
       "Python tracing and playback",
@@ -49,15 +49,19 @@ const phases = [
   },
   {
     name: "Phase 2",
-    status: "Planned",
-    title: "More structures",
-    points: ["Trees and graphs", "Stacks and queues", "Recursion and the call stack"]
+    status: "Current",
+    title: "The whole sheet",
+    points: [
+      "Every problem on the DSA sheet, verified in the sandbox",
+      "Traces for Python, C++ and Java",
+      "Stacks, queues, trees, graphs, grids and maps in the trace"
+    ]
   },
   {
     name: "Later",
     status: "Planned",
-    title: "A wider bank",
-    points: ["Visual traces for C++ and Java", "The full 388-question bank", "Hosted classrooms"]
+    title: "Beyond the sheet",
+    points: ["Custom input for your own test cases", "Hosted classrooms", "Shared progress for teams"]
   }
 ];
 
@@ -185,6 +189,7 @@ export default function HowItWorksPage() {
           <div className="grid gap-5 lg:grid-cols-3">
             {phases.map((phase) => {
               const current = phase.status === "Current";
+              const live = phase.status !== "Planned";
               return (
                 <article
                   key={phase.name}
@@ -207,9 +212,9 @@ export default function HowItWorksPage() {
                     {phase.points.map((point) => (
                       <li
                         key={point}
-                        className={cn("flex gap-3 text-body-md", current ? "text-primary" : "text-blueprint-muted")}
+                        className={cn("flex gap-3 text-body-md", live ? "text-primary" : "text-blueprint-muted")}
                       >
-                        {current ? (
+                        {live ? (
                           <Check size={16} aria-hidden className="check-icon mt-1 shrink-0" />
                         ) : (
                           <Clock3 size={16} aria-hidden className="mt-1 shrink-0" />

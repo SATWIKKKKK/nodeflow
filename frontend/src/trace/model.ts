@@ -223,7 +223,9 @@ export type ListSlots = Map<string, { row: number; col: number }>;
  * Stable positions for every list node across the whole trace, so pointer
  * rewiring animates arrows instead of shuffling nodes. `next` moves right and
  * `child` moves down; a node first seen just before an already-placed node is
- * put to its left.
+ * put to its left. A node with no links yet (a fresh sentinel, say) waits until
+ * it joins a chain, so design classes that build nodes one at a time still lay
+ * out in a row.
  */
 export function buildListSlots(trace: TraceStep[]): ListSlots {
   const slots: ListSlots = new Map();
@@ -244,8 +246,22 @@ export function buildListSlots(trace: TraceStep[]): ListSlots {
     slots.set(id, { row, col: finalCol });
   };
 
+  const LINKS = ["next", "prev", "child"];
+  const loose: string[] = [];
+
   for (const step of trace) {
     const heap = step.heap;
+    const linked = new Set<string>();
+    for (const [id, object] of Object.entries(heap)) {
+      if (!isListNode(object)) continue;
+      for (const field of LINKS) {
+        const target = object.fields?.[field];
+        if (isRef(target, heap)) {
+          linked.add(id);
+          linked.add(target);
+        }
+      }
+    }
     const roots: string[] = [];
     const addRoots = (variables: Record<string, SerializedValue>) => {
       for (const value of Object.values(variables)) {
@@ -278,6 +294,11 @@ export function buildListSlots(trace: TraceStep[]): ListSlots {
         current = isRef(next, heap) ? next : null;
       }
 
+      if (chain.length === 1 && !linked.has(root) && !slots.has(root)) {
+        if (!loose.includes(root)) loose.push(root);
+        continue;
+      }
+
       chain.forEach((id, index) => {
         if (slots.has(id)) return;
         const before = index > 0 ? slots.get(chain[index - 1]) : undefined;
@@ -287,8 +308,14 @@ export function buildListSlots(trace: TraceStep[]): ListSlots {
         }
         const afterIndex = chain.findIndex((other, k) => k > index && slots.has(other));
         if (afterIndex > 0) {
+          // Left of the node it points at; if that slot is taken (a node being
+          // spliced in mid-list), drop to the first free row beneath instead.
           const after = slots.get(chain[afterIndex])!;
-          place(id, after.row, after.col - (afterIndex - index), -1);
+          const col = after.col - (afterIndex - index);
+          let row = after.row;
+          while (occupied.get(row)?.has(col)) row += 1;
+          rows = Math.max(rows, row + 1);
+          place(id, row, col, -1);
           return;
         }
         // A child column hangs under its parent.
@@ -318,6 +345,13 @@ export function buildListSlots(trace: TraceStep[]): ListSlots {
         }
       }
     }
+  }
+
+  // Nodes that never joined a chain still get a row each.
+  for (const id of loose) {
+    if (slots.has(id)) continue;
+    place(id, rows, 0, 1);
+    rows += 1;
   }
 
   // Shift every row so its leftmost column is 0.

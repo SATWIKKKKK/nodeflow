@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { TreeViewModel } from "../model";
 import { PointerTags } from "./PointerTags";
+import { placeAt } from "./placeAt";
 
 const X_SPACING = 58;
 const LEVEL_HEIGHT = 78;
@@ -56,30 +57,31 @@ export function TreeView({ view }: { view: TreeViewModel }) {
           {view.nodes.map((node) => {
             const at = position.get(node.id)!;
             return (
-              <motion.g
-                key={node.id}
-                initial={{ opacity: 0, scale: 0.6, x: at.x, y: at.y }}
-                animate={{ opacity: 1, scale: 1, x: at.x, y: at.y }}
-                exit={{ opacity: 0, scale: 0.6 }}
-                transition={{ type: "spring", stiffness: 240, damping: 28 }}
-              >
-                <circle
-                  r={RADIUS}
-                  strokeWidth={1.75}
-                  className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
-                />
-                <text
-                  y={4.5}
-                  textAnchor="middle"
-                  className={cn(
-                    "font-mono text-[13px] font-medium transition-[fill] duration-300",
-                    node.changed ? "fill-primary-foreground" : "fill-primary"
-                  )}
+              <g key={node.id} style={placeAt(at.x, at.y)}>
+                <motion.g
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ type: "spring", stiffness: 240, damping: 28 }}
                 >
-                  {node.label.length > 4 ? `${node.label.slice(0, 3)}…` : node.label}
-                </text>
-                <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
-              </motion.g>
+                  <circle
+                    r={RADIUS}
+                    strokeWidth={1.75}
+                    className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
+                  />
+                  <text
+                    y={4.5}
+                    textAnchor="middle"
+                    className={cn(
+                      "font-mono text-[13px] font-medium transition-[fill] duration-300",
+                      node.changed ? "fill-primary-foreground" : "fill-primary"
+                    )}
+                  >
+                    {node.label.length > 4 ? `${node.label.slice(0, 3)}…` : node.label}
+                  </text>
+                  <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
+                </motion.g>
+              </g>
             );
           })}
         </AnimatePresence>

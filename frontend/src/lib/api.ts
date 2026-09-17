@@ -29,12 +29,9 @@ const authHeaders = (token?: string | null) => ({
 });
 
 export interface DsaSummary {
+  /** Problems on the DSA sheet (section headings excluded). */
   total: number;
-  phaseOne: number;
-  arrays: number;
-  linkedLists: number;
-  stacks?: number;
-  queues?: number;
+  covered: number;
   unpublished: number;
 }
 

@@ -1,7 +1,7 @@
 # Noesis
 
-Noesis is a local-first Python DSA workspace where user code is executed, traced, diffed, judged,
-and visualized step by step.
+Noesis is a local-first DSA workspace where Python, C++ and Java code is executed, traced, diffed,
+judged, and visualized step by step.
 
 ## Useful Commands
 
@@ -10,7 +10,9 @@ and visualized step by step.
 - `npm run smoke` - verify the core tracer/judge/sandbox loop.
 - `npm run verify:auth` - verify local sign-up/sign-in/session/submission identity.
 - `npm run verify:progress` - verify persisted submissions roll up into dashboard progress.
-- `npm run verify:problems` - run every live reference solution through the judge.
+- `npm run verify:problems` - run every live reference solution through the judge
+  (`-- --file data/problems/<batch>.json`, `-- --id <id>`, or `-- --language cpp --solutions <file>`).
+- `python backend/problem-src/build.py <batch>|all` - build problem batches from the authoring DSL.
 - `npm run verify:queue` - force serialized sandbox runs and verify queue timing.
 - `npm run verify:reviewed` - validate the reviewed Phase 1 JSON package.
 - `npm run ingest:metadata` - extract Phase 1 `array` and `linked_list` metadata from `DSA.json`.
@@ -42,16 +44,15 @@ panels instead of stretching the page.
 
 ## Problem Bank Flow
 
-`DSA.json` is treated as metadata only. The current file contains 384 entries, including 93 Phase 1
-array/linked-list candidates. `npm run ingest:drafts` writes 91 unique review-only draft shells to
-`backend/data/phase1-drafts.json`; duplicates in the source metadata are collapsed by title.
+`DSA.json` is treated as metadata only: 384 rows, of which 369 are problems and 15 are section
+headings. Every one of the 369 problems is live, for 372 live problems in total (with 3 extra seeds).
 
-Live problems must be original Noesis problem packages, schema-validated, marked `reviewed`, and
-verified before they are served in the workspace. Reviewed Phase 1 records live in
-`backend/data/reviewed-phase1.json` and are loaded through the schema in
-`backend/src/problems/reviewedPhase1.ts`. The live bank currently has 53 problems: 33 arrays and 20
-singly linked-list problems, with 48 reviewed packages plus the 5 original seed problems. All live
-reference solutions are verified by `npm run verify:problems`. Draft shells are labeled as
-`needs_human_review` or `deferred_until_supported` so matrix, doubly linked-list, random-pointer,
-cycle, stack/queue, heap, string-pattern, and aliasing-dependent prompts do not look publishable
-before the tracer supports them.
+Problems are written in `backend/problem-src/bNN_*.py` with the small DSL in `dsl.py`: an original
+statement, a Python reference solution, hand-written examples (input, output) and hidden-test inputs.
+`build.py` runs each reference through the same tracer harness the sandbox uses, fails if a written
+example disagrees with the reference, fills in the hidden expected outputs, and writes
+`backend/data/problems/<batch>.json`. `backend/src/problems/reviewedPhase1.ts` loads
+`backend/data/reviewed-phase1.json` plus every batch file through the schema. After building, run
+`npm run verify:problems -- --file data/problems/<batch>.json` to re-check the batch inside Docker;
+a bare `npm run verify:problems` checks the whole bank. C++ and Java stubs are derived from each
+problem's signature, including design-class problems (`{operations, arguments}` inputs).

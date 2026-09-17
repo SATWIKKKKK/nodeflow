@@ -10,8 +10,6 @@ import { SectionHeading } from "../components/SectionHeading";
 import { Spinner } from "../components/PageLoader";
 import { button, container } from "../components/ui";
 
-const PLANNED_BANK = 388;
-
 export default function ProblemMapPage() {
   const session = useSession();
   const { problems, loading, error } = useProblems();
@@ -57,12 +55,12 @@ export default function ProblemMapPage() {
 
   const metrics = [
     { label: "published", value: loading ? "—" : problems.length, note: "playable in the workspace today" },
+    { label: "topics", value: loading ? "—" : byTopic.length, note: "from basic maths to tries" },
     {
-      label: "not yet published",
-      value: summary ? summary.unpublished : "—",
-      note: "still being written, reviewed or waiting on tracer support"
-    },
-    { label: "planned bank", value: PLANNED_BANK, note: "the full set of questions Noesis is working toward" }
+      label: "sheet coverage",
+      value: summary ? `${summary.covered}/${summary.total}` : "—",
+      note: "problems on the DSA sheet with a verified, playable version"
+    }
   ];
 
   return (
