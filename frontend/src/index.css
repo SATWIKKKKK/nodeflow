@@ -655,6 +655,52 @@
   --graphics-grid: rgba(243, 236, 236, 0.05);
 }
 
+/*
+ * The hero word reveals one letter per step, not as a wipe: each letter holds
+ * at 0 for its whole beat and jumps to 1 at the end of it.
+ */
+@keyframes nf-letter-step {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * The caret stays lit while the word types, blinks twice, then fades out. Each
+ * blink is a hard on/off; only the final segment eases.
+ */
+@keyframes nf-caret {
+  0% {
+    opacity: 1;
+    animation-timing-function: steps(1, jump-end);
+  }
+  35% {
+    opacity: 0;
+    animation-timing-function: steps(1, jump-end);
+  }
+  48% {
+    opacity: 1;
+    animation-timing-function: steps(1, jump-end);
+  }
+  61% {
+    opacity: 0;
+    animation-timing-function: steps(1, jump-end);
+  }
+  74% {
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  87% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* Fades the ends of the hero band so nodes enter and leave, rather than stop. */
 @utility graphics-edge-fade {
   mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);

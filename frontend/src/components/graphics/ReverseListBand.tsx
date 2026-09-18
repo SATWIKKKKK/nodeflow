@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { computeDiffs, expandTrace, type HeapObject } from "@nodeflow/shared";
 import { cn } from "../../lib/cn";
@@ -58,7 +58,18 @@ const shown = demo.trace
     return diff.mutated.length > 0 || movedPill;
   });
 
-export function ReverseListBand({ className }: { className?: string }) {
+export function ReverseListBand({
+  className,
+  onRewire
+}: {
+  className?: string;
+  /**
+   * Fires on each frame that rewires a node, so anything synced to the band
+   * (the hero word) reacts to the real trace instead of guessing with its own
+   * timer.
+   */
+  onRewire?: () => void;
+}) {
   const [ref, inView] = useInView<HTMLDivElement>({ amount: 0.15 });
   const { index } = useFrames(shown.length, {
     intervalMs: 400,
@@ -72,6 +83,13 @@ export function ReverseListBand({ className }: { className?: string }) {
   const diff = demo.diffs[stepIndex];
 
   const mutated = useMemo(() => new Set(diff.mutated.map((entry) => entry.id)), [diff]);
+
+  const rewired = diff.mutated.length > 0;
+  const notify = useRef(onRewire);
+  notify.current = onRewire;
+  useEffect(() => {
+    if (rewired) notify.current?.();
+  }, [rewired, stepIndex]);
   const changedVars = useMemo(() => new Set(Object.keys(diff.variablesChanged ?? {})), [diff]);
 
   /** Exactly one pill is active: the one this step moved, `current` if it moved too. */

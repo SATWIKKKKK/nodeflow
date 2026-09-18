@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import {
-  CtaLogoField,
   DiffGraphic,
   FaultGraphic,
   LanguagePills,
@@ -9,6 +8,7 @@ import {
   ProblemDots,
   ReplayScene,
   ReverseListBand,
+  RewireWord,
   RunGraphic,
   RunScene,
   StepLimitGlyph,
@@ -95,10 +95,13 @@ function Board() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-headline-sm text-primary">CTA logo field</h2>
-        <div className="relative h-64 overflow-hidden rounded-xl bg-[#050505]">
-          <CtaLogoField active className="-right-16 -top-24 h-96 w-96" />
-        </div>
+        <h2 className="mb-4 text-headline-sm text-primary">Hero word</h2>
+        <p className="text-hero text-primary">
+          <RewireWord />
+        </p>
+        <p className="mt-10 text-hero text-primary">
+          <RewireWord iDot />
+        </p>
       </section>
 
       <section>

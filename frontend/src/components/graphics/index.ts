@@ -11,8 +11,7 @@ export { useFrames, useInView, useReplayOnHover, usePrefersReducedMotion } from 
 
 export { ReverseListBand } from "./ReverseListBand";
 export { LogoDrawIn } from "./LogoDrawIn";
-export { MarginVignettes } from "./MarginVignettes";
-export { CtaLogoField } from "./CtaLogoField";
+export { RewireWord } from "./RewireWord";
 export { TopicSigil, topicSigilNames, resolveTopic } from "./TopicSigil";
 
 export { WriteScene, RunScene, TraceScene, ReplayScene, stepScenes } from "./steps";

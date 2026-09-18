@@ -12,6 +12,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export interface FrameOptions {
   /** Beat between frames. */
   intervalMs?: number;
+  /**
+   * A beat per frame, for timelines whose phases are not evenly spaced (draw
+   * 300ms, hold 1.5s, retract 200ms). Overrides intervalMs and both holds.
+   */
+  durations?: readonly number[];
   /** Extra time on the first frame, so a loop has a readable starting point. */
   holdStartMs?: number;
   /** Extra time on the last frame before looping or resting. */
@@ -87,6 +92,7 @@ export function useInView<T extends Element>(options?: { amount?: number; once?:
 export function useFrames(count: number, options: FrameOptions = {}): Frames {
   const {
     intervalMs = 520,
+    durations,
     holdStartMs = 1200,
     holdEndMs = 1200,
     loop = true,
@@ -96,6 +102,12 @@ export function useFrames(count: number, options: FrameOptions = {}): Frames {
   const reduced = usePrefersReducedMotion();
   const [index, setIndex] = useState(0);
   const previousIndex = useRef(0);
+
+  // Read through a ref, so a caller passing an inline array does not give the
+  // effect a new identity on every render and restart the beat it is waiting
+  // on. A long hold would otherwise never elapse.
+  const beats = useRef(durations);
+  beats.current = durations;
 
   const replay = useCallback(() => {
     previousIndex.current = 0;
@@ -108,7 +120,8 @@ export function useFrames(count: number, options: FrameOptions = {}): Frames {
     const atEnd = index >= count - 1;
     if (atEnd && !loop) return;
 
-    const wait = index === 0 ? holdStartMs : atEnd ? holdEndMs : intervalMs;
+    const wait =
+      beats.current?.[index] ?? (index === 0 ? holdStartMs : atEnd ? holdEndMs : intervalMs);
     const timer = window.setTimeout(() => {
       previousIndex.current = index;
       setIndex(atEnd ? 0 : index + 1);

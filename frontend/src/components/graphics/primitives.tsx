@@ -127,6 +127,7 @@ export function Node({
   filled = false,
   changed = false,
   fontSize,
+  strokeWidth = geometry.stroke,
   className,
   style
 }: {
@@ -139,6 +140,8 @@ export function Node({
   filled?: boolean;
   changed?: boolean;
   fontSize?: number;
+  /** Thinner than the house weight where the drawing is a hairline. */
+  strokeWidth?: number;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -153,7 +156,7 @@ export function Node({
         r={r}
         fill={filled ? color : PAPER}
         stroke={color}
-        strokeWidth={geometry.stroke}
+        strokeWidth={strokeWidth}
         style={settle(changed)}
       />
       {value !== undefined && (
@@ -187,6 +190,7 @@ export function Edge({
   width = geometry.edge,
   arrow = true,
   dash,
+  pathLength,
   className,
   style
 }: {
@@ -203,6 +207,11 @@ export function Edge({
   width?: number;
   arrow?: boolean;
   dash?: string;
+  /**
+   * Normalises the path's length, so a draw-on can be animated with
+   * stroke-dashoffset from 1 to 0 without measuring the geometry first.
+   */
+  pathLength?: number;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -221,6 +230,7 @@ export function Edge({
       strokeWidth={width}
       strokeLinecap="round"
       strokeDasharray={dash}
+      pathLength={pathLength}
       markerEnd={arrow ? `url(#${uid}-chevron-${tone})` : undefined}
       className={className}
       style={style}

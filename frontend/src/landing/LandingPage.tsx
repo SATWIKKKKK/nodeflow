@@ -19,10 +19,9 @@ import {
 import { SectionHeading } from "../components/SectionHeading";
 import { button, container, iconTile, stepIcon } from "../components/ui";
 import {
-  CtaLogoField,
   LanguagePills,
-  MarginVignettes,
   ProblemDots,
+  RewireWord,
   ReplayScene,
   ReverseListBand,
   RunScene,
@@ -195,7 +194,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function LandingPage() {
   const { problems } = useProblems();
-  const [ctaHover, setCtaHover] = useState(false);
+  // Counts the band's rewires; the headline word brightens on each one.
+  const [rewireTick, setRewireTick] = useState(0);
 
   const bank = useMemo(() => {
     const count = (type: string) => problems.filter((problem) => problem.structureType === type).length;
@@ -241,16 +241,24 @@ export default function LandingPage() {
   return (
     <>
       {/* Hero. Empty space lets clicks through to the ripple grid behind it. */}
-      <section className="pointer-events-none relative flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center py-16 text-center sm:py-20">
-        <MarginVignettes />
+      <section className="pointer-events-none flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center py-16 text-center sm:py-20">
         <motion.div
           className={cn(container, "pointer-events-auto flex flex-col items-center")}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
-          <h1 className="max-w-3xl text-balance text-hero text-primary">
-            Watch your own code <em className="hero-accent italic">rewire</em> the list.
+          {/*
+            One heading for machines and screen readers, via aria-label; the
+            spans inside are decoration and are hidden from both.
+          */}
+          <h1
+            aria-label="Watch your own code rewire the list."
+            className="max-w-3xl text-balance text-hero text-primary"
+          >
+            <span aria-hidden>Watch your own code </span>
+            <RewireWord pulse={rewireTick} />
+            <span aria-hidden> the list.</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-[clamp(1rem,2vw,1.2rem)] leading-8 text-blueprint-muted">
@@ -268,7 +276,7 @@ export default function LandingPage() {
           </div>
 
           {/* The headline's claim, running: a recorded six-node reversal. */}
-          <ReverseListBand className="mt-6" />
+          <ReverseListBand className="mt-6" onRewire={() => setRewireTick((tick) => tick + 1)} />
         </motion.div>
       </section>
 
@@ -421,12 +429,9 @@ export default function LandingPage() {
       <Section>
         <motion.div
           {...reveal}
-          className="landing-cta-panel relative flex flex-col gap-8 overflow-hidden rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
+          className="landing-cta-panel flex flex-col gap-8 rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
         >
-          {/* The empty top-right corner, filled by the mark itself. */}
-          <CtaLogoField active={ctaHover} className="-right-16 -top-24 hidden h-95 w-95 sm:block" />
-
-          <div className="relative max-w-2xl">
+          <div className="max-w-2xl">
             <p className="text-ui-label text-white/60">Start here</p>
             <h2 className="mt-3 text-balance text-cta">
               Open a problem. Press <em className="italic">Run</em>.
@@ -436,13 +441,9 @@ export default function LandingPage() {
               what to look for.
             </p>
           </div>
-          <div className="relative flex flex-col gap-3 sm:flex-row lg:shrink-0">
+          <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
             <NavLink
               to="/workspace/reverse-linked-list"
-              onMouseEnter={() => setCtaHover(true)}
-              onMouseLeave={() => setCtaHover(false)}
-              onFocus={() => setCtaHover(true)}
-              onBlur={() => setCtaHover(false)}
               className="lift landing-cta-button inline-flex items-center justify-center gap-2 rounded-full border px-8 py-3.5 text-ui-label"
             >
               Open the workspace <ArrowRight size={14} aria-hidden />
