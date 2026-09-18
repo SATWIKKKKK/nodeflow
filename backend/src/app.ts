@@ -1,7 +1,8 @@
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
-import { recordResetRequest, signIn, signOut, signUp, userForToken } from "./auth/store.js";
+import { AuthError, completePasswordReset, signIn, signOut, signUp, startPasswordReset, userForToken } from "./auth/store.js";
+import { appUrl, emailsEnabled, sendEmail } from "./auth/email.js";
 import { dsaSummary } from "./problems/metadata.js";
 import { getProblem, problems, publicProblem } from "./problems/seeds.js";
 import { expectedOutput, previewProblem, runProblemCase, submitProblem, testProblem } from "./execution/service.js";
@@ -60,6 +61,11 @@ const resetSchema = z.object({
   email: z.string().email()
 });
 
+const resetConfirmSchema = z.object({
+  token: z.string().min(10).max(200),
+  password: z.string().min(8).max(200)
+});
+
 const authToken = (header: string | undefined) => {
   if (!header?.startsWith("Bearer ")) return undefined;
   return header.slice("Bearer ".length);
@@ -81,6 +87,7 @@ app.get("/api/health", (_request, response) => {
     service: "noesis-backend",
     sandbox: sandboxEnabled,
     accounts: accountsEnabled,
+    emails: emailsEnabled(),
     queue: queueSnapshot()
   });
 });
@@ -111,7 +118,7 @@ app.get("/api/problems/:id", (request, response) => {
   response.json(publicProblem(problem));
 });
 
-app.post("/api/auth/signup", (request, response) => {
+app.post("/api/auth/signup", async (request, response) => {
   if (!accountsEnabled) {
     accountsOff(response);
     return;
@@ -123,13 +130,14 @@ app.post("/api/auth/signup", (request, response) => {
   }
 
   try {
-    response.json(signUp(parsed.data.email, parsed.data.password));
+    response.json(await signUp(parsed.data.email, parsed.data.password));
   } catch (error) {
-    response.status(409).json({ message: error instanceof Error ? error.message : "Sign up failed." });
+    const status = error instanceof AuthError ? error.status : 500;
+    response.status(status).json({ message: error instanceof Error ? error.message : "Sign up failed." });
   }
 });
 
-app.post("/api/auth/signin", (request, response) => {
+app.post("/api/auth/signin", async (request, response) => {
   if (!accountsEnabled) {
     accountsOff(response);
     return;
@@ -141,34 +149,73 @@ app.post("/api/auth/signin", (request, response) => {
   }
 
   try {
-    response.json(signIn(parsed.data.email, parsed.data.password));
+    response.json(await signIn(parsed.data.email, parsed.data.password));
   } catch (error) {
-    response.status(401).json({ message: error instanceof Error ? error.message : "Sign in failed." });
+    const status = error instanceof AuthError ? error.status : 500;
+    response.status(status).json({ message: error instanceof Error ? error.message : "Sign in failed." });
   }
 });
 
-app.get("/api/auth/me", (request, response) => {
-  response.json({ user: userForToken(authToken(request.headers.authorization)) });
+app.get("/api/auth/me", async (request, response) => {
+  response.json({ user: await userForToken(authToken(request.headers.authorization)) });
 });
 
-app.get("/api/progress", (request, response) => {
-  response.json(progressForUser(userForToken(authToken(request.headers.authorization))));
+app.get("/api/progress", async (request, response) => {
+  response.json(await progressForUser(await userForToken(authToken(request.headers.authorization))));
 });
 
-app.post("/api/auth/signout", (request, response) => {
-  signOut(authToken(request.headers.authorization));
+app.post("/api/auth/signout", async (request, response) => {
+  await signOut(authToken(request.headers.authorization));
   response.json({ ok: true });
 });
 
-app.post("/api/auth/reset", (request, response) => {
+app.post("/api/auth/reset", async (request, response) => {
   const parsed = resetSchema.safeParse(request.body);
   if (!parsed.success) {
     response.status(400).json({ message: parsed.error.message });
     return;
   }
 
-  recordResetRequest(parsed.data.email);
+  if (!accountsEnabled) {
+    accountsOff(response);
+    return;
+  }
+
+  const reset = await startPasswordReset(parsed.data.email);
+  if (reset) {
+    const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
+    await sendEmail(
+      reset.email,
+      "Reset your Noesis password",
+      `Someone asked to reset the password for this Noesis account.
+
+${link}
+
+` +
+        "The link works once and expires in an hour. If this was not you, ignore this email; nothing changes."
+    );
+  }
+  // The same answer either way: whether an address has an account is not public.
   response.json({ ok: true });
+});
+
+app.post("/api/auth/reset/confirm", async (request, response) => {
+  if (!accountsEnabled) {
+    accountsOff(response);
+    return;
+  }
+  const parsed = resetConfirmSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ message: "Choose a password of at least 8 characters." });
+    return;
+  }
+
+  try {
+    response.json(await completePasswordReset(parsed.data.token, parsed.data.password));
+  } catch (error) {
+    const status = error instanceof AuthError ? error.status : 500;
+    response.status(status).json({ message: error instanceof Error ? error.message : "Could not reset the password." });
+  }
 });
 
 app.post("/api/run", async (request, response) => {
@@ -282,25 +329,26 @@ app.post("/api/submit", async (request, response) => {
     return;
   }
 
-  const user = userForToken(authToken(request.headers.authorization));
+  const user = await userForToken(authToken(request.headers.authorization));
   response.json(await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language));
 });
 
 // ---------------------------------------------------------------- classrooms
 
-type ClassroomHandler = (user: NonNullable<ReturnType<typeof userForToken>>, request: express.Request) => unknown;
+type ClassroomUser = NonNullable<Awaited<ReturnType<typeof userForToken>>>;
+type ClassroomHandler = (user: ClassroomUser, request: express.Request) => Promise<unknown>;
 
 /** Classroom routes need a signed-in user and turn ClassroomError into its status code. */
 const classroomRoute =
   (handler: ClassroomHandler): express.RequestHandler =>
-  (request, response) => {
-    const user = userForToken(authToken(request.headers.authorization));
+  async (request, response) => {
+    const user = await userForToken(authToken(request.headers.authorization));
     if (!user) {
       response.status(401).json({ message: "Sign in to use classrooms." });
       return;
     }
     try {
-      response.json(handler(user, request));
+      response.json(await handler(user, request));
     } catch (error) {
       if (error instanceof ClassroomError) {
         response.status(error.status).json({ message: error.message });
@@ -316,7 +364,7 @@ const classroomRoute =
 
 const param = (request: express.Request, name: string) => String(request.params[name]);
 
-app.get("/api/classrooms", classroomRoute((user) => ({ classrooms: listClassrooms(user) })));
+app.get("/api/classrooms", classroomRoute(async (user) => ({ classrooms: await listClassrooms(user) })));
 app.post(
   "/api/classrooms",
   classroomRoute((user, request) => createClassroom(user, classroomNameSchema.parse(request.body).name))

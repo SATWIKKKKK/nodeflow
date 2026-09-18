@@ -68,15 +68,40 @@ example disagrees with the reference, fills in the hidden expected outputs, and 
 a bare `npm run verify:problems` checks the whole bank. C++ and Java stubs are derived from each
 problem's signature, including design-class problems (`{operations, arguments}` inputs).
 
-## Deployment
+## Configuration
 
-The full product needs Docker for the sandbox, so it runs wherever the backend can start containers.
-`npm run build:vercel` produces a Vercel deployment of the static site plus one Node function that serves
-the problem bank from `backend/data/problems`. That function runs with `NOESIS_SANDBOX=off` and
-`NOESIS_ACCOUNTS=off`: the workspace shows a banner, and Run/Test/Submit/sign-up answer with a clear
-message instead of failing. Only public problem data is copied into the function.
+The backend reads these environment variables (locally from `.env.local`, which
+`vercel env pull` writes; on Vercel from the project settings):
+
+| Variable | Meaning |
+| --- | --- |
+| `NOESIS_SANDBOX` | `docker` (default, local), `vercel` (Vercel Sandbox microVM), or `off` (no execution) |
+| `NOESIS_SANDBOX_IMAGE` | Registry image for Vercel Sandbox, e.g. `noesis-runner:<tag>` |
+| `DATABASE_URL` | Postgres for accounts, submissions and classrooms; without it, JSON files under `backend/data` |
+| `RESEND_API_KEY` | Sends password-reset emails; without it the reset link is only logged |
+| `NOESIS_EMAIL_FROM` | Sender for those emails (default `Noesis <onboarding@resend.dev>`) |
+| `NOESIS_APP_URL` | Base URL used in email links (defaults to the Vercel production URL, else localhost) |
+| `NOESIS_ACCOUNTS` | `off` disables sign-up/sign-in (set automatically when there is no database) |
+
+## Execution backends
+
+Code always runs in a disposable Linux sandbox with no network:
+
+- **Docker** (local default): one container per run, built from `backend/docker/*`.
+- **Vercel Sandbox** (`NOESIS_SANDBOX=vercel`): one warm Firecracker microVM shared by
+  all runs, booted from the image in `backend/docker/vercel/Dockerfile`, which carries all
+  three harnesses. Each run gets a throwaway Linux user and directory, and every process is
+  killed afterwards. Publish the image with:
+
+      node scripts/push-sandbox-image.mjs          # builds, pushes, prints the tag
+      npm run verify:sandbox --workspace backend   # runs one Run + Test per language
+
+## Deployment
 
     npm run build:vercel && vercel deploy --prebuilt --prod
 
-To give the hosted site a working sandbox, run the backend on a machine with Docker and build the
-frontend with `VITE_API_URL=https://your-api-host`.
+`scripts/build-vercel.mjs` writes `.vercel/output`: the static site plus one Node function
+serving `/api`. Only public problem data is copied in, never the local account or submission
+files. On Vercel the function runs with `NOESIS_SANDBOX=vercel`, so Run, Test, Submit and the
+live trace work there; accounts need `DATABASE_URL`, and the UI says plainly when either is
+missing.

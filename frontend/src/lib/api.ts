@@ -43,7 +43,7 @@ export interface DsaSummary {
 }
 
 export const api = {
-  health: () => request<{ ok: boolean; sandbox?: boolean; accounts?: boolean }>("/api/health"),
+  health: () => request<{ ok: boolean; sandbox?: boolean; accounts?: boolean; emails?: boolean }>("/api/health"),
   problems: () => request<ProblemSummary[]>("/api/problems"),
   problem: (id: string) => request<PublicProblem>(`/api/problems/${encodeURIComponent(id)}`),
   dsaSummary: () => request<DsaSummary>("/api/dsa-summary"),
@@ -174,5 +174,11 @@ export const api = {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify({ email })
+    }),
+  confirmReset: (token: string, password: string) =>
+    request<AuthResponse>("/api/auth/reset/confirm", {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ token, password })
     })
 };

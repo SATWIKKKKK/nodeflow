@@ -16,3 +16,5 @@ __pycache__/
 .vercel
 backend/data/auth.json
 backend/data/classrooms.json
+
+.env*

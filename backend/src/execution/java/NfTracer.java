@@ -393,7 +393,8 @@ public class NfTracer {
         try {
             LaunchingConnector connector = Bootstrap.virtualMachineManager().defaultConnector();
             Map<String, Connector.Argument> arguments = connector.defaultArguments();
-            arguments.get("main").setValue("NfHarness trace " + specPath + " /tmp/work/trace_results.jsonl");
+            String resultsPath = new java.io.File(new java.io.File(outPath).getAbsoluteFile().getParentFile(), "trace_results.jsonl").getPath();
+            arguments.get("main").setValue("NfHarness trace " + specPath + " " + resultsPath);
             arguments.get("options").setValue("-cp " + classpath + " -Xmx256m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xshare:auto");
             arguments.get("suspend").setValue("true");
             vm = connector.launch(arguments);

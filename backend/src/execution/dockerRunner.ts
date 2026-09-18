@@ -121,6 +121,12 @@ export const runInDocker = async <T = RawRunnerResponse>(
   timeoutMs?: number,
   language: Language = "python"
 ): Promise<T | RawRunnerError> => {
+  if (process.env.NOESIS_SANDBOX === "vercel") {
+    // Deployments without Docker (Vercel) run the same harnesses in a microVM.
+    const { runInVercelSandbox } = await import("./vercelSandbox.js");
+    return runInVercelSandbox<T>(payload, timeoutMs ?? configFor(language).timeoutMs, language);
+  }
+
   if (process.env.NOESIS_SANDBOX === "off") {
     // Hosted builds without Docker (e.g. the Vercel preview) answer every run the same way.
     return {

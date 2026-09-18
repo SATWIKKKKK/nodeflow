@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import {
   outputsMatch,
   type CaseResult,
@@ -14,10 +12,9 @@ import {
 } from "@nodeflow/shared";
 import { runInDocker, type RawBatchResponse, type RawRunnerError, type RunnerPayload } from "./dockerRunner.js";
 import { configFor } from "./languages.js";
+import { recordSubmission } from "../progress/summary.js";
 import { runQueued } from "./queue.js";
-import { dataDir } from "../paths.js";
 
-const submissionsPath = path.join(dataDir, "submissions.json");
 const submitRateLimit = new Map<string, number>();
 /** A preview only needs to show the start of a runaway loop, so it gives up quickly. */
 const PREVIEW_CASE_TIMEOUT_MS = 1500;
@@ -292,12 +289,7 @@ export const submitProblem = async (
     timestamp: new Date(now).toISOString()
   };
 
-  fs.mkdirSync(dataDir, { recursive: true });
-  const existing = fs.existsSync(submissionsPath)
-    ? (JSON.parse(fs.readFileSync(submissionsPath, "utf8")) as unknown[])
-    : [];
-  existing.push(record);
-  fs.writeFileSync(submissionsPath, `${JSON.stringify(existing, null, 2)}\n`, "utf8");
+  await recordSubmission(record);
 
   return {
     ...response,

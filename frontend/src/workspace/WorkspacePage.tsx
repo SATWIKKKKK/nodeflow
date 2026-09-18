@@ -777,8 +777,8 @@ export default function WorkspacePage() {
         </p>
       )}
 
-      <div className="grid flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        {/* Scene + transport: 60% on desktop. */}
+      <div className="grid flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        {/* Scene + transport: half the width on desktop. */}
         <section
           aria-label="Data structure visualization"
           className="surface-frame order-2 flex h-[62vh] min-h-[380px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
@@ -916,7 +916,7 @@ export default function WorkspacePage() {
           />
         </section>
 
-        {/* Right column: 40% on desktop, one scroll from statement to output. On phones its
+        {/* Right column: the other half on desktop, one scroll from statement to output. On phones its
             panels join the page grid so the statement can sit above the scene. */}
         <div className="contents lg:col-start-2 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:gap-4 lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
           {/* Problem statement */}

@@ -19,7 +19,8 @@ import time
 sys.path.insert(0, "/runner")
 from nf_trace import delta_encode, dumps  # noqa: E402
 
-WORK_DIR = "/tmp/work"
+# Each run gets its own directory when several share one machine (Vercel Sandbox).
+WORK_DIR = os.environ.get("NF_WORK_DIR", "/tmp/work")
 SOURCE_PATH = os.path.join(WORK_DIR, "Solution.java")
 CLASSES_DIR = os.path.join(WORK_DIR, "classes")
 SPEC_PATH = os.path.join(WORK_DIR, "spec.json")

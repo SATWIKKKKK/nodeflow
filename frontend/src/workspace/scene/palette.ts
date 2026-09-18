@@ -24,9 +24,11 @@ export const scenePalettes: Record<ResolvedTheme, ScenePalette> = {
     gridCell: "#ece8e8",
     gridSection: "#d9d2d2",
     shadowOpacity: 0.12,
-    node: new THREE.Color("#ffffff"),
-    nodeActive: new THREE.Color("#1a1a1a"),
-    nodeSelected: new THREE.Color("#d6d0d0"),
+    // Dark blocks on the light canvas; the active block takes the hero accent blue.
+    node: new THREE.Color("#1a1a1a"),
+    nodeActive: new THREE.Color("#123d8a"),
+    nodeSelected: new THREE.Color("#5a5a5a"),
+    // Labels float above the blocks, so they contrast with the canvas, not the block.
     label: "#1a1a1a",
     edge: new THREE.Color("#b9b1b1"),
     edgeActive: new THREE.Color("#1a1a1a")
@@ -36,9 +38,10 @@ export const scenePalettes: Record<ResolvedTheme, ScenePalette> = {
     gridCell: "#232323",
     gridSection: "#343434",
     shadowOpacity: 0.4,
-    node: new THREE.Color("#3d3d3d"),
-    nodeActive: new THREE.Color("#f3ecec"),
-    nodeSelected: new THREE.Color("#6a6a6a"),
+    // Light blocks on the dark canvas.
+    node: new THREE.Color("#ece8e8"),
+    nodeActive: new THREE.Color("#93c5fd"),
+    nodeSelected: new THREE.Color("#b5b0b0"),
     label: "#f4f4f4",
     edge: new THREE.Color("#4d4d4d"),
     edgeActive: new THREE.Color("#f3ecec")

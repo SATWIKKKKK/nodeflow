@@ -14,10 +14,13 @@
     "verify:reviewed": "tsx src/problems/ingest/verifyReviewedPhase1.ts",
     "verify:problems": "tsx src/problems/verifyProblems.ts",
     "verify:progress": "tsx src/progress/verifyProgress.ts",
-    "verify:starters": "tsx src/problems/verifyStarters.ts"
+    "verify:starters": "tsx src/problems/verifyStarters.ts",
+    "verify:sandbox": "tsx src/execution/verifySandbox.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@nodeflow/shared": "0.1.0",
+    "@vercel/sandbox": "^3.3.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "zod": "^4.0.17"
@@ -26,8 +29,8 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.1",
-    "tsx": "^4.20.3",
     "cross-env": "^10.0.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   }
 }

@@ -45,7 +45,19 @@ copy(path.join(root, "DSA.json"), path.join(func, "DSA.json"));
 
 fs.writeFileSync(
   path.join(func, ".vc-config.json"),
-  JSON.stringify({ runtime: "nodejs22.x", handler: "index.mjs", launcherType: "Nodejs", shouldAddHelpers: false }, null, 2)
+  JSON.stringify(
+    {
+      runtime: "nodejs22.x",
+      handler: "index.mjs",
+      launcherType: "Nodejs",
+      shouldAddHelpers: false,
+      // A traced Java run can take ~45s in the sandbox.
+      maxDuration: 60,
+      memory: 1024
+    },
+    null,
+    2
+  )
 );
 
 fs.writeFileSync(

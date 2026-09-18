@@ -1,0 +1,49 @@
+#!/bin/bash
+# Runs one Noesis job inside a shared Vercel Sandbox, as a throwaway user.
+#   sudo nf-run <python|cpp|java> <run-id> <seconds> < payload.json
+# The harness response is the only thing written to stdout.
+set -u
+lang="$1"; id="$2"; limit="$3"
+
+case "$id" in
+  ''|*[!a-z0-9]*) echo '{"ok":false,"errorType":"Platform Error","message":"Bad run id."}'; exit 0 ;;
+esac
+case "$lang" in
+  python) harness=/runner/tracer.py ;;
+  cpp) harness=/runner/cpp_runner.py ;;
+  java) harness=/runner/java_runner.py ;;
+  *) echo '{"ok":false,"errorType":"Platform Error","message":"Unknown language."}'; exit 0 ;;
+esac
+
+user="nf${id:0:28}"
+dir="/tmp/nf/$id"
+
+cleanup() {
+  pkill -KILL -u "$user" >/dev/null 2>&1
+  sleep 0.05
+  pkill -KILL -u "$user" >/dev/null 2>&1
+  userdel "$user" >/dev/null 2>&1
+  rm -rf "$dir"
+}
+trap cleanup EXIT
+
+useradd --system --no-create-home --home-dir "$dir" --shell /usr/sbin/nologin "$user" >/dev/null 2>&1 || {
+  echo '{"ok":false,"errorType":"Platform Error","message":"The sandbox could not prepare a run user."}'
+  exit 0
+}
+install -d -m 0700 -o "$user" -g "$user" "$dir" "$dir/work"
+cat > "$dir/payload.json"
+chown "$user:$user" "$dir/payload.json" && chmod 0600 "$dir/payload.json"
+
+# No new privileges, a process cap, a file-size cap and a hard wall clock; the
+# sandbox itself has no network. The run user owns nothing outside its directory.
+timeout -k 2 "$limit" \
+  setpriv --reuid="$user" --regid="$user" --clear-groups --no-new-privs \
+  prlimit --nproc=256 --fsize=67108864 --core=0 -- \
+  env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$dir" LANG=C.UTF-8 NF_WORK_DIR="$dir/work" \
+  python3 "$harness" < "$dir/payload.json"
+status=$?
+if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
+  echo '{"ok":false,"errorType":"Time Limit Exceeded","message":"Your code ran longer than the time limit."}'
+fi
+exit 0

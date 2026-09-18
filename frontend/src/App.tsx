@@ -74,6 +74,7 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/signin" replace />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
           <Route path="/forgot-password" element={<AuthPage mode="forgot" />} />
+          <Route path="/reset-password" element={<AuthPage mode="reset" />} />
         </Route>
 
         <Route element={<AppShell />}>

@@ -81,16 +81,20 @@ visualization is the differentiator over a plain online judge.
 - **Execution limits:** Docker-isolated sandbox with CPU/memory/time limits and no network; a cap on
   trace steps that surfaces "possible infinite loop"; a bounded execution queue that reports queue time;
   large structures are truncated in the scene rather than rendered in full.
-- **Accounts:** local JSON-backed email/password accounts and sessions. Password-reset requests are
-  only recorded locally; no email is sent yet. Google sign-in may replace this later.
+- **Accounts:** email and password, with bearer-token sessions. Passwords are salted scrypt
+  hashes; only a hash of each session token is stored. Password reset sends a one-time link that
+  expires in an hour and drops every existing session. Postgres in production, JSON files locally.
+  Google sign-in may be added later.
 - **Pricing:** only a free tier exists. The paid tiers and their prices are undecided; payment
   integration does not exist yet.
 - **Roadmap:** Phase 1 (arrays, lists, Python) shipped; Phase 2 (the whole sheet, all structures,
   C++/Java traces, custom input, classrooms) is current; paid plans for larger courses, private
   problem banks, AI hints and Google sign-in come later. None of these has dates.
-- **Hosting:** the full product runs where Docker is available. The Vercel deployment
-  (https://noesis-dsa.vercel.app) serves the site and problem bank only; code execution and accounts are
-  switched off there and the UI says so.
+- **Hosting:** https://noesis-dsa.vercel.app runs the whole product. Code executes in Vercel
+  Sandbox microVMs (no Docker on Vercel), accounts and classrooms live in Postgres, and password
+  resets go out through Resend. Locally the same code runs against Docker and JSON files, so a
+  laptop needs no cloud services. Each capability reports itself in /api/health and the UI says
+  plainly when one is switched off.
 - **Terminology:** trace, step, heap, diff, scene, structure type, Run / Test / Submit, live preview,
   phase.
 
