@@ -5,7 +5,8 @@ import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
  * falls back to its JSON file under backend/data. Production on Vercel must use
  * Postgres: a function's filesystem is read-only and not shared.
  */
-const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? "";
+// DB_URL is what the Neon integration injects; the others are common aliases.
+const url = process.env.DATABASE_URL ?? process.env.DB_URL ?? process.env.POSTGRES_URL ?? "";
 
 export const sql: NeonQueryFunction<false, false> | null = url ? neon(url) : null;
 

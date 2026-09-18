@@ -15,7 +15,8 @@
     "verify:problems": "tsx src/problems/verifyProblems.ts",
     "verify:progress": "tsx src/progress/verifyProgress.ts",
     "verify:starters": "tsx src/problems/verifyStarters.ts",
-    "verify:sandbox": "tsx src/execution/verifySandbox.ts"
+    "verify:sandbox": "tsx src/execution/verifySandbox.ts",
+    "verify:store": "tsx src/store/verifyStore.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

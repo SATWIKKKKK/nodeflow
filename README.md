@@ -77,7 +77,7 @@ The backend reads these environment variables (locally from `.env.local`, which
 | --- | --- |
 | `NOESIS_SANDBOX` | `docker` (default, local), `vercel` (Vercel Sandbox microVM), or `off` (no execution) |
 | `NOESIS_SANDBOX_IMAGE` | Registry image for Vercel Sandbox, e.g. `noesis-runner:<tag>` |
-| `DATABASE_URL` | Postgres for accounts, submissions and classrooms; without it, JSON files under `backend/data` |
+| `DATABASE_URL` (or `DB_URL`, `POSTGRES_URL`) | Postgres for accounts, submissions and classrooms; without it, JSON files under `backend/data`. Neon's Vercel integration sets `DB_URL`. |
 | `RESEND_API_KEY` | Sends password-reset emails; without it the reset link is only logged |
 | `NOESIS_EMAIL_FROM` | Sender for those emails (default `Noesis <onboarding@resend.dev>`) |
 | `NOESIS_APP_URL` | Base URL used in email links (defaults to the Vercel production URL, else localhost) |

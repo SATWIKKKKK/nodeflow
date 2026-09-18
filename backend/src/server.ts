@@ -15,6 +15,6 @@ const port = Number(process.env.PORT ?? 8787);
 
 app.listen(port, () => {
   const sandbox = process.env.NOESIS_SANDBOX ?? "docker";
-  const store = process.env.DATABASE_URL || process.env.POSTGRES_URL ? "postgres" : "json files";
+  const store = process.env.DATABASE_URL || process.env.DB_URL || process.env.POSTGRES_URL ? "postgres" : "json files";
   console.log(`Noesis backend listening on http://localhost:${port} (sandbox: ${sandbox}, store: ${store})`);
 });
