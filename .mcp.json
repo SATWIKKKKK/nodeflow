@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "Neon": {
+      "type": "http",
+      "url": "https://mcp.neon.tech/mcp?projectId=broad-scene-84490092"
+    }
+  }
+}

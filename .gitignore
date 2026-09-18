@@ -18,3 +18,4 @@ backend/data/auth.json
 backend/data/classrooms.json
 
 .env*
+.neon
