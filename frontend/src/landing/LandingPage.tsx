@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -18,6 +18,20 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "../components/SectionHeading";
 import { button, container, iconTile, stepIcon } from "../components/ui";
+import {
+  CtaLogoField,
+  LanguagePills,
+  MarginVignettes,
+  ProblemDots,
+  ReplayScene,
+  ReverseListBand,
+  RunScene,
+  StepLimitGlyph,
+  StructureGraph,
+  TraceScene,
+  WriteScene,
+  featureGraphics
+} from "../components/graphics";
 import { useProblems } from "../lib/problems";
 import { cn } from "../lib/cn";
 import { TraceReplay } from "./TraceReplay";
@@ -25,24 +39,28 @@ import { TraceReplay } from "./TraceReplay";
 // Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
 const STEP_LIMIT = 4000;
 
-const steps: Array<{ icon: LucideIcon; title: string; body: string }> = [
+const steps: Array<{ icon: LucideIcon; title: string; body: string; scene: ComponentType }> = [
   {
     icon: Code2,
+    scene: WriteScene,
     title: "Write",
     body: "Pick a problem and write a solution in Python, C++ or Java. The editor opens with the function signature already in place."
   },
   {
     icon: Terminal,
+    scene: RunScene,
     title: "Run",
     body: "Your code runs in a fresh sandbox with no network access, against the problem's own input."
   },
   {
     icon: Activity,
+    scene: TraceScene,
     title: "Trace",
     body: "The tracer records every variable and heap object at every line, then diffs each step against the one before."
   },
   {
     icon: History,
+    scene: ReplayScene,
     title: "Replay",
     body: "Step forward and back, scrub the timeline, or click a node to jump to the line that last changed it."
   }
@@ -177,6 +195,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function LandingPage() {
   const { problems } = useProblems();
+  const [ctaHover, setCtaHover] = useState(false);
 
   const bank = useMemo(() => {
     const count = (type: string) => problems.filter((problem) => problem.structureType === type).length;
@@ -188,31 +207,42 @@ export default function LandingPage() {
     };
   }, [problems]);
 
+  // Each glyph is drawn from the figure beside it: the dots are the problems
+  // that exist, the graph has one node per tree-or-graph problem.
   const metrics = [
     {
       label: "live now",
       value: bank.total ? String(bank.total) : "—",
       note: bank.total
         ? `problems across ${bank.topics} topics, from arrays to graphs`
-        : "Loading the live bank"
+        : "Loading the live bank",
+      glyph: bank.total ? <ProblemDots total={bank.total} /> : null
     },
     {
       label: "trees and graphs",
       value: bank.total ? String(bank.trees + bank.graphs) : "—",
-      note: "problems drawn as real node-and-edge diagrams"
+      note: "problems drawn as real node-and-edge diagrams",
+      glyph: bank.total ? <StructureGraph total={bank.trees + bank.graphs} /> : null
     },
-    { label: "languages", value: "3", note: "Python, C++ and Java, all judged and all traced" },
+    {
+      label: "languages",
+      value: "3",
+      note: "Python, C++ and Java, all judged and all traced",
+      glyph: <LanguagePills />
+    },
     {
       label: "step limit",
       value: STEP_LIMIT.toLocaleString("en-US"),
-      note: "per run, so a runaway loop is caught instead of hanging"
+      note: "per run, so a runaway loop is caught instead of hanging",
+      glyph: <StepLimitGlyph />
     }
   ];
 
   return (
     <>
       {/* Hero. Empty space lets clicks through to the ripple grid behind it. */}
-      <section className="pointer-events-none flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center py-16 text-center sm:py-20">
+      <section className="pointer-events-none relative flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center py-16 text-center sm:py-20">
+        <MarginVignettes />
         <motion.div
           className={cn(container, "pointer-events-auto flex flex-col items-center")}
           initial={{ opacity: 0, y: 14 }}
@@ -236,6 +266,9 @@ export default function LandingPage() {
               Watch a real trace
             </a>
           </div>
+
+          {/* The headline's claim, running: a recorded six-node reversal. */}
+          <ReverseListBand className="mt-6" />
         </motion.div>
       </section>
 
@@ -264,8 +297,12 @@ export default function LandingPage() {
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, index) => {
               const Icon = step.icon;
+              const Scene = step.scene;
               return (
                 <li key={step.title} className="border-l border-blueprint-line pl-5">
+                  <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
+                    <Scene />
+                  </div>
                   <div className="flex items-center gap-3">
                     <span className={stepIcon}>
                       <Icon size={18} aria-hidden />
@@ -299,11 +336,17 @@ export default function LandingPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => {
               const Icon = feature.icon;
+              const Graphic = featureGraphics[feature.title];
               return (
                 <article
                   key={feature.title}
                   className="surface-card transition-transform duration-200 hover:-translate-y-1"
                 >
+                  {Graphic && (
+                    <div className="mb-6 overflow-hidden rounded-lg border border-blueprint-line">
+                      <Graphic />
+                    </div>
+                  )}
                   <span className={iconTile}>
                     <Icon size={20} aria-hidden />
                   </span>
@@ -343,10 +386,17 @@ export default function LandingPage() {
 
           <div className="grid content-start grid-cols-2 gap-4">
             {metrics.map((metric) => (
-              <article key={metric.label} className="surface-card-compact">
-                <p className="text-technical-mono text-blueprint-muted">{metric.label}</p>
-                <p className="mt-3 text-metric text-primary">{metric.value}</p>
-                <p className="mt-2 text-body-md text-blueprint-muted">{metric.note}</p>
+              <article key={metric.label} className="surface-card-compact relative overflow-hidden">
+                {/* Corner glyph: it never runs under the figure. */}
+                <div aria-hidden className="pointer-events-none absolute right-3 top-3 hidden opacity-80 sm:block">
+                  {metric.glyph}
+                </div>
+                {/* The glyph owns the right 96px of the card; the text keeps clear of it. */}
+                <div className={metric.glyph ? "sm:pr-24" : undefined}>
+                  <p className="text-technical-mono text-blueprint-muted">{metric.label}</p>
+                  <p className="mt-3 text-metric text-primary">{metric.value}</p>
+                  <p className="mt-2 text-body-md text-blueprint-muted">{metric.note}</p>
+                </div>
               </article>
             ))}
           </div>
@@ -371,9 +421,12 @@ export default function LandingPage() {
       <Section>
         <motion.div
           {...reveal}
-          className="landing-cta-panel flex flex-col gap-8 rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
+          className="landing-cta-panel relative flex flex-col gap-8 overflow-hidden rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
         >
-          <div className="max-w-2xl">
+          {/* The empty top-right corner, filled by the mark itself. */}
+          <CtaLogoField active={ctaHover} className="-right-16 -top-24 hidden h-95 w-95 sm:block" />
+
+          <div className="relative max-w-2xl">
             <p className="text-ui-label text-white/60">Start here</p>
             <h2 className="mt-3 text-balance text-cta">
               Open a problem. Press <em className="italic">Run</em>.
@@ -383,9 +436,13 @@ export default function LandingPage() {
               what to look for.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
+          <div className="relative flex flex-col gap-3 sm:flex-row lg:shrink-0">
             <NavLink
               to="/workspace/reverse-linked-list"
+              onMouseEnter={() => setCtaHover(true)}
+              onMouseLeave={() => setCtaHover(false)}
+              onFocus={() => setCtaHover(true)}
+              onBlur={() => setCtaHover(false)}
               className="lift landing-cta-button inline-flex items-center justify-center gap-2 rounded-full border px-8 py-3.5 text-ui-label"
             >
               Open the workspace <ArrowRight size={14} aria-hidden />

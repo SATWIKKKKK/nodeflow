@@ -35,7 +35,7 @@ export function SiteNavbar() {
       >
         {/* Three columns so the links sit on the true centre line, whatever the side widths. */}
         <div className="grid min-h-12 grid-cols-[1fr_auto] items-center gap-3 px-3 py-1.5 sm:px-5 lg:grid-cols-[1fr_auto_1fr]">
-          <Logo markClassName="h-7 sm:h-8" />
+          <Logo animated markClassName="h-7 sm:h-8" />
 
           <div className="hidden items-center justify-center gap-1 lg:flex">
             {siteLinks.map((link) => (

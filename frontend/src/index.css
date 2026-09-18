@@ -622,6 +622,45 @@
   color: #93c5fd;
 }
 
+/* ---------- Marketing illustrations (components/graphics) ---------- */
+
+/*
+ * One palette for every drawn illustration: paper, ink, a single accent, and a
+ * grey for strokes that are not the subject. The accent is the same blue the
+ * hero and the language tag already use. Nothing in components/graphics picks a
+ * colour of its own — it reads these.
+ */
+:root {
+  --graphics-paper: #faf8f7;
+  --graphics-ink: #111111;
+  --graphics-inactive: #c9c6c4;
+  --graphics-accent: #123d8a;
+  --graphics-grid: rgba(17, 17, 17, 0.055);
+}
+
+.dark {
+  --graphics-paper: #121212;
+  --graphics-ink: #ece8e8;
+  --graphics-inactive: #4a4644;
+  --graphics-accent: #93c5fd;
+  --graphics-grid: rgba(255, 255, 255, 0.05);
+}
+
+/* The CTA panel is black in both themes, so the drawing inverts inside it. */
+.graphics-inverted {
+  --graphics-paper: #050505;
+  --graphics-ink: #f3ecec;
+  --graphics-inactive: #3a3a3a;
+  --graphics-accent: #93c5fd;
+  --graphics-grid: rgba(243, 236, 236, 0.05);
+}
+
+/* Fades the ends of the hero band so nodes enter and leave, rather than stop. */
+@utility graphics-edge-fade {
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
 /* Horizontal chip rows scroll by drag, wheel or the arrow buttons; the bar itself is hidden. */
 @utility no-scrollbar {
   scrollbar-width: none;

@@ -19,6 +19,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ClassroomsPage = lazy(() => import("./pages/ClassroomsPage"));
 const ClassroomPage = lazy(() => import("./pages/ClassroomPage"));
 const InfoPage = lazy(() => import("./pages/InfoPage"));
+const DevGraphicsPage = lazy(() => import("./pages/DevGraphicsPage"));
 
 /**
  * Every route change starts at the top. Hash links (/#replay) wait for the
@@ -91,6 +92,16 @@ export default function App() {
           element={
             <Suspense fallback={<PageLoader className="min-h-screen" />}>
               <WorkspacePage />
+            </Suspense>
+          }
+        />
+
+        {/* Contact sheet for the illustration library; not linked from the site. */}
+        <Route
+          path="/dev/graphics"
+          element={
+            <Suspense fallback={<PageLoader className="min-h-screen" />}>
+              <DevGraphicsPage />
             </Suspense>
           }
         />
