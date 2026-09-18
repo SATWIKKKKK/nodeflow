@@ -23,7 +23,6 @@ import {
   ProblemDots,
   RewireWord,
   ReplayScene,
-  ReverseListBand,
   RunScene,
   StepLimitGlyph,
   StructureGraph,
@@ -194,8 +193,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function LandingPage() {
   const { problems } = useProblems();
-  // Counts the band's rewires; the headline word brightens on each one.
-  const [rewireTick, setRewireTick] = useState(0);
 
   const bank = useMemo(() => {
     const count = (type: string) => problems.filter((problem) => problem.structureType === type).length;
@@ -257,7 +254,7 @@ export default function LandingPage() {
             className="max-w-3xl text-balance text-hero text-primary"
           >
             <span aria-hidden>Watch your own code </span>
-            <RewireWord pulse={rewireTick} />
+            <RewireWord />
             <span aria-hidden> the list.</span>
           </h1>
 
@@ -274,9 +271,6 @@ export default function LandingPage() {
               Watch a real trace
             </a>
           </div>
-
-          {/* The headline's claim, running: a recorded six-node reversal. */}
-          <ReverseListBand className="mt-6" onRewire={() => setRewireTick((tick) => tick + 1)} />
         </motion.div>
       </section>
 
