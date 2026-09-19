@@ -117,7 +117,7 @@ export function RunScene() {
             <path
               d={geometry.roundedRect(BOX.x, BOX.y, BOX.w, BOX.h, BOX.r)}
               fill={PAPER}
-              stroke={INK}
+              stroke={NODE}
               strokeWidth={1.8}
               strokeDasharray="5 4"
               strokeLinecap="round"
@@ -136,7 +136,7 @@ export function RunScene() {
               <Edge d={`M ${BOX.x + BOX.w - 44} 72 H ${BOX.x + BOX.w - 4}`} tone="inactive" arrow />
               <path
                 d={geometry.stopBar(BOX.x + BOX.w, 72, 9)}
-                stroke={INK}
+                stroke={NODE}
                 strokeWidth={2.4}
                 strokeLinecap="round"
               />
@@ -180,7 +180,7 @@ export function TraceScene() {
                 <path
                   d={geometry.roundedRect(28, y, 112, 16, 5)}
                   fill={PAPER}
-                  stroke={row === index - 1 ? INK : INACTIVE}
+                  stroke={row === index - 1 ? NODE : INACTIVE}
                   strokeWidth={1.3}
                   style={{ transition: "stroke 600ms linear" }}
                 />
@@ -198,7 +198,7 @@ export function TraceScene() {
                     {node < 2 && (
                       <path
                         d={`M ${58 + node * 30} ${y + 8} H ${75 + node * 30}`}
-                        stroke={row === index - 1 ? INK : INACTIVE}
+                        stroke={row === index - 1 ? NODE : INACTIVE}
                         strokeWidth={1.2}
                         strokeLinecap="round"
                         style={{ transition: "stroke 600ms linear" }}
@@ -264,7 +264,7 @@ export function ReplayScene() {
                   r={11}
                   gap={4}
                   depth={13}
-                  tone="ink"
+                  tone="node"
                   width={1.6}
                 />
               );
@@ -279,7 +279,7 @@ export function ReplayScene() {
               <path
                 key={i}
                 d={`M ${TICK_X(i)} 96 V 106`}
-                stroke={i <= tick ? INK : INACTIVE}
+                stroke={i <= tick ? NODE : INACTIVE}
                 strokeWidth={1.2}
                 strokeLinecap="round"
                 style={{ transition: "stroke 300ms linear" }}
@@ -328,14 +328,14 @@ export function TestScene() {
                 <path
                   d={geometry.roundedRect(16, y - 11, 128, 22, 6)}
                   fill={PAPER}
-                  stroke={failed && shown ? INK : INACTIVE}
+                  stroke={failed && shown ? NODE : INACTIVE}
                   strokeWidth={1.3}
                 />
                 <g transform={`translate(32 ${y})`}>
                   <path
                     d={failed ? CROSS_MARK : TICK}
                     fill="none"
-                    stroke={failed ? INK : SUCCESS}
+                    stroke={failed ? NODE : SUCCESS}
                     strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -362,7 +362,7 @@ export function SubmitScene() {
       {(index) => (
         <>
           <g style={{ opacity: index >= 0 ? 1 : 0 }}>
-            <path d={SMALL_SHIELD} transform="translate(34 40)" fill={PAPER} stroke={INK} strokeWidth={1.8} strokeLinejoin="round" />
+            <path d={SMALL_SHIELD} transform="translate(34 40)" fill={PAPER} stroke={NODE} strokeWidth={1.8} strokeLinejoin="round" />
           </g>
 
           {[0, 1].map((row) => (
@@ -423,17 +423,19 @@ export function DiffScene() {
             <g>
               {[[0, 1], [0, 2], [1, 3]].map(([a, b]) => (
                 <path
+          fill="none"
                   key={`${a}${b}`}
                   d={link(a, b)}
-                  stroke={dim ? INACTIVE : INK}
+                  stroke={dim ? INACTIVE : NODE}
                   strokeWidth={1.4}
                   strokeLinecap="round"
                   style={{ transition: "stroke 600ms linear" }}
                 />
               ))}
               <path
+        fill="none"
                 d={link(2, 3)}
-                stroke={lit ? ACCENT : dim ? INACTIVE : INK}
+                stroke={lit ? ACCENT : dim ? INACTIVE : NODE}
                 strokeWidth={lit ? 2.2 : 1.4}
                 strokeLinecap="round"
                 style={{ transition: "stroke 600ms linear, stroke-width 300ms linear" }}

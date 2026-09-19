@@ -122,7 +122,7 @@ export default function HowItWorksPage() {
             <div className="mt-5 grid aspect-4/3 grid-cols-[1.05fr_1fr] gap-3 rounded-xl bg-surface-inset p-3">
               <div className="grid grid-rows-[1fr_auto] gap-3">
                 <div className="relative flex items-center justify-center rounded-lg border border-dashed border-blueprint-line bg-card">
-                  <svg viewBox="0 0 200 60" className="w-3/4 text-primary" aria-hidden>
+                  <svg viewBox="0 0 200 60" className="w-3/4 text-[var(--graphics-node)]" aria-hidden>
                     {[20, 70, 120, 170].map((x, i) => (
                       <g key={x}>
                         <circle cx={x} cy={30} r={11} fill="none" stroke="currentColor" strokeWidth={2} />

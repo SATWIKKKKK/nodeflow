@@ -284,7 +284,7 @@ export function TraceReplay() {
                     strokeWidth={changed ? 2.25 : 1.5}
                     strokeLinecap="round"
                     markerEnd={arrow.key.endsWith("null") ? undefined : "url(#trace-arrow)"}
-                    className={changed ? "text-primary" : "text-blueprint-muted"}
+                    className={changed ? "text-[var(--graphics-node)]" : "text-[var(--graphics-inactive)]"}
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{ pathLength: 1, opacity: 1 }}
                     exit={{ opacity: 0, transition: { duration: 0.18 } }}

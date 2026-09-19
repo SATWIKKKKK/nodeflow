@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Scene, ACCENT, FILL, INACTIVE, INK, ON_FILL, PAPER, SUCCESS } from "./primitives";
+import { Caption, Edge, Node, Scene, ACCENT, FILL, INACTIVE, INK, NODE, ON_FILL, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
 import { useLoopInView } from "./useFrames";
 
@@ -54,7 +54,7 @@ export function RunGraphic() {
       {(index) => (
         <>
           <g style={appear(index, 0)}>
-            <path d={geometry.roundedRect(16, 16, 150, 24, 12)} fill={PAPER} stroke={INK} strokeWidth={1.6} />
+            <path d={geometry.roundedRect(16, 16, 150, 24, 12)} fill={PAPER} stroke={NODE} strokeWidth={1.6} />
             <text x={30} y={28} dominantBaseline="central" fontSize={11} fill={INK} className="font-mono">
               {"→ [4,3,2,1]"}
             </text>
@@ -76,7 +76,7 @@ export function RunGraphic() {
               <path
                 key={i}
                 d={`M ${16 + i * 10.6} 92 V 106`}
-                stroke={on ? INK : INACTIVE}
+                stroke={on ? NODE : INACTIVE}
                 strokeWidth={1.8}
                 strokeLinecap="round"
                 style={{ transition: "stroke 200ms linear" }}
@@ -122,12 +122,12 @@ export function TestGraphic() {
               <path
                 d={geometry.roundedRect(16, 56, 248, open ? 52 : 20, 6)}
                 fill={PAPER}
-                stroke={INK}
+                stroke={NODE}
                 strokeWidth={1.5}
                 style={{ transition: "d 420ms cubic-bezier(.2,.8,.2,1)" }}
               />
               <g transform="translate(32 66)">
-                <path d={CROSS} fill="none" stroke={INK} strokeWidth={2} strokeLinecap="round" />
+                <path d={CROSS} fill="none" stroke={NODE} strokeWidth={2} strokeLinecap="round" />
               </g>
               <text x={48} y={66} dominantBaseline="central" fontSize={10} fill={INK} className="font-mono">
                 case 3
@@ -173,7 +173,7 @@ export function SubmitGraphic() {
               d={SHIELD}
               transform="translate(44 46)"
               fill={PAPER}
-              stroke={INK}
+              stroke={NODE}
               strokeWidth={2}
               strokeLinejoin="round"
             />
@@ -238,7 +238,7 @@ export function PreviewGraphic() {
             <path
               d={geometry.roundedRect(148, 28, 116, 62, 8)}
               fill="none"
-              stroke={stale ? INACTIVE : INK}
+              stroke={stale ? INACTIVE : NODE}
               strokeWidth={1.4}
               strokeDasharray={stale ? "4 4" : undefined}
               style={{ transition: "stroke 600ms linear" }}
@@ -292,17 +292,19 @@ function MiniGraph({ cx, cy, dim, changedEdge }: { cx: number; cy: number; dim: 
         [1, 3]
       ].map(([a, b]) => (
         <path
+          fill="none"
           key={`${a}${b}`}
           d={link(a, b)}
-          stroke={dim ? INACTIVE : INK}
+          stroke={dim ? INACTIVE : NODE}
           strokeWidth={1.6}
           strokeLinecap="round"
           style={{ transition: "stroke 600ms linear" }}
         />
       ))}
       <path
+        fill="none"
         d={link(2, 3)}
-        stroke={changedEdge ? ACCENT : dim ? INACTIVE : INK}
+        stroke={changedEdge ? ACCENT : dim ? INACTIVE : NODE}
         strokeWidth={changedEdge ? 2.4 : 1.6}
         strokeLinecap="round"
         style={{ transition: "stroke 600ms linear, stroke-width 300ms linear" }}
@@ -352,13 +354,13 @@ export function FaultGraphic() {
                 <path
                   key={row}
                   d={`M 20 ${24 + row * 13} H ${row === 1 ? 104 : 88}`}
-                  stroke={row === 1 ? INK : INACTIVE}
+                  stroke={row === 1 ? NODE : INACTIVE}
                   strokeWidth={row === 1 ? 2.2 : 1.6}
                   strokeLinecap="round"
                 />
               ))}
               <g transform="translate(20 62)">
-                <path d={geometry.roundedRect(0, 0, 90, 18, 9)} fill={PAPER} stroke={INK} strokeWidth={1.4} />
+                <path d={geometry.roundedRect(0, 0, 90, 18, 9)} fill={PAPER} stroke={NODE} strokeWidth={1.4} />
                 <text x={45} y={9} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={INK} className="font-mono">
                   IndexError
                 </text>
@@ -380,8 +382,8 @@ export function FaultGraphic() {
             <g>
               <path d={geometry.roundedRect(160, 28, 100, 40, 8)} fill={PAPER} stroke={INACTIVE} strokeWidth={1.4} strokeDasharray="5 4" />
               <g transform="translate(210 48)">
-                <circle r={11} fill={PAPER} stroke={INK} strokeWidth={1.8} />
-                <path d="M 0 -6 V 0 L 4 3" fill="none" stroke={INK} strokeWidth={1.8} strokeLinecap="round" />
+                <circle r={11} fill={PAPER} stroke={NODE} strokeWidth={1.8} />
+                <path d="M 0 -6 V 0 L 4 3" fill="none" stroke={NODE} strokeWidth={1.8} strokeLinecap="round" />
               </g>
               <g
                 style={{

@@ -22,7 +22,7 @@ function N({ x, y, r = R, filled = false }: { x: number; y: number; r?: number; 
 }
 
 /** A plain connector. */
-function L({ x1, y1, x2, y2, tone = INK, width = STROKE }: { x1: number; y1: number; x2: number; y2: number; tone?: string; width?: number }) {
+function L({ x1, y1, x2, y2, tone = NODE, width = STROKE }: { x1: number; y1: number; x2: number; y2: number; tone?: string; width?: number }) {
   return <path d={`M ${x1} ${y1} L ${x2} ${y2}`} stroke={tone} strokeWidth={width} strokeLinecap="round" />;
 }
 
@@ -40,7 +40,7 @@ function A({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number 
     <path
       d={`M ${x1} ${y1} L ${x2} ${y2} M ${ax} ${ay} L ${x2} ${y2} L ${bx} ${by}`}
       fill="none"
-      stroke={INK}
+      stroke={NODE}
       strokeWidth={STROKE}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -62,7 +62,7 @@ function Stop({ x, y, to }: { x: number; y: number; to: number }) {
 }
 
 function Cell({ x, y, size = 16 }: { x: number; y: number; size?: number }) {
-  return <path d={geometry.roundedRect(x, y, size, size, 2)} fill={PAPER} stroke={INK} strokeWidth={1.6} />;
+  return <path d={geometry.roundedRect(x, y, size, size, 2)} fill={PAPER} stroke={NODE} strokeWidth={1.6} />;
 }
 
 /** Three nodes on a row, the shape most topics start from. */
@@ -376,7 +376,7 @@ const sigils: Record<string, { label: string; draw: ReactNode }> = {
     draw: (
       <>
         {[6, 16, 26, 36, 46, 56].map((x) => (
-          <path key={x} d={geometry.roundedRect(x - 4, 34, 8, 8, 1.5)} fill={PAPER} stroke={INK} strokeWidth={1.6} />
+          <path key={x} d={geometry.roundedRect(x - 4, 34, 8, 8, 1.5)} fill={PAPER} stroke={NODE} strokeWidth={1.6} />
         ))}
         <L x1={36} y1={26} x2={36} y2={32} tone={INACTIVE} />
         <N x={36} y={18} r={5} filled />
@@ -396,7 +396,7 @@ const sigils: Record<string, { label: string; draw: ReactNode }> = {
     label: "parts wired into a working whole",
     draw: (
       <>
-        <path d={geometry.roundedRect(20, 22, 24, 20, 4)} fill={PAPER} stroke={INK} strokeWidth={STROKE} />
+        <path d={geometry.roundedRect(20, 22, 24, 20, 4)} fill={PAPER} stroke={NODE} strokeWidth={STROKE} />
         <A x1={14} y1={32} x2={18} y2={32} />
         <A x1={46} y1={32} x2={50} y2={32} />
         <N x={8} y={32} r={5} filled />

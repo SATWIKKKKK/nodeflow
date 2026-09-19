@@ -116,6 +116,7 @@ export function StructureGraph({ total }: { total: number }) {
       <Scene width={S} height={S} label={`${total} problems drawn as node-and-edge diagrams`}>
         {edges.map(([a, b], i) => (
           <path
+            fill="none"
             key={i}
             d={`M ${nodes[a].x} ${nodes[a].y} L ${nodes[b].x} ${nodes[b].y}`}
             stroke={INACTIVE}
@@ -193,7 +194,7 @@ export function StepLimitGlyph() {
               cy={centre.y}
               r={orbit}
               fill="none"
-              stroke={stopped ? INACTIVE : INK}
+              stroke={stopped ? INACTIVE : NODE}
               strokeWidth={1.6}
               strokeDasharray="4 5"
               style={{ transition: "stroke 600ms linear" }}

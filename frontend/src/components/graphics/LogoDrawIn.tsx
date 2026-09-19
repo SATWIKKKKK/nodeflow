@@ -49,7 +49,7 @@ export function LogoDrawIn({
     <svg
       viewBox="0 0 400 400"
       fill="none"
-      stroke="var(--graphics-ink)"
+      stroke="var(--graphics-node)"
       strokeWidth={16}
       strokeLinecap="round"
       strokeLinejoin="round"
