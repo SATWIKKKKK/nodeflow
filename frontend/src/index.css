@@ -275,10 +275,10 @@
 }
 
 @utility text-technical-mono {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-serif);
+  font-size: 14px;
   line-height: 1.4;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -615,11 +615,11 @@
 
 /* Hero accent: the Python tag's deep blue in light mode, its light-blue edge in dark mode. */
 .hero-accent {
-  color: #123d8a;
+  color: #1d4ed8;
 }
 
 .dark .hero-accent {
-  color: #93c5fd;
+  color: #9ecbff;
 }
 
 /* ---------- Marketing illustrations (components/graphics) ---------- */
@@ -634,16 +634,18 @@
   --graphics-paper: #faf8f7;
   --graphics-ink: #111111;
   --graphics-inactive: #c9c6c4;
-  --graphics-accent: #123d8a;
+  --graphics-accent: #1d4ed8;
   --graphics-grid: rgba(17, 17, 17, 0.055);
+  --graphics-success: #15803d;
 }
 
 .dark {
   --graphics-paper: #121212;
   --graphics-ink: #ece8e8;
   --graphics-inactive: #4a4644;
-  --graphics-accent: #93c5fd;
+  --graphics-accent: #9ecbff;
   --graphics-grid: rgba(255, 255, 255, 0.05);
+  --graphics-success: #4ade80;
 }
 
 /* The CTA panel is black in both themes, so the drawing inverts inside it. */
@@ -651,7 +653,7 @@
   --graphics-paper: #050505;
   --graphics-ink: #f3ecec;
   --graphics-inactive: #3a3a3a;
-  --graphics-accent: #93c5fd;
+  --graphics-accent: #9ecbff;
   --graphics-grid: rgba(243, 236, 236, 0.05);
 }
 

@@ -13,7 +13,7 @@ export function SectionHeading({
   className,
   children
 }: {
-  eyebrow: ReactNode;
+  eyebrow?: ReactNode;
   title: ReactNode;
   lead?: ReactNode;
   as?: "h1" | "h2";
@@ -22,8 +22,8 @@ export function SectionHeading({
 }) {
   return (
     <div className={cn("mb-10 max-w-3xl", className)}>
-      <p className="text-ui-label text-blueprint-muted">{eyebrow}</p>
-      <Tag className={cn("mt-2 text-balance text-primary", Tag === "h1" ? "text-display-xl" : "text-headline-lg")}>
+      {eyebrow && <p className="text-ui-label text-blueprint-muted">{eyebrow}</p>}
+      <Tag className={cn(eyebrow && "mt-2", "text-balance text-primary", Tag === "h1" ? "text-display-xl" : "text-headline-lg")}>
         {title}
       </Tag>
       {lead && <p className="mt-4 text-pretty text-body-lg text-blueprint-muted">{lead}</p>}

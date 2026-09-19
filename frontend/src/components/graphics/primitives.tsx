@@ -18,6 +18,8 @@ export const PAPER = "var(--graphics-paper)";
 export const INK = "var(--graphics-ink)";
 export const ACCENT = "var(--graphics-accent)";
 export const INACTIVE = "var(--graphics-inactive)";
+/** Verdict green. Not a tone: only a passing result ever wears it. */
+export const SUCCESS = "var(--graphics-success)";
 
 export const toneColor: Record<Tone, string> = { ink: INK, accent: ACCENT, inactive: INACTIVE };
 
@@ -36,7 +38,7 @@ export const settle = (changed: boolean): CSSProperties => ({
 });
 
 /** Stepwise like a debugger: things arrive, they do not drift. */
-export const HOP_MS = 400;
+export const HOP_MS = 520;
 export const HOP_EASE = "cubic-bezier(.2,.8,.2,1)";
 export const hopTo = (x: number, y: number): CSSProperties => ({
   transform: `translate(${x}px, ${y}px)`,

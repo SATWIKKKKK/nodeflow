@@ -1,12 +1,11 @@
-import { useMemo, useState, type ComponentType, type ReactNode } from "react";
+import { useMemo, type ComponentType, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Activity,
   AlertTriangle,
   ArrowRight,
   Check,
-  ChevronDown,
   Code2,
   History,
   Layers3,
@@ -97,33 +96,6 @@ const features: Array<{ icon: LucideIcon; title: string; body: string }> = [
   }
 ];
 
-const faqs: Array<{ q: string; a: string }> = [
-  {
-    q: "Do I need an account?",
-    a: "No. You can run, test and submit without one. Create an account when you want your submissions and progress kept under your name."
-  },
-  {
-    q: "Which languages can I use?",
-    a: "Python, C++ and Java. All three run in the sandbox, are judged against the same tests, and produce the same step-by-step visual trace."
-  },
-  {
-    q: "Is it safe to run my code?",
-    a: "Every run gets its own container with no network, one CPU, a memory cap, a read-only filesystem and no extra privileges. The container is deleted when the run ends."
-  },
-  {
-    q: "What if my loop never ends?",
-    a: `The run stops at the time limit or after ${STEP_LIMIT.toLocaleString("en-US")} traced steps (1,500 for C++ and Java), and the workspace tells you a loop probably never exits. Whatever was traced before that point can still be replayed.`
-  },
-  {
-    q: "Which topics are covered?",
-    a: "The whole DSA sheet: arrays, strings, hashing, recursion and backtracking, binary search, linked lists, stacks and queues, trees and BSTs, heaps, graphs, dynamic programming and tries. Every problem is checked in the sandbox against its reference solution before it goes live."
-  },
-  {
-    q: "Is Noesis free?",
-    a: "Yes. Everything, classrooms included, is free today. Paid plans for larger courses and teams are on the roadmap, and their prices have not been set."
-  }
-];
-
 function Section({
   children,
   ruled = false,
@@ -155,41 +127,6 @@ const reveal = {
   viewport: { once: true, amount: 0.2 },
   transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const }
 };
-
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="rounded-xl border border-blueprint-line bg-card shadow-[0_10px_26px_rgba(0,0,0,0.06)]">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        className="no-lift flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
-      >
-        <span className="text-body-lg font-semibold text-primary">{q}</span>
-        <ChevronDown
-          size={18}
-          aria-hidden
-          className={cn("shrink-0 text-blueprint-muted transition-transform duration-300", open && "rotate-180")}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="overflow-hidden"
-          >
-            <p className="-mt-2 px-5 pb-5 text-body-md text-blueprint-muted">{a}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const { problems } = useProblems();
@@ -277,7 +214,6 @@ export default function LandingPage() {
       <Section ruled id="replay" className="scroll-mt-24">
         <motion.div {...reveal}>
           <SectionHeading
-            eyebrow="A real trace"
             title={
               <>
                 This is what your code <em className="italic">did</em>, not what a script says it should.
@@ -292,7 +228,6 @@ export default function LandingPage() {
       <Section>
         <motion.div {...reveal}>
           <SectionHeading
-            eyebrow="How it works"
             title="Four steps from code to replay."
             lead="The visualization is never drawn by hand. It is rebuilt from what the interpreter recorded."
           />
@@ -327,7 +262,6 @@ export default function LandingPage() {
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
               className="mb-0"
-              eyebrow="In the workspace"
               title="Built for the moment your solution breaks."
               lead="Three ways to execute, a preview that keeps up with your typing, and errors that say whose fault they are."
             />
@@ -400,21 +334,6 @@ export default function LandingPage() {
                   <p className="mt-2 text-body-md text-blueprint-muted">{metric.note}</p>
                 </div>
               </article>
-            ))}
-          </div>
-        </motion.div>
-      </Section>
-
-      <Section ruled>
-        <motion.div {...reveal} className="grid gap-8 lg:grid-cols-[0.7fr_1fr]">
-          <SectionHeading
-            eyebrow="Questions"
-            title="Before you start."
-            lead="The short answers. The pages on tracing and security have the long ones."
-          />
-          <div className="grid content-start gap-3">
-            {faqs.map((faq) => (
-              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
             ))}
           </div>
         </motion.div>

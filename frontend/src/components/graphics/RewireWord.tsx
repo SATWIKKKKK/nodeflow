@@ -1,40 +1,51 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "../../lib/cn";
-import { Edge, Node, Scene, ACCENT, HOP_EASE, HOP_MS, INACTIVE } from "./primitives";
+import { Edge, Node, Scene, HOP_EASE, HOP_MS } from "./primitives";
 import { useFrames, useInView, usePrefersReducedMotion } from "./useFrames";
 
 /**
- * The one animated word in the hero headline. It types itself in on first load,
- * then rests under a hairline wire that rewires itself on a loop — the headline
- * demonstrating its own claim at the smallest possible scale.
+ * The one animated word in the hero headline, and a readout of the wire drawn
+ * under it. The wire re-routes on a loop and the word names what the wire is
+ * doing at that moment: retrace, relink, reverse, rewire.
  *
- * Accessibility: the h1 above carries the full sentence as its aria-label and
- * everything here is aria-hidden, so screen readers and crawlers read one
- * ordinary heading. Letters reveal with opacity rather than being inserted, so
- * the word occupies its final width from the first frame and nothing shifts.
+ * The word is a pure function of the wire's frame index — there is no second
+ * timer — so the two can never drift apart.
+ *
+ * Accessibility: the h1 above carries the whole sentence as its aria-label and
+ * everything here is aria-hidden, so a screen reader or a crawler still reads
+ * one ordinary heading. The words are stacked in a single grid cell, so the
+ * slot is always as wide as the longest of them and "code" and "the list."
+ * never move.
  */
 
-const LETTER_MS = 90;
+const LETTER_MS = 60;
 /** Reveal, two blinks, fade — see the nf-caret keyframes in index.css. */
 const CARET_MS = 1550;
 
 /**
- * The underline's loop, about six seconds: hold the forward edge, retract it,
- * draw the back-arc in accent, let the accent settle to the muted stroke, hold,
- * then clear for the next pass.
+ * The wire's loop. Each phase is a state of the pointer under the word, and
+ * each names itself: the list is whole, the first link is let go, the last one
+ * is turned around, the list is rebuilt.
  */
 const PHASES = {
-  forward: 0,
-  retract: 1,
-  drawBack: 2,
-  backAccent: 3,
-  backSettled: 4,
-  clear: 5
+  connected: 0,
+  unlinking: 1,
+  turning: 2,
+  doneAccent: 3,
+  doneSettled: 4,
+  clearing: 5
 } as const;
-const PHASE_MS = [1800, 200, 300, 300, 3200, 200] as const;
+const PHASE_MS = [1800, 220, 340, 400, 3200, 220] as const;
 
 /** The tittle sits on the i, then spends a moment over the last e. */
 const TITTLE_MS = [8000, 1100] as const;
+
+const STEM = "re";
+/** One word per phase; the last three all rest on "rewire". */
+const SUFFIXES = ["trace", "link", "verse", "wire", "wire", "wire"] as const;
+const FINAL = "wire";
+/** Every word, so the slot can be sized to the widest before anything moves. */
+const ALL_SUFFIXES = [...new Set(SUFFIXES)];
 
 const WIRE_H = 16;
 const WIRE_Y = 4;
@@ -43,16 +54,12 @@ const HAIRLINE = 1;
 
 /** Dotless i, used only when the display font actually has the glyph. */
 const DOTLESS = "ı";
-
-/** The face the headline actually renders in. */
 const HEADLINE_FONT = 'italic 400 40px "Instrument Serif"';
 
 /**
- * Whether the headline font can draw U+0131. Measured rather than assumed: if
- * the glyph is missing the browser falls back, and the fallback measures the
- * same as a font name that does not exist. The face has to be loaded first —
- * canvas does not pull a webfont in on its own, and an unloaded face measures
- * exactly like a missing one.
+ * Whether the headline font can draw U+0131. Measured rather than assumed: the
+ * face has to be loaded first, because canvas will not pull a webfont in on its
+ * own and an unloaded face measures exactly like a missing glyph.
  */
 async function fontHasDotlessI() {
   try {
@@ -66,9 +73,9 @@ async function fontHasDotlessI() {
     context.font = 'italic 400 40px "__nf_absent_family__"';
     const fallback = context.measureText(DOTLESS).width;
 
-    // If the glyph were missing, both measurements would come from the same
-    // fallback face and be identical to the last decimal. Any difference at all
-    // means the headline font drew it itself.
+    // Were the glyph missing, both measurements would come from the same
+    // fallback face and match to the last decimal. Any difference means the
+    // headline font drew it itself.
     return present > 0 && Math.abs(present - fallback) > 0.05;
   } catch {
     return false;
@@ -76,35 +83,42 @@ async function fontHasDotlessI() {
 }
 
 export function RewireWord({
-  word = "rewire",
   /**
-   * Bumped by the hero band every time it rewires an edge. The word brightens
-   * for ~600ms in response, so the two stay in step without a second timer.
+   * Bumped by anything that wants the word to flash — the list band does it on
+   * each rewire. The word brightens for 600ms; it does not change.
    */
   pulse = 0,
   /** Swaps the i's tittle for a node that visits the last e and comes back. */
   iDot = false,
   className
 }: {
-  word?: string;
   pulse?: number;
   iDot?: boolean;
   className?: string;
 }) {
   const reduced = usePrefersReducedMotion();
-  const [hostRef, inView] = useInView<HTMLElement>({ amount: 0.4 });
+  const [hostRef, inView] = useInView<HTMLElement>({ amount: 0.2 });
   const wordRef = useRef<HTMLSpanElement>(null);
   const letterRefs = useRef<Array<HTMLSpanElement | null>>([]);
-
-  const letters = [...word];
-  const iIndex = letters.findIndex((letter) => letter.toLowerCase() === "i");
-  const lastEIndex = letters.map((letter) => letter.toLowerCase()).lastIndexOf("e");
 
   const [width, setWidth] = useState(0);
   const [centres, setCentres] = useState<number[]>([]);
   const [dotless, setDotless] = useState(false);
 
-  const showTittle = iDot && dotless && iIndex >= 0 && lastEIndex >= 0;
+  const { index: phase } = useFrames(PHASE_MS.length, {
+    durations: PHASE_MS,
+    active: inView && !reduced
+  });
+
+  // Reduced motion gets the settled picture: "rewire", one straight underline.
+  const stage = reduced ? PHASES.connected : phase;
+  const suffix = reduced ? FINAL : SUFFIXES[stage];
+  const isFinal = suffix === FINAL;
+
+  const letters = [...suffix];
+  const iIndex = letters.indexOf("i");
+  const lastEIndex = letters.lastIndexOf("e");
+  const showTittle = iDot && dotless && isFinal && iIndex >= 0 && lastEIndex >= 0;
 
   useEffect(() => {
     if (!iDot) return;
@@ -117,7 +131,7 @@ export function RewireWord({
     };
   }, [iDot]);
 
-  /** The wire spans the word, so it has to be measured, not guessed. */
+  /** The wire spans the whole slot, so it has to be measured, not guessed. */
   useLayoutEffect(() => {
     const element = wordRef.current;
     if (!element) return;
@@ -136,32 +150,34 @@ export function RewireWord({
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [word, dotless]);
+  }, [suffix, dotless]);
 
-  /** One 600ms brightening per rewire in the band. No movement, no re-render. */
+  /** 600ms of extra brightness, on demand and when the word lands on "rewire". */
+  const brighten = () => {
+    wordRef.current?.animate?.([{ filter: "brightness(1.35)" }, { filter: "brightness(1)" }], {
+      duration: 600,
+      easing: "ease-out"
+    });
+  };
+
   useEffect(() => {
     if (!pulse || reduced) return;
-    wordRef.current?.animate?.(
-      [{ filter: "brightness(1.35)" }, { filter: "brightness(1)" }],
-      { duration: 600, easing: "ease-out" }
-    );
+    brighten();
   }, [pulse, reduced]);
 
-  const { index: phase } = useFrames(PHASE_MS.length, {
-    durations: PHASE_MS,
-    active: inView && !reduced
-  });
+  useEffect(() => {
+    if (reduced || stage !== PHASES.doneAccent) return;
+    brighten();
+  }, [stage, reduced]);
 
   const { index: tittleStop } = useFrames(TITTLE_MS.length, {
     durations: TITTLE_MS,
     active: showTittle && inView && !reduced
   });
 
-  // Reduced motion gets the settled picture: the word, one straight underline.
-  const stage = reduced ? PHASES.forward : phase;
-  const forwardOut = stage !== PHASES.forward;
-  const backOut = stage < PHASES.drawBack || stage === PHASES.clear;
-  const backTone = stage === PHASES.drawBack || stage === PHASES.backAccent ? "accent" : "inactive";
+  const forwardOut = stage !== PHASES.connected;
+  const reroutedOut = stage < PHASES.turning || stage === PHASES.clearing;
+  const reroutedTone = stage === PHASES.turning || stage === PHASES.doneAccent ? "accent" : "inactive";
 
   /**
    * A marker is not clipped by stroke-dasharray, so a fully retracted edge would
@@ -174,25 +190,38 @@ export function RewireWord({
     opacity: out ? 0 : 1,
     transition: reduced
       ? "none"
-      : `stroke-dashoffset ${ms}ms linear, stroke 600ms linear, opacity 1ms linear ${
-          out ? ms : 0
-        }ms`
+      : `stroke-dashoffset ${ms}ms linear, stroke 600ms linear, opacity 1ms linear ${out ? ms : 0}ms`
   });
 
-  const tittleX = showTittle
-    ? (tittleStop === 1 ? centres[lastEIndex] : centres[iIndex]) ?? 0
-    : 0;
+  const tittleX = showTittle ? (centres[tittleStop === 1 ? lastEIndex : iIndex] ?? 0) : 0;
 
   return (
     <em
       ref={hostRef}
-      aria-hidden
-      className={cn("hero-accent relative inline-block italic", className)}
+      className={cn("relative inline-grid align-baseline italic", className)}
+      style={{ justifyItems: "center" }}
     >
-      <span ref={wordRef} className="relative inline-block whitespace-nowrap">
+      {/* Sized to the longest word, so nothing around it can be pushed about. */}
+      {ALL_SUFFIXES.map((candidate) => (
+        <span key={candidate} aria-hidden className="invisible" style={{ gridArea: "1 / 1" }}>
+          {STEM}
+          {candidate}
+        </span>
+      ))}
+
+      <span className="sr-only">rewire</span>
+
+      <span
+        ref={wordRef}
+        aria-hidden
+        className={cn("relative whitespace-nowrap", isFinal ? "hero-accent" : "text-primary")}
+        style={{ gridArea: "1 / 1", opacity: isFinal ? 1 : 0.6 }}
+      >
+        {STEM}
         {letters.map((letter, index) => (
           <span
-            key={`${letter}-${index}`}
+            // Keyed by the word, so every swap replays the reveal from the left.
+            key={`${suffix}-${index}`}
             ref={(element) => {
               letterRefs.current[index] = element;
             }}
@@ -200,10 +229,13 @@ export function RewireWord({
               reduced
                 ? undefined
                 : {
-                    opacity: 0,
+                    // `backwards` hides the letter only while its delay runs.
+                    // The letter's own style stays visible, so if animations
+                    // never run — an old engine, a blocked stylesheet — the
+                    // word is still readable rather than invisible.
                     animation: `nf-letter-step ${LETTER_MS}ms steps(1, jump-end) ${
                       index * LETTER_MS
-                    }ms forwards`
+                    }ms backwards`
                   }
             }
           >
@@ -211,7 +243,7 @@ export function RewireWord({
           </span>
         ))}
 
-        {/* The caret types the word in, then blinks twice and goes. */}
+        {/* The caret types the first word in, then blinks twice and goes. */}
         {!reduced && (
           <span
             className="absolute top-[0.16em] block w-0.5 bg-current"
@@ -243,14 +275,16 @@ export function RewireWord({
       </span>
 
       {/*
-        The underline: a wire with a node at each end. Deliberately hairline and
-        low contrast — it reads as an underline that happens to be a pointer,
-        not as a diagram competing with the headline.
+        The underline: a wire with a node at each end, which lets go of its first
+        route and draws a new one left to right. Deliberately hairline and low
+        contrast — an underline that happens to be a pointer, not a diagram
+        competing with the headline.
       */}
       {width > 0 && (
         <span
+          aria-hidden
           className="pointer-events-none absolute left-0 block w-full"
-          style={{ top: "100%", marginTop: "-0.06em" }}
+          style={{ gridArea: "1 / 1", top: "100%", marginTop: "-0.06em" }}
         >
           <Scene width={width} height={WIRE_H} label="" markerSize={4}>
             <Edge
@@ -258,16 +292,16 @@ export function RewireWord({
               tone="inactive"
               width={HAIRLINE}
               pathLength={1}
-              style={drawTiming(forwardOut, forwardOut ? 200 : 300)}
+              style={drawTiming(forwardOut, forwardOut ? 220 : 340)}
             />
             <Edge
-              d={`M ${width - NODE_R * 2 - 4} ${WIRE_Y} Q ${width / 2} ${WIRE_Y + 15} ${
-                NODE_R * 2 + 3
+              d={`M ${NODE_R * 2 + 3} ${WIRE_Y} Q ${width / 2} ${WIRE_Y + 15} ${
+                width - NODE_R * 2 - 4
               } ${WIRE_Y}`}
-              tone={backTone}
+              tone={reroutedTone}
               width={HAIRLINE}
               pathLength={1}
-              style={drawTiming(backOut, backOut ? 200 : 300)}
+              style={drawTiming(reroutedOut, reroutedOut ? 220 : 340)}
             />
             <Node x={NODE_R + 1} y={WIRE_Y} r={NODE_R} tone="inactive" strokeWidth={HAIRLINE} />
             <Node
@@ -283,6 +317,3 @@ export function RewireWord({
     </em>
   );
 }
-
-/** Exported for the hero, which needs the same colours as the word. */
-export const rewireTones = { accent: ACCENT, inactive: INACTIVE };

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Null, Scene, ACCENT, INACTIVE, INK, PAPER } from "./primitives";
+import { Caption, Edge, Node, Null, Scene, ACCENT, INACTIVE, INK, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
 import { useFrames, useInView } from "./useFrames";
 
@@ -302,9 +302,171 @@ export function ReplayScene() {
   );
 }
 
+/* ---------- Test, Submit and Diff, for /how-it-works and /tracing ---------- */
+
+const TICK = "M -3.2 0 L -1 2.4 L 3.3 -2.8";
+const CROSS_MARK = "M -3 -3 L 3 3 M 3 -3 L -3 3";
+
+/** Three cases: two pass, one does not. */
+export function TestScene() {
+  return (
+    <StepFrame count={5} intervalMs={520} label="Three test cases checked in turn: two pass and one fails">
+      {(index) => (
+        <>
+          {[0, 1, 2].map((row) => {
+            const shown = index > row;
+            const failed = row === 2;
+            const y = 22 + row * 28;
+            return (
+              <g
+                key={row}
+                style={{
+                  opacity: shown ? 1 : 0,
+                  transition: "opacity 300ms linear"
+                }}
+              >
+                <path
+                  d={geometry.roundedRect(16, y - 11, 128, 22, 6)}
+                  fill={PAPER}
+                  stroke={failed && shown ? INK : INACTIVE}
+                  strokeWidth={1.3}
+                />
+                <g transform={`translate(32 ${y})`}>
+                  <path
+                    d={failed ? CROSS_MARK : TICK}
+                    fill="none"
+                    stroke={failed ? INK : SUCCESS}
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </g>
+                <text x={48} y={y} dominantBaseline="central" fontSize={9} fill={failed && shown ? INK : INACTIVE} className="font-mono">
+                  {`case ${row + 1}`}
+                </text>
+              </g>
+            );
+          })}
+        </>
+      )}
+    </StepFrame>
+  );
+}
+
+const SMALL_SHIELD = "M 0 -17 L 12 -11 V 2 C 12 10 0 17 0 17 C 0 17 -12 10 -12 2 V -11 Z";
+
+/** Every case judged, hidden ones sealed, and the verdict. */
+export function SubmitScene() {
+  return (
+    <StepFrame count={6} intervalMs={480} label="A submission judged against every case, ending in an accepted verdict">
+      {(index) => (
+        <>
+          <g style={{ opacity: index >= 0 ? 1 : 0 }}>
+            <path d={SMALL_SHIELD} transform="translate(34 40)" fill={PAPER} stroke={INK} strokeWidth={1.8} strokeLinejoin="round" />
+          </g>
+
+          {[0, 1].map((row) => (
+            <path
+              key={row}
+              d={geometry.roundedRect(58, 22 + row * 14, 86, 9, 4)}
+              fill={PAPER}
+              stroke={INACTIVE}
+              strokeWidth={1.1}
+              style={{ opacity: index > row ? 1 : 0, transition: "opacity 280ms linear" }}
+            />
+          ))}
+          <path
+            d={geometry.roundedRect(58, 50, 86, 9, 4)}
+            fill={INACTIVE}
+            style={{ opacity: index >= 3 ? 1 : 0, transition: "opacity 280ms linear" }}
+          />
+
+          <g
+            style={{
+              opacity: index >= 5 ? 1 : 0,
+              transform: `translate(80px, 92px) scale(${index >= 5 ? 1 : 1.3})`,
+              transition: "opacity 240ms linear, transform 360ms cubic-bezier(.2,.8,.2,1)"
+            }}
+          >
+            <path d={geometry.roundedRect(-46, -10, 92, 20, 10)} fill={PAPER} stroke={SUCCESS} strokeWidth={1.6} />
+            <text x={0} y={0} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={SUCCESS} className="font-mono" style={{ letterSpacing: "0.12em" }}>
+              ACCEPTED
+            </text>
+          </g>
+        </>
+      )}
+    </StepFrame>
+  );
+}
+
+const DIAMOND: Array<[number, number]> = [
+  [0, -19],
+  [-20, 2],
+  [20, 2],
+  [0, 23]
+];
+
+/** Two recorded frames, with only the pointer that changed lit. */
+export function DiffScene() {
+  return (
+    <StepFrame count={4} intervalMs={700} label="Two recorded frames compared, with only the one changed pointer lit">
+      {(index) => {
+        const dim = index >= 2;
+        const graph = (cx: number, cy: number, lit: boolean) => {
+          const at = (i: number) => [cx + DIAMOND[i][0], cy + DIAMOND[i][1]] as const;
+          const link = (a: number, b: number) => {
+            const [x1, y1] = at(a);
+            const [x2, y2] = at(b);
+            return `M ${x1} ${y1} L ${x2} ${y2}`;
+          };
+          return (
+            <g>
+              {[[0, 1], [0, 2], [1, 3]].map(([a, b]) => (
+                <path
+                  key={`${a}${b}`}
+                  d={link(a, b)}
+                  stroke={dim ? INACTIVE : INK}
+                  strokeWidth={1.4}
+                  strokeLinecap="round"
+                  style={{ transition: "stroke 600ms linear" }}
+                />
+              ))}
+              <path
+                d={link(2, 3)}
+                stroke={lit ? ACCENT : dim ? INACTIVE : INK}
+                strokeWidth={lit ? 2.2 : 1.4}
+                strokeLinecap="round"
+                style={{ transition: "stroke 600ms linear, stroke-width 300ms linear" }}
+              />
+              {DIAMOND.map((_, i) => {
+                const [x, y] = at(i);
+                return <Node key={i} x={x} y={y} r={7} tone={dim ? "inactive" : "ink"} strokeWidth={1.6} />;
+              })}
+            </g>
+          );
+        };
+
+        return (
+          <>
+            {graph(42, 44, false)}
+            {graph(118, 44, dim)}
+            <path d="M 80 16 V 72" stroke={INACTIVE} strokeWidth={1} strokeDasharray="3 4" />
+            <Caption x={80} y={104} anchor="middle" tone={dim ? "ink" : "inactive"}>
+              DELTA 1
+            </Caption>
+          </>
+        );
+      }}
+    </StepFrame>
+  );
+}
+
 export const stepScenes = {
   Write: WriteScene,
   Run: RunScene,
   Trace: TraceScene,
-  Replay: ReplayScene
+  Replay: ReplayScene,
+  Test: TestScene,
+  Submit: SubmitScene,
+  Diff: DiffScene
 };

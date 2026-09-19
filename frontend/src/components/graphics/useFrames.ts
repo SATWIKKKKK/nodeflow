@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /**
  * The frame stepper behind every illustration. It holds each frame for a fixed
@@ -8,6 +8,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * It also decides when *not* to run: offscreen scenes are paused, and a visitor
  * who asked for reduced motion gets the final frame and no timers at all.
  */
+
+/**
+ * One dial for how fast every illustration runs. The beats below are written at
+ * their natural values and stretched by this, so the whole library can be slowed
+ * or quickened without touching a single scene.
+ */
+export const PACE = 1.4;
 
 export interface FrameOptions {
   /** Beat between frames. */
@@ -62,6 +69,23 @@ export function useInView<T extends Element>(options?: { amount?: number; once?:
   const { amount = 0.2, once = false } = options ?? {};
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
+
+  /**
+   * An observer does not report until after the first paint, which shows as a
+   * beat of dead air on anything already on screen. Measure once before paint
+   * so above-the-fold scenes are already running when they are first seen.
+   */
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || typeof window === "undefined") return;
+    const rect = element.getBoundingClientRect();
+    const onScreen =
+      rect.bottom > 0 &&
+      rect.right > 0 &&
+      rect.top < window.innerHeight &&
+      rect.left < window.innerWidth;
+    if (onScreen) setInView(true);
+  }, []);
 
   useEffect(() => {
     const element = ref.current;
@@ -121,7 +145,7 @@ export function useFrames(count: number, options: FrameOptions = {}): Frames {
     if (atEnd && !loop) return;
 
     const wait =
-      beats.current?.[index] ?? (index === 0 ? holdStartMs : atEnd ? holdEndMs : intervalMs);
+      (beats.current?.[index] ?? (index === 0 ? holdStartMs : atEnd ? holdEndMs : intervalMs)) * PACE;
     const timer = window.setTimeout(() => {
       previousIndex.current = index;
       setIndex(atEnd ? 0 : index + 1);
@@ -143,18 +167,13 @@ export function useFrames(count: number, options: FrameOptions = {}): Frames {
 }
 
 /**
- * The feature cards play once when scrolled to and again on hover or focus —
- * six scenes looping at once is noise, so they rest on their final frame.
+ * Card scenes loop for as long as they are on screen. They do not wait for a
+ * pointer and they do not come to rest: hover is not available on a phone, and
+ * a scene that has stopped reads as a broken image.
  */
-export function useReplayOnHover(count: number, options: FrameOptions = {}) {
-  const [ref, inView] = useInView<HTMLDivElement>({ amount: 0.35, once: true });
-  const frames = useFrames(count, { ...options, loop: false, active: inView });
-  const { replay } = frames;
+export function useLoopInView(count: number, options: FrameOptions = {}) {
+  const [ref, inView] = useInView<HTMLDivElement>({ amount: 0.25 });
+  const frames = useFrames(count, { ...options, loop: true, active: inView });
 
-  const handlers = {
-    onMouseEnter: replay,
-    onFocus: replay
-  };
-
-  return { ref, frames, handlers, inView };
+  return { ref, frames, inView };
 }

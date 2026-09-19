@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Scene, ACCENT, INACTIVE, INK, PAPER } from "./primitives";
+import { Caption, Edge, Node, Scene, ACCENT, INACTIVE, INK, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
-import { useReplayOnHover } from "./useFrames";
+import { useLoopInView } from "./useFrames";
 
 /**
  * One 280x120 scene per card in "Built for the moment your solution breaks".
- * Six looping animations at once would be noise, so each plays once when it
- * scrolls into view and rests on its final frame; hover or focus replays it.
+ * They loop for as long as they are on screen and stop as soon as they are not,
+ * and none of them waits for a pointer — there is no hover on a phone.
  */
 
 const W = 280;
@@ -23,10 +23,10 @@ function FeatureFrame({
   label: string;
   children: (index: number) => ReactNode;
 }) {
-  const { ref, frames, handlers } = useReplayOnHover(count, { intervalMs, holdStartMs: 700 });
+  const { ref, frames } = useLoopInView(count, { intervalMs, holdStartMs: 900, holdEndMs: 1600 });
 
   return (
-    <div ref={ref} {...handlers} tabIndex={-1} className="w-full outline-none">
+    <div ref={ref} className="w-full">
       <Scene width={W} height={H} label={label} grid paper markerSize={6} className="rounded-lg">
         {children(frames.index)}
       </Scene>
@@ -34,7 +34,11 @@ function FeatureFrame({
   );
 }
 
-/** Fades a group in once the frame index reaches `at`. */
+/**
+ * Fades a group in once the frame index reaches `at`. Because these scenes loop
+ * rather than rest, frame 0 already carries the first element — a card that
+ * blanks itself every cycle reads as broken rather than as a restart.
+ */
 const appear = (index: number, at: number) => ({
   opacity: index >= at ? 1 : 0,
   transform: `translateY(${index >= at ? 0 : 5}px)`,
@@ -49,14 +53,14 @@ export function RunGraphic() {
     <FeatureFrame count={8} label="A run returning a value, printing a line, and recording a strip of trace steps">
       {(index) => (
         <>
-          <g style={appear(index, 1)}>
+          <g style={appear(index, 0)}>
             <path d={geometry.roundedRect(16, 16, 150, 24, 12)} fill={PAPER} stroke={INK} strokeWidth={1.6} />
             <text x={30} y={28} dominantBaseline="central" fontSize={11} fill={INK} className="font-mono">
               {"→ [4,3,2,1]"}
             </text>
           </g>
 
-          <g style={appear(index, 2)}>
+          <g style={appear(index, 1)}>
             <text x={16} y={58} dominantBaseline="central" fontSize={10} fill={INACTIVE} className="font-mono">
               stdout: reversed 4 nodes
             </text>
@@ -67,7 +71,7 @@ export function RunGraphic() {
           </Caption>
 
           {Array.from({ length: ticks }, (_, i) => {
-            const on = index >= 3 && i < Math.round(((index - 2) / 5) * ticks);
+            const on = index >= 2 && i < Math.round(((index - 1) / 6) * ticks);
             return (
               <path
                 key={i}
@@ -94,47 +98,52 @@ export function TestGraphic() {
   return (
     <FeatureFrame count={6} label="Three test cases: two pass, the third fails and opens to show expected against what was returned">
       {(index) => {
-        const open = index >= 4;
+        const open = index >= 3;
         return (
           <>
             {[0, 1].map((row) => (
-              <g key={row} style={appear(index, row + 1)}>
-                <path d={geometry.roundedRect(16, 14 + row * 26, 248, 20, 6)} fill={PAPER} stroke={INACTIVE} strokeWidth={1.3} />
-                <g transform={`translate(32 ${24 + row * 26})`}>
-                  <path d={CHECK} fill="none" stroke={INK} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <g key={row} style={appear(index, row)}>
+                <path d={geometry.roundedRect(16, 8 + row * 24, 248, 20, 6)} fill={PAPER} stroke={INACTIVE} strokeWidth={1.3} />
+                <g transform={`translate(32 ${18 + row * 24})`}>
+                  <path d={CHECK} fill="none" stroke={SUCCESS} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </g>
-                <text x={48} y={24 + row * 26} dominantBaseline="central" fontSize={10} fill={INACTIVE} className="font-mono">
+                <text x={48} y={18 + row * 24} dominantBaseline="central" fontSize={10} fill={INACTIVE} className="font-mono">
                   {`case ${row + 1}`}
                 </text>
               </g>
             ))}
 
-            <g style={appear(index, 3)}>
+            {/*
+              The failing row grows downwards from a fixed top. Its two extra
+              lines are spaced so the last one clears the border it sits in —
+              the rows below are laid out from the box, not the other way round.
+            */}
+            <g style={appear(index, 2)}>
               <path
-                d={geometry.roundedRect(16, 66, 248, open ? 44 : 20, 6)}
+                d={geometry.roundedRect(16, 56, 248, open ? 52 : 20, 6)}
                 fill={PAPER}
                 stroke={INK}
                 strokeWidth={1.5}
-                style={{ transition: "d 300ms cubic-bezier(.2,.8,.2,1)" }}
+                style={{ transition: "d 420ms cubic-bezier(.2,.8,.2,1)" }}
               />
-              <g transform="translate(32 76)">
+              <g transform="translate(32 66)">
                 <path d={CROSS} fill="none" stroke={INK} strokeWidth={2} strokeLinecap="round" />
               </g>
-              <text x={48} y={76} dominantBaseline="central" fontSize={10} fill={INK} className="font-mono">
+              <text x={48} y={66} dominantBaseline="central" fontSize={10} fill={INK} className="font-mono">
                 case 3
               </text>
 
-              <g style={{ opacity: open ? 1 : 0, transition: "opacity 260ms linear 120ms" }}>
-                <text x={48} y={92} dominantBaseline="central" fontSize={9} fill={INACTIVE} className="font-mono">
+              <g style={{ opacity: open ? 1 : 0, transition: "opacity 320ms linear 140ms" }}>
+                <text x={48} y={84} dominantBaseline="central" fontSize={9} fill={INACTIVE} className="font-mono">
                   expected
                 </text>
-                <text x={104} y={92} dominantBaseline="central" fontSize={9} fill={INK} className="font-mono">
+                <text x={112} y={84} dominantBaseline="central" fontSize={9} fill={INK} className="font-mono">
                   [4,3,2,1]
                 </text>
-                <text x={48} y={104} dominantBaseline="central" fontSize={9} fill={INACTIVE} className="font-mono">
+                <text x={48} y={98} dominantBaseline="central" fontSize={9} fill={INACTIVE} className="font-mono">
                   got
                 </text>
-                <text x={104} y={104} dominantBaseline="central" fontSize={9} fill={ACCENT} className="font-mono">
+                <text x={112} y={98} dominantBaseline="central" fontSize={9} fill={ACCENT} className="font-mono">
                   [1,2,3,4]
                 </text>
               </g>
@@ -162,7 +171,7 @@ export function SubmitGraphic() {
           <g style={appear(index, 0)}>
             <path
               d={SHIELD}
-              transform="translate(44 50)"
+              transform="translate(44 46)"
               fill={PAPER}
               stroke={INK}
               strokeWidth={2}
@@ -171,27 +180,28 @@ export function SubmitGraphic() {
           </g>
 
           {[0, 1, 2].map((row) => (
-            <g key={row} style={appear(index, row + 1)}>
-              <path d={geometry.roundedRect(92, 12 + row * 16, 172, 11, 5)} fill={PAPER} stroke={INACTIVE} strokeWidth={1.2} />
+            <g key={row} style={appear(index, row)}>
+              <path d={geometry.roundedRect(92, 10 + row * 15, 172, 11, 5)} fill={PAPER} stroke={INACTIVE} strokeWidth={1.2} />
             </g>
           ))}
 
           {/* Hidden cases: sealed bars, no contents. */}
           {[0, 1].map((row) => (
-            <g key={`sealed-${row}`} style={appear(index, 4)}>
-              <path d={geometry.roundedRect(92, 60 + row * 16, 172, 11, 5)} fill={INACTIVE} />
+            <g key={`sealed-${row}`} style={appear(index, 3)}>
+              <path d={geometry.roundedRect(92, 55 + row * 15, 172, 11, 5)} fill={INACTIVE} />
             </g>
           ))}
 
+          {/* The verdict, in the green the rest of the site uses for a pass. */}
           <g
             style={{
-              opacity: index >= 6 ? 1 : 0,
-              transform: `translate(178px, 102px) scale(${index >= 6 ? 1 : 1.3})`,
-              transition: "opacity 180ms linear, transform 260ms cubic-bezier(.2,.8,.2,1)"
+              opacity: index >= 5 ? 1 : 0,
+              transform: `translate(178px, 99px) scale(${index >= 5 ? 1 : 1.3})`,
+              transition: "opacity 240ms linear, transform 360ms cubic-bezier(.2,.8,.2,1)"
             }}
           >
-            <path d={geometry.roundedRect(-54, -11, 108, 22, 11)} fill={PAPER} stroke={INK} strokeWidth={1.8} />
-            <text x={0} y={0} textAnchor="middle" dominantBaseline="central" fontSize={11} fill={INK} className="font-mono" style={{ letterSpacing: "0.12em" }}>
+            <path d={geometry.roundedRect(-56, -11, 112, 22, 11)} fill={PAPER} stroke={SUCCESS} strokeWidth={1.8} />
+            <text x={0} y={0} textAnchor="middle" dominantBaseline="central" fontSize={11} fill={SUCCESS} className="font-mono" style={{ letterSpacing: "0.12em" }}>
               ACCEPTED
             </text>
           </g>

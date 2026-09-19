@@ -2,26 +2,31 @@ import { NavLink } from "react-router-dom";
 import { Activity, ArrowRight, Box, GitCompareArrows, Shapes } from "lucide-react";
 import { SectionHeading } from "../components/SectionHeading";
 import { button, container, iconTile } from "../components/ui";
+import { DiffScene, ReplayScene, RunScene, TraceScene } from "../components/graphics";
 import recorded from "../landing/reverseListTrace.json";
 
 const pipeline = [
   {
     icon: Box,
+    scene: RunScene,
     title: "Execute",
     body: "Your code runs in a fresh, network-less container with CPU, memory and time limits."
   },
   {
     icon: Activity,
+    scene: TraceScene,
     title: "Record",
     body: "At every line, the tracer snapshots the line number, your variables and every object on the heap, keyed by id."
   },
   {
     icon: GitCompareArrows,
+    scene: DiffScene,
     title: "Diff",
     body: "Each snapshot is compared with the one before: which objects were created, which fields changed, which disappeared."
   },
   {
     icon: Shapes,
+    scene: ReplayScene,
     title: "Draw",
     body: "The trace keeps one shape per heap id and only highlights what a diff names, so a moved pointer reads as a moved arrow."
   }
@@ -58,8 +63,12 @@ export default function TracingPage() {
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {pipeline.map((stage, index) => {
               const Icon = stage.icon;
+              const Scene = stage.scene;
               return (
                 <li key={stage.title} className="surface-card">
+                  <div className="mb-6 overflow-hidden rounded-lg border border-blueprint-line">
+                    <Scene />
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className={iconTile}>
                       <Icon size={20} aria-hidden />
