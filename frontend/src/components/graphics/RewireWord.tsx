@@ -23,29 +23,38 @@ const LETTER_MS = 60;
 const CARET_MS = 1550;
 
 /**
- * The wire's loop. Each phase is a state of the pointer under the word, and
- * each names itself: the list is whole, the first link is let go, the last one
- * is turned around, the list is rebuilt.
+ * One beat per state of the wire under the word, and the word names the state
+ * it is in. The wire's own moves are quick — a retract is 220ms, a redraw is
+ * 340ms — but a word must not flash past, so each quick move is followed by a
+ * hold and every word gets the same 1500ms on screen.
  */
-const PHASES = {
-  connected: 0,
-  unlinking: 1,
-  turning: 2,
-  doneAccent: 3,
-  doneSettled: 4,
-  clearing: 5
-} as const;
-const PHASE_MS = [1800, 220, 340, 400, 3200, 220] as const;
+interface Beat {
+  /** The half-word after the static "re". */
+  suffix: string;
+  ms: number;
+  /** Which of the two routes is drawn during this beat. */
+  route: "forward" | "rerouted" | "none";
+}
+
+const TIMELINE: readonly Beat[] = [
+  { suffix: "trace", ms: 1500, route: "forward" },
+  { suffix: "link", ms: 220, route: "none" },
+  { suffix: "link", ms: 1280, route: "none" },
+  { suffix: "verse", ms: 340, route: "rerouted" },
+  { suffix: "verse", ms: 1160, route: "rerouted" },
+  { suffix: "wire", ms: 1300, route: "rerouted" },
+  { suffix: "wire", ms: 200, route: "none" }
+] as const;
+
+const PHASE_MS = TIMELINE.map((beat) => beat.ms);
 
 /** The tittle sits on the i, then spends a moment over the last e. */
 const TITTLE_MS = [8000, 1100] as const;
 
 const STEM = "re";
-/** One word per phase; the last three all rest on "rewire". */
-const SUFFIXES = ["trace", "link", "verse", "wire", "wire", "wire"] as const;
 const FINAL = "wire";
 /** Every word, so the slot can be sized to the widest before anything moves. */
-const ALL_SUFFIXES = [...new Set(SUFFIXES)];
+const ALL_SUFFIXES = [...new Set(TIMELINE.map((beat) => beat.suffix))];
 
 const WIRE_H = 16;
 const WIRE_Y = 4;
@@ -105,14 +114,14 @@ export function RewireWord({
   const [centres, setCentres] = useState<number[]>([]);
   const [dotless, setDotless] = useState(false);
 
-  const { index: phase } = useFrames(PHASE_MS.length, {
+  const { index: beatIndex } = useFrames(TIMELINE.length, {
     durations: PHASE_MS,
     active: inView && !reduced
   });
 
   // Reduced motion gets the settled picture: "rewire", one straight underline.
-  const stage = reduced ? PHASES.connected : phase;
-  const suffix = reduced ? FINAL : SUFFIXES[stage];
+  const beat = reduced ? TIMELINE[0] : TIMELINE[beatIndex];
+  const suffix = reduced ? FINAL : beat.suffix;
   const isFinal = suffix === FINAL;
 
   const letters = [...suffix];
@@ -165,19 +174,20 @@ export function RewireWord({
     brighten();
   }, [pulse, reduced]);
 
+  // The word brightens as it lands on "rewire", not while it sits there.
   useEffect(() => {
-    if (reduced || stage !== PHASES.doneAccent) return;
+    if (reduced || !isFinal) return;
     brighten();
-  }, [stage, reduced]);
+  }, [isFinal, reduced]);
 
   const { index: tittleStop } = useFrames(TITTLE_MS.length, {
     durations: TITTLE_MS,
     active: showTittle && inView && !reduced
   });
 
-  const forwardOut = stage !== PHASES.connected;
-  const reroutedOut = stage < PHASES.turning || stage === PHASES.clearing;
-  const reroutedTone = stage === PHASES.turning || stage === PHASES.doneAccent ? "accent" : "inactive";
+  const route = reduced ? "forward" : beat.route;
+  const forwardOut = route !== "forward";
+  const reroutedOut = route !== "rerouted";
 
   /**
    * A marker is not clipped by stroke-dasharray, so a fully retracted edge would
@@ -214,8 +224,8 @@ export function RewireWord({
       <span
         ref={wordRef}
         aria-hidden
-        className={cn("relative whitespace-nowrap", isFinal ? "hero-accent" : "text-primary")}
-        style={{ gridArea: "1 / 1", opacity: isFinal ? 1 : 0.6 }}
+        className="hero-accent relative whitespace-nowrap"
+        style={{ gridArea: "1 / 1" }}
       >
         {STEM}
         {letters.map((letter, index) => (
@@ -289,7 +299,7 @@ export function RewireWord({
           <Scene width={width} height={WIRE_H} label="" markerSize={4}>
             <Edge
               d={`M ${NODE_R * 2 + 3} ${WIRE_Y} H ${width - NODE_R * 2 - 4}`}
-              tone="inactive"
+              tone="accent"
               width={HAIRLINE}
               pathLength={1}
               style={drawTiming(forwardOut, forwardOut ? 220 : 340)}
@@ -298,17 +308,17 @@ export function RewireWord({
               d={`M ${NODE_R * 2 + 3} ${WIRE_Y} Q ${width / 2} ${WIRE_Y + 15} ${
                 width - NODE_R * 2 - 4
               } ${WIRE_Y}`}
-              tone={reroutedTone}
+              tone="accent"
               width={HAIRLINE}
               pathLength={1}
               style={drawTiming(reroutedOut, reroutedOut ? 220 : 340)}
             />
-            <Node x={NODE_R + 1} y={WIRE_Y} r={NODE_R} tone="inactive" strokeWidth={HAIRLINE} />
+            <Node x={NODE_R + 1} y={WIRE_Y} r={NODE_R} tone="accent" strokeWidth={HAIRLINE} />
             <Node
               x={width - NODE_R - 1}
               y={WIRE_Y}
               r={NODE_R}
-              tone="inactive"
+              tone="accent"
               strokeWidth={HAIRLINE}
             />
           </Scene>

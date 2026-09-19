@@ -2,12 +2,9 @@ import { useMemo, type ComponentType, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Activity,
   AlertTriangle,
   ArrowRight,
   Check,
-  Code2,
-  History,
   Layers3,
   ListChecks,
   RefreshCw,
@@ -16,7 +13,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { SectionHeading } from "../components/SectionHeading";
-import { button, container, iconTile, stepIcon } from "../components/ui";
+import { button, container, iconTile } from "../components/ui";
 import {
   LanguagePills,
   ProblemDots,
@@ -36,27 +33,23 @@ import { TraceReplay } from "./TraceReplay";
 // Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
 const STEP_LIMIT = 4000;
 
-const steps: Array<{ icon: LucideIcon; title: string; body: string; scene: ComponentType }> = [
+const steps: Array<{ title: string; body: string; scene: ComponentType }> = [
   {
-    icon: Code2,
     scene: WriteScene,
     title: "Write",
     body: "Pick a problem and write a solution in Python, C++ or Java. The editor opens with the function signature already in place."
   },
   {
-    icon: Terminal,
     scene: RunScene,
     title: "Run",
     body: "Your code runs in a fresh sandbox with no network access, against the problem's own input."
   },
   {
-    icon: Activity,
     scene: TraceScene,
     title: "Trace",
     body: "The tracer records every variable and heap object at every line, then diffs each step against the one before."
   },
   {
-    icon: History,
     scene: ReplayScene,
     title: "Replay",
     body: "Step forward and back, scrub the timeline, or click a node to jump to the line that last changed it."
@@ -232,23 +225,14 @@ export default function LandingPage() {
             lead="The visualization is never drawn by hand. It is rebuilt from what the interpreter recorded."
           />
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
+            {steps.map((step) => {
               const Scene = step.scene;
               return (
                 <li key={step.title} className="border-l border-blueprint-line pl-5">
                   <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
                     <Scene />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={stepIcon}>
-                      <Icon size={18} aria-hidden />
-                    </span>
-                    <span className="text-technical-mono text-blueprint-muted">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h3 className="mt-5 text-headline-sm text-primary">{step.title}</h3>
+                  <h3 className="text-headline-sm text-primary">{step.title}</h3>
                   <p className="mt-3 text-body-md text-blueprint-muted">{step.body}</p>
                 </li>
               );
@@ -320,15 +304,15 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          <div className="grid content-start grid-cols-2 gap-4">
+          <div className="grid content-start gap-4 sm:grid-cols-2">
             {metrics.map((metric) => (
               <article key={metric.label} className="surface-card-compact relative overflow-hidden">
                 {/* Corner glyph: it never runs under the figure. */}
-                <div aria-hidden className="pointer-events-none absolute right-3 top-3 hidden opacity-80 sm:block">
+                <div aria-hidden className="pointer-events-none absolute right-3 top-3 opacity-80">
                   {metric.glyph}
                 </div>
                 {/* The glyph owns the right 96px of the card; the text keeps clear of it. */}
-                <div className={metric.glyph ? "sm:pr-24" : undefined}>
+                <div className={metric.glyph ? "pr-24" : undefined}>
                   <p className="text-technical-mono text-blueprint-muted">{metric.label}</p>
                   <p className="mt-3 text-metric text-primary">{metric.value}</p>
                   <p className="mt-2 text-body-md text-blueprint-muted">{metric.note}</p>
