@@ -464,14 +464,14 @@
 }
 
 .landing-cta-button {
-  border-color: #2f6fe0;
-  background: #2f6fe0;
-  color: #ffffff;
+  border-color: #9ecbff;
+  background: #9ecbff;
+  color: #0a1728;
 }
 
 .landing-cta-button:hover {
-  background: #4581ee;
-  border-color: #4581ee;
+  background: #bcdcff;
+  border-color: #bcdcff;
 }
 
 .check-icon {
@@ -657,10 +657,10 @@
   --graphics-ink: #ece8e8;
   --graphics-inactive: #4a4644;
   --graphics-accent: #9ecbff;
-  --graphics-node: #6fa8e8;
-  --fill-blue: #2f6fe0;
-  --fill-blue-hover: #4581ee;
-  --fill-blue-text: #ffffff;
+  --graphics-node: #9ecbff;
+  --fill-blue: #9ecbff;
+  --fill-blue-hover: #bcdcff;
+  --fill-blue-text: #0a1728;
   --graphics-grid: rgba(255, 255, 255, 0.05);
   --graphics-success: #4ade80;
 }
@@ -671,7 +671,7 @@
   --graphics-ink: #f3ecec;
   --graphics-inactive: #3a3a3a;
   --graphics-accent: #9ecbff;
-  --graphics-node: #6fa8e8;
+  --graphics-node: #9ecbff;
   --graphics-grid: rgba(243, 236, 236, 0.05);
 }
 

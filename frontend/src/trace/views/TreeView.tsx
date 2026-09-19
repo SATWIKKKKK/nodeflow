@@ -67,14 +67,14 @@ export function TreeView({ view }: { view: TreeViewModel }) {
                   <circle
                     r={RADIUS}
                     strokeWidth={1.75}
-                    className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
+                    className={cn("stroke-[var(--graphics-node)] transition-[fill] duration-300", node.changed ? "fill-[var(--fill-blue)]" : "fill-card")}
                   />
                   <text
                     y={4.5}
                     textAnchor="middle"
                     className={cn(
                       "font-mono text-[13px] font-medium transition-[fill] duration-300",
-                      node.changed ? "fill-primary-foreground" : "fill-primary"
+                      node.changed ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]"
                     )}
                   >
                     {node.label.length > 4 ? `${node.label.slice(0, 3)}…` : node.label}

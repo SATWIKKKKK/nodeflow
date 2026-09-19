@@ -798,7 +798,7 @@ export default function WorkspacePage() {
                   onClick={() => setSceneMode(mode)}
                   className={cn(
                     "no-lift rounded-full px-3 py-1 text-ui-label text-[12px] transition-colors",
-                    sceneMode === mode ? "bg-primary text-primary-foreground" : "text-blueprint-muted hover:text-primary"
+                    sceneMode === mode ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "text-blueprint-muted hover:text-primary"
                   )}
                   style={{ minHeight: 0, width: "auto" }}
                 >

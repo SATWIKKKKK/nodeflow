@@ -113,7 +113,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
         <button
           type="submit"
           aria-label="Search"
-          className="no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)]"
+          className="no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)]"
           style={{ minHeight: 0, width: "2rem" }}
         >
           <ArrowRight size={14} aria-hidden />

@@ -5,7 +5,7 @@ import type { ArrayViewModel, PointerModel } from "../model";
 const cellClass = (changed: boolean) =>
   cn(
     "flex h-11 min-w-11 items-center justify-center border-[1.25px] px-2 font-mono text-[13px] transition-colors duration-300",
-    changed ? "border-primary bg-primary text-primary-foreground" : "border-blueprint-line bg-card text-primary"
+    changed ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "border-blueprint-line bg-card text-primary"
   );
 
 function Pointers({ pointers }: { pointers: PointerModel[] }) {
@@ -23,7 +23,7 @@ function Pointers({ pointers }: { pointers: PointerModel[] }) {
           className={cn(
             "rounded-full border px-1.5 py-px font-mono text-[10.5px] leading-tight",
             pointer.changed
-              ? "border-primary bg-primary text-primary-foreground"
+              ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
               : "border-blueprint-line bg-card text-blueprint-muted"
           )}
         >
@@ -105,7 +105,7 @@ function StackColumn({ view }: { view: ArrayViewModel }) {
             </motion.div>
           ))}
         </AnimatePresence>
-        <span className="mt-1 h-[3px] rounded-full bg-primary" aria-hidden />
+        <span className="mt-1 h-[3px] rounded-full bg-[var(--fill-blue)]" aria-hidden />
       </div>
       <span className="pb-1 font-mono text-[11px] text-blueprint-muted">
         {view.cells.length ? "← top" : "empty"}
@@ -165,7 +165,7 @@ function SetChips({ view }: { view: ArrayViewModel }) {
             exit={{ opacity: 0, scale: 0.8 }}
             className={cn(
               "rounded-full border-[1.25px] px-2.5 py-1 font-mono text-[12px]",
-              cell.changed ? "border-primary bg-primary text-primary-foreground" : "border-blueprint-line bg-card text-primary"
+              cell.changed ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "border-blueprint-line bg-card text-primary"
             )}
           >
             {cell.label}

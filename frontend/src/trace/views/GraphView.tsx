@@ -57,7 +57,7 @@ export function GraphView({ view }: { view: GraphViewModel }) {
                   y2={y2}
                   strokeWidth={hot ? 2.2 : 1.4}
                   markerEnd={edge.directed ? (hot ? "url(#nf-arrow-strong)" : "url(#nf-arrow-soft)") : undefined}
-                  className={hot ? "stroke-primary" : "stroke-blueprint-muted"}
+                  className={hot ? "stroke-[var(--graphics-node)]" : "stroke-blueprint-muted"}
                 />
               )}
               {edge.weight !== undefined && (
@@ -86,12 +86,12 @@ export function GraphView({ view }: { view: GraphViewModel }) {
                 strokeWidth={1.75}
                 initial={false}
                 animate={{ scale: names ? 1.12 : 1 }}
-                className={cn("stroke-primary transition-[fill] duration-300", names ? "fill-primary" : "fill-card")}
+                className={cn("stroke-[var(--graphics-node)] transition-[fill] duration-300", names ? "fill-[var(--fill-blue)]" : "fill-card")}
               />
               <text
                 y={4.5}
                 textAnchor="middle"
-                className={cn("font-mono text-[12px] font-medium", names ? "fill-primary-foreground" : "fill-primary")}
+                className={cn("font-mono text-[12px] font-medium", names ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]")}
               >
                 {node}
               </text>

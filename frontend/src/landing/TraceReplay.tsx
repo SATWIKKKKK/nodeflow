@@ -305,8 +305,8 @@ export function TraceReplay() {
                     r={layout.radius}
                     strokeWidth={1.75}
                     className={cn(
-                      "stroke-primary transition-[fill] duration-300",
-                      changed ? "fill-primary" : "fill-card"
+                      "stroke-[var(--graphics-node)] transition-[fill] duration-300",
+                      changed ? "fill-[var(--fill-blue)]" : "fill-card"
                     )}
                   />
                   <text
@@ -315,7 +315,7 @@ export function TraceReplay() {
                     textAnchor="middle"
                     className={cn(
                       "font-mono text-[15px] font-medium transition-[fill] duration-300",
-                      changed ? "fill-primary-foreground" : "fill-primary"
+                      changed ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]"
                     )}
                   >
                     {valueOf(step.heap, id)}
@@ -355,7 +355,7 @@ export function TraceReplay() {
                     strokeWidth={1}
                     className={cn(
                       "transition-[fill] duration-300",
-                      active ? "fill-primary stroke-primary" : "fill-card stroke-blueprint-line"
+                      active ? "fill-[var(--fill-blue)] stroke-[var(--fill-blue)]" : "fill-card stroke-blueprint-line"
                     )}
                   />
                   <text
@@ -363,7 +363,7 @@ export function TraceReplay() {
                     y={tagHeight / 2 + layout.tagFont * 0.35}
                     textAnchor="middle"
                     fontSize={layout.tagFont}
-                    className={cn("font-mono", active ? "fill-primary-foreground" : "fill-blueprint-muted")}
+                    className={cn("font-mono", active ? "fill-[var(--fill-blue-text)]" : "fill-blueprint-muted")}
                   >
                     {tag.name}
                   </text>
@@ -380,7 +380,7 @@ export function TraceReplay() {
                   className={cn(
                     "rounded-full border px-2.5 py-1 font-mono text-[11px] leading-none",
                     changedVars.has(name)
-                      ? "border-primary bg-primary text-primary-foreground"
+                      ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
                       : "border-blueprint-line text-blueprint-muted"
                   )}
                 >

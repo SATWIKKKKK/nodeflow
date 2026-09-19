@@ -55,7 +55,7 @@ export function Pagination({
             className={cn(
               cell,
               entry === page
-                ? "border-primary bg-primary text-primary-foreground"
+                ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
                 : "border-blueprint-line bg-card text-primary hover:bg-surface-hover"
             )}
             style={{ minHeight: 0 }}

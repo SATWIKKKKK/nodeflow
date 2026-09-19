@@ -31,14 +31,14 @@ export function PointerTags({ tags, bottom }: { tags: { name: string; changed: b
               strokeWidth={1}
               className={cn(
                 "transition-[fill] duration-300",
-                tag.changed ? "fill-primary stroke-primary" : "fill-card stroke-blueprint-line"
+                tag.changed ? "fill-[var(--fill-blue)] stroke-[var(--fill-blue)]" : "fill-card stroke-blueprint-line"
               )}
             />
             <text
               x={0}
               y={12.5}
               textAnchor="middle"
-              className={cn("font-mono text-[11px]", tag.changed ? "fill-primary-foreground" : "fill-blueprint-muted")}
+              className={cn("font-mono text-[11px]", tag.changed ? "fill-[var(--fill-blue-text)]" : "fill-blueprint-muted")}
             >
               {label}
             </text>

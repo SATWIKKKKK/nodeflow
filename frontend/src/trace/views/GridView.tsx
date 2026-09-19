@@ -54,7 +54,7 @@ export function GridView({ view }: { view: GridViewModel }) {
                           "relative -ml-[1.25px] -mt-[1.25px] flex items-center justify-center border-[1.25px] transition-colors duration-300",
                           compact ? "h-8 min-w-8 px-1 text-[11px]" : "h-10 min-w-10 px-1.5 text-[12.5px]",
                           cell.changed
-                            ? "border-primary bg-primary text-primary-foreground"
+                            ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
                             : "border-blueprint-line bg-card text-primary",
                           names && "z-10 outline-2 outline-offset-[-3px] outline-primary"
                         )}

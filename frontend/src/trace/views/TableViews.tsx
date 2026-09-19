@@ -28,7 +28,7 @@ export function MapView({ view }: { view: MapViewModel }) {
                 exit={{ opacity: 0 }}
                 className={cn(
                   "col-span-2 grid grid-cols-subgrid border-b border-blueprint-line last:border-b-0 transition-colors duration-300",
-                  entry.changed ? "bg-primary text-primary-foreground" : "bg-card text-primary"
+                  entry.changed ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "bg-card text-primary"
                 )}
               >
                 <span className="border-r border-blueprint-line px-3 py-1.5">{entry.key}</span>
@@ -62,7 +62,7 @@ export function ObjectView({ view }: { view: ObjectViewModel }) {
               key={field.name}
               className={cn(
                 "rounded-lg border-[1.25px] px-2.5 py-1 font-mono text-[12px] transition-colors duration-300",
-                field.changed ? "border-primary bg-primary text-primary-foreground" : "border-blueprint-line bg-card text-primary"
+                field.changed ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "border-blueprint-line bg-card text-primary"
               )}
             >
               <span className={field.changed ? "opacity-80" : "text-blueprint-muted"}>{field.name}</span> {field.value}

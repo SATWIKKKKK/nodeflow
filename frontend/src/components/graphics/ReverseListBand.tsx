@@ -188,6 +188,7 @@ export function ReverseListBand({
             r={RADIUS}
             value={valueOf(step.heap, id)}
             tone={mutated.has(id) ? "accent" : "node"}
+            filled={mutated.has(id)}
             changed={mutated.has(id)}
           />
         ))}

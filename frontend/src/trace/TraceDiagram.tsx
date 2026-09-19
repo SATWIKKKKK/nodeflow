@@ -95,7 +95,7 @@ export function TraceDiagram({
                   className={cn(
                     "max-w-full truncate rounded-full border px-2.5 py-1 font-mono text-[12px] leading-none transition-colors duration-300",
                     chip.changed
-                      ? "border-primary bg-primary text-primary-foreground"
+                      ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
                       : chip.isNone
                         ? "border-dashed border-blueprint-line text-blueprint-muted"
                         : "border-blueprint-line bg-card text-primary"
