@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { Caption, Scene, ACCENT, INACTIVE, INK, NODE, PAPER } from "./primitives";
+import { Caption, Scene, ACCENT, FILL, INACTIVE, INK, NODE, ON_FILL, PAPER } from "./primitives";
 import { geometry } from "./geometry";
 import { useFrames, useInView } from "./useFrames";
 
@@ -144,8 +144,8 @@ export function LanguagePills() {
             <g key={name}>
               <path
                 d={geometry.roundedRect(10, 12 + row * 26, 76, 20, 10)}
-                fill={on ? INK : PAPER}
-                stroke={on ? INK : INACTIVE}
+                fill={on ? FILL : PAPER}
+                stroke={on ? FILL : INACTIVE}
                 strokeWidth={1.4}
                 style={{ transition: "fill 400ms linear, stroke 400ms linear" }}
               />
@@ -155,7 +155,7 @@ export function LanguagePills() {
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontSize={11}
-                fill={on ? PAPER : INACTIVE}
+                fill={on ? ON_FILL : INACTIVE}
                 className="font-mono"
                 style={{ transition: "fill 400ms linear" }}
               >
@@ -202,7 +202,7 @@ export function StepLimitGlyph() {
               cx={at.x}
               cy={at.y}
               r={4.5}
-              fill={stopped ? INACTIVE : INK}
+              fill={stopped ? INACTIVE : FILL}
               style={{
                 transition: "cx 140ms linear, cy 140ms linear, fill 600ms linear"
               }}

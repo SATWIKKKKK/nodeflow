@@ -112,7 +112,7 @@ export function ChipScroller({
                   chip.base,
                   "no-lift shrink-0 hover:bg-surface-hover",
                   active && chip.active,
-                  active && "hover:bg-primary"
+                  active && "hover:bg-[var(--fill-blue-hover)]"
                 )}
                 style={{ minHeight: 0 }}
               >

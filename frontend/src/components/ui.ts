@@ -7,7 +7,7 @@ const base = "inline-flex items-center justify-center gap-2 rounded-full whitesp
 const disabled = "disabled:cursor-not-allowed disabled:opacity-45";
 
 export const button = {
-  primary: `${base} lift bg-primary px-5 py-2.5 text-ui-label text-primary-foreground shadow-[0_8px_24px_rgba(26,26,26,0.16)] hover:bg-[var(--primary-hover)] ${disabled}`,
+  primary: `${base} lift fill-blue px-5 py-2.5 text-ui-label shadow-[0_8px_24px_rgba(29,78,216,0.22)] ${disabled}`,
   hero: `${base} lift landing-primary-action px-8 py-3.5 text-ui-label shadow-[0_14px_34px_rgba(17,17,17,0.22)]`,
   outline: `${base} lift border border-blueprint-line bg-card px-6 py-3 text-ui-label text-primary hover:bg-surface-hover ${disabled}`,
   outlineSm: `${base} lift border border-blueprint-line bg-card px-5 py-2.5 text-ui-label text-primary hover:bg-surface-hover ${disabled}`,
@@ -21,7 +21,7 @@ export const button = {
 
 export const chip = {
   base: "inline-flex items-center gap-1.5 rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-ui-label text-primary",
-  active: "border-primary bg-primary text-primary-foreground",
+  active: "fill-blue border-transparent",
   small: "inline-flex items-center rounded-full border border-blueprint-line px-2.5 py-1 text-xs font-semibold leading-none"
 };
 

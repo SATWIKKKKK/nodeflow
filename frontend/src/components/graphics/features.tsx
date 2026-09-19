@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Scene, ACCENT, INACTIVE, INK, PAPER, SUCCESS } from "./primitives";
+import { Caption, Edge, Node, Scene, ACCENT, FILL, INACTIVE, INK, ON_FILL, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
 import { useLoopInView } from "./useFrames";
 
@@ -369,8 +369,8 @@ export function FaultGraphic() {
                   transition: "opacity 400ms linear"
                 }}
               >
-                <path d={geometry.roundedRect(20, 90, 82, 18, 9)} fill={yours ? INK : PAPER} stroke={yours ? INK : INACTIVE} strokeWidth={1.4} style={{ transition: "fill 400ms linear, stroke 400ms linear" }} />
-                <text x={61} y={99} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={yours ? PAPER : INACTIVE} className="font-mono" style={{ letterSpacing: "0.08em" }}>
+                <path d={geometry.roundedRect(20, 90, 82, 18, 9)} fill={yours ? FILL : PAPER} stroke={yours ? FILL : INACTIVE} strokeWidth={1.4} style={{ transition: "fill 400ms linear, stroke 400ms linear" }} />
+                <text x={61} y={99} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={yours ? ON_FILL : INACTIVE} className="font-mono" style={{ letterSpacing: "0.08em" }}>
                   YOUR CODE
                 </text>
               </g>
@@ -389,8 +389,8 @@ export function FaultGraphic() {
                   transition: "opacity 400ms linear"
                 }}
               >
-                <path d={geometry.roundedRect(178, 90, 64, 18, 9)} fill={yours ? PAPER : INK} stroke={yours ? INACTIVE : INK} strokeWidth={1.4} style={{ transition: "fill 400ms linear, stroke 400ms linear" }} />
-                <text x={210} y={99} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={yours ? INACTIVE : PAPER} className="font-mono" style={{ letterSpacing: "0.08em" }}>
+                <path d={geometry.roundedRect(178, 90, 64, 18, 9)} fill={yours ? PAPER : FILL} stroke={yours ? INACTIVE : FILL} strokeWidth={1.4} style={{ transition: "fill 400ms linear, stroke 400ms linear" }} />
+                <text x={210} y={99} textAnchor="middle" dominantBaseline="central" fontSize={9} fill={yours ? INACTIVE : ON_FILL} className="font-mono" style={{ letterSpacing: "0.08em" }}>
                   SANDBOX
                 </text>
               </g>

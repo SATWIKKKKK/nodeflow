@@ -134,7 +134,7 @@ export default function HowItWorksPage() {
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-dashed border-blueprint-line bg-card px-3 py-2.5">
                   <span className="h-5 w-5 rounded-full border border-blueprint-line" />
-                  <span className="h-5 w-5 rounded-full bg-primary" />
+                  <span className="h-5 w-5 rounded-full bg-[var(--fill-blue)]" />
                   <span className="h-5 w-5 rounded-full border border-blueprint-line" />
                   <span className="ml-2 h-px flex-1 bg-blueprint-line" />
                   <span className="text-technical-mono text-blueprint-muted">Playback</span>
@@ -153,7 +153,7 @@ export default function HowItWorksPage() {
                       key={index}
                       className={cn(
                         "mt-2 block h-1.5 rounded-full",
-                        index === 2 ? "bg-primary" : "bg-blueprint-line"
+                        index === 2 ? "bg-[var(--fill-blue)]" : "bg-blueprint-line"
                       )}
                       style={{ width: `${width}%` }}
                     />

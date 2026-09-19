@@ -98,14 +98,14 @@ export function CustomInputPanel({
             }}
             className={cn(
               "no-lift relative h-5 w-9 rounded-full border transition-colors",
-              enabled ? "border-primary bg-primary" : "border-blueprint-line bg-surface-inset"
+              enabled ? "border-transparent bg-[var(--fill-blue)]" : "border-blueprint-line bg-surface-inset"
             )}
             style={{ minHeight: 0 }}
           >
             <span
               className={cn(
                 "absolute top-0.5 h-3.5 w-3.5 rounded-full transition-[left,background-color]",
-                enabled ? "left-[18px] bg-primary-foreground" : "left-0.5 bg-blueprint-muted"
+                enabled ? "left-[18px] bg-white" : "left-0.5 bg-blueprint-muted"
               )}
             />
           </button>

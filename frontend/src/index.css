@@ -436,22 +436,23 @@
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
 }
 
+/* Every solid control is blue, in both themes. */
+@utility fill-blue {
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
+
+  &:hover {
+    background: var(--fill-blue-hover);
+  }
+}
+
 .landing-primary-action {
-  background: #111111;
-  color: #ffffff;
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
 }
 
 .landing-primary-action:hover {
-  background: #303031;
-}
-
-.dark .landing-primary-action {
-  background: #f3ecec;
-  color: #111111;
-}
-
-.dark .landing-primary-action:hover {
-  background: #e9dddd;
+  background: var(--fill-blue-hover);
 }
 
 .landing-cta-panel {
@@ -463,13 +464,14 @@
 }
 
 .landing-cta-button {
-  border-color: #ffffff;
-  background: #ffffff;
-  color: #111111;
+  border-color: #2f6fe0;
+  background: #2f6fe0;
+  color: #ffffff;
 }
 
 .landing-cta-button:hover {
-  background: #f5f3f3;
+  background: #4581ee;
+  border-color: #4581ee;
 }
 
 .check-icon {
@@ -489,7 +491,7 @@
 }
 
 .language-tag {
-  background: #123d8a;
+  background: var(--fill-blue);
   color: #ffffff;
   border-color: rgba(147, 197, 253, 0.35);
 }
@@ -643,6 +645,9 @@
   /* The default weight for a drawn circle: blue, but never as strong as the
      accent, which still has to stand out as "this just changed". */
   --graphics-node: #2f6fe0;
+  --fill-blue: #1d4ed8;
+  --fill-blue-hover: #1a44bd;
+  --fill-blue-text: #ffffff;
   --graphics-grid: rgba(17, 17, 17, 0.055);
   --graphics-success: #15803d;
 }
@@ -653,6 +658,9 @@
   --graphics-inactive: #4a4644;
   --graphics-accent: #9ecbff;
   --graphics-node: #6fa8e8;
+  --fill-blue: #2f6fe0;
+  --fill-blue-hover: #4581ee;
+  --fill-blue-text: #ffffff;
   --graphics-grid: rgba(255, 255, 255, 0.05);
   --graphics-success: #4ade80;
 }

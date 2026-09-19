@@ -20,6 +20,9 @@ export const ACCENT = "var(--graphics-accent)";
 export const INACTIVE = "var(--graphics-inactive)";
 /** The default weight for a drawn circle. */
 export const NODE = "var(--graphics-node)";
+/** A solid blue surface, and the colour of anything sitting on it. */
+export const FILL = "var(--fill-blue)";
+export const ON_FILL = "var(--fill-blue-text)";
 /** Verdict green. Not a tone: only a passing result ever wears it. */
 export const SUCCESS = "var(--graphics-success)";
 
@@ -321,7 +324,7 @@ export function PointerPill({
           y1={height}
           x2={0}
           y2={height + stem}
-          stroke={active ? INK : INACTIVE}
+          stroke={active ? FILL : INACTIVE}
           strokeWidth={1.5}
           strokeLinecap="round"
           style={swap}
@@ -333,8 +336,8 @@ export function PointerPill({
         width={width}
         height={height}
         rx={height / 2}
-        fill={active ? INK : PAPER}
-        stroke={active ? INK : INACTIVE}
+        fill={active ? FILL : PAPER}
+        stroke={active ? FILL : INACTIVE}
         strokeWidth={1.4}
         style={swap}
       />
@@ -344,7 +347,7 @@ export function PointerPill({
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={fontSize}
-        fill={active ? PAPER : INK}
+        fill={active ? ON_FILL : INK}
         className="font-mono"
         style={swap}
       >

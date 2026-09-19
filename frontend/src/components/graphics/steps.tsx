@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Null, Scene, ACCENT, INACTIVE, INK, NODE, PAPER, SUCCESS } from "./primitives";
+import { Caption, Edge, Node, Null, Scene, ACCENT, FILL, INACTIVE, INK, NODE, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
 import { useFrames, useInView } from "./useFrames";
 
@@ -127,7 +127,7 @@ export function RunScene() {
               cx={dx}
               cy={dy}
               r={5}
-              fill={INK}
+              fill={FILL}
               style={{ transition: "cx 420ms cubic-bezier(.2,.8,.2,1), cy 420ms cubic-bezier(.2,.8,.2,1)" }}
             />
 
@@ -292,8 +292,8 @@ export function ReplayScene() {
                 transition: "transform 400ms cubic-bezier(.2,.8,.2,1)"
               }}
             >
-              <rect x={-8} y={78} width={16} height={12} rx={6} fill={INK} />
-              <path d="M 0 90 V 95" stroke={INK} strokeWidth={1.4} strokeLinecap="round" />
+              <rect x={-8} y={78} width={16} height={12} rx={6} fill={FILL} />
+              <path d="M 0 90 V 95" stroke={FILL} strokeWidth={1.4} strokeLinecap="round" />
             </g>
           </>
         );
