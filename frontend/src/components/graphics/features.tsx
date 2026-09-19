@@ -221,7 +221,7 @@ export function PreviewGraphic() {
       {(index) => {
         const typed = PREVIEW_LINE.slice(0, Math.min(index * 3, PREVIEW_LINE.length));
         const stale = index > 0 && index < 5;
-        const tone = stale ? "inactive" : "ink";
+        const tone = stale ? "inactive" : "node";
 
         return (
           <>
@@ -276,7 +276,7 @@ const GRAPH_NODES: Array<[number, number]> = [
 ];
 
 function MiniGraph({ cx, cy, dim, changedEdge }: { cx: number; cy: number; dim: boolean; changedEdge: boolean }) {
-  const tone = dim ? "inactive" : "ink";
+  const tone = dim ? "inactive" : "node";
   const at = (i: number) => [cx + GRAPH_NODES[i][0], cy + GRAPH_NODES[i][1]] as const;
   const link = (a: number, b: number) => {
     const [x1, y1] = at(a);

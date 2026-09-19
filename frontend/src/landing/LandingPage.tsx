@@ -1,10 +1,11 @@
-import { useMemo, type ComponentType, type ReactNode } from "react";
+import { useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
   Check,
+  ChevronDown,
   Layers3,
   ListChecks,
   RefreshCw,
@@ -29,6 +30,7 @@ import {
 import { useProblems } from "../lib/problems";
 import { cn } from "../lib/cn";
 import { TraceReplay } from "./TraceReplay";
+import { AskAnything } from "./AskAnything";
 
 // Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
 const STEP_LIMIT = 4000;
@@ -88,6 +90,56 @@ const features: Array<{ icon: LucideIcon; title: string; body: string }> = [
     body: "An exception in your code and a problem with the sandbox are reported differently, so you never chase the wrong one."
   }
 ];
+
+const faqs: Array<{ q: string; a: string }> = [
+  {
+    q: "Do I need an account?",
+    a: "No. You can run, test and submit without one. Create an account when you want your submissions and progress kept under your name."
+  },
+  {
+    q: "Which languages can I use?",
+    a: "Python, C++ and Java. All three run in the sandbox, are judged against the same tests, and produce the same step-by-step visual trace."
+  },
+  {
+    q: "Is it safe to run my code?",
+    a: "Every run gets its own container with no network, one CPU, a memory cap, a read-only filesystem and no extra privileges. The container is deleted when the run ends."
+  }
+];
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-blueprint-line bg-card shadow-[0_10px_26px_rgba(0,0,0,0.06)]">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        className="no-lift flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
+      >
+        <span className="text-body-lg font-semibold text-primary">{q}</span>
+        <ChevronDown
+          size={18}
+          aria-hidden
+          className={cn("shrink-0 text-blueprint-muted transition-transform duration-300", open && "rotate-180")}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <p className="-mt-2 px-5 pb-5 text-body-md text-blueprint-muted">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function Section({
   children,
@@ -209,7 +261,7 @@ export default function LandingPage() {
           <SectionHeading
             title={
               <>
-                This is what your code <em className="italic">did</em>, not what a script says it should.
+                This is what your code <em className="hero-accent italic">did</em>, not what a script says it should.
               </>
             }
             lead="A recording of reverse_list running on [1, 2, 3, 4] in the Noesis tracer, on a loop. Every arrow and label is drawn from the heap the tracer captured at that line."
@@ -323,6 +375,21 @@ export default function LandingPage() {
         </motion.div>
       </Section>
 
+      <Section ruled>
+        <motion.div {...reveal} className="grid gap-8 lg:grid-cols-[0.7fr_1fr]">
+          <SectionHeading
+            title="Before you start."
+            lead="The short answers. Anything else, ask below and the assistant will answer it."
+          />
+          <div className="grid content-start gap-3">
+            {faqs.map((faq) => (
+              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+            <AskAnything />
+          </div>
+        </motion.div>
+      </Section>
+
       <Section>
         <motion.div
           {...reveal}
@@ -331,7 +398,7 @@ export default function LandingPage() {
           <div className="max-w-2xl">
             <p className="text-ui-label text-white/60">Start here</p>
             <h2 className="mt-3 text-balance text-cta">
-              Open a problem. Press <em className="italic">Run</em>.
+              Open a problem. Press <em className="hero-accent italic">Run</em>.
             </h2>
             <p className="mt-4 text-body-lg text-white/70">
               Begin with reversing a linked list. It is the problem from the replay above, so you already know

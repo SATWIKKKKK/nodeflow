@@ -74,6 +74,7 @@ export function LogoDrawIn({
             cx={cx}
             cy={cy}
             r={22}
+            stroke="var(--graphics-node)"
             initial={reduced ? false : { scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             style={{ transformOrigin: `${cx}px ${cy}px` }}
@@ -88,7 +89,7 @@ export function LogoDrawIn({
         {/* The one filled node: "you are here", walking the N. */}
         <motion.circle
           r={22}
-          fill="var(--graphics-ink)"
+          fill="var(--graphics-node)"
           initial={reduced ? false : { cx: walk[0], cy: walkY[0], opacity: 0 }}
           animate={
             reduced

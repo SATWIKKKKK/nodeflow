@@ -622,6 +622,11 @@
   color: #9ecbff;
 }
 
+/* The CTA panel is black whatever the theme, so the accent takes its on-dark value. */
+.landing-cta-panel .hero-accent {
+  color: #9ecbff;
+}
+
 /* ---------- Marketing illustrations (components/graphics) ---------- */
 
 /*
@@ -635,6 +640,9 @@
   --graphics-ink: #111111;
   --graphics-inactive: #c9c6c4;
   --graphics-accent: #1d4ed8;
+  /* The default weight for a drawn circle: blue, but never as strong as the
+     accent, which still has to stand out as "this just changed". */
+  --graphics-node: #2f6fe0;
   --graphics-grid: rgba(17, 17, 17, 0.055);
   --graphics-success: #15803d;
 }
@@ -644,6 +652,7 @@
   --graphics-ink: #ece8e8;
   --graphics-inactive: #4a4644;
   --graphics-accent: #9ecbff;
+  --graphics-node: #6fa8e8;
   --graphics-grid: rgba(255, 255, 255, 0.05);
   --graphics-success: #4ade80;
 }
@@ -654,6 +663,7 @@
   --graphics-ink: #f3ecec;
   --graphics-inactive: #3a3a3a;
   --graphics-accent: #9ecbff;
+  --graphics-node: #6fa8e8;
   --graphics-grid: rgba(243, 236, 236, 0.05);
 }
 

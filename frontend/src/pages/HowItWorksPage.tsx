@@ -1,31 +1,27 @@
 import { NavLink } from "react-router-dom";
-import { ArrowRight, Check, Clock3, FlaskConical, ListChecks, MousePointerClick, ShieldCheck, Terminal } from "lucide-react";
+import { ArrowRight, Check, Clock3, ListChecks } from "lucide-react";
 import { SectionHeading } from "../components/SectionHeading";
 import { RunScene, SubmitScene, TestScene, WriteScene } from "../components/graphics";
-import { button, container, stepIcon } from "../components/ui";
+import { button, container } from "../components/ui";
 import { cn } from "../lib/cn";
 
 const loop = [
   {
-    icon: MousePointerClick,
     scene: WriteScene,
     title: "Pick a problem",
     body: "Filter the bank by topic and difficulty. The workspace opens with a starter function and the problem's own input ready to go."
   },
   {
-    icon: Terminal,
     scene: RunScene,
     title: "Run it",
     body: "See the return value, anything you printed, and a replay of every line. Nothing is judged yet, so this is where you experiment."
   },
   {
-    icon: FlaskConical,
     scene: TestScene,
     title: "Test it",
     body: "Run the visible cases. When one fails, compare the expected output with yours, then step through a run to see where your pointers go."
   },
   {
-    icon: ShieldCheck,
     scene: SubmitScene,
     title: "Submit it",
     body: "Judge against every case, hidden ones included. The verdict goes on your record and into your dashboard."
@@ -80,29 +76,20 @@ export default function HowItWorksPage() {
             eyebrow="How it works"
             title={
               <>
-                From a problem to the <em className="italic">pattern</em> behind it.
+                From a problem to the <em className="hero-accent italic">pattern</em> behind it.
               </>
             }
             lead="Noesis is built around one loop: write a solution, watch it run, and fix what the replay shows you."
           />
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {loop.map((step, index) => {
-              const Icon = step.icon;
+            {loop.map((step) => {
               const Scene = step.scene;
               return (
                 <li key={step.title} className="border-l border-blueprint-line pl-5">
                   <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
                     <Scene />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={stepIcon}>
-                      <Icon size={18} aria-hidden />
-                    </span>
-                    <span className="text-technical-mono text-blueprint-muted">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h2 className="mt-5 text-headline-sm text-primary">{step.title}</h2>
+                  <h2 className="text-headline-sm text-primary">{step.title}</h2>
                   <p className="mt-3 text-body-md text-blueprint-muted">{step.body}</p>
                 </li>
               );

@@ -21,6 +21,7 @@ import {
 } from "./classrooms/store.js";
 import { queueSnapshot } from "./execution/queue.js";
 import { progressForUser } from "./progress/summary.js";
+import { AskError, MAX_QUESTION, answerQuestion, askEnabled, withinRateLimit } from "./ask/deepseek.js";
 
 export const app = express();
 
@@ -88,8 +89,51 @@ app.get("/api/health", (_request, response) => {
     sandbox: sandboxEnabled,
     accounts: accountsEnabled,
     emails: emailsEnabled(),
+    ask: askEnabled(),
     queue: queueSnapshot()
   });
+});
+
+const askSchema = z.object({
+  question: z.string().trim().min(3).max(MAX_QUESTION)
+});
+
+/**
+ * One visitor question, answered by DeepSeek. Public and metered: see
+ * ask/deepseek.ts for the bounds. The key never leaves the server.
+ */
+app.post("/api/ask", async (request, response) => {
+  const parsed = askSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({
+      message: `Ask a question between 3 and ${MAX_QUESTION} characters.`
+    });
+    return;
+  }
+
+  if (!askEnabled()) {
+    response.status(503).json({ message: "Questions are not enabled on this deployment." });
+    return;
+  }
+
+  const caller = String(
+    request.headers["x-forwarded-for"] ?? request.socket.remoteAddress ?? "unknown"
+  ).split(",")[0].trim();
+
+  if (!withinRateLimit(caller)) {
+    response.status(429).json({ message: "That is a lot of questions. Try again in a few minutes." });
+    return;
+  }
+
+  try {
+    response.json({ answer: await answerQuestion(parsed.data.question) });
+  } catch (error) {
+    if (error instanceof AskError) {
+      response.status(error.status).json({ message: error.message });
+      return;
+    }
+    response.status(502).json({ message: "The assistant is unreachable right now." });
+  }
 });
 
 app.get("/api/dsa-summary", (_request, response) => {

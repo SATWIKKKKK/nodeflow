@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Caption, Edge, Node, Null, Scene, ACCENT, INACTIVE, INK, PAPER, SUCCESS } from "./primitives";
+import { Caption, Edge, Node, Null, Scene, ACCENT, INACTIVE, INK, NODE, PAPER, SUCCESS } from "./primitives";
 import { geometry } from "./geometry";
 import { useFrames, useInView } from "./useFrames";
 
@@ -191,7 +191,7 @@ export function TraceScene() {
                       cy={y + 8}
                       r={5}
                       fill={PAPER}
-                      stroke={row === index - 1 ? INK : INACTIVE}
+                      stroke={row === index - 1 ? NODE : INACTIVE}
                       strokeWidth={1.3}
                       style={{ transition: "stroke 600ms linear" }}
                     />
@@ -440,7 +440,7 @@ export function DiffScene() {
               />
               {DIAMOND.map((_, i) => {
                 const [x, y] = at(i);
-                return <Node key={i} x={x} y={y} r={7} tone={dim ? "inactive" : "ink"} strokeWidth={1.6} />;
+                return <Node key={i} x={x} y={y} r={7} tone={dim ? "inactive" : "node"} strokeWidth={1.6} />;
               })}
             </g>
           );

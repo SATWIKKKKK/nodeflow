@@ -45,7 +45,7 @@ export default function PricingPage() {
           eyebrow="Pricing"
           title={
             <>
-              Free while the core gets <em className="italic">proven</em>.
+              Free while the core gets <em className="hero-accent italic">proven</em>.
             </>
           }
           lead="Everything Noesis does today is free, classrooms included. Paid plans for larger courses and teams are on the roadmap, and their prices have not been decided."

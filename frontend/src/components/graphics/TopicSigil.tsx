@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { Scene, INACTIVE, INK, PAPER } from "./primitives";
+import { Scene, INACTIVE, INK, NODE, PAPER } from "./primitives";
 import { geometry } from "./geometry";
 
 /**
@@ -18,7 +18,7 @@ const STROKE = 2;
 
 /** An open circle. */
 function N({ x, y, r = R, filled = false }: { x: number; y: number; r?: number; filled?: boolean }) {
-  return <circle cx={x} cy={y} r={r} fill={filled ? INK : PAPER} stroke={INK} strokeWidth={STROKE} />;
+  return <circle cx={x} cy={y} r={r} fill={filled ? NODE : PAPER} stroke={NODE} strokeWidth={STROKE} />;
 }
 
 /** A plain connector. */

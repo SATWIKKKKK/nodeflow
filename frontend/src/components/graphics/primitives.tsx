@@ -12,18 +12,25 @@ import { geometry } from "./geometry";
  * in index.css, so light, dark and the inverted CTA panel all work unchanged.
  */
 
-export type Tone = "ink" | "accent" | "inactive";
+export type Tone = "ink" | "accent" | "inactive" | "node";
 
 export const PAPER = "var(--graphics-paper)";
 export const INK = "var(--graphics-ink)";
 export const ACCENT = "var(--graphics-accent)";
 export const INACTIVE = "var(--graphics-inactive)";
+/** The default weight for a drawn circle. */
+export const NODE = "var(--graphics-node)";
 /** Verdict green. Not a tone: only a passing result ever wears it. */
 export const SUCCESS = "var(--graphics-success)";
 
-export const toneColor: Record<Tone, string> = { ink: INK, accent: ACCENT, inactive: INACTIVE };
+export const toneColor: Record<Tone, string> = {
+  ink: INK,
+  accent: ACCENT,
+  inactive: INACTIVE,
+  node: NODE
+};
 
-const TONES: Tone[] = ["ink", "accent", "inactive"];
+const TONES: Tone[] = ["ink", "accent", "inactive", "node"];
 
 /** Marker ids must be unique per mounted scene, so children read the scene's id. */
 const SceneContext = createContext("nf");
@@ -125,7 +132,7 @@ export function Node({
   y,
   r = geometry.radius,
   value,
-  tone = "ink",
+  tone = "node",
   filled = false,
   changed = false,
   fontSize,

@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { Caption, Scene, ACCENT, INACTIVE, INK, PAPER } from "./primitives";
+import { Caption, Scene, ACCENT, INACTIVE, INK, NODE, PAPER } from "./primitives";
 import { geometry } from "./geometry";
 import { useFrames, useInView } from "./useFrames";
 
@@ -65,7 +65,7 @@ export function ProblemDots({ total }: { total: number }) {
             cx={dot.x}
             cy={dot.y}
             r={dot.r}
-            fill={dot.wave <= index ? INK : INACTIVE}
+            fill={dot.wave <= index ? NODE : INACTIVE}
             style={{ transition: "fill 420ms linear" }}
           />
         ))
@@ -123,7 +123,7 @@ export function StructureGraph({ total }: { total: number }) {
           />
         ))}
         {nodes.map((node, i) => (
-          <circle key={i} cx={node.x} cy={node.y} r={2.1} fill={PAPER} stroke={INK} strokeWidth={1} />
+          <circle key={i} cx={node.x} cy={node.y} r={2.1} fill={PAPER} stroke={NODE} strokeWidth={1} />
         ))}
       </Scene>
     </div>

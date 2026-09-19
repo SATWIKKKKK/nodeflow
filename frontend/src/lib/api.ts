@@ -43,7 +43,9 @@ export interface DsaSummary {
 }
 
 export const api = {
-  health: () => request<{ ok: boolean; sandbox?: boolean; accounts?: boolean; emails?: boolean }>("/api/health"),
+  health: () => request<{ ok: boolean; sandbox?: boolean; accounts?: boolean; emails?: boolean; ask?: boolean }>(
+      "/api/health"
+    ),
   problems: () => request<ProblemSummary[]>("/api/problems"),
   problem: (id: string) => request<PublicProblem>(`/api/problems/${encodeURIComponent(id)}`),
   dsaSummary: () => request<DsaSummary>("/api/dsa-summary"),
@@ -80,6 +82,13 @@ export const api = {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify({ problemId, input }),
+      signal
+    }),
+  ask: (question: string, signal?: AbortSignal) =>
+    request<{ answer: string }>("/api/ask", {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ question }),
       signal
     }),
   test: (problemId: string, code: string, language: Language = "python") =>

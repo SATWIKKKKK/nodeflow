@@ -21,10 +21,12 @@ export function LogoMark({ className }: { className?: string }) {
       className={cn("h-8 w-auto", className)}
     >
       <path d="M96 294V106M110.7 100.4 289.3 299.6M304 294V106" />
-      <circle cx="96" cy="316" r="22" />
-      <circle cx="96" cy="84" r="22" />
-      <circle cx="304" cy="316" r="22" />
-      <circle cx="304" cy="84" r="22" fill="currentColor" />
+      <g stroke="var(--graphics-node)">
+        <circle cx="96" cy="316" r="22" />
+        <circle cx="96" cy="84" r="22" />
+        <circle cx="304" cy="316" r="22" />
+        <circle cx="304" cy="84" r="22" fill="var(--graphics-node)" />
+      </g>
     </svg>
   );
 }
