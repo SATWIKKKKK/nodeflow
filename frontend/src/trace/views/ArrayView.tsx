@@ -12,7 +12,7 @@ function Pointers({ pointers }: { pointers: PointerModel[] }) {
   if (!pointers.length) return <span className="h-4" />;
   return (
     <span className="flex flex-col items-center gap-0.5">
-      <svg width="8" height="6" viewBox="0 0 8 6" aria-hidden className="text-blueprint-muted">
+      <svg width="8" height="6" viewBox="0 0 8 6" aria-hidden className="text-[var(--graphics-inactive)]">
         <path d="M4 0 L8 6 L0 6 Z" fill="currentColor" />
       </svg>
       {pointers.map((pointer) => (

@@ -13,7 +13,7 @@ export function ArrowMarkers() {
         markerWidth="7"
         markerHeight="7"
         orient="auto-start-reverse"
-        className="text-primary"
+        className="text-[var(--graphics-node)]"
       >
         <path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="currentColor" strokeWidth="1.6" />
       </marker>
@@ -25,7 +25,7 @@ export function ArrowMarkers() {
         markerWidth="7"
         markerHeight="7"
         orient="auto-start-reverse"
-        className="text-blueprint-muted"
+        className="text-[var(--graphics-inactive)]"
       >
         <path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="currentColor" strokeWidth="1.6" />
       </marker>

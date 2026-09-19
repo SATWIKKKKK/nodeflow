@@ -109,7 +109,7 @@ export function ListView({ view }: { view: ListViewModel }) {
                 strokeLinecap="round"
                 markerEnd={to ? (edge.changed ? "url(#nf-arrow-strong)" : "url(#nf-arrow-soft)") : undefined}
                 className={cn(
-                  edge.changed ? "text-primary" : "text-blueprint-muted",
+                  edge.changed ? "text-[var(--graphics-node)]" : "text-[var(--graphics-inactive)]",
                   dashed && !edge.changed && "opacity-70"
                 )}
                 initial={{ pathLength: 0, opacity: 0 }}
