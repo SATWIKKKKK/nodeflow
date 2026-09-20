@@ -8,7 +8,7 @@
  */
 
 const ENDPOINT = "https://api.deepseek.com/chat/completions";
-const MODEL = "deepseek-chat";
+const MODEL = "deepseek-reasoner";
 
 export const MAX_QUESTION = 400;
 const MAX_ANSWER_TOKENS = 400;
