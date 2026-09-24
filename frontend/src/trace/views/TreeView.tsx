@@ -66,19 +66,60 @@ export function TreeView({ view }: { view: TreeViewModel }) {
                 >
                   <circle
                     r={RADIUS}
-                    strokeWidth={1.75}
-                    className={cn("stroke-[var(--graphics-node)] transition-[fill] duration-300", node.changed ? "fill-[var(--fill-blue)]" : "fill-card")}
+                    strokeWidth={node.comparing ? 2.25 : 1.75}
+                    className={cn(
+                      "transition-[fill] duration-300",
+                      node.comparing
+                        ? "fill-[var(--compare-soft)] stroke-[var(--compare)]"
+                        : node.changed
+                          ? "fill-[var(--fill-blue)] stroke-[var(--graphics-node)]"
+                          : node.reading
+                            ? "fill-card stroke-[var(--fill-blue)]"
+                            : "fill-card stroke-[var(--graphics-node)]"
+                    )}
                   />
                   <text
                     y={4.5}
                     textAnchor="middle"
                     className={cn(
                       "font-mono text-[13px] font-medium transition-[fill] duration-300",
-                      node.changed ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]"
+                      node.comparing
+                        ? "fill-[var(--compare-text)]"
+                        : node.changed
+                          ? "fill-[var(--fill-blue-text)]"
+                          : "fill-[var(--graphics-node)]"
                     )}
                   >
                     {node.label.length > 4 ? `${node.label.slice(0, 3)}…` : node.label}
                   </text>
+                  {node.visit !== undefined && (
+                    // Persists once set, so the finished order reads at a glance
+                    // rather than only ever showing the current node.
+                    <g transform={`translate(${RADIUS - 3} ${-RADIUS + 1})`}>
+                      <circle r={8} className="fill-[var(--fill-blue)]" />
+                      <text
+                        y={3}
+                        textAnchor="middle"
+                        className="fill-[var(--fill-blue-text)] font-mono text-[9px]"
+                      >
+                        {node.visit}
+                      </text>
+                    </g>
+                  )}
+                  {node.meta && (
+                    // Haloed in the card colour so it stays readable where an
+                    // edge passes underneath it.
+                    <text
+                      y={RADIUS + 13}
+                      textAnchor="middle"
+                      paintOrder="stroke"
+                      stroke="var(--card)"
+                      strokeWidth={4}
+                      className="fill-blueprint-muted font-mono text-[9.5px]"
+                    >
+                      {node.meta}
+                    </text>
+                  )}
                   <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
                 </motion.g>
               </g>

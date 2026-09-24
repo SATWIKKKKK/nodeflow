@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { ListEdgeModel, ListNodeModel, ListViewModel } from "../model";
 import { ArrowMarkers } from "./ArrowMarkers";
-import { PointerTags } from "./PointerTags";
+import { tagMetrics, TravellingTags, type TravellingTag } from "./PointerTags";
 import { placeAt } from "./placeAt";
 
 /**
@@ -77,13 +77,31 @@ function edgePath(edge: ListEdgeModel, from: ListNodeModel, to: ListNodeModel | 
 export function ListView({ view }: { view: ListViewModel }) {
   const byId = new Map(view.nodes.map((node) => [node.id, node]));
   const doubly = view.edges.some((edge) => edge.field === "prev");
+
+  // Every pointer in the figure, placed above the node it names. Stacking runs
+  // upward so a node carrying several pointers reads bottom-to-top.
+  const tagLayer: TravellingTag[] = [];
+  for (const node of view.nodes) {
+    node.tags.slice(0, 4).forEach((tag, level) => {
+      tagLayer.push({
+        name: tag.name,
+        changed: tag.changed,
+        x: cx(node),
+        y: cy(node) - RADIUS - 8 - tagMetrics.height - level * (tagMetrics.height + tagMetrics.gap),
+        level
+      });
+    });
+  }
   const width = Math.max(1, view.cols) * SPACING + PAD_X * 2 - SPACING + 40;
-  const height = Math.max(1, view.rows) * ROW_HEIGHT;
+  // A node carrying three or more pointers stacks them above the top of the
+  // row, so the viewBox has to grow upward or the highest pill is cut off.
+  const top = Math.min(0, ...tagLayer.map((tag) => tag.y - 4));
+  const height = Math.max(1, view.rows) * ROW_HEIGHT - top;
 
   return (
     <div className="overflow-x-auto">
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 ${top} ${width} ${height}`}
         role="img"
         aria-label={`Linked list: ${view.nodes.map((node) => node.label).join(", ")}`}
         className="h-auto text-primary"
@@ -133,23 +151,41 @@ export function ListView({ view }: { view: ListViewModel }) {
               >
                 <circle
                   r={RADIUS}
-                  strokeWidth={1.75}
-                  className={cn("stroke-[var(--graphics-node)] transition-[fill] duration-300", node.changed ? "fill-[var(--fill-blue)]" : "fill-card")}
+                  strokeWidth={node.comparing ? 2.25 : 1.75}
+                  className={cn(
+                    "transition-[fill] duration-300",
+                    node.comparing
+                      ? "fill-[var(--compare-soft)] stroke-[var(--compare)]"
+                      : node.changed
+                        ? "fill-[var(--fill-blue)] stroke-[var(--graphics-node)]"
+                        : node.reading
+                          ? "fill-card stroke-[var(--fill-blue)]"
+                          : "fill-card stroke-[var(--graphics-node)]"
+                  )}
                 />
                 <text
                   y={5}
                   textAnchor="middle"
                   className={cn(
                     "font-mono text-[14px] font-medium transition-[fill] duration-300",
-                    node.changed ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]"
+                    node.comparing
+                      ? "fill-[var(--compare-text)]"
+                      : node.changed
+                        ? "fill-[var(--fill-blue-text)]"
+                        : "fill-[var(--graphics-node)]"
                   )}
                 >
                   {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
                 </text>
-                <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
               </motion.g>
             </g>
           ))}
+        </AnimatePresence>
+
+        {/* Drawn last, and outside the node groups, so a pointer can travel
+            between nodes rather than disappearing from one to reappear on another. */}
+        <AnimatePresence initial={false}>
+          <TravellingTags tags={tagLayer} />
         </AnimatePresence>
       </svg>
     </div>

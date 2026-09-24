@@ -19,6 +19,19 @@
 
   --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out var(--delay, 0ms) 1 none;
 
+  /* The colour lands first, then the number: the eye registers "this cell is
+     active" before "here is what it now holds". */
+  @keyframes value-commit {
+    0% {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @keyframes cell-ripple {
     0% {
       opacity: 0.4;
@@ -455,23 +468,68 @@
   background: var(--fill-blue-hover);
 }
 
+/* The closing panel follows the page: paper in light mode, ink in dark. */
 .landing-cta-panel {
-  border: 1px solid #f3ecec;
-  background: #050505;
-  color: #ffffff;
-  outline: 1px solid rgba(243, 236, 236, 0.86);
+  border: 1px solid var(--color-blueprint-line);
+  background: var(--card);
+  color: var(--foreground);
+  outline: 1px solid var(--color-blueprint-line);
   outline-offset: 3px;
 }
 
+.dark .landing-cta-panel {
+  border-color: #f3ecec;
+  background: #050505;
+  color: #ffffff;
+  outline-color: rgba(243, 236, 236, 0.86);
+}
+
+.landing-cta-muted {
+  color: var(--muted-foreground);
+}
+
+.dark .landing-cta-muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .landing-cta-button {
-  border-color: #9ecbff;
-  background: #9ecbff;
-  color: #0a1728;
+  border-color: var(--fill-blue);
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
 }
 
 .landing-cta-button:hover {
-  background: #bcdcff;
-  border-color: #bcdcff;
+  background: var(--fill-blue-hover);
+  border-color: var(--fill-blue-hover);
+}
+
+.landing-cta-secondary {
+  border-color: var(--color-blueprint-line);
+  color: var(--foreground);
+}
+
+.landing-cta-secondary:hover {
+  background: var(--surface-hover);
+}
+
+.dark .landing-cta-secondary {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.dark .landing-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.value-commit {
+  animation: value-commit 240ms ease 110ms both;
+}
+
+/* What a rewritten cell held a moment ago, so reuse in place is visible. */
+.value-was {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  opacity: 0.75;
 }
 
 .check-icon {
@@ -617,15 +675,10 @@
 
 /* Hero accent: the Python tag's deep blue in light mode, its light-blue edge in dark mode. */
 .hero-accent {
-  color: #1d4ed8;
+  color: #2d58bc;
 }
 
 .dark .hero-accent {
-  color: #9ecbff;
-}
-
-/* The CTA panel is black whatever the theme, so the accent takes its on-dark value. */
-.landing-cta-panel .hero-accent {
   color: #9ecbff;
 }
 
@@ -641,15 +694,28 @@
   --graphics-paper: #faf8f7;
   --graphics-ink: #111111;
   --graphics-inactive: #c9c6c4;
-  --graphics-accent: #1d4ed8;
+  --graphics-accent: #2d58bc;
   /* The default weight for a drawn circle: blue, but never as strong as the
      accent, which still has to stand out as "this just changed". */
-  --graphics-node: #2f6fe0;
-  --fill-blue: #1d4ed8;
-  --fill-blue-hover: #1a44bd;
+  --graphics-node: #2d58bc;
+  --fill-blue: #2d58bc;
+  --fill-blue-hover: #28499f;
   --fill-blue-text: #ffffff;
+  /* "Being weighed", which must never read as "was written". */
+  --compare: #b45309;
+  --compare-soft: #fdf2d8;
+  --compare-text: #7c2d12;
+  /* The one categorical set in the system: component identity, never meaning.
+     Spent on strokes only, so the accent keeps its job as "this changed".
+     Chosen to separate by lightness as well as hue. */
+  --component-0: #2d58bc;
+  --component-1: #b45309;
+  --component-2: #0f766e;
+  --component-3: #7c3aed;
+  --component-4: #be123c;
+  --component-5: #475569;
   --graphics-grid: rgba(17, 17, 17, 0.055);
-  --graphics-success: #1d4ed8;
+  --graphics-success: #2d58bc;
 }
 
 .dark {
@@ -661,6 +727,15 @@
   --fill-blue: #9ecbff;
   --fill-blue-hover: #bcdcff;
   --fill-blue-text: #0a1728;
+  --compare: #f0b429;
+  --compare-soft: #3a2a0d;
+  --compare-text: #ffe4b5;
+  --component-0: #9ecbff;
+  --component-1: #f0b429;
+  --component-2: #5eead4;
+  --component-3: #c4b5fd;
+  --component-4: #fda4af;
+  --component-5: #cbd5e1;
   --graphics-grid: rgba(255, 255, 255, 0.05);
   --graphics-success: #9ecbff;
 }

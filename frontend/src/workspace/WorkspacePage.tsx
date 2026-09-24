@@ -59,7 +59,7 @@ import {
   writeDraft,
   writeLanguage
 } from "./persist";
-import { baseNodeId, buildLineIndex, buildSceneGraph } from "./scene/graph";
+import { baseNodeId, buildLineIndex, buildSceneGraph, buildSceneLayout } from "./scene/graph";
 
 // three.js is ~1MB. Splitting it out lets the editor, problem header and
 // transport paint immediately instead of waiting on the renderer to download.
@@ -89,9 +89,9 @@ const readSceneMode = (): SceneMode => {
 };
 
 /** Tracers send heap deltas; the replay needs full heaps and per-step diffs. */
-const toTraceState = (response: ExecutionResponse): TraceState => {
+const toTraceState = (response: ExecutionResponse, source: string): TraceState => {
   const trace = expandTrace(response.trace ?? [], response.heapMode);
-  return { trace, diffs: computeDiffs(trace) };
+  return { trace, diffs: computeDiffs(trace), source };
 };
 
 /** Backend verdicts that mean "your code never terminated". */
@@ -100,6 +100,8 @@ const LOOP_ERRORS = new Set(["Execution Limit", "Time Limit Exceeded"]);
 interface TraceState {
   trace: TraceStep[];
   diffs: TraceDiff[];
+  /** The code that produced this trace, which mid-edit is not the editor's. */
+  source: string;
 }
 
 interface PreviewJob {
@@ -118,7 +120,7 @@ interface CustomCheck {
   pending: boolean;
 }
 
-const EMPTY_TRACE: TraceState = { trace: [], diffs: [] };
+const EMPTY_TRACE: TraceState = { trace: [], diffs: [], source: "" };
 
 const show = (value: unknown) => JSON.stringify(value);
 
@@ -258,6 +260,8 @@ export default function WorkspacePage() {
   const ownerRef = useRef("");
   const lastPreviewKey = useRef("");
   const lastTraceJson = useRef("");
+  /** Set once the learner drives the cursor themselves, so previews stop moving it. */
+  const userScrubbed = useRef(false);
   const problemId = problem?.id ?? "";
   const editorOwner = `${problemId}:${language}`;
   const code = editor.code;
@@ -350,7 +354,7 @@ export default function WorkspacePage() {
   // --- traces ---------------------------------------------------------------
 
   /** Applies an execution result, preserving the last good trace on failure. */
-  const applyExecution = useCallback((response: ExecutionResponse, fromPreview: boolean) => {
+  const applyExecution = useCallback((response: ExecutionResponse, fromPreview: boolean, source: string) => {
     // A quiet preview failure must not replace a real run's output.
     if (!fromPreview || response.ok) setExecution(response);
 
@@ -361,12 +365,19 @@ export default function WorkspacePage() {
       const same = fromPreview && json === lastTraceJson.current;
       lastTraceJson.current = json;
       if (!same) {
-        const next = toTraceState(response);
+        const next = toTraceState(response, source);
+        const last = Math.max(0, next.trace.length - 1);
         setTraceState(next);
         // A preview shows where the code has got to; a Run replays from the top.
-        setIndex(fromPreview ? Math.max(0, next.trace.length - 1) : 0);
+        // Once the learner is stepping through themselves, keeping their place
+        // matters more than following the edit, so previews only clamp it.
+        setIndex((current) => {
+          if (!fromPreview) return 0;
+          return userScrubbed.current ? Math.min(current, last) : last;
+        });
         setPlaying(!fromPreview && next.trace.length > 1);
       }
+      if (!fromPreview) userScrubbed.current = false;
       setTraceSource(fromPreview ? "preview" : "run");
       setTraceInfo(
         response.ok
@@ -422,6 +433,7 @@ export default function WorkspacePage() {
     setIdle(false);
     lastPreviewKey.current = "";
     lastTraceJson.current = "";
+    userScrubbed.current = false;
     // Anything still running belongs to the previous problem or language.
     previewAbort.current?.abort();
     previewAbort.current = null;
@@ -435,7 +447,7 @@ export default function WorkspacePage() {
     const cached = readCachedTrace(target.id, language, key);
     if (cached) {
       lastPreviewKey.current = key;
-      applyExecution(cached, true);
+      applyExecution(cached, true, initial);
     }
   }, [problemId, language, applyExecution]);
 
@@ -474,7 +486,7 @@ export default function WorkspacePage() {
           setServerInputError(response.inputError);
           return;
         }
-        applyExecution(response.execution, true);
+        applyExecution(response.execution, true, job.code);
         if (response.execution.ok) writeCachedTrace(job.problemId, job.language, job.key, response.execution);
       })
       .catch((error) => {
@@ -567,7 +579,9 @@ export default function WorkspacePage() {
   }, [busy]);
 
   const currentStep = trace[Math.min(index, Math.max(0, stepCount - 1))];
-  const graph = useMemo(() => buildSceneGraph(currentStep), [currentStep]);
+  // Positions are fixed for the whole trace, so a step only ever moves arrows.
+  const sceneLayout = useMemo(() => buildSceneLayout(trace), [trace]);
+  const graph = useMemo(() => buildSceneGraph(currentStep, sceneLayout), [currentStep, sceneLayout]);
   const lineIndex = useMemo(() => buildLineIndex(trace, diffs), [trace, diffs]);
 
   // Heap ids that changed to produce this step's state, expanded to the ids the
@@ -590,6 +604,12 @@ export default function WorkspacePage() {
 
   const activeLine = currentStep?.line ?? null;
 
+  /** Any deliberate move of the cursor, from the transport or from a jump. */
+  const jumpTo = useCallback((step: number) => {
+    userScrubbed.current = true;
+    setIndex(step);
+  }, []);
+
   /** Scene -> editor: jump playback to where this node was last touched. */
   const handleSelectNode = useCallback(
     (id: string | null) => {
@@ -601,9 +621,9 @@ export default function WorkspacePage() {
 
       setPlaying(false);
       const previous = [...steps].reverse().find((step) => step <= index);
-      setIndex(previous ?? steps[0]);
+      jumpTo(previous ?? steps[0]);
     },
-    [lineIndex, index]
+    [lineIndex, index, jumpTo]
   );
 
   /** Editor -> scene: jump to the clicked line and select what it changed. */
@@ -617,7 +637,7 @@ export default function WorkspacePage() {
         const touch = pick(touches, (entry) => entry.step);
         setPlaying(false);
         setSelectedNode(touch.id);
-        setIndex(touch.step);
+        jumpTo(touch.step);
         return;
       }
 
@@ -626,9 +646,9 @@ export default function WorkspacePage() {
 
       setPlaying(false);
       setSelectedNode(null);
-      setIndex(pick(steps, (step) => step));
+      jumpTo(pick(steps, (step) => step));
     },
-    [lineIndex, index]
+    [lineIndex, index, jumpTo]
   );
 
   const settleAction = () => {
@@ -654,7 +674,7 @@ export default function WorkspacePage() {
 
     try {
       const response = await api.run(problem.id, code, input, language);
-      applyExecution(response, false);
+      applyExecution(response, false, code);
       // A successful run that prints nothing used to look like nothing happened.
       setRanAt(
         response.ok ? `Ran in ${Math.round(response.runtimeMs)}ms and returned ${JSON.stringify(response.result)}` : ""
@@ -802,7 +822,7 @@ export default function WorkspacePage() {
                   )}
                   style={{ minHeight: 0, width: "auto" }}
                 >
-                  {mode === "trace" ? "Trace" : "3D"}
+                  {mode === "trace" ? "2D" : "3D"}
                 </button>
               ))}
             </div>
@@ -823,6 +843,14 @@ export default function WorkspacePage() {
             </span>
           </div>
 
+          {hasTrace && (staleTrace || traceInfo.truncated || traceInfo.note) && (
+            <p className="shrink-0 border-b border-blueprint-line bg-surface-inset px-4 py-2 text-center text-xs text-blueprint-muted sm:px-5">
+              {staleTrace
+                ? "Code is mid-edit, so this is the last trace that ran."
+                : traceInfo.note ?? `Replay shows the first ${stepCount} steps; the rest ran without recording.`}
+            </p>
+          )}
+
           <div className="relative min-h-0 flex-1">
             {sceneMode === "trace" ? (
               hasTrace ? (
@@ -831,6 +859,7 @@ export default function WorkspacePage() {
                   diffs={diffs}
                   index={Math.min(index, stepCount - 1)}
                   signature={problem?.signature}
+                  source={traceState.source}
                 />
               ) : (
                 <div className="blueprint-grid h-full bg-card opacity-60" />
@@ -856,16 +885,6 @@ export default function WorkspacePage() {
             {loadingScene && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <Loader2 size={24} aria-label="Loading trace" className="animate-spin text-blueprint-muted" />
-              </div>
-            )}
-
-            {hasTrace && (staleTrace || traceInfo.truncated || traceInfo.note) && (
-              <div className="pointer-events-none absolute inset-x-4 top-3 flex justify-center">
-                <p className="max-w-md rounded-full border border-blueprint-line bg-card/95 px-3 py-1.5 text-center text-xs text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]">
-                  {staleTrace
-                    ? "Code is mid-edit, so this is the last trace that ran."
-                    : traceInfo.note ?? `Replay shows the first ${stepCount} steps; the rest ran without recording.`}
-                </p>
               </div>
             )}
           </div>
@@ -910,7 +929,7 @@ export default function WorkspacePage() {
             playing={playing}
             speed={speed}
             line={activeLine}
-            onIndex={setIndex}
+            onIndex={jumpTo}
             onPlaying={setPlaying}
             onSpeed={setSpeed}
           />

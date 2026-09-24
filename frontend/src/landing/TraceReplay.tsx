@@ -64,35 +64,6 @@ const valueOf = (heap: Record<string, HeapObject>, id: string) => String(heap[id
 const describeTarget = (heap: Record<string, HeapObject>, target: unknown) =>
   typeof target === "string" && heap[target] ? `node ${valueOf(heap, target)}` : "None";
 
-/** One sentence per step, built from the diff that produced it. */
-function describeStep(index: number): string {
-  const step = demo.trace[index];
-  const diff = demo.diffs[index];
-
-  if (index === 0) return `Input list built: ${demo.input.head.join(" → ")}. head points at node 1.`;
-
-  const parts: string[] = [];
-  for (const mutation of diff?.mutated ?? []) {
-    for (const field of mutation.fields) {
-      parts.push(
-        `node ${valueOf(step.heap, mutation.id)}.${field} now points to ${describeTarget(
-          step.heap,
-          mutation.after.fields?.[field]
-        )}`
-      );
-    }
-  }
-  for (const [name, change] of Object.entries(diff?.variablesChanged ?? {})) {
-    parts.push(`${name} → ${describeTarget(step.heap, change.after)}`);
-  }
-
-  const ranLine = demo.trace[index - 1].line;
-  if (step.event === "return") {
-    return `Returned previous: ${demo.result.join(" → ")}.`;
-  }
-  return parts.length ? `Line ${ranLine} ran: ${parts.join(", ")}.` : `Line ${ranLine} ran: loop condition checked.`;
-}
-
 interface Arrow {
   key: string;
   d: string;
@@ -182,7 +153,6 @@ export function TraceReplay() {
   const tags = useMemo(() => {
     const stacks = new Map<string, number>();
     const pointing: Array<{ name: string; x: number; level: number }> = [];
-    const nulls: string[] = [];
 
     const names = Object.keys(step.variables).sort(
       (a, b) => ((TAG_ORDER.indexOf(a) + 99) % 99) - ((TAG_ORDER.indexOf(b) + 99) % 99)
@@ -194,14 +164,11 @@ export function TraceReplay() {
         const level = stacks.get(target) ?? 0;
         stacks.set(target, level + 1);
         pointing.push({ name, x: nodeX(target, layout), level });
-      } else {
-        nulls.push(name);
       }
     }
-    return { pointing, nulls };
+    return { pointing };
   }, [step, layout]);
 
-  const caption = describeStep(index);
   const listState = objectIds
     .map((id) => `${valueOf(step.heap, id)} → ${describeTarget(step.heap, step.heap[id]?.fields?.next)}`)
     .join("; ");
@@ -372,27 +339,6 @@ export function TraceReplay() {
             })}
           </svg>
 
-          <div className="flex min-h-7 flex-wrap items-center gap-2">
-            {tags.nulls.length > 0 ? (
-              tags.nulls.map((name) => (
-                <span
-                  key={name}
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 font-mono text-[11px] leading-none",
-                    changedVars.has(name)
-                      ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
-                      : "border-blueprint-line text-blueprint-muted"
-                  )}
-                >
-                  {name} = None
-                </span>
-              ))
-            ) : (
-              <span className="text-technical-mono text-blueprint-muted">No variable is None</span>
-            )}
-          </div>
-
-          <p className="min-h-12 text-body-md text-primary">{caption}</p>
         </div>
       </div>
 

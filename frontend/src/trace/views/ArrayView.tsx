@@ -1,11 +1,49 @@
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
-import type { ArrayViewModel, PointerModel } from "../model";
+import type { ArrayViewModel, CellModel, PointerModel } from "../model";
+import { placeAt } from "./placeAt";
 
-const cellClass = (changed: boolean) =>
+const CELL_BASE =
+  "flex h-11 min-w-11 items-center justify-center border-[1.25px] px-2 font-mono text-[13px] transition-colors duration-300";
+
+/** The states every cell can report, wherever it is drawn. */
+const cellClass = (cell: CellModel) =>
   cn(
-    "flex h-11 min-w-11 items-center justify-center border-[1.25px] px-2 font-mono text-[13px] transition-colors duration-300",
-    changed ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "border-blueprint-line bg-card text-primary"
+    CELL_BASE,
+    cell.changed
+      ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
+      : cell.comparing
+        ? "border-[var(--compare)] bg-[var(--compare-soft)] text-[var(--compare-text)]"
+        : cell.reading
+          ? "border-[var(--fill-blue)] bg-card text-primary"
+          : "border-blueprint-line bg-card text-primary"
+  );
+
+/**
+ * A cell in an indexed row carries three separate pieces of news, in order of
+ * urgency: it just changed, the next line is weighing it, or the sort has
+ * finished with it. Comparing is amber rather than blue so "being looked at"
+ * never reads as "was written".
+ */
+const indexedCellClass = (cell: CellModel, pointed: boolean, settled: boolean) =>
+  cn(
+    CELL_BASE,
+    cell.changed
+      ? "border-transparent bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
+      : cell.comparing
+        ? "border-[var(--compare)] bg-[var(--compare-soft)] text-[var(--compare-text)]"
+        : // A read borrows the accent for its border only. Filling it would say
+          // the cell was written, which is the one thing it was not.
+          cell.reading
+          ? "border-[var(--fill-blue)] bg-card text-primary"
+          : settled
+            ? "border-blueprint-line bg-surface-inset text-blueprint-muted"
+            : "border-blueprint-line bg-card text-primary",
+    // The outline follows whichever cell a variable names, so a running
+    // minimum visibly transfers rather than just recolouring. It yields to any
+    // more specific state: an index almost always names the cell being read,
+    // and the dark outline would simply hide that news.
+    pointed && !cell.changed && !cell.comparing && !cell.reading && "z-10 outline-2 outline-offset-[-3px] outline-primary"
   );
 
 function Pointers({ pointers }: { pointers: PointerModel[] }) {
@@ -34,6 +72,236 @@ function Pointers({ pointers }: { pointers: PointerModel[] }) {
   );
 }
 
+const settled = (view: ArrayViewModel, index: number) =>
+  view.settled !== undefined &&
+  (index < view.settled.prefix || index >= view.cells.length - view.settled.suffix);
+
+const HEAP_RADIUS = 18;
+const HEAP_LEVEL = 60;
+const HEAP_TOP = 24;
+const HEAP_SLOT = 58;
+
+const depthOf = (index: number) => Math.floor(Math.log2(index + 1));
+
+/**
+ * A heap drawn as the tree its indices already describe: cell `i` sits under
+ * `(i - 1) / 2`. Nothing new is inferred — the array and the tree are two
+ * renderings of one list, and because both read the same cell models a
+ * comparison lights the same value in both at once.
+ *
+ * Nodes are keyed by the cell, so in a heap that only ever rearranges itself
+ * the key follows the value and a sift step animates as two nodes trading
+ * places along their edge rather than two labels blinking.
+ */
+function HeapTree({ view }: { view: ArrayViewModel }) {
+  const count = view.cells.length;
+  if (count === 0) return null;
+
+  const deepest = depthOf(count - 1);
+  const width = Math.max(2 ** deepest, 1) * HEAP_SLOT;
+  const height = HEAP_TOP + deepest * HEAP_LEVEL + HEAP_RADIUS + 10;
+
+  const at = (index: number) => {
+    const depth = depthOf(index);
+    const first = 2 ** depth - 1;
+    return {
+      x: ((index - first + 0.5) / 2 ** depth) * width,
+      y: HEAP_TOP + depth * HEAP_LEVEL
+    };
+  };
+
+  return (
+    <div className="overflow-x-auto pb-2">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`Heap as a tree: ${view.cells.map((cell) => cell.label).join(", ")}`}
+        className="h-auto"
+        style={{ width: "100%", maxWidth: width * 1.1, minWidth: Math.min(width, count * 34 + 40) }}
+      >
+        {view.cells.slice(1).map((_, offset) => {
+          const child = offset + 1;
+          const parent = Math.floor((child - 1) / 2);
+          const from = at(parent);
+          const to = at(child);
+          return (
+            <line
+              key={`${parent}-${child}`}
+              x1={from.x}
+              y1={from.y + HEAP_RADIUS}
+              x2={to.x}
+              y2={to.y - HEAP_RADIUS}
+              strokeWidth={1.5}
+              className="stroke-blueprint-line"
+            />
+          );
+        })}
+
+        {view.cells.map((cell, index) => {
+          const spot = at(index);
+          return (
+            <g key={cell.key} style={placeAt(spot.x, spot.y)}>
+              <circle
+                r={HEAP_RADIUS}
+                strokeWidth={cell.comparing ? 2.25 : 1.5}
+                className={cn(
+                  "transition-[fill] duration-300",
+                  cell.comparing
+                    ? "fill-[var(--compare-soft)] stroke-[var(--compare)]"
+                    : cell.changed
+                      ? "fill-[var(--fill-blue)] stroke-[var(--graphics-node)]"
+                      : cell.reading
+                        ? "fill-card stroke-[var(--fill-blue)]"
+                        : "fill-card stroke-[var(--graphics-node)]"
+                )}
+              />
+              <text
+                y={4}
+                textAnchor="middle"
+                className={cn(
+                  "font-mono text-[12px] transition-[fill] duration-300",
+                  cell.comparing
+                    ? "fill-[var(--compare-text)]"
+                    : cell.changed
+                      ? "fill-[var(--fill-blue-text)]"
+                      : "fill-[var(--graphics-node)]"
+                )}
+              >
+                {cell.label.length > 4 ? `${cell.label.slice(0, 3)}…` : cell.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+const FOREST_RADIUS = 16;
+const FOREST_LEVEL = 54;
+const FOREST_SLOT = 52;
+const FOREST_TOP = 22;
+
+/**
+ * A disjoint-set array as the forest it describes.
+ *
+ * Edges are keyed by the pair they join, so path compression reads the way it
+ * should: the link to the old parent leaves and a link straight to the root
+ * draws itself in, rather than a number in a row quietly changing.
+ */
+function Forest({ view }: { view: ArrayViewModel }) {
+  const parent = view.forest;
+  if (!parent) return null;
+
+  const children = new Map<number, number[]>();
+  const roots: number[] = [];
+  parent.forEach((up, node) => {
+    if (up === node) roots.push(node);
+    else children.set(up, [...(children.get(up) ?? []), node]);
+  });
+
+  const spot = new Map<number, { x: number; depth: number }>();
+  const seen = new Set<number>();
+  let cursor = 0;
+
+  const place = (node: number, depth: number): number => {
+    // A malformed parent array can cycle; a node is laid out once at most.
+    if (seen.has(node)) return spot.get(node)?.x ?? cursor;
+    seen.add(node);
+
+    const kids = children.get(node) ?? [];
+    if (kids.length === 0) {
+      const x = cursor;
+      cursor += 1;
+      spot.set(node, { x, depth });
+      return x;
+    }
+
+    const spread = kids.map((kid) => place(kid, depth + 1));
+    const x = (Math.min(...spread) + Math.max(...spread)) / 2;
+    spot.set(node, { x, depth });
+    return x;
+  };
+
+  for (const root of roots) place(root, 0);
+  // Anything inside a cycle still gets drawn, after the well-formed trees.
+  parent.forEach((_, node) => place(node, 0));
+
+  const deepest = Math.max(0, ...[...spot.values()].map((at) => at.depth));
+  const width = Math.max(cursor, 1) * FOREST_SLOT;
+  const height = FOREST_TOP + deepest * FOREST_LEVEL + FOREST_RADIUS + 12;
+  const at = (node: number) => {
+    const where = spot.get(node) ?? { x: 0, depth: 0 };
+    return { x: (where.x + 0.5) * FOREST_SLOT, y: FOREST_TOP + where.depth * FOREST_LEVEL };
+  };
+
+  return (
+    <div className="overflow-x-auto pb-2">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`Disjoint sets: ${parent.map((up, node) => `${node}→${up}`).join(", ")}`}
+        className="h-auto"
+        style={{ width: "100%", maxWidth: width * 1.1, minWidth: Math.min(width, parent.length * 34 + 40) }}
+      >
+        <AnimatePresence initial={false}>
+          {parent.map((up, node) => {
+            if (up === node) return null;
+            const from = at(node);
+            const to = at(up);
+            return (
+              <motion.line
+                key={`${node}->${up}`}
+                x1={from.x}
+                y1={from.y - FOREST_RADIUS}
+                x2={to.x}
+                y2={to.y + FOREST_RADIUS}
+                strokeWidth={1.5}
+                className="stroke-[var(--graphics-node)]"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+              />
+            );
+          })}
+        </AnimatePresence>
+
+        {parent.map((_, node) => {
+          const cell = view.cells[node];
+          const where = at(node);
+          return (
+            <g key={node} style={placeAt(where.x, where.y)}>
+              <circle
+                r={FOREST_RADIUS}
+                strokeWidth={cell?.comparing ? 2.25 : 1.5}
+                className={cn(
+                  "transition-[fill] duration-300",
+                  cell?.comparing
+                    ? "fill-[var(--compare-soft)] stroke-[var(--compare)]"
+                    : cell?.changed
+                      ? "fill-[var(--fill-blue)] stroke-[var(--graphics-node)]"
+                      : "fill-card stroke-[var(--graphics-node)]"
+                )}
+              />
+              <text
+                y={4}
+                textAnchor="middle"
+                className={cn(
+                  "font-mono text-[11px] transition-[fill] duration-300",
+                  cell?.changed ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]"
+                )}
+              >
+                {node}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 /** Row of cells with index numbers and the index variables that point at them. */
 function IndexedRow({ view, scope }: { view: ArrayViewModel; scope: string }) {
   const byIndex = new Map<number, PointerModel[]>();
@@ -44,21 +312,91 @@ function IndexedRow({ view, scope }: { view: ArrayViewModel; scope: string }) {
   const ghost = byIndex.has(view.cells.length);
 
   return (
-    // Pointer pills animate between cells of this view only.
+    // Pointer pills and travelling cells animate within this view only.
     <LayoutGroup id={scope}>
     <div className="flex items-start">
       <AnimatePresence initial={false}>
         {view.cells.map((cell, index) => (
+          // The column is the slot: it holds the index, the pointers and the
+          // window band, none of which travel when a value moves.
           <motion.div
-            key={cell.key}
+            key={`slot-${index}`}
             layout
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.25 }}
-            className="-ml-[1.25px] flex flex-col items-center first:ml-0"
+            className="relative -ml-[1.25px] flex flex-col items-center first:ml-0"
           >
-            <span className={cn(cellClass(cell.changed), cell.ref && "text-[11.5px]")}>{cell.label}</span>
+            {view.divider !== undefined && index === Math.min(view.divider, view.cells.length - 1) && (
+              // One element for the whole row, so moving it between columns is
+              // a slide rather than a blink. Past the last cell it pins to the
+              // right edge: everything weighed so far went to the low side.
+              <motion.span
+                aria-hidden
+                layoutId={`${scope}:divider`}
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                className={cn(
+                  "absolute -top-[5px] z-20 h-[54px] w-[2.5px] rounded-full bg-[var(--compare)]",
+                  view.divider > index ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"
+                )}
+              />
+            )}
+            <motion.span
+              // In a permuting array the box follows its value between slots,
+              // so a swap reads as two cells trading places.
+              layoutId={view.permuting ? `${scope}:cell:${cell.key}` : undefined}
+              data-flow={`${view.key}:${index}`}
+              transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              className={cn(
+                indexedCellClass(cell, byIndex.has(index), settled(view, index)),
+                // The value has been lifted out of the row and everything else
+                // is being measured against it, so the cell keeps a standing
+                // mark even on the steps where nothing touches it.
+                view.pivot === index && "outline-2 outline-offset-2 outline-dashed outline-[var(--compare)]",
+                cell.ref && "text-[11.5px]"
+              )}
+            >
+              {/* Keyed by the value so the commit animation re-fires on a write. */}
+              <span key={cell.label} className={cn(cell.changed && "value-commit")}>
+                {cell.label}
+              </span>
+            </motion.span>
+            {cell.previous !== undefined ? (
+              <span className="value-was mt-1 font-mono text-[10px] leading-none">{cell.previous}</span>
+            ) : (
+              view.cells.some((other) => other.previous !== undefined) && <span className="mt-1 h-[10px]" />
+            )}
+            {view.window && (
+              <span
+                aria-hidden
+                className={cn(
+                  "mt-1 h-[3px] self-stretch",
+                  index >= view.window.from && index <= view.window.to
+                    ? "bg-[var(--fill-blue)] opacity-60"
+                    : "bg-transparent",
+                  index === view.window.from && "rounded-l-full",
+                  index === view.window.to && "rounded-r-full"
+                )}
+              />
+            )}
+            {view.sumSpan && (
+              // The stretch a running total is being asked about. Amber,
+              // because it is a question the line is putting to the row, not
+              // something the row has become.
+              <motion.span
+                aria-hidden
+                layout
+                className={cn(
+                  "mt-1 h-[3px] self-stretch",
+                  index >= view.sumSpan.from && index <= view.sumSpan.to
+                    ? "bg-[var(--compare)]"
+                    : "bg-transparent",
+                  index === view.sumSpan.from && "rounded-l-full",
+                  index === view.sumSpan.to && "rounded-r-full"
+                )}
+              />
+            )}
             {view.variant !== "set" && (
               <span className="mt-1 font-mono text-[10px] text-blueprint-muted">{index}</span>
             )}
@@ -101,7 +439,9 @@ function StackColumn({ view }: { view: ArrayViewModel }) {
               transition={{ duration: 0.25 }}
               className="-mt-[1.25px] first:mt-0"
             >
-              <span className={cn(cellClass(cell.changed), "w-full")}>{cell.label}</span>
+              <span data-flow={`${view.key}:${view.cells.length - 1 - index}`} className={cn(cellClass(cell), "w-full")}>
+                {cell.label}
+              </span>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -130,12 +470,13 @@ function QueueRow({ view }: { view: ArrayViewModel }) {
           {view.cells.map((cell, index) => (
             <motion.span
               key={keys[index]}
+              data-flow={`${view.key}:${index}`}
               layout
               initial={{ opacity: 0, x: 14 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -14 }}
               transition={{ duration: 0.25 }}
-              className={cn(cellClass(cell.changed), "-ml-[1.25px] first:ml-0")}
+              className={cn(cellClass(cell), "-ml-[1.25px] first:ml-0")}
             >
               {cell.label}
             </motion.span>
@@ -188,7 +529,7 @@ const VARIANT_LABEL: Record<ArrayViewModel["variant"], string> = {
   string: "string"
 };
 
-export function ArrayView({ view }: { view: ArrayViewModel }) {
+export function ArrayView({ view, scope }: { view: ArrayViewModel; scope: string }) {
   return (
     <div>
       <p className="mb-2 flex items-baseline gap-2">
@@ -196,7 +537,18 @@ export function ArrayView({ view }: { view: ArrayViewModel }) {
         <span className="text-technical-mono text-blueprint-muted">
           {VARIANT_LABEL[view.variant]} · {view.cells.length + view.truncated}
         </span>
+        {view.sumSpan && (
+          <span className="text-technical-mono text-[var(--compare-text)]">
+            sum {view.sumSpan.from}…{view.sumSpan.to} = {view.sumSpan.total}
+          </span>
+        )}
       </p>
+      {/* A heap is shown twice: the tree its indices describe, above the row
+          they are stored in. Both read the same cells, so one comparison
+          lights the same value in both. */}
+      {view.variant === "heap" && <HeapTree view={view} />}
+      {view.forest && <Forest view={view} />}
+
       <div className="overflow-x-auto pb-1">
         {view.variant === "stack" ? (
           <StackColumn view={view} />
@@ -205,7 +557,7 @@ export function ArrayView({ view }: { view: ArrayViewModel }) {
         ) : view.variant === "set" ? (
           <SetChips view={view} />
         ) : (
-          <IndexedRow view={view} scope={view.key} />
+          <IndexedRow view={view} scope={`${scope}:${view.key}`} />
         )}
       </div>
       {view.truncated > 0 && (

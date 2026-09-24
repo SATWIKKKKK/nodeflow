@@ -482,7 +482,7 @@ class Snapshotter:
             variables[name] = self.serialize_value(value, heap)
         return variables
 
-    def capture(self, frame, event):
+    def capture(self, frame, event, returned=None):
         frames = []
         current = frame
         while current is not None and current.f_code.co_filename == USER_FILENAME:
@@ -505,6 +505,10 @@ class Snapshotter:
         step = {"line": frame.f_lineno, "event": event, "variables": top_variables, "heap": heap}
         if stack:
             step["stack"] = stack
+        # Serialised into the same heap, so returning a node is a reference
+        # rather than a second copy of the structure.
+        if event == "return":
+            step["returns"] = self.serialize_value(returned, heap)
         return step
 
 
@@ -749,7 +753,7 @@ def run_case(payload, compiled, case_input, record):
                 if stop_at_limit:
                     raise StepLimitReached()
                 return None
-            steps.append(snapshotter.capture(frame, event))
+            steps.append(snapshotter.capture(frame, event, arg))
         return trace_func
 
     try:

@@ -39,22 +39,22 @@ const steps: Array<{ title: string; body: string; scene: ComponentType }> = [
   {
     scene: WriteScene,
     title: "Write",
-    body: "Pick a problem and write a solution in Python, C++ or Java. The editor opens with the function signature already in place."
+    body: "Pick a problem. The editor opens with the signature in place."
   },
   {
     scene: RunScene,
     title: "Run",
-    body: "Your code runs in a fresh sandbox with no network access, against the problem's own input."
+    body: "A fresh sandbox, the problem's own input."
   },
   {
     scene: TraceScene,
     title: "Trace",
-    body: "The tracer records every variable and heap object at every line, then diffs each step against the one before."
+    body: "Every variable and object, recorded at every line."
   },
   {
     scene: ReplayScene,
     title: "Replay",
-    body: "Step forward and back, scrub the timeline, or click a node to jump to the line that last changed it."
+    body: "Step, scrub, or click a node to find the line that changed it."
   }
 ];
 
@@ -62,32 +62,32 @@ const features: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
     icon: Terminal,
     title: "Run",
-    body: "Execute once on the problem's input and get the return value, anything you printed, and the full trace."
+    body: "One run: the return value, your output, the full trace."
   },
   {
     icon: ListChecks,
     title: "Test",
-    body: "Check the visible cases. When one fails, you see the expected output next to what your code returned."
+    body: "The visible cases, expected output beside yours."
   },
   {
     icon: ShieldCheck,
     title: "Submit",
-    body: "Judge against every case, hidden ones included. Hidden inputs stay sealed; your verdict goes on your record."
+    body: "Every case, hidden ones included. Their inputs stay sealed."
   },
   {
     icon: RefreshCw,
     title: "Live preview",
-    body: "While you type, Noesis retraces in the background and keeps the last good picture on screen when code is mid-edit."
+    body: "Retraces as you type, holding the last good picture mid-edit."
   },
   {
     icon: Layers3,
     title: "Diffs, not guesses",
-    body: "The scene only moves when a diff says something changed: a node created, a pointer rewired, a value updated."
+    body: "The scene moves only when something actually changed."
   },
   {
     icon: AlertTriangle,
     title: "Your bug or ours",
-    body: "An exception in your code and a problem with the sandbox are reported differently, so you never chase the wrong one."
+    body: "Your exceptions and sandbox failures are reported apart."
   }
 ];
 
@@ -192,27 +192,25 @@ export default function LandingPage() {
     {
       label: "live now",
       value: bank.total ? String(bank.total) : "—",
-      note: bank.total
-        ? `problems across ${bank.topics} topics, from arrays to graphs`
-        : "Loading the live bank",
+      note: bank.total ? `problems across ${bank.topics} topics` : "Loading the live bank",
       glyph: bank.total ? <ProblemDots total={bank.total} /> : null
     },
     {
       label: "trees and graphs",
       value: bank.total ? String(bank.trees + bank.graphs) : "—",
-      note: "problems drawn as real node-and-edge diagrams",
+      note: "drawn as node-and-edge diagrams",
       glyph: bank.total ? <StructureGraph total={bank.trees + bank.graphs} /> : null
     },
     {
       label: "languages",
       value: "3",
-      note: "Python, C++ and Java, all judged and all traced",
+      note: "Python, C++ and Java, all traced",
       glyph: <LanguagePills />
     },
     {
       label: "step limit",
       value: STEP_LIMIT.toLocaleString("en-US"),
-      note: "per run, so a runaway loop is caught instead of hanging",
+      note: "per run, so a runaway loop never hangs",
       glyph: <StepLimitGlyph />
     }
   ];
@@ -241,8 +239,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-[clamp(1rem,2vw,1.2rem)] leading-8 text-blueprint-muted">
-            Noesis runs your Python, C++ or Java in a sandbox, records every object at every line, and replays it step by
-            step, so you can point at the exact line where a pointer went wrong.
+            Replay every line your code ran, and point at exactly where the pointer went wrong.
           </p>
 
           <div className="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
@@ -261,10 +258,10 @@ export default function LandingPage() {
           <SectionHeading
             title={
               <>
-                This is what your code <em className="hero-accent italic">did</em>, not what a script says it should.
+                This is what your code <em className="hero-accent italic">did</em>.
               </>
             }
-            lead="A recording of reverse_list running on [1, 2, 3, 4] in the Noesis tracer, on a loop. Every arrow and label is drawn from the heap the tracer captured at that line."
+            lead="reverse_list on [1, 2, 3, 4], drawn from the heap the tracer captured at each line."
           />
           <TraceReplay />
         </motion.div>
@@ -274,7 +271,7 @@ export default function LandingPage() {
         <motion.div {...reveal}>
           <SectionHeading
             title="Four steps from code to replay."
-            lead="The visualization is never drawn by hand. It is rebuilt from what the interpreter recorded."
+            lead="Never drawn by hand — rebuilt from what the interpreter recorded."
           />
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step) => {
@@ -298,8 +295,12 @@ export default function LandingPage() {
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
               className="mb-0"
-              title="Built for the moment your solution breaks."
-              lead="Three ways to execute, a preview that keeps up with your typing, and errors that say whose fault they are."
+              title={
+                <>
+                  Built for the moment your solution <em className="hero-accent italic">breaks</em>.
+                </>
+              }
+              lead="Three ways to execute, a preview that keeps up, and errors that say whose fault they are."
             />
             <NavLink to="/tracing" className={cn(button.outline, "self-start lg:self-auto")}>
               How tracing works <ArrowRight size={14} aria-hidden />
@@ -396,16 +397,16 @@ export default function LandingPage() {
           className="landing-cta-panel flex flex-col gap-8 rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
         >
           <div className="max-w-2xl">
-            <p className="text-ui-label text-white/60">Start here</p>
+            <p className="landing-cta-muted text-ui-label">Start here</p>
             <h2 className="mt-3 text-balance text-cta">
               Open a problem. Press <em className="hero-accent italic">Run</em>.
             </h2>
-            <p className="mt-4 text-body-lg text-white/70">
+            <p className="landing-cta-muted mt-4 text-body-lg">
               Begin with reversing a linked list. It is the problem from the replay above, so you already know
               what to look for.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
+          <div className="flex flex-col gap-3 lg:w-64 lg:shrink-0">
             <NavLink
               to="/workspace/reverse-linked-list"
               className="lift landing-cta-button inline-flex items-center justify-center gap-2 rounded-full border px-8 py-3.5 text-ui-label"
@@ -414,7 +415,7 @@ export default function LandingPage() {
             </NavLink>
             <NavLink
               to="/problems"
-              className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-ui-label text-white transition-colors hover:bg-white/10"
+              className="landing-cta-secondary inline-flex items-center justify-center rounded-full border px-6 py-3 text-ui-label transition-colors"
             >
               Browse all problems
             </NavLink>

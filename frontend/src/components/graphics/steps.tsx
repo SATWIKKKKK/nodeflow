@@ -141,10 +141,6 @@ export function RunScene() {
                 strokeLinecap="round"
               />
             </g>
-
-            <Caption x={BOX.x} y={102}>
-              NO NETWORK
-            </Caption>
           </>
         );
       }}

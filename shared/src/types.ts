@@ -134,6 +134,11 @@ export interface TraceStep {
   removed?: string[];
   /** Every user frame, outermost first. Present when the call stack is deeper than one. */
   stack?: TraceFrame[];
+  /**
+   * What the innermost frame handed back, on a `return` step. Lets the replay
+   * tell a recursive call that succeeded from one that gave up and backtracked.
+   */
+  returns?: SerializedValue;
 }
 
 export interface TraceDiff {
