@@ -83,7 +83,7 @@ export default function DashboardPage() {
           eyebrow={session.user ? `Signed in as ${session.user.email}` : "Local progress"}
           title={
             <>
-              Your traces have a <em className="italic">memory</em>.
+              Your traces have a <em className="hero-accent italic">memory</em>.
             </>
           }
           lead="Every Submit becomes progress: problems accepted, attempts logged, and the next replay waiting in the workspace."

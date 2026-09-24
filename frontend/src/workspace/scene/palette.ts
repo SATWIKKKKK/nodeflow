@@ -24,23 +24,26 @@ export const scenePalettes: Record<ResolvedTheme, ScenePalette> = {
     gridCell: "#ece8e8",
     gridSection: "#d9d2d2",
     shadowOpacity: 0.12,
-    node: new THREE.Color("#ffffff"),
-    nodeActive: new THREE.Color("#1a1a1a"),
-    nodeSelected: new THREE.Color("#d6d0d0"),
+    // Blue blocks on the light canvas; the active one goes deeper, not darker.
+    node: new THREE.Color("#2f6fe0"),
+    nodeActive: new THREE.Color("#12327d"),
+    nodeSelected: new THREE.Color("#7d9fd6"),
+    // Labels float above the blocks, so they contrast with the canvas, not the block.
     label: "#1a1a1a",
     edge: new THREE.Color("#b9b1b1"),
-    edgeActive: new THREE.Color("#1a1a1a")
+    edgeActive: new THREE.Color("#2f6fe0")
   },
   dark: {
     background: "#171717",
     gridCell: "#232323",
     gridSection: "#343434",
     shadowOpacity: 0.4,
-    node: new THREE.Color("#3d3d3d"),
-    nodeActive: new THREE.Color("#f3ecec"),
-    nodeSelected: new THREE.Color("#6a6a6a"),
+    // The hero word's blue on the dark canvas; the active one is brighter still.
+    node: new THREE.Color("#9ecbff"),
+    nodeActive: new THREE.Color("#dcecff"),
+    nodeSelected: new THREE.Color("#6f93bd"),
     label: "#f4f4f4",
     edge: new THREE.Color("#4d4d4d"),
-    edgeActive: new THREE.Color("#f3ecec")
+    edgeActive: new THREE.Color("#9ecbff")
   }
 };

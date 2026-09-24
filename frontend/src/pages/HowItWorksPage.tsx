@@ -1,34 +1,35 @@
 import { NavLink } from "react-router-dom";
-import { ArrowRight, Check, Clock3, FlaskConical, ListChecks, MousePointerClick, ShieldCheck, Terminal } from "lucide-react";
+import { ArrowRight, Check, Clock3, ListChecks } from "lucide-react";
 import { SectionHeading } from "../components/SectionHeading";
-import { button, container, stepIcon } from "../components/ui";
+import { RunScene, SubmitScene, TestScene, WriteScene } from "../components/graphics";
+import { button, container } from "../components/ui";
 import { cn } from "../lib/cn";
 
 const loop = [
   {
-    icon: MousePointerClick,
+    scene: WriteScene,
     title: "Pick a problem",
     body: "Filter the bank by topic and difficulty. The workspace opens with a starter function and the problem's own input ready to go."
   },
   {
-    icon: Terminal,
+    scene: RunScene,
     title: "Run it",
     body: "See the return value, anything you printed, and a replay of every line. Nothing is judged yet, so this is where you experiment."
   },
   {
-    icon: FlaskConical,
+    scene: TestScene,
     title: "Test it",
     body: "Run the visible cases. When one fails, compare the expected output with yours, then step through a run to see where your pointers go."
   },
   {
-    icon: ShieldCheck,
+    scene: SubmitScene,
     title: "Submit it",
     body: "Judge against every case, hidden ones included. The verdict goes on your record and into your dashboard."
   }
 ];
 
 const anatomy = [
-  { label: "Scene", note: "Your data structure, one object per heap id. Drag to orbit, click a node to jump to the line that changed it." },
+  { label: "Trace", note: "Your data structures drawn as they are at the current step, with pointers and changed cells marked. A 3D view is one toggle away." },
   { label: "Playback", note: "Reset, step back, play, step forward, speed and a scrubber across the whole trace." },
   { label: "Problem", note: "Statement, examples and constraints, with topic and difficulty." },
   { label: "Editor", note: "The line being replayed is highlighted. Click any line to jump to the step where it ran." },
@@ -38,7 +39,7 @@ const anatomy = [
 const phases = [
   {
     name: "Phase 1",
-    status: "Current",
+    status: "Shipped",
     title: "Arrays and linked lists",
     points: [
       "Python tracing and playback",
@@ -49,15 +50,19 @@ const phases = [
   },
   {
     name: "Phase 2",
-    status: "Planned",
-    title: "More structures",
-    points: ["Trees and graphs", "Stacks and queues", "Recursion and the call stack"]
+    status: "Current",
+    title: "The whole sheet",
+    points: [
+      "Every problem on the DSA sheet, verified in the sandbox",
+      "Traces for Python, C++ and Java",
+      "Custom input and classrooms with shared progress"
+    ]
   },
   {
     name: "Later",
     status: "Planned",
-    title: "A wider bank",
-    points: ["Visual traces for C++ and Java", "The full 388-question bank", "Hosted classrooms"]
+    title: "Beyond the sheet",
+    points: ["Paid plans for larger courses", "Private problem banks for teams", "Sign-in with Google"]
   }
 ];
 
@@ -71,25 +76,20 @@ export default function HowItWorksPage() {
             eyebrow="How it works"
             title={
               <>
-                From a problem to the <em className="italic">pattern</em> behind it.
+                From a problem to the <em className="hero-accent italic">pattern</em> behind it.
               </>
             }
             lead="Noesis is built around one loop: write a solution, watch it run, and fix what the replay shows you."
           />
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {loop.map((step, index) => {
-              const Icon = step.icon;
+            {loop.map((step) => {
+              const Scene = step.scene;
               return (
                 <li key={step.title} className="border-l border-blueprint-line pl-5">
-                  <div className="flex items-center gap-3">
-                    <span className={stepIcon}>
-                      <Icon size={18} aria-hidden />
-                    </span>
-                    <span className="text-technical-mono text-blueprint-muted">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
+                  <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
+                    <Scene />
                   </div>
-                  <h2 className="mt-5 text-headline-sm text-primary">{step.title}</h2>
+                  <h2 className="text-headline-sm text-primary">{step.title}</h2>
                   <p className="mt-3 text-body-md text-blueprint-muted">{step.body}</p>
                 </li>
               );
@@ -122,7 +122,7 @@ export default function HowItWorksPage() {
             <div className="mt-5 grid aspect-4/3 grid-cols-[1.05fr_1fr] gap-3 rounded-xl bg-surface-inset p-3">
               <div className="grid grid-rows-[1fr_auto] gap-3">
                 <div className="relative flex items-center justify-center rounded-lg border border-dashed border-blueprint-line bg-card">
-                  <svg viewBox="0 0 200 60" className="w-3/4 text-primary" aria-hidden>
+                  <svg viewBox="0 0 200 60" className="w-3/4 text-[var(--graphics-node)]" aria-hidden>
                     {[20, 70, 120, 170].map((x, i) => (
                       <g key={x}>
                         <circle cx={x} cy={30} r={11} fill="none" stroke="currentColor" strokeWidth={2} />
@@ -134,7 +134,7 @@ export default function HowItWorksPage() {
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-dashed border-blueprint-line bg-card px-3 py-2.5">
                   <span className="h-5 w-5 rounded-full border border-blueprint-line" />
-                  <span className="h-5 w-5 rounded-full bg-primary" />
+                  <span className="h-5 w-5 rounded-full bg-[var(--fill-blue)]" />
                   <span className="h-5 w-5 rounded-full border border-blueprint-line" />
                   <span className="ml-2 h-px flex-1 bg-blueprint-line" />
                   <span className="text-technical-mono text-blueprint-muted">Playback</span>
@@ -153,7 +153,7 @@ export default function HowItWorksPage() {
                       key={index}
                       className={cn(
                         "mt-2 block h-1.5 rounded-full",
-                        index === 2 ? "bg-primary" : "bg-blueprint-line"
+                        index === 2 ? "bg-[var(--fill-blue)]" : "bg-blueprint-line"
                       )}
                       style={{ width: `${width}%` }}
                     />
@@ -185,6 +185,7 @@ export default function HowItWorksPage() {
           <div className="grid gap-5 lg:grid-cols-3">
             {phases.map((phase) => {
               const current = phase.status === "Current";
+              const live = phase.status !== "Planned";
               return (
                 <article
                   key={phase.name}
@@ -207,9 +208,9 @@ export default function HowItWorksPage() {
                     {phase.points.map((point) => (
                       <li
                         key={point}
-                        className={cn("flex gap-3 text-body-md", current ? "text-primary" : "text-blueprint-muted")}
+                        className={cn("flex gap-3 text-body-md", live ? "text-primary" : "text-blueprint-muted")}
                       >
-                        {current ? (
+                        {live ? (
                           <Check size={16} aria-hidden className="check-icon mt-1 shrink-0" />
                         ) : (
                           <Clock3 size={16} aria-hidden className="mt-1 shrink-0" />

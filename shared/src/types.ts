@@ -134,6 +134,11 @@ export interface TraceStep {
   removed?: string[];
   /** Every user frame, outermost first. Present when the call stack is deeper than one. */
   stack?: TraceFrame[];
+  /**
+   * What the innermost frame handed back, on a `return` step. Lets the replay
+   * tell a recursive call that succeeded from one that gave up and backtracked.
+   */
+  returns?: SerializedValue;
 }
 
 export interface TraceDiff {
@@ -231,6 +236,9 @@ export interface PublicProblem {
   visibleTestCases: ProblemTestCase[];
 }
 
+/** The fields list pages need; the full problem comes from /api/problems/:id. */
+export type ProblemSummary = Pick<PublicProblem, "id" | "title" | "topic" | "difficulty" | "structureType">;
+
 export interface Problem extends PublicProblem {
   referenceCode: string;
   testCases: ProblemTestCase[];
@@ -282,7 +290,9 @@ export interface LivePreviewResponse {
   ok: boolean;
   execution: ExecutionResponse;
   quiet: boolean;
-  source: "default_input";
+  source: "default_input" | "custom_input";
+  /** Set when the custom input was rejected before running; `execution` then carries the same message. */
+  inputError?: string;
 }
 
 export interface AuthUser {
@@ -370,6 +380,58 @@ export interface ProgressSummary {
   byStructure?: Partial<Record<StructureType, { accepted: number; total: number }>>;
   recentSubmissions: SubmissionSummary[];
   problems: ProgressProblemSummary[];
+}
+
+/** What the reference solution returns for a learner's custom input. */
+export interface ExpectedOutputResponse {
+  ok: boolean;
+  /** Present when ok: the reference solution's return value. */
+  expectedOutput?: unknown;
+  message?: string;
+}
+
+export interface ClassroomSummary {
+  id: string;
+  name: string;
+  isOwner: boolean;
+  memberCount: number;
+  assignmentCount: number;
+  createdAt: string;
+}
+
+export interface ClassroomMember {
+  id: string;
+  /** The part of the email before "@"; the full email is only sent to the owner. */
+  name: string;
+  email?: string;
+  role: "owner" | "member";
+  joinedAt: string;
+  solved: number;
+  attempted: number;
+  assignmentsSolved: number;
+  lastSubmittedAt?: string;
+  /** Problem ids from the assignment list this member has had accepted. */
+  solvedAssignments: string[];
+}
+
+export interface ClassroomAssignment {
+  problemId: string;
+  title: string;
+  topic: string;
+  difficulty: Difficulty;
+  addedAt: string;
+  solvedBy: number;
+}
+
+export interface ClassroomDetail {
+  id: string;
+  name: string;
+  isOwner: boolean;
+  /** Only sent to the owner, who shares it with students. */
+  joinCode?: string;
+  createdAt: string;
+  members: ClassroomMember[];
+  assignments: ClassroomAssignment[];
 }
 
 export * from "./trace.js";

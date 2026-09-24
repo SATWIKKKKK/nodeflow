@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { PublicProblem } from "@nodeflow/shared";
+import type { ProblemSummary } from "@nodeflow/shared";
 import { api } from "./api";
 
 /**
@@ -7,7 +7,7 @@ import { api } from "./api";
  * metrics and the workspace. One shared request serves all of them; a failed
  * request is dropped so the next caller retries.
  */
-let pending: Promise<PublicProblem[]> | null = null;
+let pending: Promise<ProblemSummary[]> | null = null;
 
 export const loadProblems = () => {
   if (!pending) {
@@ -20,7 +20,7 @@ export const loadProblems = () => {
 };
 
 export function useProblems() {
-  const [problems, setProblems] = useState<PublicProblem[]>([]);
+  const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -48,9 +48,19 @@ export function useProblems() {
   return { problems, error, loading };
 }
 
-export const structureLabel = (structureType: string) => {
-  if (structureType === "linked_list") return "Linked list";
-  if (structureType === "stack") return "Stack";
-  if (structureType === "queue") return "Queue";
-  return "Array";
+const STRUCTURE_LABELS: Record<string, string> = {
+  array: "Array",
+  string: "String",
+  matrix: "Matrix",
+  linked_list: "Linked list",
+  stack: "Stack",
+  queue: "Queue",
+  hashmap: "Hash map",
+  tree: "Tree",
+  heap: "Heap",
+  graph: "Graph",
+  trie: "Trie",
+  number: "Number"
 };
+
+export const structureLabel = (structureType: string) => STRUCTURE_LABELS[structureType] ?? "Array";

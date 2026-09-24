@@ -2,8 +2,8 @@
 
 The harness calls nf_enter() right before each call into user code. We stop
 there, step into the user's function, and then `step` line by line. Library
-code is skipped (`skip -gfi /usr/*`), so every stop is either a user line or a
-return to the harness. Each stop is serialised in the same shape as the Python
+code is skipped by name (`skip -rfu ^std::`); harness helpers are stepped out of, so
+every recorded stop is a user line. Each stop is serialised in the same shape as the Python
 tracer: {line, event, variables, heap, stack?}.
 """
 
@@ -17,7 +17,8 @@ import time
 
 import gdb  # noqa: E402 - provided by gdb
 
-for printers_path in glob.glob("/usr/local/share/gcc-*/python"):
+# gcc's own image keeps the libstdc++ printers under /usr/local; Debian/Ubuntu under /usr/share.
+for printers_path in glob.glob("/usr/local/share/gcc-*/python") + glob.glob("/usr/share/gcc*/python"):
     sys.path.insert(0, printers_path)
 try:
     from libstdcxx.v6.printers import register_libstdcxx_printers
@@ -74,10 +75,13 @@ for setting in (
     "set startup-with-shell off",
     "set step-mode off",
     "set width 0",
-    "skip -gfi /usr/*",
+    # Library code is skipped by function name. A file glob (`skip -gfi /usr/*`)
+    # makes gdb 17 step over user functions too, so it is not used.
     "skip -rfu ^std::",
     "skip -rfu ^__gnu_cxx::",
-    "skip -rfu ^nf_",
+    # Harness helpers (nf_*) are not skipped: gdb 17 treats `step` inside a skipped
+    # frame like `finish`, which would jump out of nf_case_* before the user call.
+    # main() steps out of helpers itself.
 ):
     try:
         run(setting)
@@ -376,6 +380,17 @@ def capture(frame, event):
     return step
 
 
+def is_case_frame(frame):
+    return (frame.name() or "").startswith("nf_case_")
+
+
+def older_frames(frame):
+    current = frame.older()
+    while current is not None:
+        yield current
+        current = current.older()
+
+
 def older_user_frame(frame):
     current = frame.older()
     while current is not None:
@@ -444,6 +459,13 @@ def main():
 
         try:
             if older_user_frame(frame):
+                guarded("finish")
+            elif is_case_frame(frame):
+                # Inside the harness case: step until the call reaches user code.
+                # (Newer gdb/gcc leave `finish` mid-line, so one step is not enough.)
+                guarded("step")
+            elif any(is_case_frame(older) for older in older_frames(frame)):
+                # A library or harness helper the case called (input builders, output).
                 guarded("finish")
             else:
                 # Harness code between calls (design problems make several).

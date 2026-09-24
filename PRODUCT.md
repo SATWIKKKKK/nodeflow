@@ -38,16 +38,22 @@ visualization is the differentiator over a plain online judge.
 
 - Core loop inside the workspace: pick a problem → write code → **Run** / **Test** / **Submit** →
   step through the trace with playback controls (next, previous, play with speed, reset).
-- **Run** executes once against the problem's default input and replaces the trace; it does not judge.
-  (Custom input is specified in `SKIILS.md` but not built in the workspace yet.)
+- **Run** executes once against the problem's default input, or the learner's custom input, and
+  replays the trace; it does not judge. With custom input, the reference solution's answer is shown
+  next to the learner's.
 - **Test** runs the visible sample cases and lists each result with expected vs actual output.
   This is the main debugging loop and is used far more than Submit.
 - **Submit** runs the full case set (visible + hidden), persists the verdict, and never reveals hidden
   inputs or expected outputs (only "failed on hidden case #N").
-- **Live preview** retraces the default input on a debounce while typing, and keeps the last valid
-  scene visible while code is mid-edit.
-- Hiding the 3D view and a fullscreen editor are specified in `SKIILS.md` but not built yet. The
-  problem statement panel can be collapsed.
+- **Live preview** retraces the code while typing and keeps the last valid scene visible while code is
+  mid-edit. After 30 seconds of typing without Run/Test/Submit, the workspace nudges the learner.
+- **Layout:** the trace takes 60% of the workspace; the statement, editor, custom input and output share
+  one scrolling column. The editor can go fullscreen.
+- **Classrooms:** owners share a join code, assign problems and see a shared progress board.
+- The workspace shows a 2D trace by default (the same diagram style as the landing-page replay:
+  arrays, lists, stacks, queues, trees, graphs, grids, maps, call stack). The older 3D scene is one
+  toggle away. A fullscreen editor is specified in `SKIILS.md` but not built yet. The problem
+  statement panel can be collapsed.
 - Supporting surfaces: problem list with difficulty/status filters, problem map, progress dashboard
   built from Submit records, sign-in/sign-up/reset, pricing, and "how it works"/tracing explainers.
 
@@ -55,30 +61,40 @@ visualization is the differentiator over a plain online judge.
 
 - **Name:** Noesis. The website uses it everywhere. Internal package names (`nodeflow-frontend`,
   `@nodeflow/shared`) still say "nodeflow".
-- **Languages:** Python is traced and visualized. C++ and Java run and are judged, but their sandboxes
-  do not emit traces, so they get no visualization.
-- **Structures (Phase 1):** arrays and singly linked lists, plus one stack problem and one queue
-  problem. Trees, graphs, heaps, recursion call stacks, matrices, doubly linked lists,
-  random-pointer and cycle problems are not visualized yet and must not be presented as live.
-- **Problem bank:** 55 live problems as of 2026-09-16 (33 array, 20 singly linked list, 1 stack,
-  1 queue), all with reference solutions verified by the judge. The site reads the live count from
-  the API rather than hard-coding it. Every live problem
-  statement is original Noesis writing, never copied from LeetCode, GfG or other sites. AI-drafted
-  problems require human review and a verified reference solution before publishing.
-- **Planned bank:** 388 DSA questions in total, an owner-confirmed target that is not live yet.
-  `DSA.json` holds 384 metadata entries (titles and topics only, not problem content).
+- **Languages:** Python, C++ and Java are all traced and visualized (Python via `sys.settrace`,
+  C++ under gdb, Java through JDI) and all judged against the same cases.
+- **Structures:** arrays, strings, matrices/grids, singly/doubly/random/multilevel/cyclic linked
+  lists, stacks, queues, hash maps, trees and BSTs, heaps, graphs, tries (as the objects the code
+  builds), design classes, and the recursion call stack.
+- **Problem bank:** 372 live problems as of 2026-09-17, covering all 369 problem rows of `DSA.json`
+  (its other 15 rows are section headings) plus 3 extra seeds. Every reference solution passes all
+  its cases in the Python sandbox; hidden-case outputs are generated from those references, and the
+  hand-written examples are checked against them. C++ and Java harnesses were spot-checked with
+  hand-written solutions across every value kind. Statements are original Noesis writing, never
+  copied from LeetCode, GfG or other sites. Authoring lives in `backend/problem-src/` (Python DSL,
+  `build.py`), output in `backend/data/problems/`.
+- **Bank size:** the owner's earlier target was 388 questions; the sheet in `DSA.json` actually
+  holds 369 problems, and all of them are live. The site reads counts from the API.
 - **Verdicts:** Accepted, Wrong Answer, Time Limit Exceeded, Runtime Error, Compile Error. The learner's
   own exceptions must read as "your code errored", clearly distinct from platform failures (sandbox
   crash, service timeout).
 - **Execution limits:** Docker-isolated sandbox with CPU/memory/time limits and no network; a cap on
   trace steps that surfaces "possible infinite loop"; a bounded execution queue that reports queue time;
   large structures are truncated in the scene rather than rendered in full.
-- **Accounts:** local JSON-backed email/password accounts and sessions. Password-reset requests are
-  only recorded locally; no email is sent yet. Google sign-in may replace this later.
+- **Accounts:** email and password, with bearer-token sessions. Passwords are salted scrypt
+  hashes; only a hash of each session token is stored. Password reset sends a one-time link that
+  expires in an hour and drops every existing session. Postgres in production, JSON files locally.
+  Google sign-in may be added later.
 - **Pricing:** only a free tier exists. The paid tiers and their prices are undecided; payment
   integration does not exist yet.
-- **Roadmap:** Phase 2 adds trees, graphs, stacks/queues and recursion; Phase 3 adds AI hints and
-  review; hosted classrooms and more traced languages come later. None of these has dates.
+- **Roadmap:** Phase 1 (arrays, lists, Python) shipped; Phase 2 (the whole sheet, all structures,
+  C++/Java traces, custom input, classrooms) is current; paid plans for larger courses, private
+  problem banks, AI hints and Google sign-in come later. None of these has dates.
+- **Hosting:** https://noesis-dsa.vercel.app runs the whole product. Code executes in Vercel
+  Sandbox microVMs (no Docker on Vercel), accounts and classrooms live in Postgres, and password
+  resets go out through Resend. Locally the same code runs against Docker and JSON files, so a
+  laptop needs no cloud services. Each capability reports itself in /api/health and the UI says
+  plainly when one is switched off.
 - **Terminology:** trace, step, heap, diff, scene, structure type, Run / Test / Submit, live preview,
   phase.
 

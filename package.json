@@ -19,11 +19,17 @@
     "verify:reviewed": "npm run verify:reviewed --workspace backend",
     "verify:ui": "npm run verify:ui --workspace frontend",
     "ingest:metadata": "npm run ingest:metadata --workspace backend",
-    "ingest:drafts": "npm run ingest:drafts --workspace backend"
+    "ingest:drafts": "npm run ingest:drafts --workspace backend",
+    "build:vercel": "node scripts/build-vercel.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "esbuild": "^0.28.2",
     "playwright": "^1.62.1",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@neon/config": "^1.7.2",
+    "@neon/env": "^1.4.3"
   }
 }

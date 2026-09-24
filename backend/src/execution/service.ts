@@ -1,10 +1,8 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   outputsMatch,
   type CaseResult,
   type ExecutionResponse,
+  type ExpectedOutputResponse,
   type Language,
   type LivePreviewResponse,
   type Problem,
@@ -14,12 +12,12 @@ import {
 } from "@nodeflow/shared";
 import { runInDocker, type RawBatchResponse, type RawRunnerError, type RunnerPayload } from "./dockerRunner.js";
 import { configFor } from "./languages.js";
+import { recordSubmission } from "../progress/summary.js";
 import { runQueued } from "./queue.js";
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const dataDir = path.join(backendRoot, "data");
-const submissionsPath = path.join(dataDir, "submissions.json");
 const submitRateLimit = new Map<string, number>();
+/** A preview only needs to show the start of a runaway loop, so it gives up quickly. */
+const PREVIEW_CASE_TIMEOUT_MS = 1500;
 
 const basePayload = (problem: Problem, code: string): Omit<RunnerPayload, "stepLimit" | "visualizeLimit"> => ({
   code,
@@ -50,6 +48,8 @@ export const runProblemCase = async (
     timeoutMs?: number;
     language?: Language;
     trace?: boolean;
+    /** Live previews stop at the step budget and give native runs a shorter clock. */
+    preview?: boolean;
   } = {}
 ): Promise<ExecutionResponse> => {
   const language = options.language ?? "python";
@@ -60,7 +60,8 @@ export const runProblemCase = async (
     trace: options.trace ?? true,
     stepLimit: options.stepLimit ?? config.runStepLimit,
     visualizeLimit: options.visualizeLimit ?? 64,
-    caseTimeoutMs: config.caseTimeoutMs + 2000
+    stopAtStepLimit: options.preview,
+    caseTimeoutMs: options.preview ? PREVIEW_CASE_TIMEOUT_MS : config.caseTimeoutMs + 2000
   };
 
   const queued = await runQueued(() =>
@@ -73,13 +74,15 @@ export const runProblemCase = async (
 export const previewProblem = async (
   problem: Problem,
   code: string,
-  language: Language = "python"
+  language: Language = "python",
+  input?: Record<string, unknown>
 ): Promise<LivePreviewResponse> => {
   const config = configFor(language);
-  const execution = await runProblemCase(problem, code, problem.defaultInput, {
+  const execution = await runProblemCase(problem, code, input ?? problem.defaultInput, {
     stepLimit: config.previewStepLimit,
     visualizeLimit: 48,
-    language
+    language,
+    preview: true
   });
 
   return {
@@ -87,8 +90,45 @@ export const previewProblem = async (
     ok: execution.ok,
     execution,
     quiet: !execution.ok,
-    source: "default_input"
+    source: input ? "custom_input" : "default_input"
   };
+};
+
+const expectedCache = new Map<string, ExpectedOutputResponse>();
+
+/**
+ * The reference solution's answer for a custom input, so a learner can check
+ * their own case. References are Python and run untraced; answers are cached.
+ */
+export const expectedOutput = async (
+  problem: Problem,
+  input: Record<string, unknown>
+): Promise<ExpectedOutputResponse> => {
+  const key = `${problem.id}:${JSON.stringify(input)}`;
+  const cached = expectedCache.get(key);
+  if (cached) return cached;
+
+  const execution = await runProblemCase(problem, problem.referenceCode, input, {
+    trace: false,
+    stepLimit: 0,
+    visualizeLimit: 0,
+    language: "python"
+  });
+  const response: ExpectedOutputResponse = execution.ok
+    ? { ok: true, expectedOutput: execution.result }
+    : {
+        ok: false,
+        message:
+          execution.errorType === "Platform Error"
+            ? execution.message
+            : "The reference solution could not handle this input, so it is probably outside the problem's constraints."
+      };
+
+  if (execution.ok || execution.errorType !== "Platform Error") {
+    if (expectedCache.size > 500) expectedCache.delete(expectedCache.keys().next().value!);
+    expectedCache.set(key, response);
+  }
+  return response;
 };
 
 /**
@@ -234,6 +274,10 @@ export const submitProblem = async (
   submitRateLimit.set(rateKey, now);
   const response = await runCases(problem, code, problem.testCases, false, language);
   const submissionId = `${problem.id}-${now}`;
+  // A sandbox failure says nothing about the learner's code, so it is not recorded as an attempt.
+  if (response.verdict === "Platform Error") {
+    return { ...response, submissionId, persisted: false, userId };
+  }
   const record = {
     submissionId,
     userId,
@@ -245,12 +289,7 @@ export const submitProblem = async (
     timestamp: new Date(now).toISOString()
   };
 
-  fs.mkdirSync(dataDir, { recursive: true });
-  const existing = fs.existsSync(submissionsPath)
-    ? (JSON.parse(fs.readFileSync(submissionsPath, "utf8")) as unknown[])
-    : [];
-  existing.push(record);
-  fs.writeFileSync(submissionsPath, `${JSON.stringify(existing, null, 2)}\n`, "utf8");
+  await recordSubmission(record);
 
   return {
     ...response,

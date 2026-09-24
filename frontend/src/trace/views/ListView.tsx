@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { ListEdgeModel, ListNodeModel, ListViewModel } from "../model";
 import { ArrowMarkers } from "./ArrowMarkers";
-import { PointerTags } from "./PointerTags";
+import { tagMetrics, TravellingTags, type TravellingTag } from "./PointerTags";
+import { placeAt } from "./placeAt";
 
 /**
  * Linked lists in the landing-page style: ink circles, arrows that draw in when
@@ -76,13 +77,31 @@ function edgePath(edge: ListEdgeModel, from: ListNodeModel, to: ListNodeModel | 
 export function ListView({ view }: { view: ListViewModel }) {
   const byId = new Map(view.nodes.map((node) => [node.id, node]));
   const doubly = view.edges.some((edge) => edge.field === "prev");
+
+  // Every pointer in the figure, placed above the node it names. Stacking runs
+  // upward so a node carrying several pointers reads bottom-to-top.
+  const tagLayer: TravellingTag[] = [];
+  for (const node of view.nodes) {
+    node.tags.slice(0, 4).forEach((tag, level) => {
+      tagLayer.push({
+        name: tag.name,
+        changed: tag.changed,
+        x: cx(node),
+        y: cy(node) - RADIUS - 8 - tagMetrics.height - level * (tagMetrics.height + tagMetrics.gap),
+        level
+      });
+    });
+  }
   const width = Math.max(1, view.cols) * SPACING + PAD_X * 2 - SPACING + 40;
-  const height = Math.max(1, view.rows) * ROW_HEIGHT;
+  // A node carrying three or more pointers stacks them above the top of the
+  // row, so the viewBox has to grow upward or the highest pill is cut off.
+  const top = Math.min(0, ...tagLayer.map((tag) => tag.y - 4));
+  const height = Math.max(1, view.rows) * ROW_HEIGHT - top;
 
   return (
     <div className="overflow-x-auto">
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 ${top} ${width} ${height}`}
         role="img"
         aria-label={`Linked list: ${view.nodes.map((node) => node.label).join(", ")}`}
         className="h-auto text-primary"
@@ -108,11 +127,12 @@ export function ListView({ view }: { view: ListViewModel }) {
                 strokeLinecap="round"
                 markerEnd={to ? (edge.changed ? "url(#nf-arrow-strong)" : "url(#nf-arrow-soft)") : undefined}
                 className={cn(
-                  edge.changed ? "text-primary" : "text-blueprint-muted",
+                  edge.changed ? "text-[var(--graphics-node)]" : "text-[var(--graphics-inactive)]",
                   dashed && !edge.changed && "opacity-70"
                 )}
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1, d: edgePath(edge, from, to, doubly) }}
+                // d is not animated: framer cannot morph a line into a curve and emits "undefined".
+                animate={{ pathLength: 1, opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
               />
@@ -122,31 +142,50 @@ export function ListView({ view }: { view: ListViewModel }) {
 
         <AnimatePresence initial={false}>
           {view.nodes.map((node) => (
-            <motion.g
-              key={node.id}
-              initial={{ opacity: 0, scale: 0.6, x: cx(node), y: cy(node) }}
-              animate={{ opacity: 1, scale: 1, x: cx(node), y: cy(node) }}
-              exit={{ opacity: 0, scale: 0.6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            >
-              <circle
-                r={RADIUS}
-                strokeWidth={1.75}
-                className={cn("stroke-primary transition-[fill] duration-300", node.changed ? "fill-primary" : "fill-card")}
-              />
-              <text
-                y={5}
-                textAnchor="middle"
-                className={cn(
-                  "font-mono text-[14px] font-medium transition-[fill] duration-300",
-                  node.changed ? "fill-primary-foreground" : "fill-primary"
-                )}
+            <g key={node.id} style={placeAt(cx(node), cy(node))}>
+              <motion.g
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ type: "spring", stiffness: 260, damping: 28 }}
               >
-                {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
-              </text>
-              <PointerTags tags={node.tags} bottom={-RADIUS - 8} />
-            </motion.g>
+                <circle
+                  r={RADIUS}
+                  strokeWidth={node.comparing ? 2.25 : 1.75}
+                  className={cn(
+                    "transition-[fill] duration-300",
+                    node.comparing
+                      ? "fill-[var(--compare-soft)] stroke-[var(--compare)]"
+                      : node.changed
+                        ? "fill-[var(--fill-blue)] stroke-[var(--graphics-node)]"
+                        : node.reading
+                          ? "fill-card stroke-[var(--fill-blue)]"
+                          : "fill-card stroke-[var(--graphics-node)]"
+                  )}
+                />
+                <text
+                  y={5}
+                  textAnchor="middle"
+                  className={cn(
+                    "font-mono text-[14px] font-medium transition-[fill] duration-300",
+                    node.comparing
+                      ? "fill-[var(--compare-text)]"
+                      : node.changed
+                        ? "fill-[var(--fill-blue-text)]"
+                        : "fill-[var(--graphics-node)]"
+                  )}
+                >
+                  {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
+                </text>
+              </motion.g>
+            </g>
           ))}
+        </AnimatePresence>
+
+        {/* Drawn last, and outside the node groups, so a pointer can travel
+            between nodes rather than disappearing from one to reappear on another. */}
+        <AnimatePresence initial={false}>
+          <TravellingTags tags={tagLayer} />
         </AnimatePresence>
       </svg>
     </div>

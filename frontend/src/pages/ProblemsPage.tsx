@@ -6,6 +6,8 @@ import { api } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
+import { ChipScroller } from "../components/ChipScroller";
+import { Pagination, paginate } from "../components/Pagination";
 import { SectionHeading } from "../components/SectionHeading";
 import { Spinner } from "../components/PageLoader";
 import { button, chip, container } from "../components/ui";
@@ -20,41 +22,7 @@ const STATUS_FILTERS: Array<{ id: Status; label: string }> = [
 ];
 
 const DIFFICULTY_ORDER = ["Easy", "Medium", "Hard"];
-
-function FilterRow({
-  label,
-  options,
-  value,
-  onChange
-}: {
-  label: string;
-  options: Array<{ id: string; label: string }>;
-  value: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="w-24 shrink-0 text-technical-mono text-blueprint-muted">{label}</span>
-      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
-        {options.map((option) => {
-          const active = value === option.id;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => onChange(option.id)}
-              className={cn(chip.base, "no-lift hover:bg-surface-hover", active && chip.active, active && "hover:bg-primary")}
-              style={{ minHeight: 0 }}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+const PAGE_SIZE = 20;
 
 export default function ProblemsPage() {
   const session = useSession();
@@ -62,16 +30,29 @@ export default function ProblemsPage() {
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
   const [params, setParams] = useSearchParams();
 
+  // Filters and the page live in the URL, so back/forward and shared links keep them.
   const query = params.get("q") ?? "";
-  const [topic, setTopic] = useState("All");
-  const [difficulty, setDifficulty] = useState("All");
-  const [status, setStatus] = useState<Status>("all");
+  const topic = params.get("topic") ?? "All";
+  const difficulty = params.get("difficulty") ?? "All";
+  const status = (params.get("status") ?? "all") as Status;
+  const requestedPage = Number(params.get("page") ?? "1") || 1;
 
-  const setQuery = (value: string) => {
+  const update = (changes: Record<string, string | null>, resetPage = true) => {
     const next = new URLSearchParams(params);
-    if (value) next.set("q", value);
-    else next.delete("q");
+    for (const [key, value] of Object.entries(changes)) {
+      if (value === null || value === "" || value === "All" || value === "all") next.delete(key);
+      else next.set(key, value);
+    }
+    if (resetPage) next.delete("page");
     setParams(next, { replace: true });
+  };
+  const setQuery = (value: string) => update({ q: value });
+  const setTopic = (value: string) => update({ topic: value });
+  const setDifficulty = (value: string) => update({ difficulty: value });
+  const setStatus = (value: Status) => update({ status: value });
+  const setPage = (value: number) => {
+    update({ page: value > 1 ? String(value) : null }, false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Progress is what makes the status filter meaningful; it is optional, so a
@@ -136,12 +117,8 @@ export default function ProblemsPage() {
   }, [problems, query, topic, difficulty, status, statusById]);
 
   const filtered = query || topic !== "All" || difficulty !== "All" || status !== "all";
-  const clearFilters = () => {
-    setQuery("");
-    setTopic("All");
-    setDifficulty("All");
-    setStatus("all");
-  };
+  const clearFilters = () => update({ q: null, topic: null, difficulty: null, status: null });
+  const paged = paginate(visible, requestedPage, PAGE_SIZE);
 
   const solvedCount = progress?.accepted ?? 0;
 
@@ -160,7 +137,7 @@ export default function ProblemsPage() {
         </NavLink>
       </div>
 
-      <div className="surface-card grid gap-5">
+      <div className="surface-card grid grid-cols-[minmax(0,1fr)] gap-5">
         <div className="relative">
           <Search
             size={16}
@@ -177,20 +154,20 @@ export default function ProblemsPage() {
           />
         </div>
 
-        <FilterRow
+        <ChipScroller
           label="Topic"
           options={topics.map((option) => ({ id: option, label: option }))}
           value={topic}
           onChange={setTopic}
         />
-        <FilterRow
+        <ChipScroller
           label="Difficulty"
           options={difficulties.map((option) => ({ id: option, label: option }))}
           value={difficulty}
           onChange={setDifficulty}
         />
         {session.user && (
-          <FilterRow
+          <ChipScroller
             label="Status"
             options={STATUS_FILTERS}
             value={status}
@@ -201,7 +178,11 @@ export default function ProblemsPage() {
 
       <div className="mb-4 mt-10 flex flex-wrap items-center justify-between gap-3">
         <p className="text-technical-mono text-blueprint-muted" aria-live="polite">
-          {loading ? "Loading problems" : `${visible.length} of ${problems.length} problems`}
+          {loading
+            ? "Loading problems"
+            : visible.length > PAGE_SIZE
+              ? `${(paged.page - 1) * PAGE_SIZE + 1}–${(paged.page - 1) * PAGE_SIZE + paged.items.length} of ${visible.length} problems`
+              : `${visible.length} of ${problems.length} problems`}
           {session.user && !loading ? ` · ${solvedCount} solved` : ""}
         </p>
         {filtered && (
@@ -228,64 +209,69 @@ export default function ProblemsPage() {
           </button>
         </div>
       ) : (
-        <ul className="surface-frame divide-y divide-blueprint-line overflow-hidden">
-          {visible.map((problem) => {
-            const record = statusById.get(problem.id);
-            const solved = record?.accepted ?? false;
-            const attempted = !solved && (record?.attempts ?? 0) > 0;
+        <>
+          <ul className="surface-frame divide-y divide-blueprint-line overflow-hidden">
+            {paged.items.map((problem) => {
+              const record = statusById.get(problem.id);
+              const solved = record?.accepted ?? false;
+              const attempted = !solved && (record?.attempts ?? 0) > 0;
 
-            return (
-              <li key={problem.id}>
-                <NavLink
-                  to={`/workspace/${problem.id}`}
-                  className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-hover sm:px-6"
-                >
-                  <span
-                    className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
-                      solved ? "border-blueprint-line" : "border-dashed border-blueprint-line"
-                    )}
+              return (
+                <li key={problem.id}>
+                  <NavLink
+                    to={`/workspace/${problem.id}`}
+                    className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-hover sm:px-6"
                   >
-                    {solved ? (
-                      <Check size={15} aria-hidden className="check-icon" />
-                    ) : (
-                      <Circle
-                        size={8}
-                        aria-hidden
-                        className={attempted ? "fill-current text-primary" : "text-blueprint-line"}
-                      />
-                    )}
-                    <span className="sr-only">{solved ? "Solved" : attempted ? "Attempted" : "Not started"}</span>
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium text-primary">{problem.title}</span>
-                    <span className="mt-1 block text-xs text-blueprint-muted sm:hidden">
-                      {problem.topic} · {problem.difficulty}
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
+                        solved ? "border-blueprint-line" : "border-dashed border-blueprint-line"
+                      )}
+                    >
+                      {solved ? (
+                        <Check size={15} aria-hidden className="check-icon" />
+                      ) : (
+                        <Circle
+                          size={8}
+                          aria-hidden
+                          className={attempted ? "fill-current text-primary" : "text-blueprint-line"}
+                        />
+                      )}
+                      <span className="sr-only">{solved ? "Solved" : attempted ? "Attempted" : "Not started"}</span>
                     </span>
-                  </span>
 
-                  <span className={cn(chip.small, "hidden text-blueprint-muted sm:inline-flex")}>
-                    {problem.topic}
-                  </span>
-                  <span
-                    className={cn(
-                      "hidden w-16 text-right text-technical-mono sm:block",
-                      problem.difficulty === "Easy" ? "text-blueprint-muted" : "text-primary"
-                    )}
-                  >
-                    {problem.difficulty}
-                  </span>
-                  <ArrowRight
-                    size={14}
-                    aria-hidden
-                    className="shrink-0 text-blueprint-muted transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-                  />
-                </NavLink>
-              </li>
-            );
-          })}
-        </ul>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-medium text-primary">{problem.title}</span>
+                      <span className="mt-1 block text-xs text-blueprint-muted sm:hidden">
+                        {problem.topic} · {problem.difficulty}
+                      </span>
+                    </span>
+
+                    <span className={cn(chip.small, "hidden text-blueprint-muted sm:inline-flex")}>
+                      {problem.topic}
+                    </span>
+                    <span
+                      className={cn(
+                        "hidden w-16 text-right text-technical-mono sm:block",
+                        problem.difficulty === "Easy" ? "text-blueprint-muted" : "text-primary"
+                      )}
+                    >
+                      {problem.difficulty}
+                    </span>
+                    <ArrowRight
+                      size={14}
+                      aria-hidden
+                      className="shrink-0 text-blueprint-muted transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+                    />
+                  </NavLink>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-6">
+            <Pagination page={paged.page} pages={paged.pages} onPage={setPage} label="Problem pages" />
+          </div>
+        </>
       )}
 
       {!session.user && (

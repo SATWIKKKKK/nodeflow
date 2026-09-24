@@ -8,6 +8,7 @@ Payload
   cases: [{input}]          batch mode (Test / Submit): no trace, one result per case
   trace: bool               record steps (single-case mode only)
   stepLimit                 recorded steps before the replay is truncated
+  stopAtStepLimit           live preview: stop at the step limit instead of finishing untraced
   visualizeLimit            items kept per list/dict in a snapshot
   caseTimeoutMs             wall-clock budget per case
 
@@ -44,8 +45,12 @@ MAX_STRING = 240
 MAX_STDOUT = 64_000
 
 
-class CaseTimeout(Exception):
-    pass
+class CaseTimeout(BaseException):
+    """BaseException so a learner's `except Exception:` cannot swallow the timer."""
+
+
+class StepLimitReached(BaseException):
+    """Live previews stop at the step budget instead of running on untraced."""
 
 
 class SandboxViolation(Exception):
@@ -391,33 +396,50 @@ class Snapshotter:
             return value[:MAX_STRING] + "…"
         return value
 
-    def serialize_value(self, value, heap, active):
+    def is_object(self, value):
+        return isinstance(value, (list, tuple, deque, set, frozenset, dict)) or hasattr(value, "__dict__")
+
+    def serialize_value(self, value, heap):
+        """A primitive, or the heap ref of an object; reachable objects join `heap`.
+
+        The walk is breadth-first over an explicit queue, so a 10,000-node list
+        costs no Python stack (a recursive walk here used to hit the recursion
+        limit and get blamed on the learner's code).
+        """
         if value is None or isinstance(value, (bool, int, float, str)):
             return self.primitive(value)
+        if not self.is_object(value):
+            return repr(value)[:MAX_STRING]
 
-        if isinstance(value, (list, tuple, deque, set, frozenset)) or isinstance(value, dict) or hasattr(
-            value, "__dict__"
-        ):
-            ref = self.ref_for(value)
-            if ref in heap or ref in active:
-                return ref
-            if len(heap) >= MAX_OBJECTS:
-                return ref
-            active.add(ref)
-            heap[ref] = self.describe(value, heap, active)
-            active.discard(ref)
-            return ref
+        root = self.ref_for(value)
+        pending = deque([value])
+        while pending and len(heap) < MAX_OBJECTS:
+            current = pending.popleft()
+            ref = self.ref_for(current)
+            if ref in heap:
+                continue
+            heap[ref] = self.describe(current, heap, pending)
+        return root
 
-        return repr(value)[:MAX_STRING]
+    def child(self, value, heap, pending):
+        """Serialise one field or item, queueing objects instead of recursing."""
+        if value is None or isinstance(value, (bool, int, float, str)):
+            return self.primitive(value)
+        if not self.is_object(value):
+            return repr(value)[:MAX_STRING]
+        ref = self.ref_for(value)
+        if ref not in heap:
+            pending.append(value)
+        return ref
 
-    def describe(self, value, heap, active):
+    def describe(self, value, heap, pending):
         limit = self.visualize_limit
         if isinstance(value, (list, tuple, deque)):
-            visible = list(value)[:limit] if not isinstance(value, deque) else list(value)[:limit]
+            visible = list(value)[:limit]
             kind = "list" if isinstance(value, list) else "tuple" if isinstance(value, tuple) else "deque"
             return {
                 "type": kind,
-                "items": [self.serialize_value(item, heap, active) for item in visible],
+                "items": [self.child(item, heap, pending) for item in visible],
                 "truncated": max(0, len(value) - len(visible)),
             }
         if isinstance(value, (set, frozenset)):
@@ -429,7 +451,7 @@ class Snapshotter:
             visible = items[:limit]
             return {
                 "type": "set",
-                "items": [self.serialize_value(item, heap, active) for item in visible],
+                "items": [self.child(item, heap, pending) for item in visible],
                 "truncated": max(0, len(items) - len(visible)),
             }
         if isinstance(value, dict):
@@ -437,9 +459,7 @@ class Snapshotter:
             type_name = "dict" if type(value) is dict else type(value).__name__
             return {
                 "type": type_name,
-                "fields": {
-                    str(key): self.serialize_value(entry, heap, active) for key, entry in entries
-                },
+                "fields": {str(key): self.child(entry, heap, pending) for key, entry in entries},
                 "truncated": max(0, len(value) - len(entries)),
             }
         fields = {}
@@ -448,10 +468,10 @@ class Snapshotter:
                 continue
             if callable(entry):
                 continue
-            fields[name] = self.serialize_value(entry, heap, active)
+            fields[name] = self.child(entry, heap, pending)
         return {"type": type(value).__name__, "fields": fields}
 
-    def frame_variables(self, frame, heap, active):
+    def frame_variables(self, frame, heap):
         variables = {}
         for name, value in frame.f_locals.items():
             if name.startswith("__"):
@@ -459,10 +479,10 @@ class Snapshotter:
             # Functions, classes, modules and caches are code, not data.
             if callable(value) or type(value).__name__ == "module":
                 continue
-            variables[name] = self.serialize_value(value, heap, active)
+            variables[name] = self.serialize_value(value, heap)
         return variables
 
-    def capture(self, frame, event):
+    def capture(self, frame, event, returned=None):
         frames = []
         current = frame
         while current is not None and current.f_code.co_filename == USER_FILENAME:
@@ -472,13 +492,12 @@ class Snapshotter:
         frames.reverse()
 
         heap = {}
-        active = set()
         # Innermost frame first so its objects win the object budget.
-        top_variables = self.frame_variables(frame, heap, active)
+        top_variables = self.frame_variables(frame, heap)
         stack = []
         if len(frames) > 1:
             for entry in frames:
-                variables = top_variables if entry is frame else self.frame_variables(entry, heap, active)
+                variables = top_variables if entry is frame else self.frame_variables(entry, heap)
                 stack.append(
                     {"function": entry.f_code.co_name, "line": entry.f_lineno, "variables": variables}
                 )
@@ -486,6 +505,10 @@ class Snapshotter:
         step = {"line": frame.f_lineno, "event": event, "variables": top_variables, "heap": heap}
         if stack:
             step["stack"] = stack
+        # Serialised into the same heap, so returning a node is a reference
+        # rather than a second copy of the structure.
+        if event == "return":
+            step["returns"] = self.serialize_value(returned, heap)
         return step
 
 
@@ -708,6 +731,7 @@ def run_case(payload, compiled, case_input, record):
     tracing = record is not None
     snapshotter = Snapshotter(int(payload.get("visualizeLimit", 64))) if tracing else None
     step_limit = int(payload.get("stepLimit", 3000))
+    stop_at_limit = bool(payload.get("stopAtStepLimit"))
     steps = record["steps"] if tracing else None
 
     def stop_tracing(frame):
@@ -726,8 +750,10 @@ def run_case(payload, compiled, case_input, record):
             if len(steps) >= step_limit:
                 record["truncated"] = True
                 stop_tracing(frame)
+                if stop_at_limit:
+                    raise StepLimitReached()
                 return None
-            steps.append(snapshotter.capture(frame, event))
+            steps.append(snapshotter.capture(frame, event, arg))
         return trace_func
 
     try:
@@ -748,6 +774,15 @@ def run_case(payload, compiled, case_input, record):
     except CaseTimeout as error:
         sys.settrace(None)
         return failure("Time Limit Exceeded", str(error), started, stdout=stdout.getvalue()[:MAX_STDOUT])
+    except StepLimitReached:
+        sys.settrace(None)
+        return failure(
+            "Execution Limit",
+            f"The live preview stopped after {step_limit} steps.",
+            started,
+            line=steps[-1]["line"] if steps else None,
+            stdout=stdout.getvalue()[:MAX_STDOUT],
+        )
     except RecursionError as error:
         sys.settrace(None)
         return failure(

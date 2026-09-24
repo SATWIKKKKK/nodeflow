@@ -90,10 +90,47 @@ def ops(*calls):
     return {"operations": [call[0] for call in calls], "arguments": [list(call[1:]) for call in calls]}
 
 
+NODE_NOTES = {
+    "ListNode": "# ListNode has .val and .next",
+    "DListNode": "# DListNode has .val, .prev and .next",
+    "RandomNode": "# RandomNode has .val, .next and .random",
+    "ChildNode": "# ChildNode has .val, .next and .child",
+    "TreeNode": "# TreeNode has .val, .left and .right",
+}
+NODE_BY_KIND = {
+    "linked_list": "ListNode",
+    "cyclic_list": "ListNode",
+    "y_list": "ListNode",
+    "list_node_value": "ListNode",
+    "doubly_linked_list": "DListNode",
+    "random_list": "RandomNode",
+    "child_list": "ChildNode",
+    "tree": "TreeNode",
+    "tree_node_value": "TreeNode",
+}
+
+
+def node_header(p):
+    """Comment lines naming the node classes the signature uses (they are predefined)."""
+    kinds = [p["ret"]] + [param["kind"] for param in p["params"]]
+    if p["design"]:
+        d = p["design"]
+        kinds += [param["kind"] for param in d["constructorParameters"]]
+        for m in d["methods"]:
+            kinds += [m["returnKind"]] + [param["kind"] for param in m["parameters"]]
+    names = []
+    for kind in kinds:
+        name = NODE_BY_KIND.get(kind)
+        if name and name not in names:
+            names.append(name)
+    lines = [NODE_NOTES[name] + " (already defined)." for name in names]
+    return "\n".join(lines) + "\n\n" if lines else ""
+
+
 def python_starter(p):
     """A stub that compiles and returns a harmless default."""
     if p["starter"]:
-        return p["starter"].strip("\n") + "\n"
+        return node_header(p) + p["starter"].strip("\n") + "\n"
     if p["design"]:
         d = p["design"]
         ctor_args = "".join(f", {param['name']}" for param in d["constructorParameters"])
@@ -102,13 +139,13 @@ def python_starter(p):
             args = "".join(f", {param['name']}" for param in m["parameters"])
             lines.append(f"    def {m['name']}(self{args}):")
             ret = default_return(m["returnKind"])
-            lines.append("        # Write this method." if ret is None else f"        return {ret}")
+            lines.append("        pass" if ret is None else f"        return {ret}")
             lines.append("")
-        return "\n".join(lines).rstrip() + "\n"
+        return node_header(p) + "\n".join(lines).rstrip() + "\n"
     args = ", ".join(param["name"] for param in p["params"])
     ret = default_return(p["ret"])
     body = "    # Write your solution here.\n" + (f"    return {ret}\n" if ret is not None else "    pass\n")
-    return f"def {p['fn']}({args}):\n{body}"
+    return f"{node_header(p)}def {p['fn']}({args}):\n{body}"
 
 
 def default_return(kind):

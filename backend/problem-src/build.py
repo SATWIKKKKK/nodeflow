@@ -14,6 +14,7 @@ import importlib
 import json
 import math
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -74,6 +75,11 @@ def build_problem(p):
             missing = [param["name"] for param in p["params"] if param["name"] not in example[0]]
             if missing:
                 errors.append(f"example missing inputs {missing}")
+
+    try:
+        tracer.compile_user_code(dsl.python_starter(p))
+    except Exception as error:  # noqa: BLE001
+        errors.append(f"starter code does not compile: {error}")
 
     inputs = [example[0] for example in p["examples"]] + list(p["tests"])
     response = tracer.run(payload_for(p, inputs))
@@ -168,7 +174,7 @@ def build_batch(name):
 def main():
     names = sys.argv[1:]
     if names == ["all"]:
-        names = sorted(file[:-3] for file in os.listdir(HERE) if file.startswith("b") and file.endswith(".py"))
+        names = sorted(file[:-3] for file in os.listdir(HERE) if re.match(r"b\d\d_\w+\.py$", file))
     total = 0
     bad = False
     for name in names:

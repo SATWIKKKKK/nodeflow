@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Search } from "lucide-react";
 import { loadProblems } from "../../lib/problems";
 import { cn } from "../../lib/cn";
-import type { PublicProblem } from "@nodeflow/shared";
+import type { ProblemSummary } from "@nodeflow/shared";
 
 /**
  * Pill search bar (DESIGN.md §6) that jumps straight into a problem's workspace.
@@ -13,7 +13,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
   const navigate = useNavigate();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
-  const [problems, setProblems] = useState<PublicProblem[]>([]);
+  const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [cursor, setCursor] = useState(0);
@@ -47,7 +47,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
-  const go = (problem?: PublicProblem) => {
+  const go = (problem?: ProblemSummary) => {
     if (!problem) {
       navigate(`/problems${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ""}`);
     } else {
@@ -113,7 +113,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
         <button
           type="submit"
           aria-label="Search"
-          className="no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)]"
+          className="no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)]"
           style={{ minHeight: 0, width: "2rem" }}
         >
           <ArrowRight size={14} aria-hidden />

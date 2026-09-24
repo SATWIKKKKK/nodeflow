@@ -8,3 +8,14 @@ backend/data/submissions.json
 .env
 .env.*
 !.env.example
+__pycache__/
+*.pyc
+*.tsbuildinfo
+.vercel/
+
+.vercel
+backend/data/auth.json
+backend/data/classrooms.json
+
+.env*
+.neon

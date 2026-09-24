@@ -16,7 +16,10 @@ const TracingPage = lazy(() => import("./pages/TracingPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ProblemMapPage = lazy(() => import("./pages/ProblemMapPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ClassroomsPage = lazy(() => import("./pages/ClassroomsPage"));
+const ClassroomPage = lazy(() => import("./pages/ClassroomPage"));
 const InfoPage = lazy(() => import("./pages/InfoPage"));
+const DevGraphicsPage = lazy(() => import("./pages/DevGraphicsPage"));
 
 /**
  * Every route change starts at the top. Hash links (/#replay) wait for the
@@ -72,12 +75,15 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/signin" replace />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
           <Route path="/forgot-password" element={<AuthPage mode="forgot" />} />
+          <Route path="/reset-password" element={<AuthPage mode="reset" />} />
         </Route>
 
         <Route element={<AppShell />}>
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/problem-map" element={<ProblemMapPage />} />
+          <Route path="/classrooms" element={<ClassroomsPage />} />
+          <Route path="/classrooms/:classroomId" element={<ClassroomPage />} />
         </Route>
 
         {/* The workspace is a full-viewport tool with its own slim header. */}
@@ -86,6 +92,16 @@ export default function App() {
           element={
             <Suspense fallback={<PageLoader className="min-h-screen" />}>
               <WorkspacePage />
+            </Suspense>
+          }
+        />
+
+        {/* Contact sheet for the illustration library; not linked from the site. */}
+        <Route
+          path="/dev/graphics"
+          element={
+            <Suspense fallback={<PageLoader className="min-h-screen" />}>
+              <DevGraphicsPage />
             </Suspense>
           }
         />

@@ -33,14 +33,14 @@ export const INFO_PAGES: InfoPageContent[] = [
       },
       {
         title: "Who it is for",
-        body: "Students meeting arrays and linked lists for the first time, who want to understand why a solution works or breaks rather than just clear problems quickly."
+        body: "Students working through data structures and algorithms, who want to understand why a solution works or breaks rather than just clear problems quickly."
       },
       {
         title: "Where it stands",
         points: [
-          "Python code is traced and visualized.",
-          "C++ and Java run and are judged, without a visual trace yet.",
-          "Arrays and singly linked lists make up most of the live problem bank."
+          "Python, C++ and Java code is traced and visualized.",
+          "Every problem on the DSA sheet is live, each checked against its reference solution in the sandbox.",
+          "The trace draws arrays, linked lists, stacks, queues, trees, graphs, grids and maps."
         ]
       }
     ]
@@ -54,19 +54,21 @@ export const INFO_PAGES: InfoPageContent[] = [
       {
         title: "Live today",
         points: [
-          "Python execution in an isolated sandbox, traced line by line.",
-          "Array and singly linked list visualization with step-by-step playback.",
+          "Python, C++ and Java execution in an isolated sandbox, traced line by line.",
+          "Step-by-step playback for arrays, lists, stacks, queues, trees, graphs, grids and maps.",
+          "The full DSA sheet, from basic maths to tries.",
           "Run, Test and Submit, with a live preview while you type.",
+          "Custom input for your own test cases, checked against the reference solution.",
+          "Classrooms with join codes, assignments and a shared progress board.",
           "Local accounts and a progress dashboard built from your submissions."
         ]
       },
       {
         title: "Planned",
         points: [
-          "Trees, graphs, stacks, queues and recursion in the visualizer.",
-          "Visual traces for C++ and Java.",
-          "The full bank of 388 questions, each written and reviewed before it goes live.",
-          "Hosted classrooms and shared progress."
+          "Paid plans with reserved sandbox capacity for larger courses.",
+          "Private problem banks for teams.",
+          "Sign-in with Google."
         ]
       }
     ]
@@ -136,7 +138,7 @@ export const INFO_PAGES: InfoPageContent[] = [
         points: [
           "Each run gets a fresh Docker container that is removed when the run ends.",
           "No network access from inside the container.",
-          "One CPU, a memory cap and a limit of 64 processes.",
+          "One CPU, a memory cap and a process limit.",
           "A read-only filesystem, all Linux capabilities dropped, and no privilege escalation."
         ]
       },
@@ -144,7 +146,7 @@ export const INFO_PAGES: InfoPageContent[] = [
         title: "Runaway code",
         points: [
           "Each language has a wall-clock time limit.",
-          "The tracer stops after 7,000 steps and reports a likely infinite loop.",
+          "The tracer stops after 4,000 steps in Python or 1,500 in C++ and Java, and reports a likely infinite loop.",
           "Runs wait in a bounded queue instead of starting unlimited containers."
         ]
       }

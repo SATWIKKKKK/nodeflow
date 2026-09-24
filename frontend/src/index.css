@@ -19,6 +19,19 @@
 
   --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out var(--delay, 0ms) 1 none;
 
+  /* The colour lands first, then the number: the eye registers "this cell is
+     active" before "here is what it now holds". */
+  @keyframes value-commit {
+    0% {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @keyframes cell-ripple {
     0% {
       opacity: 0.4;
@@ -275,10 +288,10 @@
 }
 
 @utility text-technical-mono {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-serif);
+  font-size: 14px;
   line-height: 1.4;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -436,60 +449,107 @@
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
 }
 
+/* Every solid control is blue, in both themes. */
+@utility fill-blue {
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
+
+  &:hover {
+    background: var(--fill-blue-hover);
+  }
+}
+
 .landing-primary-action {
-  background: #111111;
-  color: #ffffff;
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
 }
 
 .landing-primary-action:hover {
-  background: #303031;
+  background: var(--fill-blue-hover);
 }
 
-.dark .landing-primary-action {
-  background: #f3ecec;
-  color: #111111;
-}
-
-.dark .landing-primary-action:hover {
-  background: #e9dddd;
-}
-
+/* The closing panel follows the page: paper in light mode, ink in dark. */
 .landing-cta-panel {
-  border: 1px solid #f3ecec;
-  background: #050505;
-  color: #ffffff;
-  outline: 1px solid rgba(243, 236, 236, 0.86);
+  border: 1px solid var(--color-blueprint-line);
+  background: var(--card);
+  color: var(--foreground);
+  outline: 1px solid var(--color-blueprint-line);
   outline-offset: 3px;
 }
 
+.dark .landing-cta-panel {
+  border-color: #f3ecec;
+  background: #050505;
+  color: #ffffff;
+  outline-color: rgba(243, 236, 236, 0.86);
+}
+
+.landing-cta-muted {
+  color: var(--muted-foreground);
+}
+
+.dark .landing-cta-muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .landing-cta-button {
-  border-color: #ffffff;
-  background: #ffffff;
-  color: #111111;
+  border-color: var(--fill-blue);
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
 }
 
 .landing-cta-button:hover {
-  background: #f5f3f3;
+  background: var(--fill-blue-hover);
+  border-color: var(--fill-blue-hover);
+}
+
+.landing-cta-secondary {
+  border-color: var(--color-blueprint-line);
+  color: var(--foreground);
+}
+
+.landing-cta-secondary:hover {
+  background: var(--surface-hover);
+}
+
+.dark .landing-cta-secondary {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.dark .landing-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.value-commit {
+  animation: value-commit 240ms ease 110ms both;
+}
+
+/* What a rewritten cell held a moment ago, so reuse in place is visible. */
+.value-was {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  opacity: 0.75;
 }
 
 .check-icon {
-  color: #16a34a;
+  color: var(--graphics-node);
 }
 
 .dark .check-icon {
-  color: #4ade80;
+  color: var(--graphics-node);
 }
 
 .progress-fill {
-  background: #16a34a;
+  background: var(--fill-blue);
 }
 
 .dark .progress-fill {
-  background: #22c55e;
+  background: var(--fill-blue);
 }
 
 .language-tag {
-  background: #123d8a;
+  background: var(--fill-blue);
   color: #ffffff;
   border-color: rgba(147, 197, 253, 0.35);
 }
@@ -501,9 +561,9 @@
 }
 
 .dark .badge-current {
-  border-color: rgba(52, 211, 153, 0.45);
-  background: rgba(16, 185, 129, 0.12);
-  color: #6ee7b7;
+  border-color: rgba(158, 203, 255, 0.45);
+  background: rgba(158, 203, 255, 0.12);
+  color: #9ecbff;
 }
 
 .status-error {
@@ -611,4 +671,141 @@
 .select-pill option {
   background: var(--card);
   color: var(--foreground);
+}
+
+/* Hero accent: the Python tag's deep blue in light mode, its light-blue edge in dark mode. */
+.hero-accent {
+  color: #2d58bc;
+}
+
+.dark .hero-accent {
+  color: #9ecbff;
+}
+
+/* ---------- Marketing illustrations (components/graphics) ---------- */
+
+/*
+ * One palette for every drawn illustration: paper, ink, a single accent, and a
+ * grey for strokes that are not the subject. The accent is the same blue the
+ * hero and the language tag already use. Nothing in components/graphics picks a
+ * colour of its own — it reads these.
+ */
+:root {
+  --graphics-paper: #faf8f7;
+  --graphics-ink: #111111;
+  --graphics-inactive: #c9c6c4;
+  --graphics-accent: #2d58bc;
+  /* The default weight for a drawn circle: blue, but never as strong as the
+     accent, which still has to stand out as "this just changed". */
+  --graphics-node: #2d58bc;
+  --fill-blue: #2d58bc;
+  --fill-blue-hover: #28499f;
+  --fill-blue-text: #ffffff;
+  /* "Being weighed", which must never read as "was written". */
+  --compare: #b45309;
+  --compare-soft: #fdf2d8;
+  --compare-text: #7c2d12;
+  /* The one categorical set in the system: component identity, never meaning.
+     Spent on strokes only, so the accent keeps its job as "this changed".
+     Chosen to separate by lightness as well as hue. */
+  --component-0: #2d58bc;
+  --component-1: #b45309;
+  --component-2: #0f766e;
+  --component-3: #7c3aed;
+  --component-4: #be123c;
+  --component-5: #475569;
+  --graphics-grid: rgba(17, 17, 17, 0.055);
+  --graphics-success: #2d58bc;
+}
+
+.dark {
+  --graphics-paper: #121212;
+  --graphics-ink: #ece8e8;
+  --graphics-inactive: #4a4644;
+  --graphics-accent: #9ecbff;
+  --graphics-node: #9ecbff;
+  --fill-blue: #9ecbff;
+  --fill-blue-hover: #bcdcff;
+  --fill-blue-text: #0a1728;
+  --compare: #f0b429;
+  --compare-soft: #3a2a0d;
+  --compare-text: #ffe4b5;
+  --component-0: #9ecbff;
+  --component-1: #f0b429;
+  --component-2: #5eead4;
+  --component-3: #c4b5fd;
+  --component-4: #fda4af;
+  --component-5: #cbd5e1;
+  --graphics-grid: rgba(255, 255, 255, 0.05);
+  --graphics-success: #9ecbff;
+}
+
+/* The CTA panel is black in both themes, so the drawing inverts inside it. */
+.graphics-inverted {
+  --graphics-paper: #050505;
+  --graphics-ink: #f3ecec;
+  --graphics-inactive: #3a3a3a;
+  --graphics-accent: #9ecbff;
+  --graphics-node: #9ecbff;
+  --graphics-grid: rgba(243, 236, 236, 0.05);
+}
+
+/*
+ * The hero word reveals one letter per step, not as a wipe: each letter holds
+ * at 0 for its whole beat and jumps to 1 at the end of it.
+ */
+@keyframes nf-letter-step {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * The caret stays lit while the word types, blinks twice, then fades out. Each
+ * blink is a hard on/off; only the final segment eases.
+ */
+@keyframes nf-caret {
+  0% {
+    opacity: 1;
+    animation-timing-function: steps(1, jump-end);
+  }
+  35% {
+    opacity: 0;
+    animation-timing-function: steps(1, jump-end);
+  }
+  48% {
+    opacity: 1;
+    animation-timing-function: steps(1, jump-end);
+  }
+  61% {
+    opacity: 0;
+    animation-timing-function: steps(1, jump-end);
+  }
+  74% {
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  87% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Fades the ends of the hero band so nodes enter and leave, rather than stop. */
+@utility graphics-edge-fade {
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
+/* Horizontal chip rows scroll by drag, wheel or the arrow buttons; the bar itself is hidden. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

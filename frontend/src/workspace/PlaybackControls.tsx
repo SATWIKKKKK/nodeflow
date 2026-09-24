@@ -69,7 +69,7 @@ export default function PlaybackControls({
         </button>
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)] disabled:cursor-not-allowed disabled:opacity-45"
           aria-label={playing ? "Pause playback" : "Play trace"}
           disabled={empty}
           style={{ minHeight: 0 }}
@@ -111,7 +111,7 @@ export default function PlaybackControls({
         </label>
 
         <span className="ml-auto text-technical-mono text-blueprint-muted" aria-live="off">
-          {empty ? "No trace yet" : `Step ${index + 1} / ${count}${line ? ` · line ${line}` : ""}`}
+          {empty ? "" : `Step ${index + 1} / ${count}${line ? ` · line ${line}` : ""}`}
         </span>
       </div>
 

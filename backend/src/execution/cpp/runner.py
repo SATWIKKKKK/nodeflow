@@ -21,7 +21,8 @@ import time
 sys.path.insert(0, "/runner")
 from nf_trace import delta_encode, dumps  # noqa: E402
 
-WORK_DIR = "/tmp/work"
+# Each run gets its own directory when several share one machine (Vercel Sandbox).
+WORK_DIR = os.environ.get("NF_WORK_DIR", "/tmp/work")
 SOURCE_PATH = os.path.join(WORK_DIR, "solution.cpp")
 BINARY_PATH = os.path.join(WORK_DIR, "solution")
 TRACE_PATH = os.path.join(WORK_DIR, "trace.json")
@@ -623,7 +624,7 @@ def clean_compiler_output(text):
         if "harness.cpp" in line or "solution.cpp" in line:
             # Errors inside generated code are almost always a signature mismatch.
             line = line.replace(SOURCE_PATH, "harness")
-        lines.append(line.replace("/tmp/work/", ""))
+        lines.append(line.replace(WORK_DIR + "/", ""))
     return "\n".join(lines)[:4000]
 
 

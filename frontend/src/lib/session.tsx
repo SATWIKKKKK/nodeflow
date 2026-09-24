@@ -16,6 +16,8 @@ interface SessionContextValue {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Stores a session the server just issued (for example after a password reset). */
+  adopt: (response: { token: string; user: AuthUser }) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -89,7 +91,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         await api.signOut(token);
         persist(null);
-      }
+      },
+      adopt: (response) => persist(response)
     }),
     [loading, token, user]
   );

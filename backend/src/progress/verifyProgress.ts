@@ -10,18 +10,18 @@ const assert = (condition: unknown, message: string) => {
 };
 
 const main = async () => {
-  const account = signUp(`progress-${Date.now()}@noesis.local`, "password123");
+  const account = await signUp(`progress-${Date.now()}@noesis.local`, "password123");
   const problem = getProblem("sum-array-elements") ?? getProblem("two-sum-array");
   assert(problem, "no problem available for progress verification");
 
-  const before = progressForUser(account.user);
+  const before = await progressForUser(account.user);
   assert(before.attempted === 0, "new user should start with zero attempted problems");
   assert(before.accepted === 0, "new user should start with zero accepted problems");
 
   const submitted = await submitProblem(problem!, problem!.referenceCode, account.user.id);
   assert(submitted.verdict === "Accepted", "reference solution should be accepted");
 
-  const after = progressForUser(account.user);
+  const after = await progressForUser(account.user);
   const problemSummary = after.problems.find((entry) => entry.id === problem!.id);
   assert(after.attempted === 1, "progress did not count attempted problem");
   assert(after.accepted === 1, "progress did not count accepted problem");

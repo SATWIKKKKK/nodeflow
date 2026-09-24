@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   STRUCTURE_TYPES,
   type StructureType,
@@ -11,8 +10,10 @@ import {
   type SubmissionSummary
 } from "@nodeflow/shared";
 import { problems } from "../problems/seeds.js";
+import { ensureSchema, sql } from "../store/db.js";
+import { dataDir } from "../paths.js";
 
-interface StoredSubmission {
+export interface StoredSubmission {
   submissionId: string;
   userId?: string;
   problemId: string;
@@ -22,11 +23,9 @@ interface StoredSubmission {
   timestamp: string;
 }
 
-const backendRoot = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const dataDir = path.join(backendRoot, "data");
 const submissionsPath = path.join(dataDir, "submissions.json");
 
-export const readSubmissions = (): StoredSubmission[] => {
+const readSubmissionFile = (): StoredSubmission[] => {
   if (!fs.existsSync(submissionsPath)) return [];
 
   try {
@@ -37,9 +36,60 @@ export const readSubmissions = (): StoredSubmission[] => {
   }
 };
 
-export const progressForUser = (user: AuthUser | null): ProgressSummary => {
+interface SubmissionRow {
+  id: string;
+  user_id: string;
+  problem_id: string;
+  verdict: JudgeVerdict;
+  runtime_ms: number;
+  created_at: string | Date;
+}
+
+const fromRow = (row: SubmissionRow): StoredSubmission => ({
+  submissionId: row.id,
+  userId: row.user_id,
+  problemId: row.problem_id,
+  verdict: row.verdict,
+  runtimeMs: row.runtime_ms,
+  timestamp: new Date(row.created_at).toISOString()
+});
+
+/** Submissions for the given users (all users when omitted), oldest first. Code is not loaded. */
+export const readSubmissions = async (userIds?: string[]): Promise<StoredSubmission[]> => {
+  if (sql) {
+    await ensureSchema();
+    const rows = (
+      userIds
+        ? await sql`select id, user_id, problem_id, verdict, runtime_ms, created_at from noesis_submissions
+            where user_id = any(${userIds}) order by created_at`
+        : await sql`select id, user_id, problem_id, verdict, runtime_ms, created_at from noesis_submissions order by created_at`
+    ) as SubmissionRow[];
+    return rows.map(fromRow);
+  }
+  const all = readSubmissionFile();
+  if (!userIds) return all;
+  const wanted = new Set(userIds);
+  return all.filter((submission) => wanted.has(submission.userId ?? "local"));
+};
+
+export const recordSubmission = async (record: StoredSubmission & { language: string; code: string }) => {
+  if (sql) {
+    await ensureSchema();
+    await sql`insert into noesis_submissions (id, user_id, problem_id, language, code, verdict, runtime_ms, created_at)
+      values (${record.submissionId}, ${record.userId ?? "local"}, ${record.problemId}, ${record.language},
+              ${record.code}, ${record.verdict}, ${record.runtimeMs}, ${record.timestamp})
+      on conflict (id) do nothing`;
+    return;
+  }
+  fs.mkdirSync(dataDir, { recursive: true });
+  const existing = readSubmissionFile();
+  existing.push(record);
+  fs.writeFileSync(submissionsPath, `${JSON.stringify(existing, null, 2)}\n`, "utf8");
+};
+
+export const progressForUser = async (user: AuthUser | null): Promise<ProgressSummary> => {
   const userId = user?.id ?? "local";
-  const submissions = readSubmissions()
+  const submissions = (await readSubmissions([userId]))
     .map((submission) => ({ ...submission, userId: submission.userId ?? "local" }))
     .filter((submission) => submission.userId === userId)
     .sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp));

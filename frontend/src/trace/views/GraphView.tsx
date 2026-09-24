@@ -17,6 +17,12 @@ export function GraphView({ view }: { view: GraphViewModel }) {
     return { x: centre + ring * Math.cos(angle), y: centre + ring * Math.sin(angle) };
   };
   const active = new Map(view.active.map((entry) => [entry.node, entry.names]));
+  const onFront = new Set(view.frontier ?? []);
+  // Queued beats settled: a node put back on the frontier is in play again.
+  const settled = new Set((view.visited ?? []).filter((node) => !onFront.has(node)));
+  const chosen = new Set(view.chosen ?? []);
+  const rejected = new Set(view.rejected ?? []);
+  const dormant = new Set(view.dormant ?? []);
 
   return (
     <div>
@@ -44,20 +50,31 @@ export function GraphView({ view }: { view: GraphViewModel }) {
           const y1 = from.y + (dy / length) * RADIUS;
           const x2 = to.x - (dx / length) * (RADIUS + (edge.directed ? 5 : 0));
           const y2 = to.y - (dy / length) * (RADIUS + (edge.directed ? 5 : 0));
-          const hot = active.has(edge.from) && active.has(edge.to);
+          const hot = view.hotEdge === edge.key || (active.has(edge.from) && active.has(edge.to));
+          const kept = chosen.has(edge.key);
+          const turnedDown = rejected.has(edge.key);
           return (
             <g key={edge.key}>
               {edge.from === edge.to ? (
                 <circle cx={from.x} cy={from.y - RADIUS - 8} r={9} fill="none" strokeWidth={1.4} className="stroke-blueprint-muted" />
               ) : (
-                <line
+                <motion.line
                   x1={x1}
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  strokeWidth={hot ? 2.2 : 1.4}
-                  markerEnd={edge.directed ? (hot ? "url(#nf-arrow-strong)" : "url(#nf-arrow-soft)") : undefined}
-                  className={hot ? "stroke-primary" : "stroke-blueprint-muted"}
+                  // A kept edge is the thickest thing on screen; a turned-down
+                  // one stays drawn but breaks into dashes, because an edge
+                  // that vanished would read as one never weighed at all.
+                  strokeWidth={kept ? 3 : hot ? 2.2 : 1.4}
+                  strokeDasharray={turnedDown ? "4 4" : undefined}
+                  markerEnd={edge.directed ? (hot || kept ? "url(#nf-arrow-strong)" : "url(#nf-arrow-soft)") : undefined}
+                  initial={false}
+                  animate={{ opacity: turnedDown ? 0.4 : dormant.has(edge.key) ? 0.28 : 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={
+                    kept ? "stroke-[var(--graphics-node)]" : hot ? "stroke-[var(--compare)]" : "stroke-blueprint-muted"
+                  }
                 />
               )}
               {edge.weight !== undefined && (
@@ -79,19 +96,72 @@ export function GraphView({ view }: { view: GraphViewModel }) {
         {Array.from({ length: view.count }, (_, node) => {
           const at = position(node);
           const names = active.get(node);
+          const label = view.labels?.[node];
           return (
             <g key={node} transform={`translate(${at.x} ${at.y})`}>
               <motion.circle
                 r={RADIUS}
-                strokeWidth={1.75}
+                // Hue carries component identity, so it goes on the stroke and
+                // leaves the accent fill free to keep meaning "this changed".
+                strokeWidth={onFront.has(node) ? 2.5 : view.components ? 2.25 : 1.75}
+                stroke={
+                  onFront.has(node)
+                    ? "var(--compare)"
+                    : view.components
+                      ? `var(--component-${view.components[node] % 6})`
+                      : undefined
+                }
                 initial={false}
                 animate={{ scale: names ? 1.12 : 1 }}
-                className={cn("stroke-primary transition-[fill] duration-300", names ? "fill-primary" : "fill-card")}
+                className={cn(
+                  "transition-[fill] duration-300",
+                  !view.components && !onFront.has(node) && "stroke-[var(--graphics-node)]",
+                  // A settled node steps back; the wavefront is what the reader
+                  // should be following, and it has to beat the component hue.
+                  names
+                    ? "fill-[var(--fill-blue)]"
+                    : onFront.has(node)
+                      ? "fill-[var(--compare-soft)]"
+                      : settled.has(node)
+                        ? "fill-surface-inset"
+                        : "fill-card"
+                )}
               />
+              {label && (
+                // Below the node: the pointer pills stack above it, and a
+                // distance sharing that space collides with them.
+                <g transform={`translate(0 ${RADIUS + 13})`}>
+                  {label.previous !== undefined && (
+                    <text
+                      x={-9}
+                      textAnchor="end"
+                      paintOrder="stroke"
+                      stroke="var(--card)"
+                      strokeWidth={3}
+                      className="fill-blueprint-muted font-mono text-[9px] line-through"
+                    >
+                      {label.previous}
+                    </text>
+                  )}
+                  <text
+                    x={label.previous !== undefined ? 3 : 0}
+                    textAnchor={label.previous !== undefined ? "start" : "middle"}
+                    paintOrder="stroke"
+                    stroke="var(--card)"
+                    strokeWidth={3}
+                    className={cn(
+                      "font-mono text-[10px]",
+                      label.previous !== undefined ? "fill-[var(--fill-blue)]" : "fill-blueprint-muted"
+                    )}
+                  >
+                    {label.value}
+                  </text>
+                </g>
+              )}
               <text
                 y={4.5}
                 textAnchor="middle"
-                className={cn("font-mono text-[12px] font-medium", names ? "fill-primary-foreground" : "fill-primary")}
+                className={cn("font-mono text-[12px] font-medium", names ? "fill-[var(--fill-blue-text)]" : "fill-[var(--graphics-node)]")}
               >
                 {node}
               </text>
