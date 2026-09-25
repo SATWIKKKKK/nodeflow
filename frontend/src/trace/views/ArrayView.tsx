@@ -315,6 +315,26 @@ function IndexedRow({ view, scope }: { view: ArrayViewModel; scope: string }) {
     // Pointer pills and travelling cells animate within this view only.
     <LayoutGroup id={scope}>
     <div className="flex items-start">
+      {/* Real empty columns rather than a computed width: the row then lines
+          up under the one above it whatever a cell turns out to measure, and
+          the browser does the arithmetic. They animate in and out, so a slide
+          reads as the pattern moving rather than as cells being re-dealt. */}
+      <AnimatePresence initial={false}>
+        {Array.from({ length: view.aligned?.offset ?? 0 }, (_, gap) => (
+          <motion.div
+            key={`gap-${gap}`}
+            layout
+            aria-hidden
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            transition={{ type: "spring", stiffness: 340, damping: 34 }}
+            className="-ml-[1.25px] flex shrink-0 flex-col items-center first:ml-0"
+          >
+            <span className={cn(CELL_BASE, "border-transparent")} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       <AnimatePresence initial={false}>
         {view.cells.map((cell, index) => (
           // The column is the slot: it holds the index, the pointers and the
@@ -350,6 +370,12 @@ function IndexedRow({ view, scope }: { view: ArrayViewModel; scope: string }) {
               transition={{ type: "spring", stiffness: 420, damping: 34 }}
               className={cn(
                 indexedCellClass(cell, byIndex.has(index), settled(view, index)),
+                // Confirmed to match what it is sitting over. Quieter than a
+                // comparison, which is a question rather than an answer.
+                view.aligned !== undefined &&
+                  index < view.aligned.matched &&
+                  !cell.comparing &&
+                  "border-[var(--fill-blue)] bg-[var(--fill-blue)]/15",
                 // The value has been lifted out of the row and everything else
                 // is being measured against it, so the cell keeps a standing
                 // mark even on the steps where nothing touches it.
@@ -428,6 +454,20 @@ function StackColumn({ view }: { view: ArrayViewModel }) {
   return (
     <div className="flex items-end gap-3">
       <div className="flex w-24 flex-col items-stretch">
+        {view.merged && (
+          // Two operands have just become one. The three steps that did it —
+          // pop, pop, push — each looked like an ordinary stack move, so the
+          // arithmetic is spelled out above the cell that now stands for both.
+          <motion.span
+            key={`${view.merged.left}${view.merged.op}${view.merged.right}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28 }}
+            className="mb-1 text-center font-mono text-[10.5px] text-[var(--compare-text)]"
+          >
+            {view.merged.left} {view.merged.op} {view.merged.right}
+          </motion.span>
+        )}
         <AnimatePresence initial={false}>
           {cells.map((cell, index) => (
             <motion.div
@@ -435,7 +475,9 @@ function StackColumn({ view }: { view: ArrayViewModel }) {
               layout
               initial={{ opacity: 0, y: -14 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
+              // Consumed rather than merely popped: an operand that fed a
+              // result sinks toward where the result now sits.
+              exit={{ opacity: 0, y: view.merged ? 10 : -14, scale: view.merged ? 0.8 : 1 }}
               transition={{ duration: 0.25 }}
               className="-mt-[1.25px] first:mt-0"
             >

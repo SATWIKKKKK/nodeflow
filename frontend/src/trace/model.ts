@@ -175,6 +175,10 @@ export interface ArrayViewModel {
   settled?: { prefix: number; suffix: number };
   /** Parent pointers: cell `i` names its parent, so the row is also a forest. */
   forest?: number[];
+  /** Two cells that have just become one, and what made them. */
+  merged?: { left: string; right: string; op: string };
+  /** Drawn beneath another row, shifted to where it is being tried. */
+  aligned?: { offset: number; matched: number };
   /** The stretch a prefix-sum difference is asking about. */
   sumSpan?: { from: number; to: number; total: string };
   /** The cell a scalar was lifted out of and is now weighed against. */
@@ -1091,6 +1095,122 @@ const sameBag = (before: Map<string, number>, after: Map<string, number>) => {
  */
 export type PrefixSums = Map<string, { source: string; offset: 0 | 1 }>;
 
+/**
+ * One row tried against another, and where it currently sits.
+ *
+ * String matching is two rows or it is nothing: a pattern drawn on its own
+ * line, starting at column zero, shows none of the sliding that is the whole
+ * algorithm. The alignment does not have to be inferred from the algorithm
+ * though — the comparison says it outright. `text[i] == pat[j]` puts the
+ * pattern's `j` under the text's `i`, so the offset between the rows is the
+ * difference of the two subscripts, whatever arithmetic produced them.
+ * `text[i + j] == pat[j]` gives `i` for the naive search by the same sum.
+ */
+export interface Alignment {
+  text: string;
+  pattern: string;
+  /** Columns the pattern is shifted right, per step. */
+  offsets: number[];
+  /** Leading pattern cells confirmed to match, per step. */
+  matched: number[];
+}
+
+export function buildAlignment(trace: TraceStep[], source?: string): Alignment | null {
+  if (!source) return null;
+
+  const readAt = (step: TraceStep, line: number | undefined) => {
+    const heap = step.heap;
+    const touched = lineCells(
+      source,
+      line,
+      step.variables,
+      (name, at) => {
+        const target = step.variables[name];
+        if (!isRef(target, heap)) return undefined;
+        const item = heap[target].items?.[at];
+        return typeof item === "number" && Number.isInteger(item) ? item : undefined;
+      },
+      (name) => {
+        const target = step.variables[name];
+        return isRef(target, heap) ? heap[target].items?.length : undefined;
+      }
+    );
+
+    // Exactly one cell from each of two different rows: that is the pairing.
+    const hits: Array<{ id: string; row: number; length: number }> = [];
+    for (const [name, refs] of touched.compared.cells) {
+      const id = step.variables[name];
+      if (!isRef(id, heap)) continue;
+      const items = heap[id].items;
+      if (!items || hits.some((hit) => hit.id === id)) continue;
+      const flat = refs.filter((ref) => ref.col === undefined);
+      if (flat.length !== 1) continue;
+      hits.push({ id, row: flat[0].row, length: items.length });
+    }
+    if (hits.length !== 2 || hits[0].length === hits[1].length) return null;
+
+    // The shorter row is the one being slid along the longer.
+    const [text, pattern] = hits[0].length > hits[1].length ? hits : [hits[1], hits[0]];
+    return { text: text.id, pattern: pattern.id, offset: text.row - pattern.row, matched: pattern.row };
+  };
+
+  // Which line does the matching, and which two rows it pairs.
+  const tally = new Map<string, number>();
+  for (const step of trace) {
+    const hit = readAt(step, step.line);
+    if (hit) tally.set(`${step.line}|${hit.text}|${hit.pattern}`, (tally.get(`${step.line}|${hit.text}|${hit.pattern}`) ?? 0) + 1);
+  }
+  if (tally.size === 0) return null;
+  const [best] = [...tally].sort((a, b) => b[1] - a[1]);
+  const [lineText, text, pattern] = best[0].split("|");
+  const line = Number(lineText);
+
+  /**
+   * Read that one line at every step, not only where it runs.
+   *
+   * The cursors move on the steps in between — KMP's whole trick is changing
+   * `j` without comparing anything — and a row that only caught up when the
+   * comparison came round again would sit a move behind the pointers drawn on
+   * it. Re-evaluating the line's own subscripts against each step's variables
+   * costs nothing and is always current.
+   */
+  const offsets: number[] = [];
+  const matched: number[] = [];
+  let offset: number | undefined;
+  let count = 0;
+  for (const step of trace) {
+    const hit = readAt(step, line);
+    if (hit && hit.text === text && hit.pattern === pattern && hit.offset >= 0) {
+      // Only if it is true. `i` and `j` advance on separate lines, so between
+      // the two the pair says the pattern has matched more than it has, and a
+      // row drawn on that would jump a column and come back. Checking the
+      // claim against the two rows costs a few comparisons and means the
+      // drawing never asserts a match that is not there.
+      const above = step.heap[text]?.items ?? [];
+      const below = step.heap[pattern]?.items ?? [];
+      let holds = true;
+      for (let k = 0; k < hit.matched && holds; k += 1) {
+        holds = above[hit.offset + k] !== undefined && above[hit.offset + k] === below[k];
+      }
+      if (holds) {
+        offset = hit.offset;
+        count = hit.matched;
+      }
+    }
+    offsets.push(Math.max(0, offset ?? 0));
+    matched.push(count);
+  }
+
+  // Backwards too, so the first steps are not drawn at a zero that was never
+  // true. Whatever it settles on first is where it started.
+  const first = offsets.findIndex((_, at) => at > 0 && offsets[at] !== 0);
+  if (first > 0) {
+    for (let at = 0; at < first; at += 1) matched[at] = matched[first];
+  }
+
+  return { text, pattern, offsets, matched };
+}
+
 export function buildPrefixSums(trace: TraceStep[]): PrefixSums {
   const widest = new Map<string, SerializedValue[]>();
   for (const step of trace) {
@@ -1138,6 +1258,17 @@ export function buildPrefixSums(trace: TraceStep[]): PrefixSums {
   return sums;
 }
 
+/**
+ * Which objects are ranges on a timeline, and what axis they share.
+ *
+ * A pair of numbers is not enough on its own — an edge list has the same
+ * shape — so a name has to vouch for the first one. After that the shape
+ * carries it: any other collection whose rows all appear in a vouched-for one
+ * is the accepted subset of it, and belongs on the same axis.
+ *
+ * The axis is fixed for the whole run. A result list that grows would
+ * otherwise rescale its own picture on every accept.
+ */
 export interface TimelinePlan {
   ids: Set<string>;
   from: number;
@@ -1603,12 +1734,14 @@ interface BuildInput {
   timeline?: TimelinePlan | null;
   /** Which arrays are running totals of which others. */
   sums?: PrefixSums;
+  /** One row being tried against another, and where it sits. */
+  alignment?: Alignment | null;
   /** The program being replayed, read to find what the current line compares. */
   source?: string;
   signature?: ProblemSignature;
 }
 
-export function buildStepModel({ trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, source, signature }: BuildInput): StepModel {
+export function buildStepModel({ trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, alignment, source, signature }: BuildInput): StepModel {
   const step = trace[index];
   if (!step) return { views: [], variables: [], frames: [], caption: "", flows: [] };
   const heap = step.heap;
@@ -2015,7 +2148,12 @@ export function buildStepModel({ trace, diffs, index, slots, roles, failing, vis
         settled: roles?.sorting.has(id) ? settledRegions(object.items) : undefined,
         pivot,
         divider,
-        sumSpan
+        sumSpan,
+        merged: variant === "stack" ? operandMerge(id, trace, index, heap, source) : undefined,
+        aligned:
+          alignment?.pattern === id
+            ? { offset: alignment.offsets[index] ?? 0, matched: alignment.matched[index] ?? 0 }
+            : undefined
       });
       return;
     }
@@ -2394,6 +2532,47 @@ function stackEvictions(
     });
   }
   return out;
+}
+
+/**
+ * Two operands becoming one result.
+ *
+ * Evaluating an expression is a stack losing its top two and gaining a single
+ * value, and the three steps that do it — pop, pop, push — say nothing on
+ * their own; each is an ordinary stack move. Seen across the window they span,
+ * the arithmetic is plain: whatever the stack held two deep is gone and one
+ * thing stands where both were.
+ *
+ * Which operator did it comes from the line that pushed, not from the values,
+ * because `2 + 2` and `2 * 2` leave the same trace.
+ */
+function operandMerge(
+  id: string,
+  trace: TraceStep[],
+  index: number,
+  heap: Heap,
+  source: string | undefined
+): ArrayViewModel["merged"] {
+  const now = heap[id]?.items;
+  const before = trace[index - 1]?.heap[id]?.items;
+  if (!now || !before || now.length !== before.length + 1) return undefined;
+
+  // Back far enough to cross both pops, and no further.
+  for (let back = index - 2; back >= 0 && back >= index - 7; back -= 1) {
+    const then = trace[back].heap[id]?.items;
+    if (!then || then.length !== now.length + 1) continue;
+    const kept = now.length - 1;
+    for (let at = 0; at < kept; at += 1) if (then[at] !== now[at]) return undefined;
+
+    const line = source?.split("\n")[(trace[index - 1].line ?? 0) - 1] ?? "";
+    const operator = /\/\/|[-+*/%]/.exec(line.replace(/^[^=]*=/, ""))?.[0] ?? "?";
+    return {
+      left: formatCell(then[kept]),
+      right: formatCell(then[kept + 1]),
+      op: operator
+    };
+  }
+  return undefined;
 }
 
 /** The cell of `id` that the line assigned to, if it named one. */
