@@ -15,14 +15,39 @@ import type { SerializedValue } from "@nodeflow/shared";
  * expression this cannot understand simply goes unhighlighted.
  */
 
-const sanitize = (line: string) =>
-  line
-    // Quoted text can hold anything, including brackets and operators.
+/**
+ * Where a C or Java line comment starts, or -1.
+ *
+ * `//` cannot simply be stripped, because in Python it is integer division and
+ * `(i - 1) // 2` is how a heap finds a parent. The two are told apart by what
+ * comes immediately before: division always follows an operand — a name, a
+ * number, a closing bracket — and a comment never does. That holds without
+ * having to be told which language the line is written in, which matters
+ * because the source reaches this parser as plain text.
+ */
+const lineCommentAt = (text: string): number => {
+  const at = text.indexOf("//");
+  if (at === -1) return -1;
+  const before = text.slice(0, at).replace(/\s+$/, "");
+  if (before === "") return at;
+  return /[)\]\w]$/.test(before) ? -1 : at;
+};
+
+const sanitize = (line: string) => {
+  // Quoted text can hold anything, including brackets, operators and things
+  // that look like comments.
+  const quoted = line
     .replace(/"(?:\\.|[^"\\])*"/g, '""')
     .replace(/'(?:\\.|[^'\\])*'/g, "''")
     .replace(/#.*$/, "")
-    // Shifts, member access and lambdas are not comparisons.
-    .replace(/<<|>>|->|=>/g, " ");
+    .replace(/\/\*[^*]*\*\//g, " ");
+
+  const comment = lineCommentAt(quoted);
+  const code = comment === -1 ? quoted : quoted.slice(0, comment);
+
+  // Shifts, member access and lambdas are not comparisons.
+  return code.replace(/<<|>>|->|=>/g, " ");
+};
 
 /**
  * Reads one cell of a one-dimensional array by name. DP indexes through other
@@ -111,7 +136,27 @@ const evaluate = (
     text = text.slice(0, name.index) + String(value) + text.slice(end);
   }
 
-  // Parentheses and calls remain out of scope on purpose.
+  /**
+   * Innermost bracketed groups, folded to their value.
+   *
+   * `(lo + hi) // 2` is the midpoint every other binary search is written
+   * with, and without this the one cell such a search ever looks at goes
+   * unhighlighted. A group preceded by a name is a call, not a grouping —
+   * `min(a, b)` means something this parser has no business guessing at — so
+   * it is left alone and the expression simply goes unresolved.
+   */
+  for (let pass = 0; pass < 4 && text.includes("("); pass += 1) {
+    const group = /\(([^()]*)\)/.exec(text);
+    if (!group) break;
+    if (/[\w\]]$/.test(text.slice(0, group.index))) return undefined;
+    const value = evaluate(group[1], variables, lookup, lengthOf);
+    if (value === undefined) return undefined;
+    // Wrapped so a negative value cannot turn `w - x` into `w - -3`, which the
+    // term parser below cannot read.
+    text = `${text.slice(0, group.index)}${value < 0 ? `0 - ${-value}` : value}${text.slice(group.index + group[0].length)}`;
+  }
+
+  // Calls and leftover brackets remain out of scope on purpose.
   if (/[()[\]]/.test(text)) return undefined;
 
   const terms = text.match(/[+-]?[^+-]+/g);
@@ -123,11 +168,21 @@ const evaluate = (
     const body = trimmed.replace(/^[+-]\s*/, "");
     if (!body) return undefined;
 
-    let product = 1;
-    for (const factor of body.split("*")) {
-      const value = resolve(factor.trim(), variables);
+    // Multiplication and division, folded left to right at equal precedence.
+    // Division earns its place here: `arr[(lo + hi) // 2]` is how a great many
+    // binary searches are written, and without it the midpoint cell — the only
+    // cell a binary search ever looks at — goes unhighlighted.
+    const pieces = body.split(/(\/\/|[*/])/);
+    let product = resolve(pieces[0].trim(), variables);
+    if (product === undefined) return undefined;
+    for (let at = 1; at < pieces.length; at += 2) {
+      const value = resolve(pieces[at + 1]?.trim() ?? "", variables);
       if (value === undefined) return undefined;
-      product *= value;
+      if (pieces[at] === "*") product *= value;
+      else if (value === 0) return undefined;
+      // Both `//` and `/` floor here: an index is a whole number either way,
+      // and a language that would have given 2.5 cannot be subscripting with it.
+      else product = Math.floor(product / value);
     }
     total += (trimmed.startsWith("-") ? -1 : 1) * product;
   }
