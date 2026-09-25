@@ -12,6 +12,7 @@ import {
   buildStepModel,
   buildEdgeVerdicts,
   buildPivots,
+  buildAlignment,
   buildPrefixSums,
   buildTimelinePlan,
   buildVisitOrder,
@@ -99,13 +100,14 @@ export function TraceDiagram({
   const pivots = useMemo(() => buildPivots(trace, source), [trace, source]);
   const timeline = useMemo(() => buildTimelinePlan(trace), [trace]);
   const sums = useMemo(() => buildPrefixSums(trace), [trace]);
+  const alignment = useMemo(() => buildAlignment(trace, source), [trace, source]);
   const scope = useMemo(() => `t${(generation += 1)}`, [trace]);
   // Connectors between rows are drawn over the scrolling content, so they need
   // its box to measure against.
   const flowHost = useRef<HTMLDivElement>(null);
   const model = useMemo(
-    () => buildStepModel({ trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, source, signature }),
-    [trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, source, signature]
+    () => buildStepModel({ trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, alignment, source, signature }),
+    [trace, diffs, index, slots, roles, failing, visits, trails, bits, calls, verdicts, pivots, timeline, sums, alignment, source, signature]
   );
 
   const isGraphLike = (view: ViewModel) => view.kind === "list" || view.kind === "tree" || view.kind === "trie" || view.kind === "calls" || view.kind === "graph";
