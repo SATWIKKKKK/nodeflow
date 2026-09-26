@@ -67,6 +67,20 @@ const slugify = (title: string) =>
  */
 const created: Problem[] = [];
 const numbers = new Map<string, number>();
+
+/**
+ * What was asked for, not what came back.
+ *
+ * Matching on the rewritten statement alone is not enough: a model asked the
+ * same question twice words it differently each time, so the same change
+ * requested again would miss and be rewritten from scratch. The request itself
+ * — this problem, this word, this replacement — is exact, and answers
+ * instantly without spending anything.
+ */
+const asked = new Map<string, string>();
+const askKey = (sourceId: string, term: string, replacement: string) =>
+  `${sourceId}|${term.toLowerCase()}|${replacement.toLowerCase()}`;
+
 let loaded = false;
 
 const ensureVariantTable = async () => {
@@ -90,12 +104,17 @@ export const loadVariants = async (): Promise<void> => {
   }
   try {
     await ensureVariantTable();
-    const rows = (await sql!`select id, number, data from noesis_problem_variants order by number`) as Array<{
+    const rows = (await sql!`select id, number, source_id, term, replacement, data
+      from noesis_problem_variants order by number`) as Array<{
       id: string;
       number: number;
+      source_id: string;
+      term: string;
+      replacement: string;
       data: Problem;
     }>;
     for (const row of rows) {
+      asked.set(askKey(row.source_id, row.term, row.replacement), row.id);
       if (created.some((problem) => problem.id === row.id)) continue;
       created.push(row.data);
       numbers.set(row.id, row.number);
@@ -227,6 +246,19 @@ export const createVariant = async (
     return { status: "invalid", reason: "That word is not in this statement." };
   }
 
+  // The same request made before, which is the case a learner actually hits:
+  // they changed this word here once already.
+  const seen = asked.get(askKey(source.id, term, trimmed));
+  const madeBefore = seen ? created.find((problem) => problem.id === seen) : undefined;
+  if (madeBefore) {
+    return {
+      status: "exists",
+      problemId: madeBefore.id,
+      title: madeBefore.title,
+      number: numbers.get(madeBefore.id) ?? existing.indexOf(madeBefore) + 1
+    };
+  }
+
   // What the statement would read as. If some problem already says exactly
   // that, the variation is not new and the learner should be sent to it.
   const candidate = normalise(source.description.split(term).join(trimmed));
@@ -316,6 +348,7 @@ export const createVariant = async (
   const number = existing.length + created.length + 1;
   created.push(problem);
   numbers.set(problem.id, number);
+  asked.set(askKey(source.id, term, trimmed), problem.id);
 
   if (usingDatabase()) {
     try {

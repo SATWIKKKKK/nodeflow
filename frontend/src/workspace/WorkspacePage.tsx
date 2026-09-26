@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { VariableStatement, VariantNotice, type VariantState } from "./VariableStatement";
+import { VariableStatement, VariantDialog, type VariantState } from "./VariableStatement";
 import {
   AlertCircle,
   AlertTriangle,
@@ -211,7 +211,7 @@ export default function WorkspacePage() {
   const session = useSession();
   const server = useServerStatus();
   const navigate = useNavigate();
-  const [variant, setVariant] = useState<VariantState>({ kind: "idle" });
+  const [variant, setVariant] = useState<VariantState>({ kind: "closed" });
 
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
 
@@ -280,7 +280,7 @@ export default function WorkspacePage() {
       setVariant({ kind: "working", term });
       try {
         const outcome = await api.variant(problemId, term, replacement);
-        if (outcome.status === "invalid") setVariant({ kind: "invalid", reason: outcome.reason });
+        if (outcome.status === "invalid") setVariant({ kind: "invalid", term, reason: outcome.reason });
         else if (outcome.status === "exists")
           setVariant({ kind: "exists", title: outcome.title, number: outcome.number, problemId: outcome.problemId });
         else
@@ -291,7 +291,11 @@ export default function WorkspacePage() {
             problemId: outcome.problem.id
           });
       } catch (error) {
-        setVariant({ kind: "invalid", reason: error instanceof Error ? error.message : "That change could not be made." });
+        setVariant({
+          kind: "invalid",
+          term,
+          reason: error instanceof Error ? error.message : "That change could not be made."
+        });
       }
     },
     [problemId]
@@ -1027,16 +1031,9 @@ export default function WorkspacePage() {
                   <>
                     <VariableStatement
                       text={problem.description}
-                      state={variant}
-                      onChange={changeTerm}
+                      busy={variant.kind === "working"}
+                      onPick={(term) => setVariant({ kind: "editing", term })}
                       className="text-body-md text-primary"
-                    />
-                    <VariantNotice
-                      state={variant}
-                      onOpen={(id) => {
-                        setVariant({ kind: "idle" });
-                        navigate(`/workspace/${id}`);
-                      }}
                     />
 
                     {problem.examples.length > 0 && (
@@ -1138,7 +1135,18 @@ export default function WorkspacePage() {
               />
             </div>
           </section>
-          {editorFullscreen && (
+          <VariantDialog
+        state={variant}
+        statement={problem?.description ?? ""}
+        onSubmit={changeTerm}
+        onClose={() => setVariant({ kind: "closed" })}
+        onOpen={(id) => {
+          setVariant({ kind: "closed" });
+          navigate(`/workspace/${id}`);
+        }}
+      />
+
+      {editorFullscreen && (
             <div className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm" aria-hidden onClick={() => setEditorFullscreen(false)} />
           )}
 
