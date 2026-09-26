@@ -76,7 +76,8 @@ export function TraceDiagram({
   index,
   signature,
   source,
-  className
+  className,
+  zoom = 1
 }: {
   trace: TraceStep[];
   diffs: TraceDiff[];
@@ -85,6 +86,8 @@ export function TraceDiagram({
   /** The program being replayed; lets a step show what its line compares. */
   source?: string;
   className?: string;
+  /** Scales the drawing only; the caption underneath stays legible. */
+  zoom?: number;
 }) {
   const slots = useMemo(() => buildListSlots(trace), [trace]);
   const roles = useMemo(() => buildArrayRoles(trace, source), [trace, source]);
@@ -117,7 +120,9 @@ export function TraceDiagram({
   return (
     <div className={cn("flex h-full min-h-0 flex-col bg-card", className)}>
       <div className="min-h-0 flex-1 overflow-auto px-5 py-5 sm:px-6">
-        <div ref={flowHost} className="relative">
+        {/* `zoom` rather than a transform: the content reflows and the
+            scrollbars stay honest about how much there is to scroll. */}
+        <div ref={flowHost} className="relative" style={zoom === 1 ? undefined : { zoom }}>
         <FlowLinks flows={model.flows} host={flowHost} revision={index} />
         {figures.map((view) => (
           <section key={view.key} className="mb-6" aria-label={view.title}>

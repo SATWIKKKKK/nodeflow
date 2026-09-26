@@ -1,5 +1,5 @@
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { SceneGraph, SceneNode } from "./graph";
@@ -9,6 +9,32 @@ import { scenePalettes } from "./palette";
 import { useThemePreference } from "../../lib/theme";
 
 const HINT_KEY = "noesis:scene-hint-seen";
+
+/**
+ * Walks the camera towards or away from what it is looking at.
+ *
+ * Distance is divided by the level, so 2x is half as far away, and the move is
+ * eased rather than jumped so the scene does not lurch. Whatever the reader has
+ * dragged the camera to is preserved: only how far along that line it sits
+ * changes.
+ */
+function Dolly({ level }: { level: number }) {
+  const camera = useThree((state) => state.camera);
+  const base = useRef<number | null>(null);
+
+  useFrame(() => {
+    const to = camera.position.clone();
+    const length = to.length();
+    if (length < 0.001) return;
+    if (base.current === null) base.current = length;
+
+    const wanted = base.current / level;
+    if (Math.abs(length - wanted) < 0.02) return;
+    camera.position.multiplyScalar(1 + (wanted / length - 1) * 0.18);
+    camera.lookAt(0, 0, 0);
+  });
+  return null;
+}
 
 function SceneFallback({ detail }: { detail: string }) {
   return (
@@ -124,6 +150,15 @@ interface Scene3DProps {
   selectedId: string | null;
   onSelectNode: (id: string | null) => void;
   onWebGLError: () => void;
+  /**
+   * How far in the reader has asked to be, as a plain level.
+   *
+   * The scene could always be zoomed with a scroll wheel, which is no help to
+   * anyone who has not thought to try it. A level is easier to reason about
+   * than a camera position, and the camera is moved to match it rather than
+   * the other way round.
+   */
+  zoom?: number;
 }
 
 export default function Scene3D({
@@ -131,7 +166,8 @@ export default function Scene3D({
   activeIds,
   selectedId,
   onSelectNode,
-  onWebGLError
+  onWebGLError,
+  zoom = 1
 }: Scene3DProps) {
   const [hintVisible, setHintVisible] = useState(false);
   const [userFramed, setUserFramed] = useState(false);
@@ -298,6 +334,8 @@ export default function Scene3D({
             target={[0, 0, 0]}
             onStart={() => setUserFramed(true)}
           />
+
+          <Dolly level={zoom} />
         </Canvas>
       </SceneBoundary>
 

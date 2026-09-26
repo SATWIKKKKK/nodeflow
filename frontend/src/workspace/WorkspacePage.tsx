@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { VariableStatement, VariantDialog, type VariantState } from "./VariableStatement";
+import { ZoomControls, ZOOM_STEP, clampZoom } from "./ZoomControls";
 import {
   AlertCircle,
   AlertTriangle,
@@ -212,6 +213,9 @@ export default function WorkspacePage() {
   const server = useServerStatus();
   const navigate = useNavigate();
   const [variant, setVariant] = useState<VariantState>({ kind: "closed" });
+  // One level per view: a chain wants different framing from a table.
+  const [zoom2d, setZoom2d] = useState(1);
+  const [zoom3d, setZoom3d] = useState(1);
 
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
 
@@ -915,6 +919,7 @@ export default function WorkspacePage() {
                   index={Math.min(index, stepCount - 1)}
                   signature={problem?.signature}
                   source={traceState.source}
+                  zoom={zoom2d}
                 />
               ) : (
                 <div className="blueprint-grid h-full bg-card opacity-60" />
@@ -933,8 +938,24 @@ export default function WorkspacePage() {
                   selectedId={selectedNode}
                   onSelectNode={handleSelectNode}
                   onWebGLError={() => setStuck("playback")}
+                  zoom={zoom3d}
                 />
               </Suspense>
+            )}
+
+            {/* Over the drawing rather than in the toolbar: it belongs to what
+                it scales, and the toolbar is already carrying enough. */}
+            {(sceneMode === "trace" ? hasTrace : true) && (
+              <ZoomControls
+                className="absolute bottom-3 right-3 z-20"
+                zoom={sceneMode === "trace" ? zoom2d : zoom3d}
+                onZoom={(direction) =>
+                  (sceneMode === "trace" ? setZoom2d : setZoom3d)((level) =>
+                    clampZoom(level + direction * ZOOM_STEP)
+                  )
+                }
+                onReset={() => (sceneMode === "trace" ? setZoom2d : setZoom3d)(1)}
+              />
             )}
 
             {loadingScene && (
