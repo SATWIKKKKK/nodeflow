@@ -49,6 +49,10 @@ const distinctTitle = (sourceTitle: string, written: string | undefined, replace
   return `${sourceTitle} (${replacement})`;
 };
 
+/** A name the three harnesses can all declare. */
+const looksLikeIdentifier = (name: string | undefined) =>
+  typeof name === "string" && /^[a-z][a-z0-9_]{1,48}$/.test(name.trim());
+
 const slugify = (title: string) =>
   title
     .toLowerCase()
@@ -135,6 +139,7 @@ interface Rewritten {
   valid: boolean;
   reason?: string;
   title?: string;
+  functionName?: string;
   description?: string;
   constraints?: string[];
   referenceCode?: string;
@@ -151,8 +156,11 @@ a real algorithmic variation: a name, slang, a random string, or a word that
 leaves the statement meaningless or self-contradictory.
 
 When it is valid, return the rewritten problem. Rules:
-- Keep the same function name, parameter names and shapes. Only the meaning changes.
-- referenceCode must be Python 3, define exactly that function, and be correct.
+- functionName is snake_case and must describe the NEW problem. A statement about
+  even numbers must not be solved by a function called count_odds. Keep the old
+  name only when it still reads correctly.
+- Keep the parameter names, their order and their shapes exactly as given.
+- referenceCode must be Python 3, define exactly functionName, and be correct.
 - Linked lists arrive as ListNode objects with .val and .next, trees as TreeNode
   with .val, .left, .right. Do not redefine those classes.
 - inputs must be a list of argument objects keyed by parameter name, using the
@@ -160,7 +168,7 @@ When it is valid, return the rewritten problem. Rules:
 - Never state expected outputs. They are computed by running your solution.
 
 Reply with JSON only:
-{"valid":true,"title":"...","description":"...","constraints":["..."],"referenceCode":"...","inputs":[{...}]}
+{"valid":true,"title":"...","functionName":"...","description":"...","constraints":["..."],"referenceCode":"...","inputs":[{...}]}
 or
 {"valid":false,"reason":"..."}`;
 
@@ -293,9 +301,30 @@ export const createVariant = async (
     };
   }
 
+  /**
+   * The name has to move with the meaning.
+   *
+   * C++ and Java starters are generated from the signature, and the harness
+   * calls whatever it says. Leaving `count_odds` on a problem that now counts
+   * evens hands the learner a stub whose name contradicts the question, and
+   * the moment they rename it to match, the harness cannot find it. The
+   * Python starter is prose rather than generated, so the old name is swapped
+   * out of it directly.
+   */
+  const renamed = looksLikeIdentifier(rewritten.functionName)
+    ? rewritten.functionName!.trim()
+    : source.signature.functionName;
+  const signature = { ...source.signature, functionName: renamed };
+  const pythonStarter =
+    renamed === source.signature.functionName
+      ? source.starterCode
+      : source.starterCode.split(source.signature.functionName).join(renamed);
+
   // Now the part that makes the answers trustworthy: run the solution.
   const draft: Problem = {
     ...source,
+    signature,
+    starterCode: pythonStarter,
     id: `${slugify(rewritten.title ?? source.title)}-${randomUUID().slice(0, 6)}`,
     // A variant sharing its parent's title is indistinguishable in a list,
     // and the model often keeps the original. The word that changed is the
@@ -342,10 +371,13 @@ export const createVariant = async (
     testCases: cases,
     examples: cases.slice(0, 1).map((testCase) => ({ input: testCase.input, output: testCase.expectedOutput })),
     visibleTestCases: cases.filter((testCase) => testCase.visible),
-    starterCodeByLanguage: buildStarterCodeByLanguage(draft.signature, draft.starterCode)
+    starterCodeByLanguage: buildStarterCodeByLanguage(signature, pythonStarter)
   };
 
-  const number = existing.length + created.length + 1;
+  // `existing` already contains every variant, so adding their count again
+  // double-counts and hands out a number that is already taken. Take the
+  // highest of what is used and what is held, and go one past it.
+  const number = Math.max(existing.length, 0, ...numbers.values()) + 1;
   created.push(problem);
   numbers.set(problem.id, number);
   asked.set(askKey(source.id, term, trimmed), problem.id);

@@ -98,34 +98,24 @@ export function VariableStatement({
 }
 
 /**
- * The word coming apart as the field that replaces it grows.
+ * A marker drawn across the word, and then the word itself to overtype.
  *
- * Each letter pushes out from the middle and blurs away, so the old word is
- * visibly given up rather than simply swapped. The field arrives a moment
- * later, from the same centre, which keeps the eye in one place.
+ * Quieter than throwing the letters apart: the sweep says "this is the thing
+ * being changed" while leaving it readable the whole way, and what lands is
+ * the old word selected, so typing replaces it and doing nothing keeps it.
  */
-function ScatteringWord({ term, onDone }: { term: string; onDone: () => void }) {
-  const letters = [...term];
-  const middle = (letters.length - 1) / 2;
+function SweepingWord({ term, onDone }: { term: string; onDone: () => void }) {
   return (
-    <span className="relative inline-flex items-center justify-center" aria-hidden>
-      {letters.map((letter, at) => (
-        <motion.span
-          key={at}
-          initial={{ x: 0, y: 0, opacity: 1, filter: "blur(0px)" }}
-          animate={{
-            x: (at - middle) * 14,
-            y: (at % 2 === 0 ? -1 : 1) * 10,
-            opacity: 0,
-            filter: "blur(5px)"
-          }}
-          transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-          onAnimationComplete={at === letters.length - 1 ? onDone : undefined}
-          className="font-mono text-[15px] text-[var(--fill-blue)]"
-        >
-          {letter}
-        </motion.span>
-      ))}
+    <span className="relative inline-flex items-center" aria-hidden>
+      {/* Behind the word, not over it: a marker leaves what it marks readable. */}
+      <motion.span
+        className="absolute inset-y-[-3px] left-0 rounded-[3px] bg-[var(--fill-blue)]/30"
+        initial={{ width: 0 }}
+        animate={{ width: "100%" }}
+        transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+        onAnimationComplete={onDone}
+      />
+      <span className="relative font-mono text-[15px] text-primary">{term}</span>
     </span>
   );
 }
@@ -151,7 +141,7 @@ export function VariantDialog({
   onClose: () => void;
   onOpen: (problemId: string) => void;
 }) {
-  const [scattered, setScattered] = useState(false);
+  const [ready, setScattered] = useState(false);
   const [draft, setDraft] = useState("");
   const field = useRef<HTMLInputElement>(null);
   const open = state.kind !== "closed";
@@ -160,13 +150,16 @@ export function VariantDialog({
   useEffect(() => {
     if (state.kind === "editing") {
       setScattered(false);
-      setDraft("");
+      setDraft(state.term);
     }
   }, [state.kind, term]);
 
   useEffect(() => {
-    if (scattered) field.current?.focus();
-  }, [scattered]);
+    if (ready) {
+      field.current?.focus();
+      field.current?.select();
+    }
+  }, [ready]);
 
   useEffect(() => {
     if (!open) return;
@@ -216,14 +209,14 @@ export function VariantDialog({
                 <p className="text-technical-mono text-blueprint-muted">change a word</p>
 
                 <div className="mt-3 flex min-h-[46px] items-center gap-2 text-body-md text-primary">
-                  {!scattered && state.kind === "editing" ? (
-                    <ScatteringWord term={term} onDone={() => setScattered(true)} />
+                  {!ready && state.kind === "editing" ? (
+                    <SweepingWord term={term} onDone={() => setScattered(true)} />
                   ) : (
                     <motion.input
                       ref={field}
-                      initial={{ scale: 0.55, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 380, damping: 26 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.14 }}
                       value={draft}
                       disabled={state.kind === "working"}
                       placeholder={term}
