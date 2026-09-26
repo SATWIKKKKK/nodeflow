@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Loader2, X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { WaitingGame } from "./WaitingGame";
 
 /**
  * A problem statement whose adjustable words can be changed.
@@ -258,9 +259,12 @@ export function VariantDialog({
                 </div>
 
                 {state.kind === "working" && (
-                  <p className="mt-3 text-center text-sm text-blueprint-muted" aria-live="polite">
-                    {state.note}
-                  </p>
+                  <>
+                    <p className="mt-3 text-center text-sm text-blueprint-muted" aria-live="polite">
+                      {state.note}
+                    </p>
+                    <WaitingGame />
+                  </>
                 )}
               </>
             )}
