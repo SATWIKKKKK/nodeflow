@@ -23,11 +23,28 @@ const jsonHeaders = {
 /** Empty in development (Vite proxies /api); set VITE_API_URL when the API lives on another host. */
 const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
+/**
+ * A failed request that still says what kind of failure it was.
+ *
+ * "Gone" and "unreachable" call for opposite responses — one means stop
+ * showing this, the other means keep what you have and wait — and a bare
+ * message cannot be asked which it is.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const response = await fetch(`${API_BASE}${path}`, init);
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `Request failed with ${response.status}`);
+    throw new ApiError(text || `Request failed with ${response.status}`, response.status);
   }
   return (await response.json()) as T;
 };

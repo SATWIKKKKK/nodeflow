@@ -86,6 +86,9 @@ const problemKey = (problemId: string) => `noesis:problem:${problemId}`;
 
 export const readCachedProblem = (problemId: string) => read<PublicProblem>(problemKey(problemId));
 
+/** For a problem the server no longer has: a cached copy of it is a lie. */
+export const forgetCachedProblem = (problemId: string) => remove(problemKey(problemId));
+
 export const writeCachedProblem = (problem: PublicProblem) => {
   write(problemKey(problem.id), problem);
   touchIndex("noesis:problem-index", problemKey(problem.id), 40);

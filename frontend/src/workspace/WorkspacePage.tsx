@@ -33,7 +33,7 @@ import {
   type TraceDiff,
   type TraceStep
 } from "@nodeflow/shared";
-import { api } from "../lib/api";
+import { api, ApiError } from "../lib/api";
 import { readError } from "../lib/errors";
 import { loadProblems, structureLabel } from "../lib/problems";
 import { useServerStatus } from "../lib/serverStatus";
@@ -50,6 +50,7 @@ import { CustomInputPanel, parseCustomInput, pretty } from "./CustomInputPanel";
 import PlaybackControls from "./PlaybackControls";
 import {
   clearDraft,
+  forgetCachedProblem,
   readCachedProblem,
   readCachedTrace,
   readCustomInput,
@@ -363,8 +364,23 @@ export default function WorkspacePage() {
         // Keep the object stable when nothing changed, so nothing downstream resets.
         setProblem((current) => (current && JSON.stringify(current) === JSON.stringify(fresh) ? current : fresh));
       })
-      .catch(() => {
-        if (mounted && !cached) setNotice("Could not load this problem. Check that the Noesis backend is running, then reload.");
+      .catch((error: unknown) => {
+        if (!mounted) return;
+        // A problem the server no longer has must not go on being shown from
+        // the cache: everything on the page would still look right and every
+        // request it made would fail.
+        if (error instanceof ApiError && error.status === 404) {
+          // The cached copy has to go first: left in place it would still
+          // render, still look right, and fail on everything it tried to do.
+          forgetCachedProblem(routeProblemId);
+          setProblem(null);
+          // No notice here — this page is about to unmount, so a message set
+          // on it could never be read. The bank is where a missing problem
+          // leaves you, and it explains itself.
+          navigate("/problems", { replace: true });
+          return;
+        }
+        if (!cached) setNotice("Could not load this problem. Check that the Noesis backend is running, then reload.");
       });
 
     return () => {
