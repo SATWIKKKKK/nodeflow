@@ -11,7 +11,8 @@ import type {
   ProgressSummary,
   PublicProblem,
   SubmitResponse,
-  TestResponse
+  TestResponse,
+  VariantOutcome
 } from "@nodeflow/shared";
 
 const jsonHeaders = {
@@ -49,6 +50,16 @@ export const api = {
   problems: () => request<ProblemSummary[]>("/api/problems"),
   problem: (id: string) => request<PublicProblem>(`/api/problems/${encodeURIComponent(id)}`),
   dsaSummary: () => request<DsaSummary>("/api/dsa-summary"),
+  /**
+   * Change one word of a statement. Slow by nature: the server rewrites the
+   * problem and then runs the rewrite's own solution to work out the answers.
+   */
+  variant: (problemId: string, term: string, replacement: string) =>
+    request<VariantOutcome>(`/api/problems/${encodeURIComponent(problemId)}/variant`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ term, replacement })
+    }),
   progress: (token?: string | null) =>
     request<ProgressSummary>("/api/progress", {
       headers: authHeaders(token)

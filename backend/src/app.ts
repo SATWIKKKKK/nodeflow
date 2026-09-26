@@ -5,6 +5,14 @@ import { AuthError, completePasswordReset, signIn, signOut, signUp, startPasswor
 import { appUrl, emailsEnabled, sendEmail } from "./auth/email.js";
 import { dsaSummary } from "./problems/metadata.js";
 import { getProblem, problems, publicProblem } from "./problems/seeds.js";
+import {
+  MAX_TERM,
+  createVariant,
+  getVariant,
+  loadVariants,
+  variantProblems,
+  variantsEnabled
+} from "./problems/variants.js";
 import { expectedOutput, previewProblem, runProblemCase, submitProblem, testProblem } from "./execution/service.js";
 import { validateCustomInput } from "./problems/inputValidation.js";
 import {
@@ -94,6 +102,11 @@ app.get("/api/health", (_request, response) => {
   });
 });
 
+const variantSchema = z.object({
+  term: z.string().min(1).max(MAX_TERM),
+  replacement: z.string().min(1).max(MAX_TERM)
+});
+
 const askSchema = z.object({
   question: z.string().trim().min(3).max(MAX_QUESTION)
 });
@@ -149,12 +162,62 @@ const problemIndex = problems.map(({ id, title, topic, difficulty, structureType
   structureType
 }));
 
-app.get("/api/problems", (_request, response) => {
-  response.json(problemIndex);
+/** A variant is a problem like any other once it exists. */
+const findProblem = (id: string) => getProblem(id) ?? getVariant(id);
+
+const indexEntry = (problem: { id: string; title: string; topic: string; difficulty: string; structureType: string }) => ({
+  id: problem.id,
+  title: problem.title,
+  topic: problem.topic,
+  difficulty: problem.difficulty,
+  structureType: problem.structureType
+});
+
+app.get("/api/problems", async (_request, response) => {
+  await loadVariants();
+  response.json([...problemIndex, ...variantProblems().map(indexEntry)]);
+});
+
+/**
+ * Change one word of a statement and get the problem that follows from it.
+ *
+ * Slow on purpose: the reply waits for a rewrite and for that rewrite's own
+ * solution to be run against every input, because a variant whose answers were
+ * asserted rather than computed would fail learners who were right.
+ */
+app.post("/api/problems/:id/variant", async (request, response) => {
+  const parsed = variantSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ message: `Pick a word of up to ${MAX_TERM} characters.` });
+    return;
+  }
+  if (!variantsEnabled()) {
+    response.status(503).json({ message: "Variants are not enabled on this deployment." });
+    return;
+  }
+
+  await loadVariants();
+  const source = findProblem(request.params.id);
+  if (!source) {
+    response.status(404).json({ message: "Problem not found." });
+    return;
+  }
+
+  const caller = String(request.headers["x-forwarded-for"] ?? request.socket.remoteAddress ?? "unknown");
+  if (!withinRateLimit(caller)) {
+    response.status(429).json({ message: "Too many changes just now. Try again in a few minutes." });
+    return;
+  }
+
+  const outcome = await createVariant(source, parsed.data.term, parsed.data.replacement, [
+    ...problems,
+    ...variantProblems()
+  ]);
+  response.status(outcome.status === "created" ? 201 : 200).json(outcome);
 });
 
 app.get("/api/problems/:id", (request, response) => {
-  const problem = getProblem(request.params.id);
+  const problem = findProblem(request.params.id);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -269,7 +332,7 @@ app.post("/api/run", async (request, response) => {
     return;
   }
 
-  const problem = getProblem(parsed.data.problemId);
+  const problem = findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -297,7 +360,7 @@ app.post("/api/live-preview", async (request, response) => {
     return;
   }
 
-  const problem = getProblem(parsed.data.problemId);
+  const problem = findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -329,7 +392,7 @@ app.post("/api/expected", async (request, response) => {
     return;
   }
 
-  const problem = getProblem(parsed.data.problemId);
+  const problem = findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -351,7 +414,7 @@ app.post("/api/test", async (request, response) => {
     return;
   }
 
-  const problem = getProblem(parsed.data.problemId);
+  const problem = findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -367,7 +430,7 @@ app.post("/api/submit", async (request, response) => {
     return;
   }
 
-  const problem = getProblem(parsed.data.problemId);
+  const problem = findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;

@@ -211,6 +211,12 @@ export interface ProblemExample {
   explanation?: string;
 }
 
+/** What changing one word of a statement produced. */
+export type VariantOutcome =
+  | { status: "invalid"; reason: string }
+  | { status: "exists"; problemId: string; title: string; number: number }
+  | { status: "created"; problem: PublicProblem; number: number };
+
 export interface ProblemTestCase {
   id: string;
   input: Record<string, unknown>;

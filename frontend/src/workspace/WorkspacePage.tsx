@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { VariableStatement, VariantNotice, type VariantState } from "./VariableStatement";
 import {
   AlertCircle,
   AlertTriangle,
@@ -210,6 +211,8 @@ export default function WorkspacePage() {
   const session = useSession();
   const server = useServerStatus();
   const navigate = useNavigate();
+  const [variant, setVariant] = useState<VariantState>({ kind: "idle" });
+
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
 
   const [problem, setProblem] = useState<PublicProblem | null>(() =>
@@ -263,6 +266,36 @@ export default function WorkspacePage() {
   /** Set once the learner drives the cursor themselves, so previews stop moving it. */
   const userScrubbed = useRef(false);
   const problemId = problem?.id ?? "";
+
+  /**
+   * One word of the statement swapped for another.
+   *
+   * The wait is real — the server rewrites the problem and then runs that
+   * rewrite's own solution to work out every answer — so the word being
+   * changed keeps a spinner rather than the page going blank.
+   */
+  const changeTerm = useCallback(
+    async (term: string, replacement: string) => {
+      if (!problemId) return;
+      setVariant({ kind: "working", term });
+      try {
+        const outcome = await api.variant(problemId, term, replacement);
+        if (outcome.status === "invalid") setVariant({ kind: "invalid", reason: outcome.reason });
+        else if (outcome.status === "exists")
+          setVariant({ kind: "exists", title: outcome.title, number: outcome.number, problemId: outcome.problemId });
+        else
+          setVariant({
+            kind: "created",
+            title: outcome.problem.title,
+            number: outcome.number,
+            problemId: outcome.problem.id
+          });
+      } catch (error) {
+        setVariant({ kind: "invalid", reason: error instanceof Error ? error.message : "That change could not be made." });
+      }
+    },
+    [problemId]
+  );
   const editorOwner = `${problemId}:${language}`;
   const code = editor.code;
   const codeReady = Boolean(problemId) && editor.owner === editorOwner;
@@ -992,7 +1025,19 @@ export default function WorkspacePage() {
               <div id="problem-statement" className="px-5 pb-5 pt-3">
                 {problem ? (
                   <>
-                    <p className="text-body-md text-primary">{problem.description}</p>
+                    <VariableStatement
+                      text={problem.description}
+                      state={variant}
+                      onChange={changeTerm}
+                      className="text-body-md text-primary"
+                    />
+                    <VariantNotice
+                      state={variant}
+                      onOpen={(id) => {
+                        setVariant({ kind: "idle" });
+                        navigate(`/workspace/${id}`);
+                      }}
+                    />
 
                     {problem.examples.length > 0 && (
                       <div className="mt-4 grid gap-2">
