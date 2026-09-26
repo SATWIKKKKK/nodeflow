@@ -12,7 +12,8 @@ import type {
   PublicProblem,
   SubmitResponse,
   TestResponse,
-  VariantOutcome
+  VariantOutcome,
+  VariantStage
 } from "@nodeflow/shared";
 
 const jsonHeaders = {
@@ -51,15 +52,50 @@ export const api = {
   problem: (id: string) => request<PublicProblem>(`/api/problems/${encodeURIComponent(id)}`),
   dsaSummary: () => request<DsaSummary>("/api/dsa-summary"),
   /**
-   * Change one word of a statement. Slow by nature: the server rewrites the
-   * problem and then runs the rewrite's own solution to work out the answers.
+   * Change one word of a statement.
+   *
+   * Slow by nature — the server rewrites the problem and then runs the
+   * rewrite's own solution to work out the answers — so it answers in lines
+   * rather than in one go: a stage at a time, then the outcome. The stages are
+   * what the server is actually doing, not a timer pretending to be one.
    */
-  variant: (problemId: string, term: string, replacement: string) =>
-    request<VariantOutcome>(`/api/problems/${encodeURIComponent(problemId)}/variant`, {
+  variant: async (
+    problemId: string,
+    term: string,
+    replacement: string,
+    onStage: (stage: VariantStage) => void = () => {}
+  ): Promise<VariantOutcome> => {
+    const response = await fetch(`/api/problems/${encodeURIComponent(problemId)}/variant`, {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify({ term, replacement })
-    }),
+    });
+    if (!response.ok || !response.body) {
+      const message = await response.json().catch(() => ({ message: "That change could not be made." }));
+      throw new Error((message as { message?: string }).message ?? "That change could not be made.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let outcome: VariantOutcome | null = null;
+
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const event = JSON.parse(line) as { stage?: string; outcome?: VariantOutcome };
+        if (event.outcome) outcome = event.outcome;
+        else onStage(event as VariantStage);
+      }
+    }
+    if (!outcome) throw new Error("The server stopped before answering.");
+    return outcome;
+  },
   progress: (token?: string | null) =>
     request<ProgressSummary>("/api/progress", {
       headers: authHeaders(token)

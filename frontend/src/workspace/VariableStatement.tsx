@@ -45,7 +45,7 @@ const ADJUSTABLE = [
 export type VariantState =
   | { kind: "closed" }
   | { kind: "editing"; term: string }
-  | { kind: "working"; term: string }
+  | { kind: "working"; term: string; note: string }
   | { kind: "invalid"; term: string; reason: string }
   | { kind: "exists"; title: string; number: number; problemId: string }
   | { kind: "created"; title: string; number: number; problemId: string };
@@ -253,13 +253,13 @@ export function VariantDialog({
                     )}
                   >
                     {state.kind === "working" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : null}
-                    {state.kind === "working" ? "Checking…" : "Change it"}
+                    {state.kind === "working" ? "Working…" : "Change it"}
                   </button>
                 </div>
 
                 {state.kind === "working" && (
-                  <p className="mt-3 text-center text-sm text-blueprint-muted">
-                    Rewriting the problem and running its solution to work out the answers.
+                  <p className="mt-3 text-center text-sm text-blueprint-muted" aria-live="polite">
+                    {state.note}
                   </p>
                 )}
               </>

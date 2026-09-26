@@ -16,10 +16,27 @@
  */
 
 import { randomUUID } from "node:crypto";
-import type { Language, Problem, ProblemTestCase, PublicProblem } from "@nodeflow/shared";
+import type { Language, Problem, ProblemTestCase, PublicProblem, ValueKind } from "@nodeflow/shared";
 import { runProblemCase } from "../execution/service.js";
 import { sql, ensureSchema, usingDatabase } from "../store/db.js";
 import { buildStarterCodeByLanguage } from "./starterCode.js";
+import { validateCustomInput } from "./inputValidation.js";
+
+/**
+ * Kinds a variant may ask for.
+ *
+ * Every one of these can be written as JSON, which is what a test input is.
+ * `void` and the node-value kinds are deliberately absent: they cannot be set
+ * by hand, so a variant that wanted one could never be given a case to run.
+ */
+const INPUT_KINDS: ValueKind[] = [
+  "int", "long", "double", "bool", "string",
+  "array", "long_array", "double_array", "bool_array", "string_array",
+  "matrix", "graph", "char_matrix", "string_matrix",
+  "linked_list", "doubly_linked_list", "cyclic_list", "y_list", "random_list", "child_list",
+  "tree"
+];
+const RETURN_KINDS: ValueKind[] = [...INPUT_KINDS, "void"];
 
 const ENDPOINT = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-reasoner";
@@ -30,6 +47,12 @@ export const MAX_TERM = 60;
 
 const apiKey = () => process.env.DEEPSEEK_API_KEY ?? "";
 export const variantsEnabled = () => apiKey().length > 0;
+
+/** What the server is doing, as it does it. */
+export type VariantStage =
+  | { stage: "rewriting" }
+  | { stage: "checking" }
+  | { stage: "running"; done: number; of: number };
 
 export type VariantOutcome =
   | { status: "invalid"; reason: string }
@@ -164,6 +187,8 @@ interface Rewritten {
   reason?: string;
   title?: string;
   functionName?: string;
+  parameters?: Array<{ name: string; kind: string }>;
+  returnKind?: string;
   description?: string;
   constraints?: string[];
   referenceCode?: string;
@@ -183,7 +208,15 @@ When it is valid, return the rewritten problem. Rules:
 - functionName is snake_case, describes the NEW problem, and must differ from the
   original. A statement about even numbers must not be solved by a function called
   count_odds, and a variant must never share its parent's name.
-- Keep the parameter names, their order and their shapes exactly as given.
+- parameters and returnKind describe the NEW problem and may differ from the
+  original when the meaning demands it. A statement about a doubly linked list
+  takes doubly_linked_list, not linked_list; one that returns the values rather
+  than a count returns array, not int. Keep them unchanged when the meaning has
+  not moved.
+- Allowed kinds: int, long, double, bool, string, array, long_array,
+  double_array, bool_array, string_array, matrix, graph, char_matrix,
+  string_matrix, linked_list, doubly_linked_list, cyclic_list, y_list,
+  random_list, child_list, tree. returnKind may also be void.
 - referenceCode must be Python 3, define exactly functionName, and be correct.
 - Linked lists arrive as ListNode objects with .val and .next, trees as TreeNode
   with .val, .left, .right. Do not redefine those classes.
@@ -192,7 +225,7 @@ When it is valid, return the rewritten problem. Rules:
 - Never state expected outputs. They are computed by running your solution.
 
 Reply with JSON only:
-{"valid":true,"title":"...","functionName":"...","description":"...","constraints":["..."],"referenceCode":"...","inputs":[{...}]}
+{"valid":true,"title":"...","functionName":"...","parameters":[{"name":"...","kind":"..."}],"returnKind":"...","description":"...","constraints":["..."],"referenceCode":"...","inputs":[{...}]}
 or
 {"valid":false,"reason":"..."}`;
 
@@ -224,6 +257,7 @@ const askForRewrite = async (problem: Problem, term: string, replacement: string
               functionName: problem.signature.functionName,
               parameters: problem.signature.parameters,
               returnKind: problem.signature.returnKind,
+              structureType: problem.structureType,
               originalInputs: problem.testCases.map((testCase) => testCase.input).slice(0, 6)
             })
           }
@@ -265,7 +299,8 @@ export const createVariant = async (
   source: Problem,
   term: string,
   replacement: string,
-  existing: Problem[]
+  existing: Problem[],
+  report: (stage: VariantStage) => void = () => {}
 ): Promise<VariantOutcome> => {
   const trimmed = replacement.trim();
   if (!trimmed || trimmed.length > MAX_TERM) {
@@ -304,6 +339,7 @@ export const createVariant = async (
     };
   }
 
+  report({ stage: "rewriting" });
   const rewritten = await askForRewrite(source, term, trimmed);
   if (!rewritten.valid) {
     return { status: "invalid", reason: rewritten.reason ?? "That is not a variation of this problem." };
@@ -311,6 +347,8 @@ export const createVariant = async (
   if (!rewritten.description || !rewritten.referenceCode || !rewritten.inputs?.length) {
     return { status: "invalid", reason: "The rewrite came back incomplete. Try again." };
   }
+
+  report({ stage: "checking" });
 
   // The rewrite may land on a problem that already exists even though the
   // naive replacement did not, so the same check runs again on what it wrote.
@@ -351,7 +389,50 @@ export const createVariant = async (
       ? rewritten.referenceCode
       : rewritten.referenceCode.replace(new RegExp(String.raw`\b${suggested}\b`, "g"), renamed);
 
-  const signature = { ...source.signature, functionName: renamed };
+  /**
+   * The shape the variant asked for, kept only where it holds up.
+   *
+   * A statement about a doubly linked list needs nodes with a `prev`, and one
+   * that returns values rather than a count returns an array — so the kinds
+   * have to be allowed to move. What cannot be allowed is a kind the harness
+   * has never heard of, or a parameter list that no longer matches the inputs
+   * it will be handed, so both are checked against what the platform actually
+   * supports rather than taken on the model's word.
+   */
+  const proposed = rewritten.parameters;
+  const kindsHold =
+    Array.isArray(proposed) &&
+    proposed.length > 0 &&
+    proposed.length === source.signature.parameters.length &&
+    proposed.every(
+      (parameter) =>
+        typeof parameter?.name === "string" &&
+        /^[a-z][a-z0-9_]{0,30}$/.test(parameter.name) &&
+        INPUT_KINDS.includes(parameter.kind as ValueKind)
+    );
+  const returnHolds = RETURN_KINDS.includes(rewritten.returnKind as ValueKind);
+
+  const signature = {
+    ...source.signature,
+    functionName: renamed,
+    parameters: kindsHold
+      ? proposed!.map((parameter) => ({ name: parameter.name, kind: parameter.kind as ValueKind }))
+      : source.signature.parameters,
+    returnKind: returnHolds ? (rewritten.returnKind as ValueKind) : source.signature.returnKind
+  };
+
+  /** A structure type that still describes what the reader will be shown. */
+  const family = (kind: ValueKind) =>
+    kind === "tree"
+      ? "tree"
+      : ["linked_list", "doubly_linked_list", "cyclic_list", "y_list", "random_list", "child_list"].includes(kind)
+        ? "linked_list"
+        : kind === "graph"
+          ? "graph"
+          : "array";
+  const shown = family(signature.parameters[0]?.kind ?? "array");
+  const structureType =
+    family(source.signature.parameters[0]?.kind ?? "array") === shown ? source.structureType : shown;
   const pythonStarter =
     renamed === source.signature.functionName
       ? source.starterCode
@@ -361,6 +442,7 @@ export const createVariant = async (
   const draft: Problem = {
     ...source,
     signature,
+    structureType,
     starterCode: pythonStarter,
     id: `${slugify(rewritten.title ?? source.title)}-${randomUUID().slice(0, 6)}`,
     // A variant sharing its parent's title is indistinguishable in a list,
@@ -377,6 +459,17 @@ export const createVariant = async (
 
   const cases: ProblemTestCase[] = [];
   for (const [at, input] of rewritten.inputs.slice(0, 6).entries()) {
+    // Checked against the signature before a container is started: an input
+    // that does not fit the kinds cannot produce an answer worth keeping, and
+    // finding that out here costs nothing.
+    const wrong = validateCustomInput(draft, input);
+    if (wrong) {
+      return {
+        status: "invalid",
+        reason: `The rewritten inputs do not fit the problem's shape (${wrong}).`
+      };
+    }
+    report({ stage: "running", done: at, of: Math.min(rewritten.inputs.length, 6) });
     const run = await runProblemCase(draft, draft.referenceCode, input, {
       trace: false,
       stepLimit: 0,

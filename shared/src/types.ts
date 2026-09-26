@@ -211,6 +211,12 @@ export interface ProblemExample {
   explanation?: string;
 }
 
+/** What the server is doing while a variant is made. */
+export type VariantStage =
+  | { stage: "rewriting" }
+  | { stage: "checking" }
+  | { stage: "running"; done: number; of: number };
+
 /** What changing one word of a statement produced. */
 export type VariantOutcome =
   | { status: "invalid"; reason: string }

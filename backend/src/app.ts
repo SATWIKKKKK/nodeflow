@@ -209,11 +209,26 @@ app.post("/api/problems/:id/variant", async (request, response) => {
     return;
   }
 
-  const outcome = await createVariant(source, parsed.data.term, parsed.data.replacement, [
-    ...problems,
-    ...variantProblems()
-  ]);
-  response.status(outcome.status === "created" ? 201 : 200).json(outcome);
+  // Streamed line by line, because the wait is long enough that a learner
+  // deserves to know which part of it they are in. A duplicate answers before
+  // the first line is written; a rewrite takes the best part of half a minute.
+  response.setHeader("content-type", "application/x-ndjson");
+  response.setHeader("cache-control", "no-store");
+  const send = (payload: unknown) => {
+    response.write(`${JSON.stringify(payload)}\n`);
+    // Nothing buffers a half-finished answer while the model is still thinking.
+    (response as unknown as { flush?: () => void }).flush?.();
+  };
+
+  const outcome = await createVariant(
+    source,
+    parsed.data.term,
+    parsed.data.replacement,
+    [...problems, ...variantProblems()],
+    send
+  );
+  send({ outcome });
+  response.end();
 });
 
 app.get("/api/problems/:id", (request, response) => {

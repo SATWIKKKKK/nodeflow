@@ -277,9 +277,19 @@ export default function WorkspacePage() {
   const changeTerm = useCallback(
     async (term: string, replacement: string) => {
       if (!problemId) return;
-      setVariant({ kind: "working", term });
+      setVariant({ kind: "working", term, note: "Starting…" });
       try {
-        const outcome = await api.variant(problemId, term, replacement);
+        const outcome = await api.variant(problemId, term, replacement, (stage) => {
+          // Straight from the server, so the line always says what is actually
+          // happening rather than what a timer guesses is happening.
+          const note =
+            stage.stage === "rewriting"
+              ? "Rewriting the problem…"
+              : stage.stage === "checking"
+                ? "Checking it is not one you already have…"
+                : `Running the solution to work out the answers (${stage.done + 1} of ${stage.of})…`;
+          setVariant({ kind: "working", term, note });
+        });
         if (outcome.status === "invalid") setVariant({ kind: "invalid", term, reason: outcome.reason });
         else if (outcome.status === "exists")
           setVariant({ kind: "exists", title: outcome.title, number: outcome.number, problemId: outcome.problemId });
