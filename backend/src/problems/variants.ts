@@ -53,6 +53,30 @@ const distinctTitle = (sourceTitle: string, written: string | undefined, replace
 const looksLikeIdentifier = (name: string | undefined) =>
   typeof name === "string" && /^[a-z][a-z0-9_]{1,48}$/.test(name.trim());
 
+/**
+ * A new name, worked out rather than asked for.
+ *
+ * The model is told to rename and usually does, but "usually" is not a
+ * guarantee and a variant that keeps its parent's name is a second problem
+ * answering to the same call. Where the changed word appears in the name it is
+ * swapped there too — `count_odds` becomes `count_evens` — and where it does
+ * not, the replacement is appended, which is ugly but never wrong and never
+ * collides.
+ */
+const derivedName = (original: string, term: string, replacement: string) => {
+  const slug = replacement
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+  if (!slug) return original;
+
+  const swapped = original.split(term.toLowerCase()).join(slug);
+  if (swapped !== original && looksLikeIdentifier(swapped)) return swapped;
+  const appended = `${original}_${slug}`.slice(0, 48);
+  return looksLikeIdentifier(appended) ? appended : original;
+};
+
 const slugify = (title: string) =>
   title
     .toLowerCase()
@@ -156,9 +180,9 @@ a real algorithmic variation: a name, slang, a random string, or a word that
 leaves the statement meaningless or self-contradictory.
 
 When it is valid, return the rewritten problem. Rules:
-- functionName is snake_case and must describe the NEW problem. A statement about
-  even numbers must not be solved by a function called count_odds. Keep the old
-  name only when it still reads correctly.
+- functionName is snake_case, describes the NEW problem, and must differ from the
+  original. A statement about even numbers must not be solved by a function called
+  count_odds, and a variant must never share its parent's name.
 - Keep the parameter names, their order and their shapes exactly as given.
 - referenceCode must be Python 3, define exactly functionName, and be correct.
 - Linked lists arrive as ListNode objects with .val and .next, trees as TreeNode
@@ -311,9 +335,22 @@ export const createVariant = async (
    * Python starter is prose rather than generated, so the old name is swapped
    * out of it directly.
    */
-  const renamed = looksLikeIdentifier(rewritten.functionName)
+  const suggested = looksLikeIdentifier(rewritten.functionName)
     ? rewritten.functionName!.trim()
     : source.signature.functionName;
+  const renamed =
+    suggested === source.signature.functionName
+      ? derivedName(source.signature.functionName, term, trimmed)
+      : suggested;
+
+  // Whatever was settled on, the solution has to answer to it — including any
+  // recursive calls to itself, which is why this is a whole-word replace
+  // rather than a patch of the `def` line.
+  const reference =
+    renamed === suggested
+      ? rewritten.referenceCode
+      : rewritten.referenceCode.replace(new RegExp(String.raw`\b${suggested}\b`, "g"), renamed);
+
   const signature = { ...source.signature, functionName: renamed };
   const pythonStarter =
     renamed === source.signature.functionName
@@ -332,7 +369,7 @@ export const createVariant = async (
     title: distinctTitle(source.title, rewritten.title, trimmed),
     description: rewritten.description.trim(),
     constraints: rewritten.constraints?.length ? rewritten.constraints : source.constraints,
-    referenceCode: rewritten.referenceCode,
+    referenceCode: reference,
     examples: [],
     testCases: [],
     defaultInput: rewritten.inputs[0]
