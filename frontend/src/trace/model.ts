@@ -93,6 +93,14 @@ export interface ListNodeModel extends Attention {
   col: number;
   changed: boolean;
   tags: Tag[];
+  /**
+   * The node the run handed back.
+   *
+   * A two-pointer walk ends with the pointers scattered along the chain and
+   * nothing saying which one was the answer. The tracer records what was
+   * returned, so the node itself can say it.
+   */
+  returned?: boolean;
 }
 
 export interface ListEdgeModel {
@@ -1795,6 +1803,22 @@ export function buildStepModel({ trace, diffs, index, slots, roles, failing, vis
     }
   }
   const tagsFor = (id: string) => pointers.get(id) ?? [];
+  /**
+   * The object the run handed back, once it has handed anything back.
+   *
+   * Read from the last return in the trace up to here rather than from this
+   * step alone, so the answer stays marked while the replay sits on its final
+   * frames instead of flashing once and going out.
+   */
+  const returnedNode = (() => {
+    for (let at = index; at >= 0; at -= 1) {
+      const handed = trace[at].returns;
+      if (isRef(handed, heap)) return handed;
+      if (trace[at].event === "return" && handed !== undefined) return undefined;
+    }
+    return undefined;
+  })();
+
   /** What a heap object held a step ago, for tables mutated in place. */
   const priorItems = (id: string) => diff?.mutated.find((entry) => entry.id === id)?.before.items;
 
@@ -1836,6 +1860,7 @@ export function buildStepModel({ trace, diffs, index, slots, roles, failing, vis
         col: slot.col,
         changed: changed.has(id),
         tags: tagsFor(id),
+        returned: returnedNode === id,
         ...attentionOn(id)
       });
       shown.add(id);

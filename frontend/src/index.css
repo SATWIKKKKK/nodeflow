@@ -714,6 +714,7 @@
      accent, which still has to stand out as "this just changed". */
   --graphics-node: #2d58bc;
   --fill-blue: #2d58bc;
+  --answer: #b8860b;
   --fill-blue-hover: #28499f;
   --fill-blue-text: #ffffff;
   /* "Being weighed", which must never read as "was written". */
@@ -740,6 +741,7 @@
   --graphics-accent: #9ecbff;
   --graphics-node: #9ecbff;
   --fill-blue: #9ecbff;
+  --answer: #f5c542;
   --fill-blue-hover: #bcdcff;
   --fill-blue-text: #0a1728;
   --compare: #f0b429;

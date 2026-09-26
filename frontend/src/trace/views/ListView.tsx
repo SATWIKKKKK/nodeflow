@@ -154,6 +154,21 @@ export function ListView({ view }: { view: ListViewModel }) {
                 exit={{ opacity: 0, scale: 0.6 }}
                 transition={{ type: "spring", stiffness: 260, damping: 28 }}
               >
+                {node.returned && (
+                  // A ring outside the node rather than a fill inside it: being
+                  // the answer is a fact about the node, not something that has
+                  // just happened to it, so the states that do mean "just
+                  // happened" keep their own colours underneath.
+                  <motion.circle
+                    r={RADIUS + 5}
+                    fill="none"
+                    strokeWidth={2.5}
+                    className="stroke-[var(--answer)]"
+                    initial={{ opacity: 0, scale: 0.72 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 240, damping: 16 }}
+                  />
+                )}
                 <circle
                   r={RADIUS}
                   strokeWidth={node.comparing ? 2.25 : 1.75}
@@ -182,6 +197,15 @@ export function ListView({ view }: { view: ListViewModel }) {
                 >
                   {node.label.length > 5 ? `${node.label.slice(0, 4)}…` : node.label}
                 </text>
+                {node.returned && (
+                  <text
+                    y={RADIUS + 19}
+                    textAnchor="middle"
+                    className="fill-[var(--answer)] font-mono text-[9.5px] font-medium"
+                  >
+                    returned
+                  </text>
+                )}
               </motion.g>
             </g>
           ))}
