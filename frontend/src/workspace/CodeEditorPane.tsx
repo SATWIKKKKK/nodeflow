@@ -115,7 +115,10 @@ export default function CodeEditorPane({
       // scroll-behavior: smooth on the scroller turns this into an eased scroll
       // rather than a jump. Centring keeps context on both sides of the line.
       effects.push(
-        EditorView.scrollIntoView(view.state.doc.line(activeLine).from, { y: "center" })
+        // `nearest`, not `center`: re-centring on every step makes the whole
+        // panel lurch line by line during playback, which at 4x is unreadable.
+        // This only moves when the line would otherwise be off screen.
+        EditorView.scrollIntoView(view.state.doc.line(activeLine).from, { y: "nearest" })
       );
     }
 

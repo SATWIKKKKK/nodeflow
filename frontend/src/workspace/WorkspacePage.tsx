@@ -769,7 +769,7 @@ export default function WorkspacePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden">
       <header className="app-header sticky top-0 z-40 shrink-0">
-        <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-5">
+        <div className="relative flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-5">
           <NavLink to="/" aria-label="Noesis home" className="flex items-center text-primary">
             <LogoMark className="h-7" />
           </NavLink>
@@ -784,6 +784,14 @@ export default function WorkspacePage() {
             ) : (
               <span className="block h-3 w-40 animate-pulse rounded-full bg-surface-inset" aria-hidden />
             )}
+          </div>
+          {/* Centred on the page rather than tucked into the editor: these are
+              the three things a learner reaches for, and they should be in the
+              same place whatever is scrolled. */}
+          <div className="flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+            {actionButton("run", "Run", true)}
+            {actionButton("test", "Test")}
+            {actionButton("submit", "Submit")}
           </div>
           <ThemeToggle />
           <AccountMenu />
@@ -1073,11 +1081,6 @@ export default function WorkspacePage() {
               >
                 {editorFullscreen ? <Minimize2 size={14} aria-hidden /> : <Maximize2 size={14} aria-hidden />}
               </button>
-              <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto [&>button]:flex-1 sm:[&>button]:flex-none">
-                {actionButton("run", "Run", true)}
-                {actionButton("test", "Test")}
-                {actionButton("submit", "Submit")}
-              </div>
             </div>
 
             <div className="min-h-0 flex-1">

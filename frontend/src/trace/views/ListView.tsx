@@ -44,10 +44,15 @@ function edgePath(edge: ListEdgeModel, from: ListNodeModel, to: ListNodeModel | 
   }
 
   if (from.row !== to.row) {
-    const startX = x1 + (x2 >= x1 ? RADIUS : -RADIUS);
-    const endX = x2 + (x2 >= x1 ? -RADIUS - 6 : RADIUS + 6);
-    const midX = (startX + endX) / 2;
-    return `M ${startX} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${endX} ${y2}`;
+    // Leave and arrive vertically. Going out of one circle's side and into
+    // another's while travelling between rows drags the curve straight across
+    // both of them; from the bottom edge to the top edge it touches neither,
+    // and the arrowhead lands square on the node it points at.
+    const down = y2 > y1;
+    const sy = y1 + (down ? RADIUS + 3 : -RADIUS - 3);
+    const ey = y2 + (down ? -RADIUS - 7 : RADIUS + 7);
+    const midY = (sy + ey) / 2;
+    return `M ${x1} ${sy} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${ey}`;
   }
 
   const forward = x2 > x1;

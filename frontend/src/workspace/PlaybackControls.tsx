@@ -110,9 +110,6 @@ export default function PlaybackControls({
           </select>
         </label>
 
-        <span className="ml-auto text-technical-mono text-blueprint-muted" aria-live="off">
-          {empty ? "" : `Step ${index + 1} / ${count}${line ? ` · line ${line}` : ""}`}
-        </span>
       </div>
 
       <input
