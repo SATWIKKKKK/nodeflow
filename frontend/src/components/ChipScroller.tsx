@@ -111,6 +111,7 @@ export function ChipScroller({
                 className={cn(
                   chip.base,
                   "no-lift shrink-0 hover:bg-surface-hover",
+                  !active && chip.idle,
                   active && chip.active,
                   active && "hover:bg-[var(--fill-blue-hover)]"
                 )}

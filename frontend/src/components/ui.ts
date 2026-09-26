@@ -20,7 +20,13 @@ export const button = {
 };
 
 export const chip = {
-  base: "inline-flex items-center gap-1.5 rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-ui-label text-primary",
+  // No text colour here on purpose. `fill-blue` brings its own, and two
+  // utilities of equal weight are settled by stylesheet order rather than by
+  // the order they are listed in, so a colour set here quietly won, leaving a
+  // selected chip dark-on-dark-blue in light mode and light-on-light in dark.
+  // The inactive colour is applied alongside instead.
+  base: "inline-flex items-center gap-1.5 rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-ui-label",
+  idle: "text-primary",
   active: "fill-blue border-transparent",
   small: "inline-flex items-center rounded-full border border-blueprint-line px-2.5 py-1 text-xs font-semibold leading-none"
 };
