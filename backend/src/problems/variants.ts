@@ -132,6 +132,19 @@ const asked = new Map<string, string>();
 const askKey = (sourceId: string, term: string, replacement: string) =>
   `${sourceId}|${term.toLowerCase()}|${replacement.toLowerCase()}`;
 
+/**
+ * Where each variant came from, and the change that made it.
+ *
+ * Without this, undoing a change makes a third problem. Asking for
+ * `sorted -> unsorted` and then `unsorted -> sorted` is two different
+ * requests on two different problems, so neither the request key nor the
+ * statement matches — and the statements never will, because a model reworded
+ * to the same meaning does not word it the same way twice. The lineage is
+ * exact where the text is not: a change that inverts the one just made is a
+ * way back, not a new problem.
+ */
+const lineage = new Map<string, { sourceId: string; term: string; replacement: string }>();
+
 let loaded = false;
 
 const ensureVariantTable = async () => {
@@ -166,6 +179,7 @@ export const loadVariants = async (): Promise<void> => {
     }>;
     for (const row of rows) {
       asked.set(askKey(row.source_id, row.term, row.replacement), row.id);
+      lineage.set(row.id, { sourceId: row.source_id, term: row.term, replacement: row.replacement });
       if (created.some((problem) => problem.id === row.id)) continue;
       created.push(row.data);
       numbers.set(row.id, row.number);
@@ -311,6 +325,25 @@ export const createVariant = async (
   }
   if (!source.description.includes(term)) {
     return { status: "invalid", reason: "That word is not in this statement." };
+  }
+
+  // Undoing the change that made this problem. The way back is the problem it
+  // was made from, whatever either statement happens to say now.
+  const came = lineage.get(source.id);
+  if (
+    came &&
+    came.term.toLowerCase() === trimmed.toLowerCase() &&
+    came.replacement.toLowerCase() === term.toLowerCase()
+  ) {
+    const back = existing.find((problem) => problem.id === came.sourceId);
+    if (back) {
+      return {
+        status: "exists",
+        problemId: back.id,
+        title: back.title,
+        number: numbers.get(back.id) ?? existing.indexOf(back) + 1
+      };
+    }
   }
 
   // The same request made before, which is the case a learner actually hits:
@@ -511,6 +544,7 @@ export const createVariant = async (
   created.push(problem);
   numbers.set(problem.id, number);
   asked.set(askKey(source.id, term, trimmed), problem.id);
+  lineage.set(problem.id, { sourceId: source.id, term, replacement: trimmed });
 
   if (usingDatabase()) {
     try {
