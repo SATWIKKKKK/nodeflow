@@ -592,6 +592,21 @@
 
 /* ---------- Workspace: editor and transport ---------- */
 
+/*
+ * The editor wrapper has to carry a height of its own.
+ *
+ * react-codemirror puts a bare `div.cm-theme` between the pane and the editor,
+ * and that div has no height. A percentage height on `.cm-editor` therefore has
+ * no definite box to resolve against, falls back to `auto`, and the editor
+ * grows to fit every line it holds. It then overflows a pane that clips it, so
+ * the text below the fold is unreachable and CodeMirror — which believes it has
+ * all the room it asked for — never offers a scrollbar.
+ */
+.cm-theme {
+  height: 100%;
+  min-height: 0;
+}
+
 .cm-playback-line {
   background: var(--surface-hover) !important;
   box-shadow: inset 2px 0 0 var(--primary);
