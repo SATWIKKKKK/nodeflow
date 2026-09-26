@@ -339,8 +339,15 @@ export interface MapViewModel {
   key: string;
   title: string;
   typeName: string;
-  entries: Array<{ key: string; value: string; changed: boolean }>;
+  entries: Array<{ key: string; value: string; changed: boolean; looked?: boolean }>;
   truncated: number;
+  /**
+   * A key the line is asking about that the table does not hold.
+   *
+   * A lookup that misses is half of what a hash table is for, and with only
+   * the hits marked a reader sees nothing happen and concludes nothing did.
+   */
+  missing?: string;
 }
 
 export interface ObjectViewModel {
@@ -2185,6 +2192,28 @@ export function buildStepModel({ trace, diffs, index, slots, roles, failing, vis
 
     if (object.fields) {
       const isMap = object.type === "dict" || /dict|map|counter/i.test(object.type);
+
+      /**
+       * Keys this line is asking the table about.
+       *
+       * `if need in seen` is the whole of a hash-table solution and nothing
+       * drew it: the table sat there unchanged while the one interesting
+       * question — is it in here? — went unasked on screen. Both forms count,
+       * the membership test and the subscript that follows it.
+       */
+      const asked = new Set<string>();
+      if (isMap && sourceLine) {
+        for (const name of (tagsFor(id) as Tag[]).map((tag) => tag.name)) {
+          const membership = new RegExp(String.raw`([A-Za-z_]\w*)\s+(?:not\s+)?in\s+${name}\b`, "g");
+          const subscript = new RegExp(String.raw`\b${name}\s*\[\s*([A-Za-z_]\w*)\s*\]`, "g");
+          for (const pattern of [membership, subscript]) {
+            for (const hit of sourceLine.matchAll(pattern)) {
+              const held = step.variables[hit[1]];
+              if (held !== undefined && held !== null && !isRef(held, heap)) asked.add(String(held));
+            }
+          }
+        }
+      }
       if (isMap) {
         const keys = changedKeys(id, diff, object);
         views.push({
@@ -2195,9 +2224,11 @@ export function buildStepModel({ trace, diffs, index, slots, roles, failing, vis
           entries: Object.entries(object.fields).map(([key, value]) => ({
             key,
             value: inlineLabel(value, heap),
-            changed: keys.has(key)
+            changed: keys.has(key),
+            looked: asked.has(key)
           })),
-          truncated: object.truncated ?? 0
+          truncated: object.truncated ?? 0,
+          missing: [...asked].find((key) => !(key in object.fields!))
         });
         return;
       }

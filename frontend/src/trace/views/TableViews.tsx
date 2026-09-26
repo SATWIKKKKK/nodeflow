@@ -12,6 +12,13 @@ export function MapView({ view }: { view: MapViewModel }) {
           {view.typeName === "dict" ? "map" : view.typeName} · {view.entries.length + view.truncated}
         </span>
       </p>
+      {view.missing !== undefined && (
+        // The miss drawn as plainly as a hit. Half of what a table is for is
+        // the answer "no", and a reader shown nothing concludes nothing asked.
+        <p className="mb-1.5 font-mono text-[11.5px] text-blueprint-muted">
+          looked for <span className="text-[var(--compare-text)]">{view.missing}</span> · not here
+        </p>
+      )}
       {view.entries.length === 0 ? (
         <span className="inline-flex h-9 items-center rounded-lg border-[1.25px] border-dashed border-blueprint-line px-3 font-mono text-[12px] text-blueprint-muted">
           empty
@@ -28,7 +35,13 @@ export function MapView({ view }: { view: MapViewModel }) {
                 exit={{ opacity: 0 }}
                 className={cn(
                   "col-span-2 grid grid-cols-subgrid border-b border-blueprint-line last:border-b-0 transition-colors duration-300",
-                  entry.changed ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "bg-card text-primary"
+                  entry.changed
+                    ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
+                    : entry.looked
+                      ? // Being asked about is not the same as being written to,
+                        // so it borrows the weighed colour rather than the fill.
+                        "bg-[var(--compare-soft)] text-[var(--compare-text)]"
+                      : "bg-card text-primary"
                 )}
               >
                 <span className="border-r border-blueprint-line px-3 py-1.5">{entry.key}</span>
