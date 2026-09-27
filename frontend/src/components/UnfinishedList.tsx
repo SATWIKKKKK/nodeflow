@@ -6,6 +6,7 @@ import { api } from "../lib/api";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { verdictTone } from "../lib/verdict";
+import { markStartedSynced, startedAsUnfinished, unsyncedStarted } from "../lib/started";
 import { UnfinishedMark } from "./UnfinishedMark";
 
 const LANGUAGE_NAMES = { python: "Python", cpp: "C++", java: "Java" } as const;
@@ -23,9 +24,12 @@ const ago = (timestamp: string) => {
 };
 
 /**
- * Problems the signed-in learner started and has not solved, newest first.
- * `null` while loading; an empty list for guests, whose drafts stay in the
- * browser and have no account to follow them anywhere.
+ * Problems started and not solved, newest first; `null` while loading.
+ *
+ * A guest's list is this browser's own record (lib/started.ts). An account's
+ * comes from the server, after anything opened here while signed out has been
+ * sent up to join it; if the server cannot be reached, the browser's record
+ * stands in rather than showing nothing.
  */
 export function useUnfinished() {
   const session = useSession();
@@ -34,24 +38,36 @@ export function useUnfinished() {
 
   useEffect(() => {
     let mounted = true;
-    if (!session.user) {
-      setProblems([]);
+    const userId = session.user?.id;
+    if (!userId || !session.token) {
+      setProblems(startedAsUnfinished());
       return;
     }
+    const token = session.token;
     setProblems(null);
     setError(false);
-    api
-      .unfinished(session.token)
+    const pending = unsyncedStarted(userId);
+    const synced = pending.length
+      ? api
+          .syncStarted(
+            pending.map((entry) => ({ problemId: entry.problemId, language: entry.language, at: entry.at })),
+            token
+          )
+          .then(() => markStartedSynced(userId, Math.max(...pending.map((entry) => Date.parse(entry.at)))))
+          .catch(() => undefined)
+      : Promise.resolve();
+    synced
+      .then(() => api.unfinished(token))
       .then((response) => mounted && setProblems(response.problems))
       .catch(() => {
         if (!mounted) return;
         setError(true);
-        setProblems([]);
+        setProblems(startedAsUnfinished());
       });
     return () => {
       mounted = false;
     };
-  }, [session.token, session.user]);
+  }, [session.token, session.user?.id]);
 
   return { problems, error };
 }
@@ -60,7 +76,7 @@ export function useUnfinished() {
 export function UnfinishedRow({ entry, number }: { entry: UnfinishedProblem; number?: number }) {
   return (
     <NavLink
-      to={`/workspace/${entry.problemId}`}
+      to={`/workspace/${entry.problemId}${entry.language ? `?lang=${entry.language}` : ""}`}
       className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-hover sm:px-6"
     >
       <UnfinishedMark label={false} className="w-8 justify-center" />

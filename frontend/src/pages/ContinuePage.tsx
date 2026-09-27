@@ -38,30 +38,16 @@ export default function ContinuePage() {
           className="mb-0"
           eyebrow="Continue solving"
           title="Pick up where you left off."
-          lead="Every problem you started and have not solved yet. Your code is saved to your account, so it opens exactly as you left it, on any device."
+          lead="Every problem you opened and have not solved yet, with your code exactly as you left it."
         />
         <NavLink to="/dashboard" className={cn(button.outlineSm, "self-start lg:self-auto")}>
           <ArrowLeft size={14} aria-hidden /> Dashboard
         </NavLink>
       </div>
 
-      {!session.user ? (
-        <div className="surface-card text-center">
-          <p className="text-headline-sm text-primary">Sign in to keep your place.</p>
-          <p className="mt-2 text-body-md text-blueprint-muted">
-            Unfinished problems follow your account, so they survive signing out and closing the window.
-          </p>
-          <NavLink to="/signin?next=/continue" className={cn(button.primary, "mt-6")}>
-            Sign in
-          </NavLink>
-        </div>
-      ) : problems === null ? (
+      {problems === null ? (
         <div className="flex justify-center py-16">
           <Spinner />
-        </div>
-      ) : error ? (
-        <div className="status-error rounded-xl border px-5 py-4 text-body-md">
-          Could not load your unfinished problems. Check that the Noesis backend is running, then reload.
         </div>
       ) : problems.length === 0 ? (
         <div className="surface-card text-center">
@@ -75,6 +61,18 @@ export default function ContinuePage() {
         </div>
       ) : (
         <>
+          {(!session.user || error) && (
+            <p className="mb-4 rounded-xl border border-blueprint-line bg-surface-inset px-4 py-3 text-sm text-blueprint-muted">
+              {error
+                ? "Showing what this browser remembers; your account's list could not be reached just now."
+                : "Saved in this browser. "}
+              {!session.user && (
+                <NavLink to="/signin?next=/continue" className="font-semibold text-[var(--fill-blue)] hover:underline">
+                  Sign in to keep your place on every device.
+                </NavLink>
+              )}
+            </p>
+          )}
           <p className="mb-4 text-technical-mono text-blueprint-muted" aria-live="polite">
             {problems.length > PAGE_SIZE
               ? `${(paged.page - 1) * PAGE_SIZE + 1}–${(paged.page - 1) * PAGE_SIZE + paged.items.length} of ${problems.length} unfinished`

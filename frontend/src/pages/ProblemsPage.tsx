@@ -250,7 +250,7 @@ export default function ProblemsPage() {
                           className={attempted ? "fill-current text-primary" : "text-blueprint-line"}
                         />
                       )}
-                      <span className="sr-only">{solved ? "Solved" : attempted ? "Attempted" : "Not started"}</span>
+                      {!waiting && <span className="sr-only">{solved ? "Solved" : attempted ? "Attempted" : "Not started"}</span>}
                     </span>
 
                     <span className="min-w-0 flex-1">

@@ -207,38 +207,36 @@ export default function DashboardPage() {
             </section>
           </div>
 
-          {session.user && (
-            <section aria-labelledby="continue-heading" className="surface-frame mt-8 overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-4 sm:px-6">
-                <h2 id="continue-heading" className="flex items-center gap-3 text-headline-sm text-primary">
-                  Continue solving
-                  {unfinished && unfinished.length > 0 && <UnfinishedMark label={false} />}
-                </h2>
-                {unfinished && unfinished.length > 0 && (
-                  <NavLink to="/continue" className={cn(button.text, "inline-flex items-center gap-2")}>
-                    See all {unfinished.length} <ArrowRight size={14} aria-hidden />
-                  </NavLink>
-                )}
-              </div>
-              {unfinished === null ? (
-                <div className="flex justify-center py-10">
-                  <Spinner />
-                </div>
-              ) : unfinished.length === 0 ? (
-                <p className="px-6 py-10 text-center text-body-md text-blueprint-muted">
-                  Nothing left hanging. Start a problem and it waits here if you step away.
-                </p>
-              ) : (
-                <ul className="divide-y divide-blueprint-line">
-                  {unfinished.slice(0, 5).map((entry) => (
-                    <li key={entry.problemId}>
-                      <UnfinishedRow entry={entry} />
-                    </li>
-                  ))}
-                </ul>
+          <section aria-labelledby="continue-heading" className="surface-frame mt-8 overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-4 sm:px-6">
+              <h2 id="continue-heading" className="flex items-center gap-3 text-headline-sm text-primary">
+                Continue solving
+                {unfinished && unfinished.length > 0 && <UnfinishedMark label={false} />}
+              </h2>
+              {unfinished && unfinished.length > 0 && (
+                <NavLink to="/continue" className={cn(button.text, "inline-flex items-center gap-2")}>
+                  See all {unfinished.length} <ArrowRight size={14} aria-hidden />
+                </NavLink>
               )}
-            </section>
-          )}
+            </div>
+            {unfinished === null ? (
+              <div className="flex justify-center py-10">
+                <Spinner />
+              </div>
+            ) : unfinished.length === 0 ? (
+              <p className="px-6 py-10 text-center text-body-md text-blueprint-muted">
+                Nothing left hanging. Open a problem and it waits here if you step away.
+              </p>
+            ) : (
+              <ul className="divide-y divide-blueprint-line">
+                {unfinished.slice(0, 5).map((entry) => (
+                  <li key={entry.problemId}>
+                    <UnfinishedRow entry={entry} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
           {!session.user && (
             <div className="surface-inset mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

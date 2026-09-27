@@ -29,7 +29,7 @@ import {
 } from "./classrooms/store.js";
 import { queueSnapshot } from "./execution/queue.js";
 import { progressForUser } from "./progress/summary.js";
-import { clearDraft, draftFor, saveDraft, unfinishedFor } from "./progress/drafts.js";
+import { clearDraft, draftFor, saveDraft, touchDraft, unfinishedFor } from "./progress/drafts.js";
 import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
 import { readSubmissions } from "./progress/summary.js";
 import { AskError, MAX_QUESTION, answerQuestion, askEnabled, withinRateLimit } from "./ask/deepseek.js";
@@ -66,6 +66,12 @@ const assignmentsSchema = z.object({ problemIds: z.array(z.string()).max(500) })
 
 const coinsSchema = z.object({ delta: z.number().int() });
 const draftSchema = z.object({ language: languageSchema, code: z.string().max(60_000) });
+const touchSchema = z.object({ language: languageSchema, at: z.string().max(40).optional() });
+const syncSchema = z.object({
+  entries: z
+    .array(z.object({ problemId: z.string().max(200), language: languageSchema, at: z.string().max(40).optional() }))
+    .max(300)
+});
 
 const authSchema = z.object({
   email: z.string().email(),
@@ -536,6 +542,45 @@ app.put("/api/drafts/:problemId", async (request, response) => {
     return;
   }
   response.json({ draft: await saveDraft(user.id, problemId, parsed.data.language, parsed.data.code) });
+});
+
+/** Opening a problem: it counts as started from now, typed in or not. */
+app.post("/api/drafts/:problemId/touch", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.json({ ok: false });
+    return;
+  }
+  const problemId = String(request.params.problemId);
+  const parsed = touchSchema.safeParse(request.body ?? {});
+  if (!findProblem(problemId) || !parsed.success) {
+    response.status(400).json({ message: "Unknown problem or invalid request." });
+    return;
+  }
+  await touchDraft(user.id, problemId, parsed.data.language, parsed.data.at);
+  response.json({ ok: true });
+});
+
+/** Problems opened on this device while signed out, carried over on sign-in. */
+app.post("/api/drafts/sync", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to keep your place across devices." });
+    return;
+  }
+  const parsed = syncSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ message: "Invalid request." });
+    return;
+  }
+  let kept = 0;
+  for (const entry of parsed.data.entries) {
+    // A problem the server no longer has is skipped rather than failing the batch.
+    if (!findProblem(entry.problemId)) continue;
+    await touchDraft(user.id, entry.problemId, entry.language, entry.at);
+    kept += 1;
+  }
+  response.json({ ok: true, kept });
 });
 
 app.delete("/api/drafts/:problemId", async (request, response) => {

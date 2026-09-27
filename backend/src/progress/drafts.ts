@@ -15,6 +15,10 @@ import { readSubmissions } from "./summary.js";
  * Continue Solving bring a learner back to a problem after signing out,
  * closing the window or moving to a different machine.
  *
+ * A row also stands for "opened, not solved": opening a problem touches it
+ * with no code, so a problem counts as started the moment it is looked at,
+ * not only once something has been typed. A touch never overwrites code.
+ *
  * Postgres when DATABASE_URL is set, otherwise backend/data/drafts.json.
  */
 
@@ -90,6 +94,38 @@ export const saveDraft = async (
   return { problemId, language, code: trimmed, updatedAt };
 };
 
+/**
+ * Marks a problem as started without touching any code already saved for it.
+ * `at` lets a problem opened while signed out keep the time it was opened.
+ */
+export const touchDraft = async (userId: string, problemId: string, language: Language, at?: string) => {
+  const parsed = at ? Date.parse(at) : Number.NaN;
+  // Never in the future, and never older than a year: a clock-skewed client
+  // should not pin a problem to the top of the list forever.
+  const now = Date.now();
+  const when = new Date(
+    Number.isFinite(parsed) ? Math.min(now, Math.max(now - 365 * 86_400_000, parsed)) : now
+  ).toISOString();
+  if (sql) {
+    await ensureSchema();
+    await sql`insert into noesis_drafts (user_id, problem_id, language, code, updated_at)
+      values (${userId}, ${problemId}, ${language}, '', ${when})
+      on conflict (user_id, problem_id) do update
+        set updated_at = greatest(noesis_drafts.updated_at, excluded.updated_at),
+            language = case when noesis_drafts.code = '' then excluded.language else noesis_drafts.language end`;
+    return;
+  }
+  const all = readFile();
+  const existing = all.find((draft) => draft.userId === userId && draft.problemId === problemId);
+  if (existing) {
+    if (Date.parse(when) > Date.parse(existing.updatedAt)) existing.updatedAt = when;
+    if (!existing.code) existing.language = language;
+  } else {
+    all.push({ userId, problemId, language, code: "", updatedAt: when });
+  }
+  writeFile(all);
+};
+
 export const clearDraft = async (userId: string, problemId: string) => {
   if (sql) {
     await ensureSchema();
@@ -101,10 +137,14 @@ export const clearDraft = async (userId: string, problemId: string) => {
   if (kept.length !== all.length) writeFile(kept);
 };
 
-/** The saved draft, or failing that the code of the latest submission. */
+/**
+ * The saved draft, or failing that the code of the latest submission. A
+ * problem only opened, never typed in, has a row but no code, and falls
+ * through to its submissions like one with no row at all.
+ */
 export const draftFor = async (userId: string, problemId: string): Promise<SavedDraft | null> => {
   const saved = (await draftsFor(userId)).find((draft) => draft.problemId === problemId);
-  if (saved) return saved;
+  if (saved?.code) return saved;
   if (sql) {
     await ensureSchema();
     const rows = (await sql`select problem_id, language, code, created_at as updated_at from noesis_submissions

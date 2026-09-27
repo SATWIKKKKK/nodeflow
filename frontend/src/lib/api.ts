@@ -187,7 +187,23 @@ export const api = {
     request<{ draft: SavedDraft }>(`/api/drafts/${encodeURIComponent(problemId)}`, {
       method: "PUT",
       headers: authHeaders(token),
-      body: JSON.stringify({ language, code })
+      body: JSON.stringify({ language, code }),
+      // The last save is often sent as the window closes; keepalive lets it
+      // finish after the page has gone instead of being cancelled with it.
+      keepalive: code.length < 60_000
+    }),
+  touchDraft: (problemId: string, language: Language, token?: string | null) =>
+    request<{ ok: boolean }>(`/api/drafts/${encodeURIComponent(problemId)}/touch`, {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ language }),
+      keepalive: true
+    }),
+  syncStarted: (entries: Array<{ problemId: string; language: Language; at: string }>, token?: string | null) =>
+    request<{ ok: boolean; kept: number }>("/api/drafts/sync", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ entries })
     }),
   clearDraft: (problemId: string, token?: string | null) =>
     request<{ ok: boolean }>(`/api/drafts/${encodeURIComponent(problemId)}`, {

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { VariableStatement, VariantDialog, type VariantState } from "./VariableStatement";
 import { ZoomControls, ZOOM_STEP, clampZoom } from "./ZoomControls";
@@ -43,6 +43,7 @@ import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { verdictTone } from "../lib/verdict";
 import { creditSolve } from "../lib/coins";
+import { forgetStarted, markSolvedHere, markStarted } from "../lib/started";
 import { JudgementBanner } from "./JudgementBanner";
 import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
@@ -242,6 +243,7 @@ export default function WorkspacePage() {
   const sceneModeRef = useRef<"trace" | "3d">("trace");
 
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [problem, setProblem] = useState<PublicProblem | null>(() =>
     routeProblemId ? readCachedProblem(routeProblemId) : null
@@ -400,6 +402,20 @@ export default function WorkspacePage() {
   };
   const languageRef = useRef(language);
   languageRef.current = language;
+
+  // Continue Solving links carry the language the work was in (?lang=cpp), so
+  // resuming opens that code even when the default language has moved on.
+  // Read once, then dropped from the address so a reload does not undo a
+  // later switch.
+  const requestedLanguage = searchParams.get("lang");
+  useEffect(() => {
+    if (requestedLanguage !== "python" && requestedLanguage !== "cpp" && requestedLanguage !== "java") return;
+    if (requestedLanguage !== languageRef.current) setLanguage(requestedLanguage);
+    const next = new URLSearchParams(searchParams);
+    next.delete("lang");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedLanguage]);
   const setLanguageRef = useRef(setLanguage);
   setLanguageRef.current = setLanguage;
 
@@ -437,6 +453,7 @@ export default function WorkspacePage() {
           // The cached copy has to go first: left in place it would still
           // render, still look right, and fail on everything it tried to do.
           forgetCachedProblem(routeProblemId);
+          forgetStarted(routeProblemId);
           setProblem(null);
           // No notice here — this page is about to unmount, so a message set
           // on it could never be read. The bank is where a missing problem
@@ -651,6 +668,17 @@ export default function WorkspacePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problem?.id, session.user?.id]);
 
+  // Opening a problem is starting it: it joins Continue Solving now, typed in
+  // or not. This device remembers it for a guest (and for the account, until
+  // the next sync); an account also records it on the server straight away.
+  useEffect(() => {
+    if (!problem) return;
+    markStarted(problem, languageRef.current);
+    if (session.token) api.touchDraft(problem.id, languageRef.current, session.token).catch(() => undefined);
+    // Once per problem and account; typing keeps the record fresh below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problem?.id, session.token]);
+
   // Typing saves to the account after a pause, and once more when the tab is
   // hidden or the page is left, so the last few keystrokes are never lost.
   const pendingDraft = useRef<{ problemId: string; language: Language; code: string; starter: string } | null>(null);
@@ -658,12 +686,16 @@ export default function WorkspacePage() {
     const pending = pendingDraft.current;
     pendingDraft.current = null;
     if (!pending || !session.token) return;
-    const request =
-      pending.code.trim() === pending.starter.trim()
-        ? api.clearDraft(pending.problemId, session.token)
-        : api.saveDraft(pending.problemId, pending.language, pending.code, session.token);
-    request.catch(() => undefined);
+    // Starter code is saved too: going back to it is still working on the
+    // problem, and deleting the draft here would take it off the list.
+    api.saveDraft(pending.problemId, pending.language, pending.code, session.token).catch(() => undefined);
   }, [session.token]);
+
+  useEffect(() => {
+    if (!problem || edits === 0) return;
+    const timer = window.setTimeout(() => markStarted(problem, language), 1200);
+    return () => window.clearTimeout(timer);
+  }, [code, edits, problem, language]);
 
   useEffect(() => {
     if (!problem || !session.user || edits === 0) return;
@@ -957,6 +989,7 @@ export default function WorkspacePage() {
           // Paid once per problem: the server decides for an account, this
           // browser's record for a guest.
           creditSolve(problem, (response as SubmitResponse).coinsAwarded);
+          markSolvedHere(problem.id);
         }
         if (mode === "submit") {
           setStanding((previous) => ({
@@ -976,7 +1009,12 @@ export default function WorkspacePage() {
   const resetCode = () => {
     if (!problem) return;
     clearDraft(problem.id, language);
-    if (session.token) api.clearDraft(problem.id, session.token).catch(() => undefined);
+    // The account keeps the starter, so the next visit does not bring the old
+    // code back, and the problem stays on Continue Solving.
+    if (session.token) {
+      const starter = problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? "";
+      api.saveDraft(problem.id, language, starter, session.token).catch(() => undefined);
+    }
     setEditor({ owner: editorOwner, code: problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? "" });
     setConfirmReset(false);
     settleAction();
