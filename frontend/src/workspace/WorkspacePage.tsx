@@ -46,7 +46,7 @@ import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { AccountMenu } from "../components/layout/AccountMenu";
-import { CoinBalance } from "../components/GoldCoin";
+import { CoinBalance } from "../components/NoesisCoin";
 import { button, chip, field } from "../components/ui";
 import { TraceDiagram } from "../trace/TraceDiagram";
 import CodeEditorPane from "./CodeEditorPane";

@@ -5,24 +5,48 @@ import { useSession } from "./session";
 /**
  * The coin balance, shared by every place that shows it.
  *
- * A round of the waiting game changes the balance on screen the instant it is
+ * A round of the waiting game changes the real balance the instant it is
  * played; the change is sent to the account in batches a moment later, and the
  * server's answer (which clamps at zero) becomes the balance. Guests keep
  * their coins in this browser.
+ *
+ * What the counters show lags the real balance by whatever is in the air: a
+ * coin earned is first celebrated as a big coin (components/CoinCelebration)
+ * and only counted when it lands in a counter. Quick wins in a row join the
+ * coin still on show rather than launching one each.
  */
 
 const GUEST_KEY = "noesis:coins";
+/** A coin that has not landed by now lands anyway, so nothing is ever lost. */
+const LAND_BY_MS = 5000;
+
+export interface CoinFlight {
+  id: number;
+  amount: number;
+  /** Where it was earned, in viewport coordinates. */
+  origin?: { x: number; y: number };
+  flying: boolean;
+}
+
 const listeners = new Set<() => void>();
 
 let balance = 0;
+let inFlight = 0;
+let shown = 0;
 let token: string | null = null;
 let signedIn = false;
 let unsent = 0;
 let timer: number | undefined;
-/** Last change, so a badge can float "+2" or "−1" beside the balance. */
+let flights: CoinFlight[] = [];
+let flightSeq = 0;
+let celebrating = 0;
+/** Last change the counters showed, so a badge can float "+2" or "−1" beside it. */
 let lastChange = { delta: 0, at: 0 };
 
-const emit = () => listeners.forEach((listener) => listener());
+const emit = () => {
+  shown = Math.max(0, balance - inFlight);
+  listeners.forEach((listener) => listener());
+};
 
 const readGuest = () => {
   try {
@@ -58,9 +82,45 @@ const flush = () => {
     });
 };
 
-export const earnCoins = (delta: number) => {
+const reducedMotion = () => {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+};
+
+/** A celebrated coin has reached a counter: count it. */
+export const landFlight = (id: number) => {
+  const flight = flights.find((entry) => entry.id === id);
+  if (!flight) return;
+  flights = flights.filter((entry) => entry.id !== id);
+  inFlight = Math.max(0, inFlight - flight.amount);
+  lastChange = { delta: flight.amount, at: Date.now() };
+  emit();
+};
+
+/** The coin on show has left for the counter; the next win starts a new one. */
+export const launchFlight = (id: number) => {
+  flights = flights.map((entry) => (entry.id === id ? { ...entry, flying: true } : entry));
+  emit();
+};
+
+export const earnCoins = (delta: number, origin?: { x: number; y: number }) => {
   balance = Math.max(0, balance + delta);
-  lastChange = { delta, at: Date.now() };
+  if (delta > 0 && celebrating > 0 && !reducedMotion()) {
+    inFlight += delta;
+    const showing = flights.find((entry) => !entry.flying);
+    if (showing) {
+      flights = flights.map((entry) => (entry === showing ? { ...entry, amount: entry.amount + delta } : entry));
+    } else {
+      const id = ++flightSeq;
+      flights = [...flights, { id, amount: delta, origin, flying: false }];
+      window.setTimeout(() => landFlight(id), LAND_BY_MS);
+    }
+  } else {
+    lastChange = { delta, at: Date.now() };
+  }
   emit();
   if (!signedIn) {
     writeGuest(balance);
@@ -76,8 +136,20 @@ const subscribe = (listener: () => void) => {
   return () => listeners.delete(listener);
 };
 
-export const useCoins = () => useSyncExternalStore(subscribe, () => balance);
+/** The balance as the counters show it: without coins still in the air. */
+export const useCoins = () => useSyncExternalStore(subscribe, () => shown);
 export const useLastCoinChange = () => useSyncExternalStore(subscribe, () => lastChange);
+export const useCoinFlights = () => useSyncExternalStore(subscribe, () => flights);
+
+/** The celebration layer registers itself; without it, coins count at once. */
+export const useCelebrationSlot = () => {
+  useEffect(() => {
+    celebrating += 1;
+    return () => {
+      celebrating -= 1;
+    };
+  }, []);
+};
 
 /** Mounted once: follows the session, loads the balance, and sends what is left on the way out. */
 export function CoinsSync() {
@@ -114,3 +186,6 @@ export function CoinsSync() {
   }, [session.token, session.user]);
   return null;
 }
+
+// Lets the coin celebration be tried from the console while developing.
+if (import.meta.env.DEV) (window as unknown as { __noesisCoins?: unknown }).__noesisCoins = { earnCoins };

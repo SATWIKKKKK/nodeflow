@@ -1032,18 +1032,69 @@
   background: linear-gradient(90deg, #f87171, #fb7185);
 }
 
-/* ---------- Coins (components/GoldCoin) ---------- */
+/* ---------- Coins (components/NoesisCoin, CoinCelebration) ---------- */
+
+/* The Noesis coin: brand blue in light, a luminous light blue on dark. */
+:root {
+  --coin-rim-top: #3a66cc;
+  --coin-rim-bottom: #1e3f8f;
+  --coin-face: #2d58bc;
+  --coin-face-hi: #5a86e0;
+  --coin-ring: #4470d4;
+  --coin-ring-hi: #a9c4ff;
+  --coin-mark: #dce7ff;
+  --coin-mark-hi: #f4f8ff;
+  --coin-mark-shadow: #10275e;
+  --coin-edge: #173377;
+}
+
+.dark {
+  --coin-rim-top: #9ecbff;
+  --coin-rim-bottom: #4f84da;
+  --coin-face: #8dbcf7;
+  --coin-face-hi: #bcdcff;
+  --coin-ring: #7fb2f5;
+  --coin-ring-hi: #e4f1ff;
+  --coin-mark: #0f2445;
+  --coin-mark-hi: #e4f1ff;
+  --coin-mark-shadow: #0a1728;
+  --coin-edge: #3d6fc4;
+}
 
 .coin-chip {
-  border-color: rgba(212, 160, 23, 0.45);
-  background: linear-gradient(135deg, #fffaeb, #fff1c2);
-  color: #7a4e00;
+  border-color: rgba(45, 88, 188, 0.3);
+  background: linear-gradient(135deg, #f3f7ff, #e6eeff);
+  color: #1e3a8a;
 }
 
 .dark .coin-chip {
-  border-color: rgba(255, 213, 74, 0.35);
-  background: linear-gradient(135deg, #2a2006, #3a2b08);
-  color: #ffe08a;
+  border-color: rgba(158, 203, 255, 0.32);
+  background: linear-gradient(135deg, #0f1c33, #13264a);
+  color: #cfe3ff;
+}
+
+/* The milled edge seen when the coin turns side-on. */
+.coin-edge {
+  background: repeating-conic-gradient(var(--coin-edge) 0deg 4deg, var(--coin-rim-bottom) 4deg 8deg);
+}
+
+.coin-halo {
+  background: radial-gradient(circle, rgba(90, 134, 224, 0.35) 0%, rgba(90, 134, 224, 0) 65%);
+}
+
+.dark .coin-halo {
+  background: radial-gradient(circle, rgba(158, 203, 255, 0.3) 0%, rgba(158, 203, 255, 0) 65%);
+}
+
+.coin-spark {
+  background: var(--coin-face-hi);
+  box-shadow: 0 0 8px var(--coin-face-hi);
+}
+
+.coin-amount {
+  background: var(--fill-blue);
+  color: var(--fill-blue-text);
+  box-shadow: 0 8px 22px rgba(45, 88, 188, 0.35);
 }
 
 .coin-glint {
@@ -1056,7 +1107,7 @@
     transform: skewX(-20deg) translateX(0);
   }
   100% {
-    transform: skewX(-20deg) translateX(48px);
+    transform: skewX(-20deg) translateX(620px);
   }
 }
 

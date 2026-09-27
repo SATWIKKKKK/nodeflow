@@ -8,6 +8,7 @@ import { PageLoader } from "./components/PageLoader";
 import { INFO_PAGES } from "./pages/infoPages";
 import { useSession } from "./lib/session";
 import { CoinsSync } from "./lib/coins";
+import { CoinCelebration } from "./components/CoinCelebration";
 
 const LandingPage = lazy(() => import("./landing/LandingPage"));
 const WorkspacePage = lazy(() => import("./workspace/WorkspacePage"));
@@ -70,6 +71,7 @@ export default function App() {
       <RouteProgress />
       <ScrollToTop />
       <CoinsSync />
+      <CoinCelebration />
       <Routes>
         <Route element={<MarketingLayout variant="landing" />}>
           <Route index element={<Home />} />

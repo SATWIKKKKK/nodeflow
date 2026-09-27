@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { earnCoins } from "../lib/coins";
-import { CoinBalance } from "../components/GoldCoin";
+import { CoinBalance } from "../components/NoesisCoin";
 
 /**
  * Something to do while the rewrite is being worked out.
@@ -36,10 +36,11 @@ export function WaitingGame() {
   const [flash, setFlash] = useState<{ value: number; correct: boolean } | null>(null);
 
   const pick = useCallback(
-    (value: number) => {
+    (value: number, from?: DOMRect) => {
       if (flash) return;
       const correct = value === Math.min(left, right);
-      earnCoins(correct ? REWARD : -PENALTY);
+      // The celebrated coin rises from the number that won it.
+      earnCoins(correct ? REWARD : -PENALTY, from ? { x: from.left + from.width / 2, y: from.top } : undefined);
       setEarned((total) => total + (correct ? REWARD : -PENALTY));
       setStreak((run) => (correct ? run + 1 : 0));
       setFlash({ value, correct });
@@ -66,7 +67,7 @@ export function WaitingGame() {
       <motion.button
         key={`${value}-${left}-${right}`}
         type="button"
-        onClick={() => pick(value)}
+        onClick={(event) => pick(value, event.currentTarget.getBoundingClientRect())}
         initial={{ scale: 0.92, opacity: 0 }}
         animate={
           picked && !flash?.correct

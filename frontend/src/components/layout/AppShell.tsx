@@ -27,7 +27,7 @@ import { PageLoader } from "../PageLoader";
 import { ThemeToggle } from "../ThemeToggle";
 import { button } from "../ui";
 import { AccountMenu } from "./AccountMenu";
-import { CoinBalance } from "../GoldCoin";
+import { CoinBalance } from "../NoesisCoin";
 import { ProblemSearch } from "./ProblemSearch";
 
 interface NavItem {
