@@ -52,16 +52,6 @@ const learnNav: NavItem[] = [
 
 const COLLAPSE_KEY = "noesis:sidebar-collapsed";
 
-const titles: Record<string, string> = {
-  "/problems": "Problems",
-  "/dashboard": "Dashboard",
-  "/problem-map": "Problem map",
-  "/continue": "Continue solving",
-  "/classrooms": "Classrooms"
-};
-
-const titleFor = (pathname: string) =>
-  titles[pathname] ?? (pathname.startsWith("/classrooms/") ? "Classroom" : "Noesis");
 
 function SideLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const Icon = item.icon;
@@ -255,13 +245,10 @@ export function AppShell({ children }: { children?: ReactNode }) {
             >
               <Menu size={16} aria-hidden />
             </button>
-            <p className="min-w-0 flex-1 truncate text-ui-label text-blueprint-muted lg:flex-none lg:basis-40">
-              {titleFor(location.pathname)}
-            </p>
-            <div className="hidden flex-1 justify-center lg:flex">
+            <div className="hidden min-w-0 flex-1 justify-start lg:flex">
               <ProblemSearch />
             </div>
-            <div className="flex items-center gap-2 lg:basis-40 lg:justify-end">
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <CoinBalance />
               <ThemeToggle />
               <AccountMenu />

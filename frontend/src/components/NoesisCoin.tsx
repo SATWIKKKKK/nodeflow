@@ -216,7 +216,7 @@ export function Coin3D({
  * (data-coin-target), and it redraws its N each time one does; a "+2" or
  * "−1" floats off it as the number changes.
  */
-export function CoinBalance({ className, size = 20 }: { className?: string; size?: number }) {
+export function CoinBalance({ className, size = 24 }: { className?: string; size?: number }) {
   const coins = useCoins();
   const change = useLastCoinChange();
   const [fresh, setFresh] = useState(false);
@@ -242,7 +242,18 @@ export function CoinBalance({ className, size = 20 }: { className?: string; size
         animate={gained ? { scale: [1, 1.35, 1] } : { scale: 1 }}
         transition={{ duration: 0.4 }}
       >
-        <CoinFace size={size} drawToken={gained ? change.at : undefined} />
+        {/* Light mode keeps the drawn coin for now; dark mode uses the
+            illustrated one. */}
+        <CoinFace size={size} drawToken={gained ? change.at : undefined} className="dark:hidden" />
+        <img
+          src="/coins/noesis-coin-dark-64.png"
+          srcSet="/coins/noesis-coin-dark-64.png 1x, /coins/noesis-coin-dark-128.png 2x, /coins/noesis-coin-dark-256.png 4x"
+          width={size}
+          height={size}
+          alt=""
+          draggable={false}
+          className="coin-image hidden select-none dark:block"
+        />
       </motion.span>
       <motion.span key={coins} initial={{ y: fresh ? -6 : 0, opacity: fresh ? 0.3 : 1 }} animate={{ y: 0, opacity: 1 }}>
         {coins}

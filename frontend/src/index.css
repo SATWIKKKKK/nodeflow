@@ -1049,16 +1049,18 @@
 }
 
 .dark {
-  --coin-rim-top: #9ecbff;
-  --coin-rim-bottom: #4f84da;
-  --coin-face: #8dbcf7;
-  --coin-face-hi: #bcdcff;
-  --coin-ring: #7fb2f5;
-  --coin-ring-hi: #e4f1ff;
-  --coin-mark: #0f2445;
-  --coin-mark-hi: #e4f1ff;
-  --coin-mark-shadow: #0a1728;
-  --coin-edge: #3d6fc4;
+  /* Matched to the illustrated dark coin (public/coins), so the drawn coin
+     in the celebration lands on the counter as the same object. */
+  --coin-rim-top: #a6d3ff;
+  --coin-rim-bottom: #3f82f2;
+  --coin-face: #a2cdfd;
+  --coin-face-hi: #dcedff;
+  --coin-ring: #7db4fb;
+  --coin-ring-hi: #e6f3ff;
+  --coin-mark: #1a4fd0;
+  --coin-mark-hi: #cfe6ff;
+  --coin-mark-shadow: #0b2c86;
+  --coin-edge: #2f68dc;
 }
 
 .coin-chip {
@@ -1067,10 +1069,17 @@
   color: #1e3a8a;
 }
 
+/* In dark mode the coin stands on its own: no pill behind it or the count. */
 .dark .coin-chip {
-  border-color: rgba(158, 203, 255, 0.32);
-  background: linear-gradient(135deg, #0f1c33, #13264a);
-  color: #cfe3ff;
+  border-color: transparent;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  color: #e6f3ff;
+}
+
+.coin-image {
+  filter: drop-shadow(0 1px 3px rgba(63, 130, 242, 0.35));
 }
 
 /* The milled edge seen when the coin turns side-on. */
