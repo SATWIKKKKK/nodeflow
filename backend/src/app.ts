@@ -29,6 +29,8 @@ import {
 } from "./classrooms/store.js";
 import { queueSnapshot } from "./execution/queue.js";
 import { progressForUser } from "./progress/summary.js";
+import { clearDraft, draftFor, saveDraft, unfinishedFor } from "./progress/drafts.js";
+import { addCoins, coinsFor } from "./progress/coins.js";
 import { AskError, MAX_QUESTION, answerQuestion, askEnabled, withinRateLimit } from "./ask/deepseek.js";
 
 export const app = express();
@@ -60,6 +62,9 @@ const expectedSchema = z.object({
 const classroomNameSchema = z.object({ name: z.string().max(200) });
 const joinSchema = z.object({ code: z.string().min(1).max(40) });
 const assignmentsSchema = z.object({ problemIds: z.array(z.string()).max(500) });
+
+const coinsSchema = z.object({ delta: z.number().int() });
+const draftSchema = z.object({ language: languageSchema, code: z.string().max(60_000) });
 
 const authSchema = z.object({
   email: z.string().email(),
@@ -452,7 +457,69 @@ app.post("/api/submit", async (request, response) => {
   }
 
   const user = await userForToken(authToken(request.headers.authorization));
-  response.json(await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language));
+  const result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language);
+  // Solved is finished: it leaves Continue Solving.
+  if (user && result.verdict === "Accepted") await clearDraft(user.id, problem.id).catch(() => undefined);
+  response.json(result);
+});
+
+// ---------------------------------------------------------------- coins
+
+app.get("/api/coins", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  response.json({ coins: user ? await coinsFor(user.id) : 0 });
+});
+
+app.post("/api/coins", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to keep coins." });
+    return;
+  }
+  const parsed = coinsSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ message: "Invalid coin change." });
+    return;
+  }
+  response.json({ coins: await addCoins(user.id, parsed.data.delta) });
+});
+
+// ---------------------------------------------------------------- drafts
+
+/** Problems started and not solved, for Continue Solving. Signed-in only. */
+app.get("/api/unfinished", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  response.json({ problems: user ? await unfinishedFor(user.id) : [] });
+});
+
+app.get("/api/drafts/:problemId", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  response.json({ draft: user ? await draftFor(user.id, String(request.params.problemId)) : null });
+});
+
+app.put("/api/drafts/:problemId", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to keep drafts." });
+    return;
+  }
+  const problemId = String(request.params.problemId);
+  if (!findProblem(problemId)) {
+    response.status(404).json({ message: "Problem not found." });
+    return;
+  }
+  const parsed = draftSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ message: parsed.error.issues[0]?.message ?? "Invalid draft." });
+    return;
+  }
+  response.json({ draft: await saveDraft(user.id, problemId, parsed.data.language, parsed.data.code) });
+});
+
+app.delete("/api/drafts/:problemId", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (user) await clearDraft(user.id, String(request.params.problemId));
+  response.json({ ok: true });
 });
 
 // ---------------------------------------------------------------- classrooms

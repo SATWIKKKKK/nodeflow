@@ -65,6 +65,19 @@ export const ensureSchema = (): Promise<void> => {
         created_at timestamptz not null default now()
       )`;
       await db`create index if not exists noesis_classrooms_owner on noesis_classrooms(owner_id)`;
+      await db`create table if not exists noesis_drafts (
+        user_id text not null,
+        problem_id text not null,
+        language text not null,
+        code text not null,
+        updated_at timestamptz not null default now(),
+        primary key (user_id, problem_id)
+      )`;
+      await db`create table if not exists noesis_wallets (
+        user_id text primary key,
+        coins integer not null default 0,
+        updated_at timestamptz not null default now()
+      )`;
     })().catch((error) => {
       schemaReady = null;
       throw error;

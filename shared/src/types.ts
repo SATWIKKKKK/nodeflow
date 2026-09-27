@@ -446,4 +446,29 @@ export interface ClassroomDetail {
   assignments: ClassroomAssignment[];
 }
 
+/**
+ * A problem the learner started and has not yet solved: where Continue Solving
+ * takes them back to.
+ */
+export interface UnfinishedProblem {
+  problemId: string;
+  title: string;
+  topic: string;
+  difficulty: Difficulty;
+  structureType: StructureType;
+  /** Language of the saved code, when there is any. */
+  language?: Language;
+  /** Most recent edit or submission. */
+  updatedAt: string;
+  attempts: number;
+  lastVerdict?: JudgeVerdict;
+}
+
+export interface SavedDraft {
+  problemId: string;
+  language: Language;
+  code: string;
+  updatedAt: string;
+}
+
 export * from "./trace.js";
