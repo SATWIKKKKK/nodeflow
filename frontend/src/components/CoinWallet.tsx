@@ -9,16 +9,15 @@ import { Coin3D } from "./NoesisCoin";
 /**
  * Where the coins came from, opened from the coin counter.
  *
- * The total counts up under a coin that turns once, and a ring splits it by
- * source — solved problems, the change-the-word game, and anything held from
- * before sources were recorded — each segment drawing itself in. A single line
+ * The total counts up under a coin that turns once, and a ring splits what was
+ * earned between accepted submissions and the change-the-word game, each
+ * segment drawing itself in. A single line
  * of coloured dots says which is which; nothing else competes with the chart.
  */
 
 const SOURCES = {
-  solve: { label: "Solved problems", color: "var(--wallet-solve)" },
-  game: { label: "Word game", color: "var(--wallet-game)" },
-  earlier: { label: "Earlier", color: "var(--wallet-earlier)" }
+  solve: { label: "Submissions", color: "var(--wallet-solve)" },
+  game: { label: "Word game", color: "var(--wallet-game)" }
 } as const;
 
 type SourceKey = keyof typeof SOURCES;
@@ -101,8 +100,7 @@ export function CoinWallet({ open, onClose }: { open: boolean; onClose: () => vo
     ? (
         [
           { key: "solve", value: data.solve.total },
-          { key: "game", value: Math.max(0, data.game.net) },
-          { key: "earlier", value: data.earlier }
+          { key: "game", value: Math.max(0, data.game.net) }
         ] as Array<{ key: SourceKey; value: number }>
       ).filter((part) => part.value > 0)
     : [];
@@ -155,7 +153,7 @@ export function CoinWallet({ open, onClose }: { open: boolean; onClose: () => vo
                 <div className="mx-auto h-48 w-48 animate-pulse rounded-full bg-surface-inset" />
               ) : total === 0 ? (
                 <p className="rounded-2xl bg-surface-inset px-5 py-6 text-center text-sm text-blueprint-muted">
-                  No coins yet. Solve a problem for the first time, or play the game while a variant is being made.
+                  Solve a problem for the first time, or play the word game while a variant is being made.
                 </p>
               ) : (
                 <div className="flex flex-col items-center">

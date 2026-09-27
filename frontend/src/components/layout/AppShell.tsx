@@ -4,23 +4,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
   BarChart3,
-  ChevronLeft,
   CreditCard,
   Layers3,
   ListChecks,
-  LogIn,
-  LogOut,
   Menu,
-  MoonStar,
-  SunMedium,
+  PanelLeftClose,
+  PanelLeftOpen,
   Terminal,
   Users,
   Workflow,
   X,
   type LucideIcon
 } from "lucide-react";
-import { useSession } from "../../lib/session";
-import { useThemePreference } from "../../lib/theme";
 import { cn } from "../../lib/cn";
 import { Logo } from "../Logo";
 import { PageLoader } from "../PageLoader";
@@ -82,19 +77,29 @@ function SidebarBody({
   collapsed: boolean;
   onToggleCollapse?: () => void;
 }) {
-  const session = useSession();
-  const { resolved, toggle } = useThemePreference();
-  const ThemeIcon = resolved === "dark" ? SunMedium : MoonStar;
-
-  const rowClass = cn(
-    "no-lift flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-ui-label text-blueprint-muted transition-colors hover:bg-surface-hover hover:text-primary",
-    collapsed && "justify-center px-0"
-  );
-
   return (
     <div className="flex h-full flex-col overflow-y-auto px-4 py-8">
-      <div className={cn("mb-8 flex items-center", collapsed ? "justify-center" : "px-2")}>
+      {/* The logo, and beside it the one control the sidebar keeps for itself:
+          folding it away. Theme and account live in the header already. */}
+      <div
+        className={cn(
+          "mb-8 flex items-center",
+          collapsed ? "flex-col justify-center gap-4" : "justify-between gap-2 px-2"
+        )}
+      >
         <Logo compact={collapsed} markClassName="h-10 sm:h-12" />
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="no-lift flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-blueprint-muted transition-colors hover:bg-surface-hover hover:text-primary"
+            style={{ minHeight: 0 }}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen size={18} aria-hidden /> : <PanelLeftClose size={18} aria-hidden />}
+          </button>
+        )}
       </div>
 
       <nav aria-label="App" className="grid gap-1">
@@ -111,46 +116,6 @@ function SidebarBody({
           <SideLink key={item.to} item={item} collapsed={collapsed} />
         ))}
       </nav>
-
-      <div className="mt-auto grid gap-1 border-t border-blueprint-line pt-4">
-        <button type="button" onClick={toggle} className={rowClass} title={collapsed ? "Theme" : undefined}>
-          <ThemeIcon size={17} aria-hidden className="shrink-0" />
-          {!collapsed && <span>{resolved === "dark" ? "Light theme" : "Dark theme"}</span>}
-        </button>
-
-        {session.user ? (
-          <button
-            type="button"
-            onClick={() => void session.signOut()}
-            className={rowClass}
-            title={collapsed ? "Sign out" : undefined}
-          >
-            <LogOut size={17} aria-hidden className="shrink-0" />
-            {!collapsed && <span>Sign out</span>}
-          </button>
-        ) : (
-          <NavLink to="/signin" className={rowClass} title={collapsed ? "Sign in" : undefined}>
-            <LogIn size={17} aria-hidden className="shrink-0" />
-            {!collapsed && <span>Sign in</span>}
-          </NavLink>
-        )}
-
-        {onToggleCollapse && (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className={rowClass}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <ChevronLeft
-              size={17}
-              aria-hidden
-              className={cn("shrink-0 transition-transform", collapsed && "rotate-180")}
-            />
-            {!collapsed && <span>Collapse</span>}
-          </button>
-        )}
-      </div>
     </div>
   );
 }
