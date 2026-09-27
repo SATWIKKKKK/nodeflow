@@ -21,13 +21,16 @@ export function ZoomControls({
   zoom,
   onZoom,
   onReset,
-  className
+  className,
+  compact = false
 }: {
   /** Shown as a percentage. For 3D this is a notional level, not a scale. */
   zoom: number;
   onZoom: (direction: 1 | -1) => void;
   onReset: () => void;
   className?: string;
+  /** Just minus, level and plus: for a toolbar with no room to spare. */
+  compact?: boolean;
 }) {
   const button = "no-lift flex h-7 w-7 items-center justify-center rounded-full text-blueprint-muted hover:text-primary disabled:opacity-40";
   return (
@@ -51,7 +54,10 @@ export function ZoomControls({
       <button
         type="button"
         onClick={onReset}
-        className="no-lift min-w-[3.2rem] rounded-full px-1 font-mono text-[11px] text-blueprint-muted hover:text-primary"
+        className={cn(
+          "no-lift rounded-full px-1 font-mono text-[11px] text-blueprint-muted hover:text-primary",
+          compact ? "min-w-[2.6rem]" : "min-w-[3.2rem]"
+        )}
         style={{ minHeight: 0 }}
         aria-label="Reset zoom"
         title="Reset zoom"
@@ -69,11 +75,11 @@ export function ZoomControls({
       >
         <Plus size={13} aria-hidden />
       </button>
-      <span className="mx-0.5 h-4 w-px bg-blueprint-line" aria-hidden />
+      {!compact && <span className="mx-0.5 h-4 w-px bg-blueprint-line" aria-hidden />}
       <button
         type="button"
         onClick={onReset}
-        className={button}
+        className={cn(button, compact && "hidden")}
         style={{ minHeight: 0 }}
         aria-label="Fit to view"
         title="Fit to view"

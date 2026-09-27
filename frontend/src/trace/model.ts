@@ -2922,11 +2922,37 @@ export function buildPivots(trace: TraceStep[], source?: string): Pivots {
   if (lifts.size === 0) return empty;
 
   // It is only a pivot if the row is later weighed against it.
-  const weighs = (name: string, array: string) =>
-    lines.some((text) => {
-      if (!/[<>]=?|[!=]=/.test(text)) return false;
-      return new RegExp(String.raw`\b${name}\b`).test(text) && new RegExp(String.raw`\b${array}\s*\[`).test(text);
-    });
+  const weighsLine = (text: string, name: string, array: string) =>
+    /[<>]=?|[!=]=/.test(text) &&
+    new RegExp(String.raw`\b${name}\b`).test(text) &&
+    new RegExp(String.raw`\b${array}\s*\[`).test(text);
+  const weighs = (name: string, array: string) => lines.some((text) => weighsLine(text, name, array));
+
+  // A running best is not a pivot. `if (nums[i] >= best) best = nums[i];`
+  // lifts a value out of the row too, but only after weighing it against the
+  // name, and it keeps replacing it: the name follows the row rather than the
+  // row being arranged around it. The tell is the lift sitting under a
+  // condition that already compares the two. Such a name is never a pivot,
+  // not even on the line that first seeds it from the row.
+  const indent = (text: string) => text.length - text.trimStart().length;
+  const header = (line: number) => {
+    const own = indent(lines[line - 1]);
+    for (let row = line - 2; row >= 0; row -= 1) {
+      const text = lines[row];
+      if (!text.trim() || /^\s*[{}]\s*$/.test(text)) continue;
+      if (indent(text) < own) return text;
+    }
+    return undefined;
+  };
+  const running = new Set<string>();
+  for (const [line, lift] of lifts) {
+    const above = header(line);
+    if (above && /^\s*(if|elif|else\s+if|while)\b/.test(above) && weighsLine(above, lift.name, lift.array)) {
+      running.add(lift.name);
+    }
+  }
+  for (const [line, lift] of [...lifts]) if (running.has(lift.name)) lifts.delete(line);
+  if (lifts.size === 0) return empty;
 
   const held = new Map<string, { array: string; index: number; value: SerializedValue }>();
   return trace.map((step) => {

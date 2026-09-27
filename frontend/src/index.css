@@ -610,6 +610,22 @@
 }
 
 /*
+ * Below the desktop layout the editor grows with its code and the page does
+ * the scrolling: a fixed box would catch every swipe that lands on the code.
+ * The generous padding under the last line is for a scrolling editor, so it
+ * goes too.
+ */
+@media (max-width: 1023px) {
+  .cm-theme {
+    height: auto;
+  }
+
+  .cm-editor .cm-content {
+    padding-bottom: 24px !important;
+  }
+}
+
+/*
  * The line being replayed, in the accent blue. A translucent wash rather than a
  * solid fill, so the code's own ink sits on top of it unchanged and stays as
  * legible as every other line; the bar at the left edge carries the emphasis.

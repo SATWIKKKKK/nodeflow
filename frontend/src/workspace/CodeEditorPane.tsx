@@ -110,19 +110,26 @@ export default function CodeEditorPane({
     if (!view) return;
 
     const effects: StateEffect<unknown>[] = [setPlaybackLine.of(activeLine)];
-
-    if (activeLine && activeLine !== lastLine.current && activeLine <= view.state.doc.lines) {
-      // scroll-behavior: smooth on the scroller turns this into an eased scroll
-      // rather than a jump. Centring keeps context on both sides of the line.
-      effects.push(
-        // `nearest`, not `center`: re-centring on every step makes the whole
-        // panel lurch line by line during playback, which at 4x is unreadable.
-        // This only moves when the line would otherwise be off screen.
-        EditorView.scrollIntoView(view.state.doc.line(activeLine).from, { y: "nearest" })
-      );
-    }
-
     view.dispatch({ effects });
+
+    // Scroll the editor's own box, never the page. CodeMirror's scrollIntoView
+    // moves every scrollable ancestor too, so on a phone, where the page
+    // itself scrolls, each replayed step dragged the reader back down to the
+    // code from wherever they were looking. Now the editor follows the line
+    // inside itself, and only when that line has left its box; where the
+    // editor grows to fit its code there is nothing to scroll and nothing moves.
+    if (activeLine && activeLine !== lastLine.current && activeLine <= view.state.doc.lines) {
+      const scroller = view.scrollDOM;
+      const block = view.lineBlockAt(view.state.doc.line(activeLine).from);
+      const offset = view.documentTop - scroller.getBoundingClientRect().top + scroller.scrollTop;
+      const top = block.top + offset;
+      const bottom = block.bottom + offset;
+      const margin = block.height * 2;
+      if (top < scroller.scrollTop + margin || bottom > scroller.scrollTop + scroller.clientHeight - margin) {
+        // scroll-behavior: smooth on the scroller eases this.
+        scroller.scrollTop = Math.max(0, top - scroller.clientHeight / 2 + block.height / 2);
+      }
+    }
     lastLine.current = activeLine;
   }, [activeLine]);
 

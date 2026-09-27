@@ -342,9 +342,13 @@ export default function Scene3D({
       {hintVisible && (
         <div
           role="note"
-          className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]"
+          // Top left, clear of the zoom control in the bottom corner; worded
+          // for whatever the reader is holding.
+          className="pointer-events-none absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]"
         >
-          Drag to rotate · scroll to zoom
+          {typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches
+            ? "Drag to rotate · pinch to zoom"
+            : "Drag to rotate · scroll to zoom"}
         </div>
       )}
     </div>

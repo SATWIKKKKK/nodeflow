@@ -599,10 +599,11 @@ export default function WorkspacePage() {
     const savedInput = saved?.enabled ? parseCustomInput(saved.text).value : undefined;
     const key = previewKeyOf(language, savedInput ? JSON.stringify(savedInput) : "default", initial);
     const cached = readCachedTrace(target.id, language, key);
-    if (cached) {
-      lastPreviewKey.current = key;
-      applyExecution(cached, true, initial);
-    }
+    // Painted at once, but never trusted as final: the tracer improves, and a
+    // trace cached before a fix would otherwise replay the old mistake for
+    // as long as the code stays the same. The fresh preview still runs and
+    // replaces it.
+    if (cached) applyExecution(cached, true, initial);
   }, [problemId, language, applyExecution]);
 
   // --- drafts on the server ---------------------------------------------------
@@ -998,7 +999,7 @@ export default function WorkspacePage() {
       type="button"
       onClick={() => (mode === "run" ? void runCode() : void runJudge(mode))}
       disabled={busy !== null || !problem}
-      className={cn(primary ? button.primary : button.outlineSm, "px-4 py-2")}
+      className={cn(primary ? button.primary : button.outlineSm, "justify-center px-3 py-2 sm:px-4")}
       style={{ minHeight: 0, width: "auto" }}
     >
       {busy === mode ? (
@@ -1013,7 +1014,7 @@ export default function WorkspacePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden">
       <header className="app-header sticky top-0 z-40 shrink-0">
-        <div className="relative flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-5">
+        <div className="relative flex flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 sm:h-14 sm:flex-nowrap sm:gap-3 sm:px-5 sm:py-0">
           <NavLink to="/" aria-label="Noesis home" className="flex items-center text-primary">
             <LogoMark className="h-7" />
           </NavLink>
@@ -1035,7 +1036,7 @@ export default function WorkspacePage() {
           {/* Centred on the page rather than tucked into the editor: these are
               the three things a learner reaches for, and they should be in the
               same place whatever is scrolled. */}
-          <div className="flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+          <div className="order-last grid w-full grid-cols-3 gap-2 sm:order-none sm:flex sm:w-auto sm:items-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
             {actionButton("run", "Run", true)}
             {actionButton("test", "Test")}
             {actionButton("submit", "Submit")}
@@ -1057,9 +1058,9 @@ export default function WorkspacePage() {
         {/* Scene + transport: half the width on desktop. */}
         <section
           aria-label="Data structure visualization"
-          className="surface-frame order-2 flex h-[62vh] min-h-[380px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
+          className="surface-frame order-2 flex h-[min(72svh,600px)] min-h-[440px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-4 py-2.5 sm:px-5">
+          <div className="flex items-center justify-between gap-2 border-b border-blueprint-line px-3 py-2.5 sm:gap-3 sm:px-5">
             <div
               role="tablist"
               aria-label="Visualization style"
@@ -1082,6 +1083,21 @@ export default function WorkspacePage() {
                 </button>
               ))}
             </div>
+            {/* On phones the zoom sits up here, clear of the drawing and of
+                the step caption below it, where a floating pill covered both. */}
+            {(sceneMode === "trace" ? hasTrace : true) && (
+              <ZoomControls
+                className="lg:hidden"
+                compact
+                zoom={sceneMode === "trace" ? zoom2d : zoom3d}
+                onZoom={(direction) =>
+                  (sceneMode === "trace" ? setZoom2d : setZoom3d)((level) =>
+                    clampZoom(level + direction * ZOOM_STEP)
+                  )
+                }
+                onReset={() => (sceneMode === "trace" ? setZoom2d : setZoom3d)(1)}
+              />
+            )}
             <span className="flex items-center gap-2">
               {previewBusy && hasTrace && (
                 <Loader2 size={14} aria-label="Updating trace" className="animate-spin text-blueprint-muted" />
@@ -1089,7 +1105,7 @@ export default function WorkspacePage() {
               {hasTrace && (
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+                    "hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none sm:inline-flex",
                     traceSource === "preview" ? "badge-current" : "border-blueprint-line text-blueprint-muted"
                   )}
                 >
@@ -1144,7 +1160,7 @@ export default function WorkspacePage() {
                 it scales, and the toolbar is already carrying enough. */}
             {(sceneMode === "trace" ? hasTrace : true) && (
               <ZoomControls
-                className="absolute bottom-3 right-3 z-20"
+                className="absolute bottom-3 right-3 z-20 hidden lg:flex"
                 zoom={sceneMode === "trace" ? zoom2d : zoom3d}
                 onZoom={(direction) =>
                   (sceneMode === "trace" ? setZoom2d : setZoom3d)((level) =>
@@ -1328,7 +1344,7 @@ export default function WorkspacePage() {
             aria-label="Code editor"
             className={cn(
               "surface-frame order-3 flex flex-col overflow-hidden lg:order-none",
-              editorFullscreen ? "fixed inset-2 z-[60] shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:inset-4" : "h-[64vh] min-h-[380px] shrink-0"
+              editorFullscreen ? "fixed inset-2 z-[60] shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:inset-4" : "min-h-[300px] shrink-0 lg:h-[64vh] lg:min-h-[380px]"
             )}
           >
             <div className="flex flex-wrap items-center gap-2 border-b border-blueprint-line px-4 py-2.5">
