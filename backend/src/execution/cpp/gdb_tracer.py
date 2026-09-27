@@ -32,6 +32,26 @@ STEP_LIMIT = int(os.environ.get("NF_STEP_LIMIT", "1500"))
 VIS_LIMIT = int(os.environ.get("NF_VIS_LIMIT", "64"))
 TIME_BUDGET = float(os.environ.get("NF_TIME_BUDGET", "20"))
 USER_FILE = "user.cpp"
+
+try:
+    with open(os.environ.get("NF_USER_SOURCE", ""), encoding="utf8") as _handle:
+        USER_LINES = _handle.read().split("\n")
+except OSError:
+    USER_LINES = []
+
+
+def is_closing_brace(line):
+    """A stop on a bare `}` runs nothing the learner wrote.
+
+    What it does show is the frame on its way out. A local returned by value
+    has already been moved into the caller by then, so a vector that held the
+    answer one line earlier is drawn empty — the replay's last frame says the
+    result was lost at the very moment it was returned. Skipping the stop
+    keeps the last thing shown the last thing that was true.
+    """
+    if not 1 <= line <= len(USER_LINES):
+        return False
+    return USER_LINES[line - 1].strip() in ("}", "};")
 MAX_OBJECTS = 160
 MAX_STRING = 240
 CHAR_NAMES = {"char", "signed char", "unsigned char"}
@@ -450,7 +470,8 @@ def main():
             if len(steps) >= STEP_LIMIT:
                 truncated = True
                 break
-            steps.append(capture(frame, "line"))
+            if not is_closing_brace(frame.find_sal().line):
+                steps.append(capture(frame, "line"))
             try:
                 guarded("step")
             except gdb.error:

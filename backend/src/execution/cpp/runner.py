@@ -721,9 +721,15 @@ def trace_case(payload, budget_s):
     """Run case 0 under gdb and return (steps, truncated, note)."""
     if os.path.exists(TRACE_PATH):
         os.remove(TRACE_PATH)
+    # The tracer needs to read the learner's own lines, to know which stops
+    # are a bare closing brace (see gdb_tracer.is_closing_brace).
+    user_source = os.path.join(WORK_DIR, "user_source.txt")
+    with open(user_source, "w", encoding="utf8") as handle:
+        handle.write(payload.get("code", ""))
     env = dict(
         os.environ,
         NF_TRACE_OUT=TRACE_PATH,
+        NF_USER_SOURCE=user_source,
         NF_STEP_LIMIT=str(int(payload.get("stepLimit", 1500))),
         NF_VIS_LIMIT=str(int(payload.get("visualizeLimit", 64))),
         NF_TIME_BUDGET=str(budget_s),
