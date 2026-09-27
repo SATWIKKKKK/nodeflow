@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   AuthUser,
+  CoinBreakdown,
   ClassroomDetail,
   ClassroomSummary,
   ExecutionResponse,
@@ -170,6 +171,8 @@ export const api = {
       body: JSON.stringify({ problemId, code, language })
     }),
   coins: (token?: string | null) => request<{ coins: number }>("/api/coins", { headers: authHeaders(token) }),
+  coinBreakdown: (token?: string | null) =>
+    request<CoinBreakdown>("/api/coins/breakdown", { headers: authHeaders(token) }),
   addCoins: (delta: number, token?: string | null) =>
     request<{ coins: number }>("/api/coins", {
       method: "POST",

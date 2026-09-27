@@ -1,31 +1,42 @@
 import { useEffect, useSyncExternalStore } from "react";
+import { SOLVE_REWARD, type CoinBreakdown, type Difficulty } from "@nodeflow/shared";
 import { api } from "./api";
 import { useSession } from "./session";
 
 /**
  * The coin balance, shared by every place that shows it.
  *
- * A round of the waiting game changes the real balance the instant it is
- * played; the change is sent to the account in batches a moment later, and the
- * server's answer (which clamps at zero) becomes the balance. Guests keep
- * their coins in this browser.
+ * Two ways in. A round of the waiting game changes the balance the instant it
+ * is played, quietly: the counter ticks and a small "+2" or "−1" floats off
+ * it. The change goes to the account in batches a moment later, and the
+ * server's answer (which clamps at zero) becomes the balance.
  *
- * What the counters show lags the real balance by whatever is in the air: a
- * coin earned is first celebrated as a big coin (components/CoinCelebration)
- * and only counted when it lands in a counter. Quick wins in a row join the
- * coin still on show rather than launching one each.
+ * A problem's first accepted submission is paid by the server itself, and
+ * that one is marked: a single coin rises, turns slowly and settles into the
+ * counter (components/CoinCelebration), and only then is it counted.
+ *
+ * Guests keep their coins, and a record of where they came from, in this
+ * browser.
  */
 
 const GUEST_KEY = "noesis:coins";
+const GUEST_LEDGER_KEY = "noesis:coin-ledger";
 /** A coin that has not landed by now lands anyway, so nothing is ever lost. */
-const LAND_BY_MS = 5000;
+const LAND_BY_MS = 6000;
 
 export interface CoinFlight {
   id: number;
   amount: number;
+  /** What it was for, shown under the coin: "First solve · Two Sum". */
+  label: string;
   /** Where it was earned, in viewport coordinates. */
   origin?: { x: number; y: number };
   flying: boolean;
+}
+
+interface GuestLedger {
+  game: { gained: number; lost: number };
+  solves: CoinBreakdown["solve"]["recent"];
 }
 
 const listeners = new Set<() => void>();
@@ -48,21 +59,25 @@ const emit = () => {
   listeners.forEach((listener) => listener());
 };
 
-const readGuest = () => {
+const readJson = <T>(key: string, fallback: T): T => {
   try {
-    return Math.max(0, Number(window.localStorage.getItem(GUEST_KEY) ?? "0") || 0);
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
-    return 0;
+    return fallback;
   }
 };
 
-const writeGuest = (value: number) => {
+const writeJson = (key: string, value: unknown) => {
   try {
-    window.localStorage.setItem(GUEST_KEY, String(value));
+    window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // Coins still count for this visit.
   }
 };
+
+const readGuest = () => Math.max(0, Number(readJson<number>(GUEST_KEY, 0)) || 0);
+const readLedger = () => readJson<GuestLedger>(GUEST_LEDGER_KEY, { game: { gained: 0, lost: 0 }, solves: [] });
 
 const flush = () => {
   window.clearTimeout(timer);
@@ -100,35 +115,91 @@ export const landFlight = (id: number) => {
   emit();
 };
 
-/** The coin on show has left for the counter; the next win starts a new one. */
+/** The coin on show has left for the counter. */
 export const launchFlight = (id: number) => {
   flights = flights.map((entry) => (entry.id === id ? { ...entry, flying: true } : entry));
   emit();
 };
 
-export const earnCoins = (delta: number, origin?: { x: number; y: number }) => {
+/** A waiting-game round: counted at once, without ceremony. */
+export const earnCoins = (delta: number) => {
+  const before = balance;
   balance = Math.max(0, balance + delta);
-  if (delta > 0 && celebrating > 0 && !reducedMotion()) {
-    inFlight += delta;
-    const showing = flights.find((entry) => !entry.flying);
-    if (showing) {
-      flights = flights.map((entry) => (entry === showing ? { ...entry, amount: entry.amount + delta } : entry));
-    } else {
-      const id = ++flightSeq;
-      flights = [...flights, { id, amount: delta, origin, flying: false }];
-      window.setTimeout(() => landFlight(id), LAND_BY_MS);
-    }
-  } else {
-    lastChange = { delta, at: Date.now() };
-  }
+  lastChange = { delta, at: Date.now() };
   emit();
   if (!signedIn) {
-    writeGuest(balance);
+    writeJson(GUEST_KEY, balance);
+    const ledger = readLedger();
+    const change = balance - before;
+    if (change > 0) ledger.game.gained += change;
+    if (change < 0) ledger.game.lost -= change;
+    writeJson(GUEST_LEDGER_KEY, ledger);
     return;
   }
   unsent += delta;
   window.clearTimeout(timer);
   timer = window.setTimeout(flush, 900);
+};
+
+/** Coins the server has already paid (or a guest's first solve): shown as a moment. */
+const receive = (amount: number, label: string, origin?: { x: number; y: number }) => {
+  if (amount <= 0) return;
+  balance += amount;
+  if (celebrating > 0 && !reducedMotion()) {
+    inFlight += amount;
+    const id = ++flightSeq;
+    flights = [...flights, { id, amount, label, origin, flying: false }];
+    window.setTimeout(() => landFlight(id), LAND_BY_MS);
+  } else {
+    lastChange = { delta: amount, at: Date.now() };
+  }
+  emit();
+};
+
+/**
+ * A problem was accepted. For an account the server has decided whether it
+ * pays (`awarded`); a guest is paid here, once per problem, from this
+ * browser's own record.
+ */
+export const creditSolve = (
+  problem: { id: string; title: string; difficulty: Difficulty },
+  awarded: number | undefined,
+  origin?: { x: number; y: number }
+) => {
+  const label = `First solve · ${problem.title}`;
+  if (signedIn) {
+    receive(awarded ?? 0, label, origin);
+    return;
+  }
+  const ledger = readLedger();
+  if (ledger.solves.some((entry) => entry.problemId === problem.id)) return;
+  const amount = SOLVE_REWARD[problem.difficulty] ?? SOLVE_REWARD.Easy;
+  ledger.solves.unshift({
+    problemId: problem.id,
+    title: problem.title,
+    difficulty: problem.difficulty,
+    amount,
+    at: new Date().toISOString()
+  });
+  writeJson(GUEST_LEDGER_KEY, ledger);
+  receive(amount, label, origin);
+  writeJson(GUEST_KEY, balance);
+};
+
+/** Where the coins came from: the account's ledger, or this browser's. */
+export const loadBreakdown = async (): Promise<CoinBreakdown> => {
+  if (signedIn && token) return api.coinBreakdown(token);
+  const ledger = readLedger();
+  const coins = readGuest();
+  const net = ledger.game.gained - ledger.game.lost;
+  const solveTotal = ledger.solves.reduce((sum, entry) => sum + entry.amount, 0);
+  return {
+    coins,
+    game: { net, gained: ledger.game.gained, lost: ledger.game.lost },
+    solve: { total: solveTotal, count: ledger.solves.length, recent: ledger.solves.slice(0, 6) },
+    earlier: Math.max(0, coins - net - solveTotal),
+    rewards: SOLVE_REWARD
+  };
 };
 
 const subscribe = (listener: () => void) => {
@@ -187,5 +258,10 @@ export function CoinsSync() {
   return null;
 }
 
-// Lets the coin celebration be tried from the console while developing.
-if (import.meta.env.DEV) (window as unknown as { __noesisCoins?: unknown }).__noesisCoins = { earnCoins };
+// Lets coins be tried from the console while developing.
+if (import.meta.env.DEV) {
+  (window as unknown as { __noesisCoins?: unknown }).__noesisCoins = {
+    earnCoins,
+    receive: (amount: number, label = "First solve · Test") => receive(amount, label)
+  };
+}

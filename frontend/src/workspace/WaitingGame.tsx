@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { GAME_REWARD } from "@nodeflow/shared";
 import { cn } from "../lib/cn";
 import { earnCoins } from "../lib/coins";
 import { CoinBalance } from "../components/NoesisCoin";
@@ -19,8 +20,6 @@ import { CoinBalance } from "../components/NoesisCoin";
  * up, and play goes on until the problem is ready.
  */
 
-const REWARD = 2;
-const PENALTY = 1;
 
 const pair = () => {
   const left = Math.floor(Math.random() * 99) + 1;
@@ -36,12 +35,13 @@ export function WaitingGame() {
   const [flash, setFlash] = useState<{ value: number; correct: boolean } | null>(null);
 
   const pick = useCallback(
-    (value: number, from?: DOMRect) => {
+    (value: number) => {
       if (flash) return;
       const correct = value === Math.min(left, right);
-      // The celebrated coin rises from the number that won it.
-      earnCoins(correct ? REWARD : -PENALTY, from ? { x: from.left + from.width / 2, y: from.top } : undefined);
-      setEarned((total) => total + (correct ? REWARD : -PENALTY));
+      // Counted on the spot and shown only as the counter ticking: the game
+      // is the thing to watch here, not the coins.
+      earnCoins(correct ? GAME_REWARD.right : GAME_REWARD.wrong);
+      setEarned((total) => total + (correct ? GAME_REWARD.right : GAME_REWARD.wrong));
       setStreak((run) => (correct ? run + 1 : 0));
       setFlash({ value, correct });
     },
@@ -67,7 +67,7 @@ export function WaitingGame() {
       <motion.button
         key={`${value}-${left}-${right}`}
         type="button"
-        onClick={(event) => pick(value, event.currentTarget.getBoundingClientRect())}
+        onClick={() => pick(value)}
         initial={{ scale: 0.92, opacity: 0 }}
         animate={
           picked && !flash?.correct
@@ -96,10 +96,10 @@ export function WaitingGame() {
     <div className="mt-4 rounded-xl border border-blueprint-line bg-surface-inset p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="text-technical-mono text-blueprint-muted">
-          tap the smaller · <span className="text-[#c08a00] dark:text-[#ffd54a]">+{REWARD}</span> right ·{" "}
-          <span className="text-red-600 dark:text-red-400">−{PENALTY}</span> wrong
+          tap the smaller · <span className="text-[var(--fill-blue)]">+{GAME_REWARD.right}</span> right ·{" "}
+          <span className="text-red-600 dark:text-red-400">−{Math.abs(GAME_REWARD.wrong)}</span> wrong
         </p>
-        <CoinBalance />
+        <CoinBalance interactive={false} />
       </div>
       <div className="flex gap-2">
         {button(left)}

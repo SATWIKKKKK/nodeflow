@@ -1,8 +1,9 @@
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { useCoins, useLastCoinChange } from "../lib/coins";
 import { usePrefersReducedMotion } from "./graphics/useFrames";
+import { CoinWallet } from "./CoinWallet";
 
 /**
  * The Noesis coin: a blue minted coin with the N pressed into its face.
@@ -22,14 +23,20 @@ const NODES: Array<[number, number]> = [
   [96, 316],
   [96, 84],
   [304, 316],
-  [304, 84]
+  [304, 84],
 ];
 // Thicker than the logo's 16: the mark has to survive being shrunk to 20px.
 const MARK_STROKE = 30;
 const NODE_R = 25;
 const MARK_SCALE = 0.54;
 
-function Mark({ drawToken, filter }: { drawToken?: number | string; filter: string }) {
+function Mark({
+  drawToken,
+  filter,
+}: {
+  drawToken?: number | string;
+  filter: string;
+}) {
   const reduced = usePrefersReducedMotion();
   const draw = drawToken !== undefined && !reduced;
   const walkX = [96, 96, 96, 96, 304, 304, 304, 304];
@@ -52,7 +59,11 @@ function Mark({ drawToken, filter }: { drawToken?: number | string; filter: stri
           d={d}
           initial={draw ? { pathLength: 0 } : false}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.16, delay: 0.1 + index * 0.16, ease: "easeInOut" }}
+          transition={{
+            duration: 0.16,
+            delay: 0.1 + index * 0.16,
+            ease: "easeInOut",
+          }}
         />
       ))}
       {NODES.map(([cx, cy], index) => (
@@ -64,7 +75,11 @@ function Mark({ drawToken, filter }: { drawToken?: number | string; filter: stri
           initial={draw ? { scale: 0, opacity: 0 } : false}
           animate={{ scale: 1, opacity: 1 }}
           style={{ transformOrigin: `${cx}px ${cy}px` }}
-          transition={{ duration: 0.14, delay: 0.62 + index * 0.04, ease: [0.2, 0.8, 0.2, 1] }}
+          transition={{
+            duration: 0.14,
+            delay: 0.62 + index * 0.04,
+            ease: [0.2, 0.8, 0.2, 1],
+          }}
         />
       ))}
       {/* The filled node: "you are here", walking the N to where the logo keeps it. */}
@@ -72,10 +87,20 @@ function Mark({ drawToken, filter }: { drawToken?: number | string; filter: stri
         r={NODE_R}
         fill="var(--coin-mark)"
         initial={draw ? { cx: walkX[0], cy: walkY[0], opacity: 0 } : false}
-        animate={draw ? { cx: walkX, cy: walkY, opacity: 1 } : { cx: 304, cy: 84, opacity: 1 }}
+        animate={
+          draw
+            ? { cx: walkX, cy: walkY, opacity: 1 }
+            : { cx: 304, cy: 84, opacity: 1 }
+        }
         transition={
           draw
-            ? { duration: 0.62, delay: 0.76, times, ease: "easeInOut", opacity: { duration: 0.1, delay: 0.76 } }
+            ? {
+                duration: 0.62,
+                delay: 0.76,
+                times,
+                ease: "easeInOut",
+                opacity: { duration: 0.1, delay: 0.76 },
+              }
             : { duration: 0 }
         }
       />
@@ -88,7 +113,7 @@ export function CoinFace({
   size = 20,
   drawToken,
   glint = true,
-  className
+  className,
 }: {
   size?: number;
   drawToken?: number | string;
@@ -97,10 +122,19 @@ export function CoinFace({
 }) {
   const id = useId().replace(/:/g, "");
   const stop = (color: string, offset: string, opacity = 1) => (
-    <stop offset={offset} style={{ stopColor: `var(${color})`, stopOpacity: opacity }} />
+    <stop
+      offset={offset}
+      style={{ stopColor: `var(${color})`, stopOpacity: opacity }}
+    />
   );
   return (
-    <svg width={size} height={size} viewBox="0 0 400 400" aria-hidden className={cn("block shrink-0", className)}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 400 400"
+      aria-hidden
+      className={cn("block shrink-0", className)}
+    >
       <defs>
         <linearGradient id={`${id}-rim`} x1="0" y1="0" x2="0" y2="1">
           {stop("--coin-rim-top", "0%")}
@@ -117,13 +151,26 @@ export function CoinFace({
           <stop offset="100%" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
         {/* Pressed out of the metal: a lit edge up and left, a shadow down and right. */}
-        <filter id={`${id}-emboss`} x="-25%" y="-25%" width="150%" height="150%">
+        <filter
+          id={`${id}-emboss`}
+          x="-25%"
+          y="-25%"
+          width="150%"
+          height="150%"
+        >
           <feOffset in="SourceAlpha" dx="9" dy="11" result="down" />
-          <feFlood style={{ floodColor: "var(--coin-mark-shadow)", floodOpacity: 0.55 }} />
+          <feFlood
+            style={{
+              floodColor: "var(--coin-mark-shadow)",
+              floodOpacity: 0.55,
+            }}
+          />
           <feComposite in2="down" operator="in" result="shadowFill" />
           <feGaussianBlur in="shadowFill" stdDeviation="5" result="shadow" />
           <feOffset in="SourceAlpha" dx="-5" dy="-6" result="up" />
-          <feFlood style={{ floodColor: "var(--coin-mark-hi)", floodOpacity: 0.85 }} />
+          <feFlood
+            style={{ floodColor: "var(--coin-mark-hi)", floodOpacity: 0.85 }}
+          />
           <feComposite in2="up" operator="in" result="lit" />
           <feMerge>
             <feMergeNode in="shadow" />
@@ -147,16 +194,46 @@ export function CoinFace({
         strokeLinecap="round"
       />
       {/* The raised ring, then the recessed face inside it. */}
-      <circle cx="200" cy="200" r="161" fill="none" style={{ stroke: "var(--coin-ring)" }} strokeWidth="10" />
-      <circle cx="200" cy="200" r="165" fill="none" style={{ stroke: "var(--coin-ring-hi)" }} strokeWidth="2.5" strokeOpacity="0.8" />
+      <circle
+        cx="200"
+        cy="200"
+        r="161"
+        fill="none"
+        style={{ stroke: "var(--coin-ring)" }}
+        strokeWidth="10"
+      />
+      <circle
+        cx="200"
+        cy="200"
+        r="165"
+        fill="none"
+        style={{ stroke: "var(--coin-ring-hi)" }}
+        strokeWidth="2.5"
+        strokeOpacity="0.8"
+      />
       <circle cx="200" cy="200" r="155" fill={`url(#${id}-face)`} />
-      <circle cx="200" cy="200" r="153" fill="none" style={{ stroke: "var(--coin-mark-shadow)" }} strokeOpacity="0.35" strokeWidth="5" />
+      <circle
+        cx="200"
+        cy="200"
+        r="153"
+        fill="none"
+        style={{ stroke: "var(--coin-mark-shadow)" }}
+        strokeOpacity="0.35"
+        strokeWidth="5"
+      />
 
       <Mark drawToken={drawToken} filter={`url(#${id}-emboss)`} />
 
       {glint && (
         <g clipPath={`url(#${id}-clip)`}>
-          <rect className="coin-glint" x="-160" y="0" width="90" height="400" fill={`url(#${id}-shine)`} />
+          <rect
+            className="coin-glint"
+            x="-160"
+            y="0"
+            width="90"
+            height="400"
+            fill={`url(#${id}-shine)`}
+          />
         </g>
       )}
     </svg>
@@ -171,7 +248,7 @@ export function Coin3D({
   size,
   turns = 0,
   duration = 1,
-  drawToken
+  drawToken,
 }: {
   size: number;
   /** Total half-turns to have made; animate by raising it. */
@@ -186,7 +263,7 @@ export function Coin3D({
       <motion.div
         className="relative h-full w-full"
         style={{ transformStyle: "preserve-3d" }}
-        initial={false}
+        initial={{ rotateY: 0 }}
         animate={{ rotateY: turns * 180 }}
         transition={{ duration, ease: [0.16, 0.84, 0.3, 1] }}
       >
@@ -194,15 +271,26 @@ export function Coin3D({
           <div
             key={at}
             className="coin-edge absolute inset-[1%] rounded-full"
-            style={{ transform: `translateZ(${-thickness / 2 + (at * thickness) / (layers - 1)}px)` }}
+            style={{
+              transform: `translateZ(${-thickness / 2 + (at * thickness) / (layers - 1)}px)`,
+            }}
           />
         ))}
-        <div className="absolute inset-0" style={{ transform: `translateZ(${thickness / 2}px)`, backfaceVisibility: "hidden" }}>
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translateZ(${thickness / 2}px)`,
+            backfaceVisibility: "hidden",
+          }}
+        >
           <CoinFace size={size} drawToken={drawToken} />
         </div>
         <div
           className="absolute inset-0"
-          style={{ transform: `rotateY(180deg) translateZ(${thickness / 2}px)`, backfaceVisibility: "hidden" }}
+          style={{
+            transform: `rotateY(180deg) translateZ(${thickness / 2}px)`,
+            backfaceVisibility: "hidden",
+          }}
         >
           <CoinFace size={size} glint={false} />
         </div>
@@ -217,7 +305,18 @@ export function Coin3D({
  * (data-coin-target) and it pulses when one does; a "+2" or "−1" floats off
  * it as the number changes.
  */
-export function CoinBalance({ className, size = 28 }: { className?: string; size?: number }) {
+export function CoinBalance({
+  className,
+  size = 28,
+  interactive = true,
+}: {
+  className?: string;
+  size?: number;
+  /** Opens the wallet on click. Off inside dialogs, which would stack. */
+  interactive?: boolean;
+}) {
+  const [walletOpen, setWalletOpen] = useState(false);
+  const closeWallet = useCallback(() => setWalletOpen(false), []);
   const coins = useCoins();
   const change = useLastCoinChange();
   const [fresh, setFresh] = useState(false);
@@ -228,56 +327,89 @@ export function CoinBalance({ className, size = 28 }: { className?: string; size
     return () => window.clearTimeout(timer);
   }, [change.at]);
   const gained = fresh && change.delta > 0;
+  const Tag = interactive ? "button" : "span";
   return (
-    <span
-      className={cn(
-        "coin-chip relative inline-flex items-center gap-1.5 font-mono text-[15px] font-semibold tabular-nums",
-        className
-      )}
-      title={`${coins} Noesis coins`}
-      aria-label={`${coins} Noesis coins`}
-    >
-      <motion.span
-        data-coin-target
-        className="inline-flex"
-        animate={gained ? { scale: [1, 1.35, 1] } : { scale: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        {/* The illustrated coin, one per theme. */}
-        {(["light", "dark"] as const).map((theme) => (
-          <img
-            key={theme}
-            src={`/coins/noesis-coin-${theme}-64.png`}
-            srcSet={`/coins/noesis-coin-${theme}-64.png 1x, /coins/noesis-coin-${theme}-128.png 2x, /coins/noesis-coin-${theme}-256.png 4x`}
-            width={size}
-            height={size}
-            alt=""
-            draggable={false}
-            className={cn("coin-image select-none", theme === "light" ? "block dark:hidden" : "hidden dark:block")}
-          />
-        ))}
-      </motion.span>
-      <motion.span key={coins} initial={{ y: fresh ? -6 : 0, opacity: fresh ? 0.3 : 1 }} animate={{ y: 0, opacity: 1 }}>
-        {coins}
-      </motion.span>
-      <AnimatePresence>
-        {fresh && (
-          <motion.span
-            key={change.at}
-            initial={{ opacity: 0, y: 4, scale: 0.8 }}
-            animate={{ opacity: 1, y: -18, scale: 1 }}
-            exit={{ opacity: 0, y: -26 }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
-            className={cn(
-              "pointer-events-none absolute -right-1 top-0 text-xs font-bold",
-              change.delta > 0 ? "text-[var(--fill-blue)]" : "text-red-600 dark:text-red-400"
-            )}
-            aria-hidden
-          >
-            {change.delta > 0 ? `+${change.delta}` : `−${Math.abs(change.delta)}`}
-          </motion.span>
+    <>
+      <Tag
+        {...(interactive
+          ? {
+              type: "button" as const,
+              onClick: () => setWalletOpen(true),
+              "aria-haspopup": "dialog" as const,
+              style: { minHeight: 0 },
+            }
+          : {})}
+        className={cn(
+          "coin-chip relative inline-flex items-center gap-1.5 font-mono text-[15px] font-semibold tabular-nums",
+          interactive &&
+            "no-lift -mx-1.5 cursor-pointer rounded-full px-1.5 py-0.5 outline-none transition-transform hover:scale-[1.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fill-blue)]",
+          className,
         )}
-      </AnimatePresence>
-    </span>
+        title={
+          interactive
+            ? `${coins} Noesis coins: see where they came from`
+            : `${coins} Noesis coins`
+        }
+        aria-label={
+          interactive
+            ? `${coins} Noesis coins. Open the coin breakdown`
+            : `${coins} Noesis coins`
+        }
+      >
+        <motion.span
+          data-coin-target
+          className="inline-flex"
+          animate={gained ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* The illustrated coin, one per theme. */}
+          {(["light", "dark"] as const).map((theme) => (
+            <img
+              key={theme}
+              src={`/coins/noesis-coin-${theme}-64.png`}
+              srcSet={`/coins/noesis-coin-${theme}-64.png 1x, /coins/noesis-coin-${theme}-128.png 2x, /coins/noesis-coin-${theme}-256.png 4x`}
+              width={size}
+              height={size}
+              alt=""
+              draggable={false}
+              className={cn(
+                "coin-image select-none",
+                theme === "light" ? "block dark:hidden" : "hidden dark:block",
+              )}
+            />
+          ))}
+        </motion.span>
+        <motion.span
+          key={coins}
+          initial={{ y: fresh ? -6 : 0, opacity: fresh ? 0.3 : 1 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          {coins}
+        </motion.span>
+        <AnimatePresence>
+          {fresh && (
+            <motion.span
+              key={change.at}
+              initial={{ opacity: 0, y: 4, scale: 0.8 }}
+              animate={{ opacity: 1, y: -18, scale: 1 }}
+              exit={{ opacity: 0, y: -26 }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
+              className={cn(
+                "pointer-events-none absolute -right-1 top-0 text-xs font-bold",
+                change.delta > 0
+                  ? "text-[var(--fill-blue)]"
+                  : "text-red-600 dark:text-red-400",
+              )}
+              aria-hidden
+            >
+              {change.delta > 0
+                ? `+${change.delta}`
+                : `−${Math.abs(change.delta)}`}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </Tag>
+      {interactive && <CoinWallet open={walletOpen} onClose={closeWallet} />}
+    </>
   );
 }

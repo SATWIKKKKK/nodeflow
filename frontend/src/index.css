@@ -1082,25 +1082,6 @@
   background: repeating-conic-gradient(var(--coin-edge) 0deg 4deg, var(--coin-rim-bottom) 4deg 8deg);
 }
 
-.coin-halo {
-  background: radial-gradient(circle, rgba(90, 134, 224, 0.35) 0%, rgba(90, 134, 224, 0) 65%);
-}
-
-.dark .coin-halo {
-  background: radial-gradient(circle, rgba(158, 203, 255, 0.3) 0%, rgba(158, 203, 255, 0) 65%);
-}
-
-.coin-spark {
-  background: var(--coin-face-hi);
-  box-shadow: 0 0 8px var(--coin-face-hi);
-}
-
-.coin-amount {
-  background: var(--fill-blue);
-  color: var(--fill-blue-text);
-  box-shadow: 0 8px 22px rgba(45, 88, 188, 0.35);
-}
-
 .coin-glint {
   animation: nf-coin-glint 3.8s ease-in-out infinite;
 }
@@ -1119,4 +1100,50 @@
   .coin-glint {
     animation: none;
   }
+}
+
+/* ---------- Coin wallet (components/CoinWallet) ---------- */
+
+:root {
+  --wallet-solve: #2d58bc;
+  --wallet-game: #0f766e;
+  --wallet-earlier: #94a3b8;
+}
+
+.dark {
+  --wallet-solve: #5b93f0;
+  --wallet-game: #14a394;
+  --wallet-earlier: #64748b;
+}
+
+.wallet-hero {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(72, 144, 246, 0.16) 0%, rgba(72, 144, 246, 0) 70%);
+}
+
+.dark .wallet-hero {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(158, 203, 255, 0.14) 0%, rgba(158, 203, 255, 0) 70%);
+}
+
+.wallet-plus {
+  background: rgba(45, 88, 188, 0.1);
+  color: #2d58bc;
+}
+
+.dark .wallet-plus {
+  background: rgba(158, 203, 255, 0.14);
+  color: #9ecbff;
+}
+
+/* The line under a coin earned: what it was for. */
+.coin-notice {
+  border-color: rgba(45, 88, 188, 0.25);
+  background: var(--card);
+  color: #173a8f;
+  box-shadow: 0 14px 34px rgba(29, 64, 160, 0.18);
+}
+
+.dark .coin-notice {
+  border-color: rgba(158, 203, 255, 0.28);
+  color: #e6f3ff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
 }

@@ -78,6 +78,18 @@ export const ensureSchema = (): Promise<void> => {
         coins integer not null default 0,
         updated_at timestamptz not null default now()
       )`;
+      await db`create table if not exists noesis_coin_events (
+        id bigserial primary key,
+        user_id text not null,
+        source text not null,
+        amount integer not null,
+        problem_id text,
+        created_at timestamptz not null default now()
+      )`;
+      await db`create index if not exists noesis_coin_events_user on noesis_coin_events(user_id, created_at)`;
+      // A problem pays out once per learner, however many times it is accepted.
+      await db`create unique index if not exists noesis_coin_solve_once
+        on noesis_coin_events(user_id, problem_id) where source = 'solve'`;
     })().catch((error) => {
       schemaReady = null;
       throw error;

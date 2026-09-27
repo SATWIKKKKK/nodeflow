@@ -22,6 +22,7 @@ if (ids.length) {
   await sql`delete from noesis_submissions where user_id = any(${ids})`;
   await sql`delete from noesis_drafts where user_id = any(${ids})`;
   await sql`delete from noesis_wallets where user_id = any(${ids})`;
+  await sql`delete from noesis_coin_events where user_id = any(${ids})`;
   await sql`delete from noesis_users where id = any(${ids})`;
 }
 const remaining = (await sql`select count(*)::int as count from noesis_users`) as Array<{ count: number }>;

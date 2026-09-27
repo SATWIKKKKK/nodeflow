@@ -30,7 +30,8 @@ import {
 import { queueSnapshot } from "./execution/queue.js";
 import { progressForUser } from "./progress/summary.js";
 import { clearDraft, draftFor, saveDraft, unfinishedFor } from "./progress/drafts.js";
-import { addCoins, coinsFor } from "./progress/coins.js";
+import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
+import { readSubmissions } from "./progress/summary.js";
 import { AskError, MAX_QUESTION, answerQuestion, askEnabled, withinRateLimit } from "./ask/deepseek.js";
 
 export const app = express();
@@ -457,10 +458,22 @@ app.post("/api/submit", async (request, response) => {
   }
 
   const user = await userForToken(authToken(request.headers.authorization));
+  // Asked before this submission is recorded: was the problem already solved?
+  // A problem pays coins for its first accepted submission only, and one
+  // solved before coins existed has had its first.
+  const solvedBefore = user
+    ? (await readSubmissions([user.id])).some(
+        (entry) => entry.problemId === problem.id && entry.verdict === "Accepted"
+      )
+    : true;
   const result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language);
-  // Solved is finished: it leaves Continue Solving.
-  if (user && result.verdict === "Accepted") await clearDraft(user.id, problem.id).catch(() => undefined);
-  response.json(result);
+  let coinsAwarded = 0;
+  if (user && result.verdict === "Accepted") {
+    // Solved is finished: it leaves Continue Solving.
+    await clearDraft(user.id, problem.id).catch(() => undefined);
+    if (!solvedBefore) coinsAwarded = await rewardSolve(user.id, problem.id, problem.difficulty).catch(() => 0);
+  }
+  response.json({ ...result, coinsAwarded });
 });
 
 // ---------------------------------------------------------------- coins
@@ -468,6 +481,15 @@ app.post("/api/submit", async (request, response) => {
 app.get("/api/coins", async (request, response) => {
   const user = await userForToken(authToken(request.headers.authorization));
   response.json({ coins: user ? await coinsFor(user.id) : 0 });
+});
+
+app.get("/api/coins/breakdown", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to see where your coins came from." });
+    return;
+  }
+  response.json(await breakdownFor(user.id));
 });
 
 app.post("/api/coins", async (request, response) => {

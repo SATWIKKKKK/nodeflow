@@ -30,6 +30,7 @@ import {
   type ExecutionResponse,
   type Language,
   type PublicProblem,
+  type SubmitResponse,
   type TestResponse,
   type TraceDiff,
   type TraceStep
@@ -41,6 +42,7 @@ import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { verdictTone } from "../lib/verdict";
+import { creditSolve } from "../lib/coins";
 import { JudgementBanner } from "./JudgementBanner";
 import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
@@ -951,6 +953,11 @@ export default function WorkspacePage() {
             : await api.submitWithSession(problem.id, code, session.token, language);
         setJudgedMode(mode);
         setJudgement(response);
+        if (mode === "submit" && response.verdict === "Accepted") {
+          // Paid once per problem: the server decides for an account, this
+          // browser's record for a guest.
+          creditSolve(problem, (response as SubmitResponse).coinsAwarded);
+        }
         if (mode === "submit") {
           setStanding((previous) => ({
             accepted: Boolean(previous?.accepted) || response.verdict === "Accepted",

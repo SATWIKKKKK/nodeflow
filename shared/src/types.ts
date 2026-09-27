@@ -348,6 +348,32 @@ export interface SubmitResponse extends TestResponse {
   submissionId: string;
   persisted: boolean;
   userId?: string;
+  /** Coins paid for this submission: only a problem's first accepted one pays. */
+  coinsAwarded?: number;
+}
+
+export type CoinSource = "game" | "solve";
+
+/** Coins for a problem's first accepted submission, by difficulty. */
+export const SOLVE_REWARD: Record<Difficulty, number> = { Easy: 5, Medium: 10, Hard: 15 };
+
+/** The waiting game's rates. */
+export const GAME_REWARD = { right: 2, wrong: -1 } as const;
+
+/** Where a learner's coins came from. */
+export interface CoinBreakdown {
+  coins: number;
+  /** The change-the-word waiting game: +2 a right pick, -1 a wrong one. */
+  game: { net: number; gained: number; lost: number };
+  /** First accepted submissions, paid once per problem by difficulty. */
+  solve: {
+    total: number;
+    count: number;
+    recent: Array<{ problemId: string; title: string; difficulty?: Difficulty; amount: number; at: string }>;
+  };
+  /** Coins held from before sources were recorded. */
+  earlier: number;
+  rewards: Record<Difficulty, number>;
 }
 
 export interface SubmissionSummary {
