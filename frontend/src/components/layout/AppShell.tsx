@@ -248,7 +248,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <div className="hidden min-w-0 flex-1 justify-start lg:flex">
               <ProblemSearch />
             </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <div className="ml-auto flex items-center gap-4 lg:ml-0">
               <CoinBalance />
               <ThemeToggle />
               <AccountMenu />

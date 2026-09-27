@@ -1041,9 +1041,11 @@ export default function WorkspacePage() {
             {actionButton("test", "Test")}
             {actionButton("submit", "Submit")}
           </div>
-          <CoinBalance className="hidden sm:inline-flex" />
-          <ThemeToggle />
-          <AccountMenu />
+          <div className="flex items-center gap-4">
+            <CoinBalance className="hidden sm:inline-flex" />
+            <ThemeToggle />
+            <AccountMenu />
+          </div>
         </div>
       </header>
 

@@ -1036,16 +1036,17 @@
 
 /* The Noesis coin: brand blue in light, a luminous light blue on dark. */
 :root {
-  --coin-rim-top: #3a66cc;
-  --coin-rim-bottom: #1e3f8f;
-  --coin-face: #2d58bc;
-  --coin-face-hi: #5a86e0;
-  --coin-ring: #4470d4;
-  --coin-ring-hi: #a9c4ff;
-  --coin-mark: #dce7ff;
-  --coin-mark-hi: #f4f8ff;
-  --coin-mark-shadow: #10275e;
-  --coin-edge: #173377;
+  /* Matched to the illustrated light coin (public/coins). */
+  --coin-rim-top: #4890f6;
+  --coin-rim-bottom: #0032b7;
+  --coin-face: #1a54d0;
+  --coin-face-hi: #80b3fd;
+  --coin-ring: #2f63d8;
+  --coin-ring-hi: #a9c8ff;
+  --coin-mark: #c8dcfd;
+  --coin-mark-hi: #eef5ff;
+  --coin-mark-shadow: #0a2a86;
+  --coin-edge: #0b2f99;
 }
 
 .dark {
@@ -1063,18 +1064,12 @@
   --coin-edge: #2f68dc;
 }
 
+/* The coin stands on its own in both themes: no pill behind it or the count. */
 .coin-chip {
-  border-color: rgba(45, 88, 188, 0.3);
-  background: linear-gradient(135deg, #f3f7ff, #e6eeff);
-  color: #1e3a8a;
+  color: #173a8f;
 }
 
-/* In dark mode the coin stands on its own: no pill behind it or the count. */
 .dark .coin-chip {
-  border-color: transparent;
-  background: transparent;
-  padding-left: 0;
-  padding-right: 0;
   color: #e6f3ff;
 }
 

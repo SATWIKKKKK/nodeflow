@@ -212,11 +212,12 @@ export function Coin3D({
 }
 
 /**
- * The balance with a coin. The coin is where celebrated coins land
- * (data-coin-target), and it redraws its N each time one does; a "+2" or
- * "−1" floats off it as the number changes.
+ * The balance with a coin, bare: no pill behind either, so it sits in the
+ * header as one of its controls. The coin is where celebrated coins land
+ * (data-coin-target) and it pulses when one does; a "+2" or "−1" floats off
+ * it as the number changes.
  */
-export function CoinBalance({ className, size = 24 }: { className?: string; size?: number }) {
+export function CoinBalance({ className, size = 28 }: { className?: string; size?: number }) {
   const coins = useCoins();
   const change = useLastCoinChange();
   const [fresh, setFresh] = useState(false);
@@ -230,7 +231,7 @@ export function CoinBalance({ className, size = 24 }: { className?: string; size
   return (
     <span
       className={cn(
-        "coin-chip relative inline-flex items-center gap-1.5 rounded-full border py-1 pl-1 pr-2.5 font-mono text-[13px] font-semibold tabular-nums",
+        "coin-chip relative inline-flex items-center gap-1.5 font-mono text-[15px] font-semibold tabular-nums",
         className
       )}
       title={`${coins} Noesis coins`}
@@ -242,18 +243,19 @@ export function CoinBalance({ className, size = 24 }: { className?: string; size
         animate={gained ? { scale: [1, 1.35, 1] } : { scale: 1 }}
         transition={{ duration: 0.4 }}
       >
-        {/* Light mode keeps the drawn coin for now; dark mode uses the
-            illustrated one. */}
-        <CoinFace size={size} drawToken={gained ? change.at : undefined} className="dark:hidden" />
-        <img
-          src="/coins/noesis-coin-dark-64.png"
-          srcSet="/coins/noesis-coin-dark-64.png 1x, /coins/noesis-coin-dark-128.png 2x, /coins/noesis-coin-dark-256.png 4x"
-          width={size}
-          height={size}
-          alt=""
-          draggable={false}
-          className="coin-image hidden select-none dark:block"
-        />
+        {/* The illustrated coin, one per theme. */}
+        {(["light", "dark"] as const).map((theme) => (
+          <img
+            key={theme}
+            src={`/coins/noesis-coin-${theme}-64.png`}
+            srcSet={`/coins/noesis-coin-${theme}-64.png 1x, /coins/noesis-coin-${theme}-128.png 2x, /coins/noesis-coin-${theme}-256.png 4x`}
+            width={size}
+            height={size}
+            alt=""
+            draggable={false}
+            className={cn("coin-image select-none", theme === "light" ? "block dark:hidden" : "hidden dark:block")}
+          />
+        ))}
       </motion.span>
       <motion.span key={coins} initial={{ y: fresh ? -6 : 0, opacity: fresh ? 0.3 : 1 }} animate={{ y: 0, opacity: 1 }}>
         {coins}
