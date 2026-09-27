@@ -7,6 +7,7 @@ const TAG_GAP = 5;
 const CHAR_WIDTH = 7.2;
 
 export const tagMetrics = { height: TAG_HEIGHT, gap: TAG_GAP };
+export const tagWidth = (name: string) => name.length * CHAR_WIDTH + 16;
 
 const pill = (changed: boolean) =>
   cn(
@@ -79,22 +80,77 @@ export function TravellingTags({ tags }: { tags: TravellingTag[] }) {
   );
 }
 
+export type Side = "up" | "right" | "left" | "down";
+
+const SIDES: Array<[Side, number]> = [
+  ["up", -Math.PI / 2],
+  ["right", 0],
+  ["left", Math.PI],
+  ["down", Math.PI / 2]
+];
+
+const apart = (a: number, b: number) => {
+  const turn = Math.abs(a - b) % (Math.PI * 2);
+  return Math.min(turn, Math.PI * 2 - turn);
+};
+
 /**
- * Variable name pills stacked above a node (SVG). `bottom` is the y of the
- * lowest pill's bottom edge relative to the node centre.
+ * The side of a node to hang its pointer pills on, given the directions its
+ * edges leave in (radians, screen coordinates, so up is -π/2).
+ *
+ * Above is where a reader looks first, so it wins whenever it is clear. When
+ * an edge arrives from above — a child's parent, a graph neighbour, the path
+ * into a trie node — pills stacked there sit squarely on the line, and the
+ * stack moves to whichever side is furthest from every edge. `taken` holds
+ * directions already used by something else, such as a label below the node.
  */
-export function PointerTags({ tags, bottom }: { tags: { name: string; changed: boolean }[]; bottom: number }) {
+export function clearSide(edges: number[], taken: number[] = []): Side {
+  const clearance = (angle: number) => Math.min(Math.PI, ...[...edges, ...taken].map((edge) => apart(angle, edge)));
+  const roomy = SIDES.find(([, angle]) => clearance(angle) >= (Math.PI * 7) / 18);
+  if (roomy) return roomy[0];
+  return SIDES.reduce((best, next) => (clearance(next[1]) > clearance(best[1]) + 0.01 ? next : best))[0];
+}
+
+/** Direction of a side, for anything else placed around the node to steer clear of. */
+export const sideAngle = (side: Side) => SIDES.find(([name]) => name === side)![1];
+
+/**
+ * Variable name pills beside a node (SVG), in node-local coordinates. `gap` is
+ * the distance from the node's centre to the nearest pill edge; a short stem
+ * joins the stack to the node on that side.
+ */
+export function PointerTags({
+  tags,
+  gap,
+  side = "up"
+}: {
+  tags: { name: string; changed: boolean }[];
+  gap: number;
+  side?: Side;
+}) {
   if (!tags.length) return null;
   const visible = tags.slice(0, 4);
+  const stem =
+    side === "up"
+      ? { x1: 0, y1: -gap, x2: 0, y2: -gap + 6 }
+      : side === "down"
+        ? { x1: 0, y1: gap, x2: 0, y2: gap - 6 }
+        : side === "right"
+          ? { x1: gap, y1: 0, x2: gap - 6, y2: 0 }
+          : { x1: -gap, y1: 0, x2: -gap + 6, y2: 0 };
   return (
     <g>
-      <line x1={0} y1={bottom} x2={0} y2={bottom + 6} strokeWidth={1.5} className="stroke-blueprint-muted" />
+      <line {...stem} strokeWidth={1.5} className="stroke-blueprint-muted" />
       {visible.map((tag: Tag, level) => {
         const label = level === 3 && tags.length > 4 ? `+${tags.length - 3}` : tag.name;
         const width = label.length * CHAR_WIDTH + 16;
-        const y = bottom - TAG_HEIGHT - level * (TAG_HEIGHT + TAG_GAP);
+        const step = level * (TAG_HEIGHT + TAG_GAP);
+        // Sideways stacks grow downwards from the one level with the node's
+        // centre, so the first pill always meets its stem.
+        const x = side === "right" ? gap + width / 2 : side === "left" ? -gap - width / 2 : 0;
+        const y = side === "up" ? -gap - TAG_HEIGHT - step : side === "down" ? gap + step : -TAG_HEIGHT / 2 + step;
         return (
-          <motion.g key={tag.name} initial={false} animate={{ y }} transition={{ type: "spring", stiffness: 260, damping: 28 }}>
+          <motion.g key={tag.name} initial={false} animate={{ x, y }} transition={{ type: "spring", stiffness: 260, damping: 28 }}>
             <rect
               x={-width / 2}
               y={0}

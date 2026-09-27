@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { ListEdgeModel, ListNodeModel, ListViewModel } from "../model";
 import { ArrowMarkers } from "./ArrowMarkers";
-import { tagMetrics, TravellingTags, type TravellingTag } from "./PointerTags";
+import { rounded } from "./FlowLinks";
+import { tagMetrics, tagWidth, TravellingTags, type TravellingTag } from "./PointerTags";
 import { placeAt } from "./placeAt";
 
 /**
@@ -49,6 +50,22 @@ function edgePath(edge: ListEdgeModel, from: ListNodeModel, to: ListNodeModel | 
     // both of them; from the bottom edge to the top edge it touches neither,
     // and the arrowhead lands square on the node it points at.
     const down = y2 > y1;
+    // The target's own pointer pills stack on top of it, right where this
+    // edge would come in. Drop into the gap between the rows, run left of the
+    // pills, and come in at the node's side instead of through a name.
+    if (down && to.tags.length) {
+      const widest = Math.max(...to.tags.slice(0, 4).map((tag) => tagWidth(tag.name)));
+      const pillTop = y2 - RADIUS - 8 - tagMetrics.height - (Math.min(4, to.tags.length) - 1) * (tagMetrics.height + tagMetrics.gap);
+      const band = (y1 + RADIUS + 3 + pillTop) / 2;
+      const gx = Math.min(x2 - RADIUS - 18, x2 - widest / 2 - 10, x1 - 14);
+      return rounded([
+        [x1, y1 + RADIUS + 3],
+        [x1, band],
+        [gx, band],
+        [gx, y2],
+        [x2 - RADIUS - 7, y2]
+      ]);
+    }
     const sy = y1 + (down ? RADIUS + 3 : -RADIUS - 3);
     const ey = y2 + (down ? -RADIUS - 7 : RADIUS + 7);
     const midY = (sy + ey) / 2;

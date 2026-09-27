@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { GraphViewModel } from "../model";
 import { ArrowMarkers } from "./ArrowMarkers";
-import { PointerTags } from "./PointerTags";
+import { clearSide, PointerTags } from "./PointerTags";
 
 const RADIUS = 16;
 
@@ -23,6 +23,20 @@ export function GraphView({ view }: { view: GraphViewModel }) {
   const chosen = new Set(view.chosen ?? []);
   const rejected = new Set(view.rejected ?? []);
   const dormant = new Set(view.dormant ?? []);
+  // Which way each node's edges leave it, so its pointer pills can hang where
+  // no edge runs. A self-loop sits on top of the node.
+  const bearings = new Map<number, number[]>();
+  const bear = (node: number, angle: number) => bearings.set(node, [...(bearings.get(node) ?? []), angle]);
+  for (const edge of view.edges) {
+    const from = position(edge.from);
+    const to = position(edge.to);
+    if (edge.from === edge.to) {
+      bear(edge.from, -Math.PI / 2);
+      continue;
+    }
+    bear(edge.from, Math.atan2(to.y - from.y, to.x - from.x));
+    bear(edge.to, Math.atan2(from.y - to.y, from.x - to.x));
+  }
 
   return (
     <div>
@@ -36,7 +50,7 @@ export function GraphView({ view }: { view: GraphViewModel }) {
         viewBox={`0 0 ${size} ${size}`}
         role="img"
         aria-label={`Graph with ${view.count} nodes`}
-        className="mx-auto h-auto w-full text-primary"
+        className="mx-auto h-auto w-full overflow-visible text-primary"
         style={{ maxWidth: size }}
       >
         <ArrowMarkers />
@@ -165,7 +179,13 @@ export function GraphView({ view }: { view: GraphViewModel }) {
               >
                 {node}
               </text>
-              {names && <PointerTags tags={names.map((name) => ({ name, changed: true }))} bottom={-RADIUS - 8} />}
+              {names && (
+                <PointerTags
+                  tags={names.map((name) => ({ name, changed: true }))}
+                  gap={RADIUS + 8}
+                  side={clearSide(bearings.get(node) ?? [], label ? [Math.PI / 2] : [])}
+                />
+              )}
             </g>
           );
         })}

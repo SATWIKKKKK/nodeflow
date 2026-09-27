@@ -120,10 +120,13 @@ export function TraceDiagram({
   return (
     <div className={cn("flex h-full min-h-0 flex-col bg-card", className)}>
       <div className="min-h-0 flex-1 overflow-auto px-5 py-5 sm:px-6">
-        {/* `zoom` rather than a transform: the content reflows and the
+        {/* The connector layer sits outside the zoom, so what it measures on
+            screen is what it draws in. The drawing inside takes the zoom —
+            `zoom` rather than a transform, so the content reflows and the
             scrollbars stay honest about how much there is to scroll. */}
-        <div ref={flowHost} className="relative" style={zoom === 1 ? undefined : { zoom }}>
-        <FlowLinks flows={model.flows} host={flowHost} revision={index} />
+        <div ref={flowHost} className="relative">
+        <FlowLinks flows={model.flows} host={flowHost} revision={`${index}:${zoom}`} />
+        <div className="relative" style={zoom === 1 ? undefined : { zoom }}>
         {figures.map((view) => (
           <section key={view.key} className="mb-6" aria-label={view.title}>
             {view.kind !== "graph" && (
@@ -237,6 +240,7 @@ export function TraceDiagram({
         {model.views.length === 0 && model.variables.length === 0 && (
           <p className="text-body-md text-blueprint-muted">No variables yet at this step.</p>
         )}
+        </div>
         </div>
       </div>
 

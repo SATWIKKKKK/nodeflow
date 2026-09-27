@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import type { TrieViewModel } from "../model";
-import { PointerTags } from "./PointerTags";
+import { clearSide, PointerTags } from "./PointerTags";
 import { placeAt } from "./placeAt";
 
 /**
@@ -24,6 +24,15 @@ export function TrieView({ view }: { view: TrieViewModel }) {
   );
   const width = PAD_X * 2 + view.width * X_SPACING;
   const height = TOP + view.depth * LEVEL_HEIGHT + RADIUS + 20;
+  const bearings = new Map<string, number[]>();
+  const bear = (id: string, angle: number) => bearings.set(id, [...(bearings.get(id) ?? []), angle]);
+  for (const edge of view.edges) {
+    const from = at.get(edge.from);
+    const to = at.get(edge.to);
+    if (!from || !to) continue;
+    bear(edge.from, Math.atan2(to.y - from.y, to.x - from.x));
+    bear(edge.to, Math.atan2(from.y - to.y, from.x - to.x));
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -31,7 +40,7 @@ export function TrieView({ view }: { view: TrieViewModel }) {
         viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label={`Trie with ${view.nodes.length} nodes`}
-        className="mx-auto h-auto"
+        className="mx-auto h-auto overflow-visible"
         style={{ width: "100%", maxWidth: width * 1.15, minWidth: Math.min(width, view.nodes.length * 28 + 60) }}
       >
         <AnimatePresence initial={false}>
@@ -109,7 +118,7 @@ export function TrieView({ view }: { view: TrieViewModel }) {
                       )}
                     />
                   )}
-                  <PointerTags tags={node.tags} bottom={-RADIUS - 6} />
+                  <PointerTags tags={node.tags} gap={RADIUS + 6} side={clearSide(bearings.get(node.id) ?? [])} />
                 </motion.g>
               </g>
             );
