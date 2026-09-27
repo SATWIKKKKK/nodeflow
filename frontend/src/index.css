@@ -554,13 +554,15 @@
   border-color: rgba(147, 197, 253, 0.35);
 }
 
-.badge-current {
-  border-color: var(--color-blueprint-line);
-  background: var(--card);
-  color: var(--foreground);
+.badge-current,
+.status-solved {
+  border-color: rgba(45, 88, 188, 0.35);
+  background: rgba(45, 88, 188, 0.08);
+  color: #2d58bc;
 }
 
-.dark .badge-current {
+.dark .badge-current,
+.dark .status-solved {
   border-color: rgba(158, 203, 255, 0.45);
   background: rgba(158, 203, 255, 0.12);
   color: #9ecbff;
@@ -607,14 +609,28 @@
   min-height: 0;
 }
 
+/*
+ * The line being replayed, in the accent blue. A translucent wash rather than a
+ * solid fill, so the code's own ink sits on top of it unchanged and stays as
+ * legible as every other line; the bar at the left edge carries the emphasis.
+ */
 .cm-playback-line {
-  background: var(--surface-hover) !important;
-  box-shadow: inset 2px 0 0 var(--primary);
+  background: rgba(45, 88, 188, 0.1) !important;
+  box-shadow: inset 3px 0 0 #2d58bc;
+}
+
+.dark .cm-playback-line {
+  background: rgba(158, 203, 255, 0.13) !important;
+  box-shadow: inset 3px 0 0 #9ecbff;
 }
 
 .cm-playback-gutter {
-  color: var(--foreground) !important;
+  color: #2d58bc !important;
   font-weight: 600;
+}
+
+.dark .cm-playback-gutter {
+  color: #9ecbff !important;
 }
 
 .trace-range {
@@ -824,5 +840,212 @@
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* ---------- Unfinished problems (components/UnfinishedMark) ---------- */
+
+:root {
+  --unfinished: #d97706;
+  --unfinished-soft: rgba(217, 119, 6, 0.1);
+}
+
+.dark {
+  --unfinished: #fbbf24;
+  --unfinished-soft: rgba(251, 191, 36, 0.12);
+}
+
+.unfinished-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--unfinished);
+}
+
+.unfinished-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--unfinished);
+  animation: nf-unfinished-ripple 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+.unfinished-tag {
+  border: 1px solid color-mix(in oklab, var(--unfinished) 45%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--unfinished);
+  background: linear-gradient(
+    100deg,
+    var(--unfinished-soft) 20%,
+    color-mix(in oklab, var(--unfinished) 26%, transparent) 50%,
+    var(--unfinished-soft) 80%
+  );
+  background-size: 250% 100%;
+  animation: nf-unfinished-sheen 2.6s ease-in-out infinite;
+}
+
+@keyframes nf-unfinished-ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes nf-unfinished-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -150% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unfinished-dot::after,
+  .unfinished-tag {
+    animation: none;
+  }
+}
+
+/* ---------- Test / Submit verdict (workspace/JudgementBanner) ---------- */
+
+.judgement-pass {
+  border-color: rgba(45, 88, 188, 0.35);
+  background: linear-gradient(120deg, #e8f0ff 0%, #dbeafe 45%, #e0f7ff 100%);
+  color: #1e3a8a;
+}
+.judgement-pass .judgement-icon {
+  background: linear-gradient(135deg, #2d58bc, #3b82f6);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(45, 88, 188, 0.35);
+}
+.judgement-pass .judgement-headline {
+  color: #1d4ed8;
+}
+
+.judgement-fail {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: linear-gradient(120deg, #fff1f2 0%, #ffe4e6 50%, #fff7ed 100%);
+  color: #7f1d1d;
+}
+.judgement-fail .judgement-icon {
+  background: linear-gradient(135deg, #dc2626, #f43f5e);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(220, 38, 38, 0.3);
+}
+.judgement-fail .judgement-headline {
+  color: #b91c1c;
+}
+
+.judgement-slow {
+  border-color: rgba(217, 119, 6, 0.35);
+  background: linear-gradient(120deg, #fffbeb 0%, #fef3c7 55%, #fff7ed 100%);
+  color: #78350f;
+}
+.judgement-slow .judgement-icon {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(217, 119, 6, 0.3);
+}
+.judgement-slow .judgement-headline {
+  color: #b45309;
+}
+
+.judgement-seg-pass {
+  background: linear-gradient(90deg, #2d58bc, #3b82f6);
+}
+.judgement-seg-fail {
+  background: linear-gradient(90deg, #dc2626, #f43f5e);
+}
+
+.dark .judgement-pass {
+  border-color: rgba(158, 203, 255, 0.35);
+  background: linear-gradient(120deg, #0d1b33 0%, #10254a 50%, #0b2236 100%);
+  color: #cfe3ff;
+}
+.dark .judgement-pass .judgement-icon {
+  background: linear-gradient(135deg, #9ecbff, #60a5fa);
+  color: #0a1728;
+  box-shadow: 0 8px 26px rgba(158, 203, 255, 0.28);
+}
+.dark .judgement-pass .judgement-headline {
+  color: #9ecbff;
+}
+
+.dark .judgement-fail {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: linear-gradient(120deg, #2a0f14 0%, #3a1119 55%, #2b1409 100%);
+  color: #fecdd3;
+}
+.dark .judgement-fail .judgement-icon {
+  background: linear-gradient(135deg, #f87171, #fb7185);
+  color: #2a0f14;
+  box-shadow: 0 8px 26px rgba(248, 113, 113, 0.25);
+}
+.dark .judgement-fail .judgement-headline {
+  color: #fca5a5;
+}
+
+.dark .judgement-slow {
+  border-color: rgba(251, 191, 36, 0.35);
+  background: linear-gradient(120deg, #2a1d06 0%, #3a2808 55%, #2b1a09 100%);
+  color: #fde68a;
+}
+.dark .judgement-slow .judgement-icon {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #2a1d06;
+}
+.dark .judgement-slow .judgement-headline {
+  color: #fcd34d;
+}
+
+.dark .judgement-seg-pass {
+  background: linear-gradient(90deg, #9ecbff, #60a5fa);
+}
+.dark .judgement-seg-fail {
+  background: linear-gradient(90deg, #f87171, #fb7185);
+}
+
+/* ---------- Coins (components/GoldCoin) ---------- */
+
+.coin-chip {
+  border-color: rgba(212, 160, 23, 0.45);
+  background: linear-gradient(135deg, #fffaeb, #fff1c2);
+  color: #7a4e00;
+}
+
+.dark .coin-chip {
+  border-color: rgba(255, 213, 74, 0.35);
+  background: linear-gradient(135deg, #2a2006, #3a2b08);
+  color: #ffe08a;
+}
+
+.coin-glint {
+  animation: nf-coin-glint 3.8s ease-in-out infinite;
+}
+
+@keyframes nf-coin-glint {
+  0%,
+  70% {
+    transform: skewX(-20deg) translateX(0);
+  }
+  100% {
+    transform: skewX(-20deg) translateX(48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-glint {
+    animation: none;
   }
 }

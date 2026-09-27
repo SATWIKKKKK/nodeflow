@@ -10,8 +10,10 @@ import type {
   ProblemSummary,
   ProgressSummary,
   PublicProblem,
+  SavedDraft,
   SubmitResponse,
   TestResponse,
+  UnfinishedProblem,
   VariantOutcome,
   VariantStage
 } from "@nodeflow/shared";
@@ -166,6 +168,28 @@ export const api = {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify({ problemId, code, language })
+    }),
+  coins: (token?: string | null) => request<{ coins: number }>("/api/coins", { headers: authHeaders(token) }),
+  addCoins: (delta: number, token?: string | null) =>
+    request<{ coins: number }>("/api/coins", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ delta })
+    }),
+  unfinished: (token?: string | null) =>
+    request<{ problems: UnfinishedProblem[] }>("/api/unfinished", { headers: authHeaders(token) }),
+  draft: (problemId: string, token?: string | null) =>
+    request<{ draft: SavedDraft | null }>(`/api/drafts/${encodeURIComponent(problemId)}`, { headers: authHeaders(token) }),
+  saveDraft: (problemId: string, language: Language, code: string, token?: string | null) =>
+    request<{ draft: SavedDraft }>(`/api/drafts/${encodeURIComponent(problemId)}`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify({ language, code })
+    }),
+  clearDraft: (problemId: string, token?: string | null) =>
+    request<{ ok: boolean }>(`/api/drafts/${encodeURIComponent(problemId)}`, {
+      method: "DELETE",
+      headers: authHeaders(token)
     }),
   submitWithSession: (
     problemId: string,

@@ -27,6 +27,7 @@ import { PageLoader } from "../PageLoader";
 import { ThemeToggle } from "../ThemeToggle";
 import { button } from "../ui";
 import { AccountMenu } from "./AccountMenu";
+import { CoinBalance } from "../GoldCoin";
 import { ProblemSearch } from "./ProblemSearch";
 
 interface NavItem {
@@ -55,6 +56,7 @@ const titles: Record<string, string> = {
   "/problems": "Problems",
   "/dashboard": "Dashboard",
   "/problem-map": "Problem map",
+  "/continue": "Continue solving",
   "/classrooms": "Classrooms"
 };
 
@@ -71,7 +73,7 @@ function SideLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
         cn(
           "flex items-center gap-3 rounded-lg border-l-2 border-transparent px-4 py-3 text-ui-label transition-colors",
           isActive
-            ? "border-primary bg-surface-hover font-semibold text-primary"
+            ? "border-[var(--fill-blue)] bg-[color-mix(in_oklab,var(--fill-blue)_12%,transparent)] font-semibold text-[var(--fill-blue)]"
             : "text-blueprint-muted hover:bg-surface-hover hover:text-primary",
           collapsed && "justify-center px-0"
         )
@@ -260,6 +262,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               <ProblemSearch />
             </div>
             <div className="flex items-center gap-2 lg:basis-40 lg:justify-end">
+              <CoinBalance />
               <ThemeToggle />
               <AccountMenu />
             </div>

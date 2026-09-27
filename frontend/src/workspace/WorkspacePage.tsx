@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { VariableStatement, VariantDialog, type VariantState } from "./VariableStatement";
 import { ZoomControls, ZOOM_STEP, clampZoom } from "./ZoomControls";
 import {
@@ -39,10 +40,13 @@ import { loadProblems, structureLabel } from "../lib/problems";
 import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
+import { verdictTone } from "../lib/verdict";
+import { JudgementBanner } from "./JudgementBanner";
 import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { AccountMenu } from "../components/layout/AccountMenu";
+import { CoinBalance } from "../components/GoldCoin";
 import { button, chip, field } from "../components/ui";
 import { TraceDiagram } from "../trace/TraceDiagram";
 import CodeEditorPane from "./CodeEditorPane";
@@ -165,18 +169,29 @@ function CaseRow({ result, index }: { result: CaseResult; index: number }) {
   const failedExecution = result.execution && !result.execution.ok ? result.execution : null;
 
   return (
-    <li className="py-3">
+    <motion.li
+      className="py-3"
+      initial={{ opacity: 0, x: -6 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.2 + index * 0.04, duration: 0.25 }}
+    >
       <div className="flex items-center gap-3">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-blueprint-line">
-          {passed ? (
-            <Check size={13} aria-hidden className="check-icon" />
-          ) : (
-            <X size={12} aria-hidden className="text-red-600 dark:text-red-300" />
+        <span
+          className={cn(
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+            passed ? "judgement-seg-pass text-white dark:text-[#0a1728]" : "judgement-seg-fail text-white dark:text-[#2a0f14]"
           )}
+        >
+          {passed ? <Check size={13} strokeWidth={3} aria-hidden /> : <X size={12} strokeWidth={3} aria-hidden />}
         </span>
         <span className="text-sm font-medium text-primary">Case {index + 1}</span>
         <span className="text-technical-mono text-blueprint-muted">{result.visible ? "visible" : "hidden"}</span>
-        <span className="ml-auto text-xs text-blueprint-muted">
+        <span
+          className={cn(
+            "ml-auto rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+            passed ? "status-solved" : "status-error"
+          )}
+        >
           {passed ? "Passed" : result.status === "error" ? "Error" : "Wrong answer"}
         </span>
       </div>
@@ -205,7 +220,7 @@ function CaseRow({ result, index }: { result: CaseResult; index: number }) {
           {failedExecution && <p className="text-red-700 dark:text-red-300">{failedExecution.message}</p>}
         </div>
       )}
-    </li>
+    </motion.li>
   );
 }
 
@@ -217,6 +232,12 @@ export default function WorkspacePage() {
   // One level per view: a chain wants different framing from a table.
   const [zoom2d, setZoom2d] = useState(1);
   const [zoom3d, setZoom3d] = useState(1);
+  // Where this problem sits in the bank, and how the learner has fared on it,
+  // for the heading: "12. Right Rotate Once", with a Solved or last-verdict badge.
+  const [problemNumber, setProblemNumber] = useState<number | null>(null);
+  const [standing, setStanding] = useState<{ accepted: boolean; lastVerdict?: string } | null>(null);
+  const [scenePanel, setScenePanel] = useState<HTMLDivElement | null>(null);
+  const sceneModeRef = useRef<"trace" | "3d">("trace");
 
   const { problemId: routeProblemId } = useParams<{ problemId?: string }>();
 
@@ -232,15 +253,52 @@ export default function WorkspacePage() {
   const [traceSource, setTraceSource] = useState<TraceSource | null>(null);
   const [traceInfo, setTraceInfo] = useState<{ truncated: boolean; note?: string }>({ truncated: false });
   const [sceneMode, setSceneModeState] = useState<SceneMode>(readSceneMode);
+  sceneModeRef.current = sceneMode;
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
+  // A trackpad pinch arrives as a wheel event with ctrlKey set (Safari sends
+  // gesture events instead), and left alone the browser zooms the whole page,
+  // which throws the reader's view across to the editor. Over the drawing a
+  // pinch means "zoom the drawing", so it drives the same level the buttons do.
+  useEffect(() => {
+    const panel = scenePanel;
+    if (!panel) return;
+    const scale = (factor: number) =>
+      (sceneModeRef.current === "trace" ? setZoom2d : setZoom3d)((level) => clampZoom(level * factor));
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) return;
+      event.preventDefault();
+      scale(Math.exp(-event.deltaY * 0.01));
+    };
+    let lastScale = 1;
+    const onGestureStart = (event: Event) => {
+      event.preventDefault();
+      lastScale = 1;
+    };
+    const onGestureChange = (event: Event) => {
+      event.preventDefault();
+      const current = (event as Event & { scale?: number }).scale ?? 1;
+      scale(current / lastScale);
+      lastScale = current;
+    };
+    panel.addEventListener("wheel", onWheel, { passive: false });
+    panel.addEventListener("gesturestart", onGestureStart);
+    panel.addEventListener("gesturechange", onGestureChange);
+    return () => {
+      panel.removeEventListener("wheel", onWheel);
+      panel.removeEventListener("gesturestart", onGestureStart);
+      panel.removeEventListener("gesturechange", onGestureChange);
+    };
+  }, [scenePanel]);
+
   const [busy, setBusy] = useState<"run" | "test" | "submit" | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [execution, setExecution] = useState<ExecutionResponse | null>(null);
   const [judgement, setJudgement] = useState<TestResponse | null>(null);
+  const [judgedMode, setJudgedMode] = useState<"test" | "submit">("test");
   const [customCheck, setCustomCheck] = useState<CustomCheck | null>(null);
   const [notice, setNotice] = useState("");
   const [ranAt, setRanAt] = useState("");
@@ -338,6 +396,10 @@ export default function WorkspacePage() {
     setLanguageState(next);
     writeLanguage(next);
   };
+  const languageRef = useRef(language);
+  languageRef.current = language;
+  const setLanguageRef = useRef(setLanguage);
+  setLanguageRef.current = setLanguage;
 
   // --- problem loading ------------------------------------------------------
 
@@ -391,6 +453,31 @@ export default function WorkspacePage() {
   useEffect(() => {
     document.title = problem ? `${problem.title} · Noesis` : "Workspace · Noesis";
   }, [problem]);
+
+  useEffect(() => {
+    let mounted = true;
+    setProblemNumber(null);
+    setStanding(null);
+    if (!problem) return;
+    loadProblems()
+      .then((list) => {
+        const at = list.findIndex((entry) => entry.id === problem.id);
+        if (mounted) setProblemNumber(at >= 0 ? at + 1 : null);
+      })
+      .catch(() => undefined);
+    api
+      .progress(session.token)
+      .then((summary) => {
+        const entry = summary.problems.find((row) => row.id === problem.id);
+        if (mounted && entry && entry.attempts > 0) {
+          setStanding({ accepted: entry.accepted, lastVerdict: entry.lastVerdict });
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, [problem?.id, session.token]);
 
   // --- custom input ---------------------------------------------------------
 
@@ -517,6 +604,88 @@ export default function WorkspacePage() {
       applyExecution(cached, true, initial);
     }
   }, [problemId, language, applyExecution]);
+
+  // --- drafts on the server ---------------------------------------------------
+  //
+  // The browser's copy (persist.ts) is for instant reloads; the account's copy
+  // is what brings a learner back to a problem after signing out, closing the
+  // window or switching machine, and what Continue Solving lists.
+
+  // Opening a problem with nothing typed here yet picks up where the account
+  // left off, in the language it was written in.
+  useEffect(() => {
+    const target = problem;
+    const token = session.token;
+    if (!target || !session.user) return;
+    let mounted = true;
+    api
+      .draft(target.id, token)
+      .then(({ draft }) => {
+        if (!mounted || !draft) return;
+        const starterFor = (lang: Language) => target.starterCodeByLanguage?.[lang] ?? target.starterCode ?? "";
+        if (draft.code.trim() === starterFor(draft.language).trim()) return;
+        const local = readDraft(target.id, draft.language);
+        if (local !== null && local.trim() !== starterFor(draft.language).trim()) return;
+        writeDraft(target.id, draft.language, draft.code);
+        if (draft.language !== languageRef.current) {
+          const current = readDraft(target.id, languageRef.current);
+          const untouched = current === null || current.trim() === starterFor(languageRef.current).trim();
+          if (untouched) setLanguageRef.current(draft.language);
+          return;
+        }
+        setEditor((editorState) =>
+          editorState.owner === `${target.id}:${draft.language}` &&
+          editorState.code.trim() === starterFor(draft.language).trim()
+            ? { ...editorState, code: draft.code }
+            : editorState
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+    // Once per problem and account; language changes are handled above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problem?.id, session.user?.id]);
+
+  // Typing saves to the account after a pause, and once more when the tab is
+  // hidden or the page is left, so the last few keystrokes are never lost.
+  const pendingDraft = useRef<{ problemId: string; language: Language; code: string; starter: string } | null>(null);
+  const flushDraft = useCallback(() => {
+    const pending = pendingDraft.current;
+    pendingDraft.current = null;
+    if (!pending || !session.token) return;
+    const request =
+      pending.code.trim() === pending.starter.trim()
+        ? api.clearDraft(pending.problemId, session.token)
+        : api.saveDraft(pending.problemId, pending.language, pending.code, session.token);
+    request.catch(() => undefined);
+  }, [session.token]);
+
+  useEffect(() => {
+    if (!problem || !session.user || edits === 0) return;
+    pendingDraft.current = {
+      problemId: problem.id,
+      language,
+      code,
+      starter: problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? ""
+    };
+    const timer = window.setTimeout(flushDraft, 1200);
+    return () => window.clearTimeout(timer);
+  }, [code, edits, problem, language, session.user, flushDraft]);
+
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === "hidden") flushDraft();
+    };
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("pagehide", flushDraft);
+    return () => {
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("pagehide", flushDraft);
+      flushDraft();
+    };
+  }, [flushDraft]);
 
   const handleCodeChange = useCallback(
     (next: string) => {
@@ -779,7 +948,14 @@ export default function WorkspacePage() {
           mode === "test"
             ? await api.test(problem.id, code, language)
             : await api.submitWithSession(problem.id, code, session.token, language);
+        setJudgedMode(mode);
         setJudgement(response);
+        if (mode === "submit") {
+          setStanding((previous) => ({
+            accepted: Boolean(previous?.accepted) || response.verdict === "Accepted",
+            lastVerdict: response.verdict
+          }));
+        }
       } catch (error) {
         setNotice(readError(error, `${mode === "test" ? "Test" : "Submit"} failed.`));
       } finally {
@@ -792,6 +968,7 @@ export default function WorkspacePage() {
   const resetCode = () => {
     if (!problem) return;
     clearDraft(problem.id, language);
+    if (session.token) api.clearDraft(problem.id, session.token).catch(() => undefined);
     setEditor({ owner: editorOwner, code: problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? "" });
     setConfirmReset(false);
     settleAction();
@@ -847,7 +1024,10 @@ export default function WorkspacePage() {
           </NavLink>
           <div className="min-w-0 flex-1">
             {problem ? (
-              <p className="truncate text-sm font-medium text-primary">{problem.title}</p>
+              <p className="truncate text-sm font-medium text-primary">
+                {problemNumber !== null && <span className="mr-1.5 font-mono text-blueprint-muted">{problemNumber}.</span>}
+                {problem.title}
+              </p>
             ) : (
               <span className="block h-3 w-40 animate-pulse rounded-full bg-surface-inset" aria-hidden />
             )}
@@ -860,6 +1040,7 @@ export default function WorkspacePage() {
             {actionButton("test", "Test")}
             {actionButton("submit", "Submit")}
           </div>
+          <CoinBalance className="hidden sm:inline-flex" />
           <ThemeToggle />
           <AccountMenu />
         </div>
@@ -926,7 +1107,7 @@ export default function WorkspacePage() {
             </p>
           )}
 
-          <div className="relative min-h-0 flex-1">
+          <div ref={setScenePanel} className="relative min-h-0 flex-1">
             {sceneMode === "trace" ? (
               hasTrace ? (
                 <TraceDiagram
@@ -975,8 +1156,9 @@ export default function WorkspacePage() {
             )}
 
             {loadingScene && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <Loader2 size={24} aria-label="Loading trace" className="animate-spin text-blueprint-muted" />
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-blueprint-muted dark:text-[#ffd60a]">
+                <Loader2 size={24} aria-label="Loading trace" className="animate-spin" />
+                {busy === "run" && <span className="font-mono text-xs font-semibold tracking-wide">Running…</span>}
               </div>
             )}
           </div>
@@ -1050,7 +1232,22 @@ export default function WorkspacePage() {
                   )}
                 </div>
                 {problem ? (
-                  <h1 className="mt-2 text-headline-sm text-primary">{problem.title}</h1>
+                  <h1 className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-headline-sm text-primary">
+                    {problemNumber !== null && (
+                      <span className="font-mono text-blueprint-muted">{problemNumber}.</span>
+                    )}
+                    <span>{problem.title}</span>
+                    {standing && (standing.accepted || standing.lastVerdict) && (
+                      <span
+                        className={cn(
+                          "self-center rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+                          verdictTone(standing.accepted ? "Solved" : standing.lastVerdict)
+                        )}
+                      >
+                        {standing.accepted ? "Solved" : standing.lastVerdict}
+                      </span>
+                    )}
+                  </h1>
                 ) : (
                   <span className="mt-3 block h-6 w-56 animate-pulse rounded-full bg-surface-inset" aria-hidden />
                 )}
@@ -1219,7 +1416,7 @@ export default function WorkspacePage() {
                 <span
                   className={cn(
                     "rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                    judgement.verdict === "Accepted" ? "badge-current" : "status-error"
+                    verdictTone(judgement.verdict)
                   )}
                 >
                   {judgement.verdict} · {passedCount}/{judgement.cases.length}
@@ -1240,7 +1437,7 @@ export default function WorkspacePage() {
               {busy && (
                 <p className="flex items-center gap-2 text-sm text-blueprint-muted">
                   <Loader2 size={14} aria-hidden className="animate-spin" />
-                  {busy === "run" ? "Running in the sandbox…" : busy === "test" ? "Testing visible cases…" : "Judging every case…"}
+                  {busy === "run" ? "Running…" : busy === "test" ? "Testing visible cases…" : "Judging every case…"}
                 </p>
               )}
 
@@ -1312,6 +1509,8 @@ export default function WorkspacePage() {
                   </pre>
                 </div>
               ) : null}
+
+              {judgement && <JudgementBanner judgement={judgement} mode={judgedMode} />}
 
               {judgement && (
                 <ul className="divide-y divide-blueprint-line">

@@ -72,6 +72,12 @@ export function CustomInputPanel({
         ...(signature.sharedTail ? [`${signature.sharedTail}: shared tail values`] : [])
       ].join(" · ");
 
+  // Which example the box currently holds, compared by value so reformatting
+  // the JSON by hand does not lose the highlight.
+  const parsed = parseCustomInput(text).value;
+  const current = parsed ? JSON.stringify(parsed) : null;
+  const showing = problem.examples.findIndex((example) => JSON.stringify(example.input) === current);
+
   return (
     <section aria-label="Custom input" className="surface-frame shrink-0 overflow-hidden">
       <div className="flex flex-wrap items-center gap-3 px-5 py-3">
@@ -120,7 +126,13 @@ export function CustomInputPanel({
                 key={index}
                 type="button"
                 onClick={() => onText(pretty(example.input))}
-                className={cn(button.outlineSm, "px-3 py-1.5 text-[11px]")}
+                aria-pressed={showing === index}
+                className={cn(
+                  button.outlineSm,
+                  "px-3 py-1.5 text-[11px] transition-colors",
+                  showing === index &&
+                    "border-[var(--fill-blue)] bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)] hover:text-[var(--fill-blue-text)]"
+                )}
                 style={{ minHeight: 0 }}
               >
                 Example {index + 1}
@@ -144,8 +156,9 @@ export function CustomInputPanel({
             aria-invalid={Boolean(error)}
             rows={Math.min(12, Math.max(4, text.split("\n").length))}
             className={cn(
+              
               "w-full resize-y rounded-xl border bg-surface-inset px-3 py-2.5 font-mono text-xs leading-relaxed text-primary outline-none focus:border-primary",
-              error ? "border-red-500/70" : "border-blueprint-line"
+              error ? "border-red-500/70" : showing >= 0 ? "border-[var(--fill-blue)] ring-2 ring-[var(--fill-blue)]/15" : "border-blueprint-line"
             )}
           />
           {error ? (

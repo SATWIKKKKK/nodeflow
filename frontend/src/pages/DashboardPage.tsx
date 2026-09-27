@@ -6,7 +6,10 @@ import { api } from "../lib/api";
 import { structureLabel } from "../lib/problems";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
+import { verdictTone } from "../lib/verdict";
 import { SectionHeading } from "../components/SectionHeading";
+import { UnfinishedRow, useUnfinished } from "../components/UnfinishedList";
+import { UnfinishedMark } from "../components/UnfinishedMark";
 import { Spinner } from "../components/PageLoader";
 import { button, container } from "../components/ui";
 
@@ -56,7 +59,10 @@ export default function DashboardPage() {
     ? Math.round((progress.accepted / progress.totalProblems) * 100)
     : 0;
 
-  const recent = useMemo(() => progress?.recentSubmissions ?? [], [progress]);
+  // Five, newest first: as many as sit beside the coverage card without the
+  // list running on past it.
+  const recent = useMemo(() => (progress?.recentSubmissions ?? []).slice(0, 5), [progress]);
+  const { problems: unfinished } = useUnfinished();
 
   const coverage = progress
     ? [
@@ -71,7 +77,7 @@ export default function DashboardPage() {
     { label: "attempted", value: progress?.attempted ?? 0, note: "problems submitted at least once" },
     { label: "accepted", value: progress?.accepted ?? 0, note: `out of ${progress?.totalProblems ?? "—"} live problems` },
     { label: "bank cleared", value: `${completion}%`, note: "accepted across the live bank", bar: true },
-    { label: "recent submits", value: recent.length, note: "shown below, newest first" }
+    { label: "unfinished", value: unfinished?.length ?? 0, note: "started and waiting for you below" }
   ];
 
   return (
@@ -117,7 +123,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <section aria-labelledby="recent-heading" className="surface-frame overflow-hidden">
+            <section aria-labelledby="recent-heading" className="surface-frame flex flex-col overflow-hidden">
               <div className="flex items-center justify-between border-b border-blueprint-line px-5 py-4 sm:px-6">
                 <h2 id="recent-heading" className="text-headline-sm text-primary">
                   Recent submissions
@@ -135,21 +141,22 @@ export default function DashboardPage() {
                   </NavLink>
                 </div>
               ) : (
-                <ul className="divide-y divide-blueprint-line">
+                <ul className="flex flex-1 flex-col divide-y divide-blueprint-line">
                   {recent.map((submission) => {
                     const accepted = submission.verdict === "Accepted";
                     return (
-                      <li key={submission.submissionId}>
+                      <li key={submission.submissionId} className="flex flex-1 flex-col justify-center">
                         <NavLink
                           to={`/workspace/${submission.problemId}`}
                           className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-hover sm:px-6"
                         >
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blueprint-line">
-                            {accepted ? (
-                              <Check size={15} aria-hidden className="check-icon" />
-                            ) : (
-                              <X size={14} aria-hidden className="text-blueprint-muted" />
+                          <span
+                            className={cn(
+                              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
+                              verdictTone(submission.verdict)
                             )}
+                          >
+                            {accepted ? <Check size={15} aria-hidden /> : <X size={14} aria-hidden />}
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-[15px] font-medium text-primary">
@@ -162,10 +169,10 @@ export default function DashboardPage() {
                           <span
                             className={cn(
                               "shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                              accepted ? "badge-current" : "border-blueprint-line text-blueprint-muted"
+                              verdictTone(submission.verdict)
                             )}
                           >
-                            {submission.verdict}
+                            {accepted ? "Solved" : submission.verdict}
                           </span>
                         </NavLink>
                       </li>
@@ -175,7 +182,7 @@ export default function DashboardPage() {
               )}
             </section>
 
-            <section aria-labelledby="coverage-heading" className="surface-card self-start">
+            <section aria-labelledby="coverage-heading" className="surface-card">
               <h2 id="coverage-heading" className="text-headline-sm text-primary">
                 Coverage by structure
               </h2>
@@ -199,6 +206,39 @@ export default function DashboardPage() {
               </NavLink>
             </section>
           </div>
+
+          {session.user && (
+            <section aria-labelledby="continue-heading" className="surface-frame mt-8 overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-4 sm:px-6">
+                <h2 id="continue-heading" className="flex items-center gap-3 text-headline-sm text-primary">
+                  Continue solving
+                  {unfinished && unfinished.length > 0 && <UnfinishedMark label={false} />}
+                </h2>
+                {unfinished && unfinished.length > 0 && (
+                  <NavLink to="/continue" className={cn(button.text, "inline-flex items-center gap-2")}>
+                    See all {unfinished.length} <ArrowRight size={14} aria-hidden />
+                  </NavLink>
+                )}
+              </div>
+              {unfinished === null ? (
+                <div className="flex justify-center py-10">
+                  <Spinner />
+                </div>
+              ) : unfinished.length === 0 ? (
+                <p className="px-6 py-10 text-center text-body-md text-blueprint-muted">
+                  Nothing left hanging. Start a problem and it waits here if you step away.
+                </p>
+              ) : (
+                <ul className="divide-y divide-blueprint-line">
+                  {unfinished.slice(0, 5).map((entry) => (
+                    <li key={entry.problemId}>
+                      <UnfinishedRow entry={entry} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
 
           {!session.user && (
             <div className="surface-inset mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

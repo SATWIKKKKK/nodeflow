@@ -6,6 +6,9 @@ import { api } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
+import { verdictTone } from "../lib/verdict";
+import { useUnfinished } from "../components/UnfinishedList";
+import { UnfinishedMark } from "../components/UnfinishedMark";
 import { ChipScroller } from "../components/ChipScroller";
 import { Pagination, paginate } from "../components/Pagination";
 import { SectionHeading } from "../components/SectionHeading";
@@ -69,12 +72,19 @@ export default function ProblemsPage() {
   }, [session.token]);
 
   const statusById = useMemo(() => {
-    const map = new Map<string, { attempts: number; accepted: boolean }>();
+    const map = new Map<string, { attempts: number; accepted: boolean; lastVerdict?: string }>();
     for (const entry of progress?.problems ?? []) {
-      map.set(entry.id, { attempts: entry.attempts, accepted: entry.accepted });
+      map.set(entry.id, { attempts: entry.attempts, accepted: entry.accepted, lastVerdict: entry.lastVerdict });
     }
     return map;
   }, [progress]);
+
+  // Started and not solved, including code typed but never submitted.
+  const { problems: unfinishedList } = useUnfinished();
+  const unfinished = useMemo(() => new Set((unfinishedList ?? []).map((entry) => entry.problemId)), [unfinishedList]);
+  // Numbered by place in the whole bank, so a problem keeps its number
+  // whatever the filters hide.
+  const numberById = useMemo(() => new Map(problems.map((problem, at) => [problem.id, at + 1])), [problems]);
 
   // Facets come from the data actually served, so publishing more of the bank
   // widens the filters automatically instead of leaving dead buttons behind.
@@ -132,7 +142,7 @@ export default function ProblemsPage() {
           title="Pick a problem."
           lead="Every problem runs your real code in the sandbox and replays it. Start anywhere; the workspace opens with the function signature ready."
         />
-        <NavLink to="/problem-map" className={cn(button.outlineSm, "self-start lg:self-auto")}>
+        <NavLink to="/problem-map" className={cn(button.primary, "self-start lg:self-auto")}>
           <Layers3 size={15} aria-hidden /> Problem map
         </NavLink>
       </div>
@@ -215,6 +225,7 @@ export default function ProblemsPage() {
               const record = statusById.get(problem.id);
               const solved = record?.accepted ?? false;
               const attempted = !solved && (record?.attempts ?? 0) > 0;
+              const waiting = !solved && unfinished.has(problem.id);
 
               return (
                 <li key={problem.id}>
@@ -225,11 +236,13 @@ export default function ProblemsPage() {
                     <span
                       className={cn(
                         "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
-                        solved ? "border-blueprint-line" : "border-dashed border-blueprint-line"
+                        solved ? "status-solved" : waiting ? "border-transparent" : "border-dashed border-blueprint-line"
                       )}
                     >
                       {solved ? (
-                        <Check size={15} aria-hidden className="check-icon" />
+                        <Check size={15} aria-hidden />
+                      ) : waiting ? (
+                        <UnfinishedMark label={false} />
                       ) : (
                         <Circle
                           size={8}
@@ -241,13 +254,32 @@ export default function ProblemsPage() {
                     </span>
 
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] font-medium text-primary">{problem.title}</span>
+                      <span className="block truncate text-[15px] font-medium text-primary">
+                        <span className="mr-1.5 font-mono text-blueprint-muted">{numberById.get(problem.id)}.</span>
+                        {problem.title}
+                      </span>
                       <span className="mt-1 block text-xs text-blueprint-muted sm:hidden">
                         {problem.topic} · {problem.difficulty}
                       </span>
                     </span>
 
-                    <span className={cn(chip.small, "hidden text-blueprint-muted sm:inline-flex")}>
+                    {solved ? (
+                      <span className="status-solved shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none">
+                        Solved
+                      </span>
+                    ) : waiting ? (
+                      <UnfinishedMark className="[&>.unfinished-dot]:hidden" />
+                    ) : attempted && record?.lastVerdict ? (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+                          verdictTone(record.lastVerdict)
+                        )}
+                      >
+                        {record.lastVerdict}
+                      </span>
+                    ) : null}
+                    <span className={cn(chip.small, "hidden text-blueprint-muted md:inline-flex")}>
                       {problem.topic}
                     </span>
                     <span

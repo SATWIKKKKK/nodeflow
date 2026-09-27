@@ -44,11 +44,11 @@ const readError = (error: unknown) => {
 };
 
 /** Only same-site paths are honoured, so a crafted ?next= cannot send people off-site. */
-const safeNext = (value: string | null) => (value && /^\/(?![/\\])/.test(value) ? value : "/problems");
+const safeNext = (value: string | null) => (value && /^\/(?![/\\])/.test(value) ? value : "/dashboard");
 
 /**
- * Signing in or up lands on the problem list — that is the entry point to the
- * product — unless a page sent the learner here with ?next=.
+ * Signing in or up lands on the dashboard — where the learner's record and the
+ * problems they left unfinished are — unless a page sent them here with ?next=.
  */
 export default function AuthPage({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
 
       if (mode === "reset") {
         session.adopt(await api.confirmReset(resetToken, password));
-        navigate("/problems");
+        navigate("/dashboard");
         return;
       }
 

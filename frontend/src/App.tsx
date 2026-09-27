@@ -6,6 +6,8 @@ import { MarketingLayout } from "./components/layout/MarketingLayout";
 import { RouteProgress } from "./components/layout/RouteProgress";
 import { PageLoader } from "./components/PageLoader";
 import { INFO_PAGES } from "./pages/infoPages";
+import { useSession } from "./lib/session";
+import { CoinsSync } from "./lib/coins";
 
 const LandingPage = lazy(() => import("./landing/LandingPage"));
 const WorkspacePage = lazy(() => import("./workspace/WorkspacePage"));
@@ -15,6 +17,7 @@ const HowItWorksPage = lazy(() => import("./pages/HowItWorksPage"));
 const TracingPage = lazy(() => import("./pages/TracingPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ProblemMapPage = lazy(() => import("./pages/ProblemMapPage"));
+const ContinuePage = lazy(() => import("./pages/ContinuePage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ClassroomsPage = lazy(() => import("./pages/ClassroomsPage"));
 const ClassroomPage = lazy(() => import("./pages/ClassroomPage"));
@@ -51,14 +54,25 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Home is the dashboard for anyone signed in: they have a record and unfinished
+ * problems to get back to, and the pitch on the landing page is for newcomers.
+ */
+function Home() {
+  const session = useSession();
+  if (session.user) return <Navigate to="/dashboard" replace />;
+  return <LandingPage />;
+}
+
 export default function App() {
   return (
     <>
       <RouteProgress />
       <ScrollToTop />
+      <CoinsSync />
       <Routes>
         <Route element={<MarketingLayout variant="landing" />}>
-          <Route index element={<LandingPage />} />
+          <Route index element={<Home />} />
         </Route>
 
         <Route element={<MarketingLayout />}>
@@ -82,6 +96,7 @@ export default function App() {
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/problem-map" element={<ProblemMapPage />} />
+          <Route path="/continue" element={<ContinuePage />} />
           <Route path="/classrooms" element={<ClassroomsPage />} />
           <Route path="/classrooms/:classroomId" element={<ClassroomPage />} />
         </Route>
