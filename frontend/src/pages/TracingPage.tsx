@@ -61,7 +61,7 @@ export default function TracingPage() {
               const Scene = stage.scene;
               return (
                 <li key={stage.title} className="surface-card">
-                  <div className="mb-6 overflow-hidden rounded-lg border border-blueprint-line">
+                  <div className="neu-screen mb-6 overflow-hidden rounded-lg border border-blueprint-line">
                     <Scene />
                   </div>
                   <h2 className="text-headline-sm text-primary">{stage.title}</h2>
@@ -73,7 +73,7 @@ export default function TracingPage() {
         </div>
       </section>
 
-      <section className="border-y border-blueprint-line bg-background/70 py-16 sm:py-20">
+      <section className="neu-ruled border-y border-blueprint-line bg-background/70 py-16 sm:py-20">
         <div className={`${container} grid gap-6 lg:grid-cols-[0.9fr_1.1fr]`}>
           <div>
             <SectionHeading

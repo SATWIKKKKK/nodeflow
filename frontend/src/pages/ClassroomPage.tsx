@@ -100,7 +100,7 @@ function AssignmentPicker({
         className="h-11 w-full rounded-full border border-blueprint-line bg-background pl-11 pr-4 text-[15px] text-primary outline-none placeholder:text-blueprint-muted focus:border-primary"
       />
       {matches.length > 0 && (
-        <ul className="mt-2 divide-y divide-blueprint-line overflow-hidden rounded-2xl border border-blueprint-line bg-card">
+        <ul className="neu-panel mt-2 divide-y divide-blueprint-line overflow-hidden rounded-2xl border border-blueprint-line bg-card">
           {matches.map((problem) => (
             <li key={problem.id} className="flex items-center gap-3 px-4 py-2.5">
               <span className="min-w-0 flex-1">

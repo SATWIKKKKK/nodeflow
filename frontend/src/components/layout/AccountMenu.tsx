@@ -56,7 +56,7 @@ export function AccountMenu({ className }: { className?: string }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Account menu for ${email}`}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-blueprint-line bg-card text-sm font-semibold text-primary"
+        className="neu-icon flex h-9 w-9 items-center justify-center rounded-full border border-blueprint-line bg-card text-sm font-semibold text-primary"
       >
         {initials(email)}
       </button>
@@ -69,7 +69,7 @@ export function AccountMenu({ className }: { className?: string }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.14 }}
-            className="absolute right-0 top-[calc(100%+0.55rem)] z-[70] min-w-[220px] rounded-2xl border border-blueprint-line bg-card py-2 shadow-[0_18px_40px_rgba(0,0,0,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.32)]"
+            className="neu-panel absolute right-0 top-[calc(100%+0.55rem)] z-[70] min-w-[220px] rounded-2xl border border-blueprint-line bg-card py-2 shadow-[0_18px_40px_rgba(0,0,0,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.32)]"
           >
             <p className="truncate px-4 pb-2 pt-1 text-xs text-blueprint-muted">{email}</p>
             <div className="my-1 h-px bg-blueprint-line" />

@@ -50,7 +50,7 @@ export function Modal({
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
-              "relative w-full rounded-[28px] border border-blueprint-line bg-card p-6 shadow-[0_28px_80px_rgba(0,0,0,0.18)] sm:p-7",
+              "neu-panel relative w-full rounded-[28px] border border-blueprint-line bg-card p-6 shadow-[0_28px_80px_rgba(0,0,0,0.18)] sm:p-7",
               size === "md" ? "max-w-md" : "max-w-lg"
             )}
           >

@@ -83,7 +83,7 @@ export function WaitingGame() {
             ? "border-[var(--fill-blue)] bg-[var(--fill-blue)] text-[var(--fill-blue-text)]"
             : picked
               ? "border-[var(--compare)] bg-[var(--compare-soft)] text-[var(--compare-text)]"
-              : "border-blueprint-line bg-card text-primary hover:border-[var(--fill-blue)]"
+              : "neu-btn border-blueprint-line bg-card text-primary hover:border-[var(--fill-blue)]"
         )}
         style={{ minHeight: 0 }}
       >

@@ -95,7 +95,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-3xl border border-blueprint-line bg-card/90 p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-8">
+    <div className="neu-panel w-full max-w-[480px] rounded-3xl border border-blueprint-line bg-card/90 p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-8">
       <p className="text-ui-label text-blueprint-muted">Noesis account</p>
       <h1 className="mt-2 text-headline-lg text-primary">{text.title}</h1>
       <p className="mt-3 text-body-md text-blueprint-muted">{text.lead}</p>
@@ -144,7 +144,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
                 required
                 className={cn(field.underline, "pr-10")}
               />
-              <span className="absolute right-0 top-1/2 -translate-y-1/2">
+              <span className="neu-input-adornment absolute right-0 top-1/2 -translate-y-1/2">
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}

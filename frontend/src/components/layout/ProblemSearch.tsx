@@ -83,7 +83,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
           event.preventDefault();
           go(results[cursor]);
         }}
-        className="relative h-12 rounded-full border border-blueprint-line bg-card shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03),0_12px_28px_rgba(0,0,0,0.08)]"
+        className="neu-field relative h-12 rounded-full border border-blueprint-line bg-card shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03),0_12px_28px_rgba(0,0,0,0.08)]"
       >
         <Search
           size={16}
@@ -113,7 +113,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
         <button
           type="submit"
           aria-label="Search"
-          className="no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)]"
+          className="neu-key no-lift absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)]"
           style={{ minHeight: 0, width: "2rem" }}
         >
           <ArrowRight size={14} aria-hidden />
@@ -124,7 +124,7 @@ export function ProblemSearch({ className, compact = true }: { className?: strin
         <div
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-[calc(100%+0.55rem)] z-[70] rounded-2xl border border-blueprint-line bg-card p-2 shadow-[0_18px_40px_rgba(0,0,0,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.32)]"
+          className="neu-panel absolute inset-x-0 top-[calc(100%+0.55rem)] z-[70] rounded-2xl border border-blueprint-line bg-card p-2 shadow-[0_18px_40px_rgba(0,0,0,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.32)]"
         >
           {results.length === 0 ? (
             <p className="px-3 py-2.5 text-sm text-blueprint-muted">

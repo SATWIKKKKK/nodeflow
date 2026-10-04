@@ -57,7 +57,7 @@ export default function PricingPage() {
               key={plan.name}
               className={cn(
                 "surface-card relative flex flex-col",
-                plan.available ? "min-h-[430px] border-primary! shadow-[0_20px_48px_rgba(0,0,0,0.14)]!" : ""
+                plan.available ? "neu-current min-h-[430px]" : ""
               )}
             >
               <span

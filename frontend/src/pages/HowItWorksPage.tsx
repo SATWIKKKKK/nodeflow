@@ -85,8 +85,8 @@ export default function HowItWorksPage() {
             {loop.map((step) => {
               const Scene = step.scene;
               return (
-                <li key={step.title} className="border-l border-blueprint-line pl-5">
-                  <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
+                <li key={step.title} className="neu-groove-l border-l border-blueprint-line pl-5">
+                  <div className="neu-screen mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
                     <Scene />
                   </div>
                   <h2 className="text-headline-sm text-primary">{step.title}</h2>
@@ -98,7 +98,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      <section className="border-y border-blueprint-line bg-background/70 py-16 sm:py-20">
+      <section className="neu-ruled border-y border-blueprint-line bg-background/70 py-16 sm:py-20">
         <div className={`${container} grid gap-6 lg:grid-cols-[0.9fr_1.1fr]`}>
           <div>
             <SectionHeading
@@ -108,7 +108,7 @@ export default function HowItWorksPage() {
             />
             <ul className="grid gap-4">
               {anatomy.map((part) => (
-                <li key={part.label} className="grid gap-1 border-l border-blueprint-line pl-5">
+                <li key={part.label} className="neu-groove-l grid gap-1 border-l border-blueprint-line pl-5">
                   <span className="text-ui-label text-primary">{part.label}</span>
                   <span className="text-body-md text-blueprint-muted">{part.note}</span>
                 </li>
@@ -189,7 +189,7 @@ export default function HowItWorksPage() {
               return (
                 <article
                   key={phase.name}
-                  className={cn("surface-card", current && "border-primary! shadow-[0_20px_48px_rgba(0,0,0,0.14)]!")}
+                  className={cn("surface-card", current && "neu-current")}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-technical-mono text-blueprint-muted">{phase.name}</p>

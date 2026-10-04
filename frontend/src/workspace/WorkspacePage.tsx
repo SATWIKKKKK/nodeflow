@@ -1170,7 +1170,7 @@ export default function WorkspacePage() {
             </p>
           )}
 
-          <div ref={setScenePanel} className="relative min-h-0 flex-1">
+          <div ref={setScenePanel} className="neu-screen relative min-h-0 flex-1">
             {sceneMode === "trace" ? (
               hasTrace ? (
                 <TraceDiagram
@@ -1432,7 +1432,7 @@ export default function WorkspacePage() {
               </button>
             </div>
 
-            <div className="min-h-0 flex-1">
+            <div className="neu-screen relative min-h-0 flex-1">
               <CodeEditorPane
                 value={codeReady ? code : ""}
                 language={language}

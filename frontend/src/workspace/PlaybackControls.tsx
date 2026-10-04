@@ -39,7 +39,7 @@ export default function PlaybackControls({
   const fill = count > 1 ? (index / (count - 1)) * 100 : 0;
 
   return (
-    <div className="flex flex-col gap-3 border-t border-blueprint-line bg-card px-4 py-3 sm:px-5">
+    <div className="neu-groove-t neu-transport flex flex-col gap-3 border-t border-blueprint-line bg-card px-4 py-3 sm:px-5">
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -69,7 +69,7 @@ export default function PlaybackControls({
         </button>
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+          className="neu-key flex h-10 w-10 items-center justify-center rounded-full bg-[var(--fill-blue)] text-[var(--fill-blue-text)] hover:bg-[var(--fill-blue-hover)] disabled:cursor-not-allowed disabled:opacity-45"
           aria-label={playing ? "Pause playback" : "Play trace"}
           disabled={empty}
           style={{ minHeight: 0 }}

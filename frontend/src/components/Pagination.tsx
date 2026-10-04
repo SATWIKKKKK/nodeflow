@@ -14,7 +14,7 @@ const pageList = (page: number, pages: number): Array<number | "gap"> => {
 };
 
 const cell =
-  "no-lift flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-technical-mono transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+  "neu-chip no-lift flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-technical-mono transition-colors disabled:cursor-not-allowed disabled:opacity-40";
 
 export function Pagination({
   page,

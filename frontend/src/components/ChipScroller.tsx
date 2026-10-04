@@ -72,7 +72,7 @@ export function ChipScroller({
       aria-label={direction < 0 ? `Scroll ${label} left` : `Scroll ${label} right`}
       onClick={() => nudge(direction)}
       className={cn(
-        "no-lift absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-blueprint-line bg-card text-primary shadow-[0_4px_14px_rgba(0,0,0,0.12)] transition-opacity hover:bg-surface-hover",
+        "neu-icon no-lift absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-blueprint-line bg-card text-primary shadow-[0_4px_14px_rgba(0,0,0,0.12)] transition-opacity hover:bg-surface-hover",
         direction < 0 ? "left-0" : "right-0",
         visible ? "opacity-100" : "pointer-events-none opacity-0"
       )}
@@ -93,7 +93,7 @@ export function ChipScroller({
           role="group"
           aria-label={label}
           onScroll={measure}
-          className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth py-1"
+          className="neu-chip-track no-scrollbar flex gap-2 overflow-x-auto scroll-smooth py-1"
           style={{
             maskImage: `linear-gradient(to right, ${edges.left ? "transparent, black 48px" : "black, black"}, ${
               edges.right ? "black calc(100% - 48px), transparent" : "black"

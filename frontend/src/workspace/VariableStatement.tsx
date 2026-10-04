@@ -249,7 +249,7 @@ export function VariantDialog({
                     onClick={send}
                     disabled={state.kind === "working" || !draft.trim()}
                     className={cn(
-                      "fill-blue inline-flex items-center gap-2 rounded-full px-5 py-2 text-ui-label",
+                      "neu-key fill-blue inline-flex items-center gap-2 rounded-full px-5 py-2 text-ui-label",
                       "disabled:cursor-not-allowed disabled:opacity-45"
                     )}
                   >
@@ -290,7 +290,7 @@ export function VariantDialog({
                   <button
                     type="button"
                     onClick={() => onOpen(state.problemId)}
-                    className="fill-blue inline-flex items-center gap-2 rounded-full px-5 py-2 text-ui-label"
+                    className="neu-key fill-blue inline-flex items-center gap-2 rounded-full px-5 py-2 text-ui-label"
                   >
                     Open it
                     <ArrowRight size={14} aria-hidden />

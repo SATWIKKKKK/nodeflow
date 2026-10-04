@@ -15,7 +15,7 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { month: "short", day: "nu
 function SignedOut() {
   return (
     <div className="surface-card mx-auto max-w-2xl text-center">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-blueprint-line text-primary">
+      <span className="neu-well mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-blueprint-line text-primary">
         <Users size={20} aria-hidden />
       </span>
       <h2 className="mt-5 text-headline-sm text-primary">Sign in to open a classroom</h2>

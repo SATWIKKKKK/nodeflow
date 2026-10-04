@@ -1,7 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/geist";
+/* Self-hosted so code never waits on, or silently falls back from, a CDN. The
+   variable files carry every weight and a true italic (editor comments). */
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource-variable/jetbrains-mono/wght-italic.css";
 
 /* Design system: see DESIGN.md at the repo root. Every token lives here. */
 
@@ -10,7 +14,7 @@
 @theme {
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-blueprint-bg: #fbf9f9;
   --color-blueprint-line: #c7c0c0;
@@ -175,6 +179,12 @@
   button.no-lift:not(:disabled):active {
     transform: none;
     box-shadow: none;
+  }
+
+  /* JetBrains Mono's coding ligatures are off: a learner reading their own code
+     should see the `!=` and `->` they typed, not ≠ and an arrow. */
+  :is(code, pre, kbd, samp, .font-mono) {
+    font-variant-ligatures: none;
   }
 
   :is(button, a, input, textarea, select, [tabindex]):focus-visible {
@@ -1146,4 +1156,826 @@
   border-color: rgba(158, 203, 255, 0.28);
   color: #e6f3ff;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Soft UI: the landing page in neumorphism ---------- */
+
+/*
+ * Everything on the landing page is one material. The page is a mid-tone
+ * surface, and every card, bar and control is made of that same surface,
+ * either raised out of it or pressed into it, all lit from the top left.
+ * Things you look into or type into are hollows; things you press are raised,
+ * rise on hover and sink when pressed.
+ *
+ * The light is quiet in both themes: a hint of highlight up-left, never a
+ * white glow, which smears into the page. Depth comes from the shade, in two
+ * layers: a close one that draws the edge and a far one that lifts (warm on
+ * the light surface, near-black on the dark one). Raised faces are slightly
+ * convex (lit up-left, shaded down-right) and every raised thing has a soft
+ * 1px rim, so it separates from the surface instead of melting into it.
+ *
+ * `.neu-world` is on <body> (index.html), so every page, and every popover
+ * or dialog rendered outside the page tree, is made of this material. The
+ * `neu-*` marker classes (on the shared recipes in components/ui.ts and on
+ * page-specific pieces) say what each element is: raised, pressed or hollow.
+ *
+ * Shadows never carry meaning alone: labels keep full contrast, the primary
+ * action keeps its blue, focus keeps a ring, and forced-colors gets borders.
+ */
+.neu-world {
+  --neu-surface: #e9e5e4;
+
+  /* Light: a hint of highlight; the depth is carried by a deep warm shade. */
+  --neu-hi: rgba(255, 255, 255, 0.28);
+  --neu-lo-near: rgba(96, 74, 72, 0.2);
+  --neu-lo-far: rgba(96, 74, 72, 0.2);
+  --neu-hi-in: rgba(255, 255, 255, 0.7);
+  --neu-lo-in: rgba(96, 74, 72, 0.24);
+  --neu-rim:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 0 rgba(96, 74, 72, 0.1);
+  --neu-face: linear-gradient(145deg, #f2efee, #e1dcdb);
+  --neu-face-soft: linear-gradient(145deg, #eeebea, #e5e0df);
+  --neu-face-pressed: linear-gradient(145deg, #dfdad9, #ebe7e6);
+
+  /* The blue key: lit inside up-left, shaded inside down-right. */
+  --neu-key-hi-in: rgba(255, 255, 255, 0.3);
+  --neu-key-lo-in: rgba(10, 24, 70, 0.38);
+  --neu-key-near: rgba(29, 58, 140, 0.28);
+
+  --neu-raise-sm:
+    var(--neu-rim),
+    -2px -2px 5px var(--neu-hi),
+    2px 2px 4px var(--neu-lo-near),
+    5px 7px 14px var(--neu-lo-far);
+  --neu-raise:
+    var(--neu-rim),
+    -3px -3px 8px var(--neu-hi),
+    3px 3px 6px var(--neu-lo-near),
+    8px 11px 22px var(--neu-lo-far);
+  --neu-raise-hover:
+    var(--neu-rim),
+    -4px -4px 10px var(--neu-hi),
+    4px 4px 8px var(--neu-lo-near),
+    12px 16px 30px var(--neu-lo-far);
+  --neu-raise-lg:
+    var(--neu-rim),
+    -3px -3px 8px var(--neu-hi),
+    3px 3px 8px var(--neu-lo-near),
+    14px 18px 38px var(--neu-lo-far);
+  --neu-press:
+    inset 4px 4px 9px var(--neu-lo-in),
+    inset -3px -3px 7px var(--neu-hi-in);
+  --neu-well:
+    inset 3px 3px 7px var(--neu-lo-in),
+    inset -3px -3px 7px var(--neu-hi-in);
+  --neu-well-sm:
+    inset 2px 2px 4px var(--neu-lo-in),
+    inset -2px -2px 4px var(--neu-hi-in);
+  --neu-groove-top: inset 0 1px 0 var(--neu-lo-in), inset 0 2px 0 var(--neu-hi-in);
+  --neu-groove-bottom: inset 0 -1px 0 var(--neu-hi-in), inset 0 -2px 0 var(--neu-lo-in);
+  --neu-focus: color-mix(in oklab, var(--fill-blue) 65%, transparent);
+
+  /* Paper inside the material (the replay's current line, list nodes, tags):
+     a warm off-white rather than a bright white strip. */
+  --card: #f4f1f0;
+  /* Recesses sit a shade below the surface, so a hollow reads as a hollow
+     even where its inner shadow is faint. */
+  --neu-hollow: #e2dddc;
+  --neu-track: #cdc5c4;
+  --neu-knob: linear-gradient(145deg, #ffffff, #ece8e7);
+  --neu-screen-edge: rgba(96, 74, 72, 0.14);
+  --background: var(--neu-surface);
+  --panel: var(--neu-surface);
+  --surface-inset: var(--neu-hollow);
+  --surface-hover: #e2dcdb;
+  --graphics-paper: var(--neu-surface);
+  --color-blueprint-line: #cdc4c2;
+}
+
+.dark .neu-world {
+  --neu-surface: #1a1919;
+
+  /* Dark: the counterpart of light mode's warm shade is a soft white light.
+     A gentle highlight up-left and a lit rim outline every form, so raised
+     and pressed read on near-black; the deep shade still does the lifting. */
+  --neu-hi: rgba(255, 255, 255, 0.085);
+  --neu-lo-near: rgba(0, 0, 0, 0.6);
+  --neu-lo-far: rgba(0, 0, 0, 0.75);
+  --neu-hi-in: rgba(255, 255, 255, 0.11);
+  --neu-lo-in: rgba(0, 0, 0, 0.7);
+  --neu-rim:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.12),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.55);
+  --neu-face: linear-gradient(145deg, #312e2e, #161515);
+  --neu-face-soft: linear-gradient(145deg, #262424, #181717);
+  --neu-face-pressed: linear-gradient(145deg, #111010, #1e1d1d);
+
+  --neu-key-hi-in: rgba(255, 255, 255, 0.5);
+  --neu-key-lo-in: rgba(20, 60, 120, 0.4);
+  --neu-key-near: rgba(0, 0, 0, 0.6);
+
+  --card: #121111;
+  --neu-hollow: #121111;
+  /* On near-black a groove darker than the surface disappears, so tracks
+     are a lifted grey and knobs a light grey: both stay visible. */
+  --neu-track: #353131;
+  --neu-knob: linear-gradient(145deg, #a39d9d, #747070);
+  --neu-screen-edge: rgba(255, 255, 255, 0.09);
+  --surface-inset: var(--neu-hollow);
+  --surface-hover: #211f1f;
+  --color-blueprint-line: #343131;
+}
+
+/* The grid is a texture on the material, not lines over it. */
+.neu-world .landing-blueprint-grid {
+  opacity: 0.16;
+}
+
+/* Visible focus in the page's own blue, outside any shade. Text fields are
+   left out: they carry their own ring, inside the hollow (see Fields). */
+.neu-world :is(button, a, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--neu-focus);
+  outline-offset: 3px;
+}
+
+/* Raised slabs: the navbar, cards, the replay, the FAQ, the closing panel. */
+.neu-world :is(.landing-navbar, .surface-card, .surface-card-compact, .surface-frame, .neu-panel, .landing-cta-panel) {
+  border-color: transparent;
+  outline: none;
+  background: var(--neu-face-soft);
+  box-shadow: var(--neu-raise-lg);
+}
+
+/* Cards rise by light, not by sliding up past it. */
+.neu-world article.surface-card {
+  transition-property: box-shadow;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world article.surface-card:hover {
+  transform: none;
+  box-shadow:
+    var(--neu-rim),
+    -4px -4px 10px var(--neu-hi),
+    4px 4px 10px var(--neu-lo-near),
+    18px 24px 48px var(--neu-lo-far);
+}
+
+.neu-world .landing-cta-panel {
+  color: var(--foreground);
+}
+
+.neu-world .landing-cta-panel .landing-cta-muted {
+  color: var(--muted-foreground);
+}
+
+/* Hollows: illustrations, the code pane, icon tiles, the question box.
+   The shade sits on ::after so the content inside cannot paint over it. */
+.neu-world .neu-screen {
+  position: relative;
+  border-color: transparent;
+  background: var(--neu-surface);
+}
+
+.neu-world .neu-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--neu-well);
+  pointer-events: none;
+}
+
+.neu-world .neu-pane {
+  border-color: transparent;
+  border-radius: 0.875rem;
+}
+
+.neu-world .neu-replay-body {
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.neu-world .neu-well {
+  border-color: transparent;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world .neu-field {
+  border-color: transparent;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-well);
+}
+
+.neu-world .neu-field:focus {
+  box-shadow:
+    var(--neu-well),
+    0 0 0 1.5px var(--neu-focus);
+}
+
+/* Grooves carved into the surface replace drawn rules. */
+.neu-world .neu-ruled {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: var(--neu-groove-top), var(--neu-groove-bottom);
+}
+
+.neu-world .neu-groove-t {
+  border-color: transparent;
+  box-shadow: var(--neu-groove-top);
+}
+
+.neu-world .neu-groove-b {
+  border-color: transparent;
+  box-shadow: var(--neu-groove-bottom);
+}
+
+.neu-world .neu-groove-l {
+  border-color: transparent;
+  box-shadow: inset 1px 0 0 var(--neu-lo-in), inset 2px 0 0 var(--neu-hi-in);
+}
+
+/* Controls. Rest raised, rise on hover, sink when pressed. */
+.neu-world :is(.neu-btn, .neu-icon, .neu-key, .neu-ghost) {
+  border-color: transparent;
+  transition-property: box-shadow, background-color, color, transform;
+  transition-duration: 260ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world :is(.neu-btn, .neu-icon) {
+  background: var(--neu-face);
+  color: var(--foreground);
+  box-shadow: var(--neu-raise);
+}
+
+.neu-world .neu-icon {
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world :is(.neu-btn, .neu-icon):not(:disabled):hover {
+  transform: none;
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-hover);
+}
+
+.neu-world :is(.neu-btn, .neu-icon, .neu-ghost):not(:disabled):active {
+  transform: scale(0.985);
+  transition-duration: 90ms;
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-press);
+}
+
+/* Nav links sit flush until touched; the current page stays pressed in. */
+.neu-world .neu-ghost {
+  background: transparent;
+  box-shadow: none;
+}
+
+.neu-world .neu-ghost:not(:disabled):hover {
+  transform: none;
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world .neu-ghost[aria-current="page"] {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+}
+
+/*
+ * The one coloured key. It is a pillow of blue, not a blue sticker: lit from
+ * inside up-left, shaded inside down-right, set on the same outer light as
+ * every other raised thing. Pressed, the inner light flips and it goes hollow.
+ */
+.neu-world .neu-key {
+  --neu-fill: var(--fill-blue);
+  color: var(--fill-blue-text);
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--neu-fill) 82%, white),
+    color-mix(in oklab, var(--neu-fill) 86%, black)
+  );
+  box-shadow:
+    inset 2px 2px 4px var(--neu-key-hi-in),
+    inset -3px -3px 6px var(--neu-key-lo-in),
+    -3px -3px 8px var(--neu-hi),
+    3px 4px 8px var(--neu-key-near),
+    8px 12px 24px var(--neu-lo-far);
+}
+
+.neu-world .neu-key:not(:disabled):hover {
+  --neu-fill: var(--fill-blue-hover);
+  transform: none;
+  border-color: transparent;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--neu-fill) 82%, white),
+    color-mix(in oklab, var(--neu-fill) 86%, black)
+  );
+  box-shadow:
+    inset 2px 2px 4px var(--neu-key-hi-in),
+    inset -3px -3px 6px var(--neu-key-lo-in),
+    -4px -4px 10px var(--neu-hi),
+    4px 5px 10px var(--neu-key-near),
+    12px 17px 32px var(--neu-lo-far);
+}
+
+.neu-world .neu-key:not(:disabled):active {
+  transform: scale(0.985);
+  transition-duration: 90ms;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--neu-fill) 84%, black),
+    color-mix(in oklab, var(--neu-fill) 90%, white)
+  );
+  box-shadow:
+    inset 4px 4px 9px var(--neu-key-lo-in),
+    inset -2px -2px 6px var(--neu-key-hi-in);
+}
+
+/* Unavailable reads as flat: no light, no shade, nothing to press. */
+.neu-world :is(.neu-key, .neu-btn, .neu-icon):disabled {
+  opacity: 1;
+  background: var(--neu-surface);
+  color: var(--muted-foreground);
+  box-shadow: var(--neu-rim);
+}
+
+@media (forced-colors: active) {
+  .neu-world :is(.neu-btn, .neu-icon, .neu-key, .neu-panel, .surface-card, .surface-card-compact, .surface-frame, .landing-navbar, .landing-cta-panel, .neu-field) {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ---------- Soft UI: the rest of the app ---------- */
+
+/*
+ * The same material on every page. Above are the slabs, hollows, grooves and
+ * controls; below is everything the app pages add: the shell (header, sidebar,
+ * drawer), fields, selects, filter chips and pagination, tabs, switches,
+ * popovers and their options, and the workspace's screens and tools.
+ *
+ * Selected states read the same way everywhere: a chip, a page number, a
+ * sidebar link or an example that is "on" is pressed into the surface and
+ * turns blue. A tab is the exception: its track is already a hollow, so the
+ * chosen tab rises out of it instead.
+ */
+.neu-world {
+  --neu-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234d4d4d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.dark .neu-world {
+  --neu-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23b7b7b7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Only raised controls rise, and they rise by light. Any other button stops
+   jumping and casting a drop shadow on hover. :where keeps this weaker than
+   every rule below, so a control styled here still gets its own hover. */
+.neu-world :where(button:not(:disabled):hover) {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Page grids are a texture on the material, not lines over it. */
+.neu-world :is(.fixed, .absolute).blueprint-grid {
+  opacity: 0.16;
+}
+
+/* ---- Shell ---- */
+
+/* Header bars are carved off the page by a groove, not drawn with a line. */
+.neu-world .app-header {
+  background: var(--neu-surface);
+  box-shadow: var(--neu-groove-bottom);
+}
+
+.neu-world .neu-groove-r {
+  border-color: transparent;
+  box-shadow: inset -1px 0 0 var(--neu-hi-in), inset -2px 0 0 var(--neu-lo-in);
+}
+
+.neu-world .neu-drawer {
+  border-color: transparent;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-raise-lg);
+}
+
+/* Sidebar links sit flush, rise when touched; the current page stays pressed in. */
+.neu-world .neu-nav {
+  border-color: transparent;
+  transition-property: box-shadow, background-color, color;
+  transition-duration: 260ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world .neu-nav:hover {
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world .neu-nav[aria-current="page"],
+.neu-world .neu-nav[aria-current="page"]:hover {
+  border-color: transparent;
+  background: var(--neu-face-pressed);
+  color: var(--fill-blue);
+  box-shadow: var(--neu-well-sm);
+}
+
+/* Header rows and footers inside a raised panel are grooves too. */
+.neu-world :is(.surface-frame, .surface-card, .neu-panel) > :is(.border-b, .border-t):not(.bg-surface-inset) {
+  border-color: transparent;
+}
+
+.neu-world :is(.surface-frame, .surface-card, .neu-panel) > .border-b:not(.bg-surface-inset) {
+  box-shadow: var(--neu-groove-bottom);
+}
+
+.neu-world :is(.surface-frame, .surface-card, .neu-panel) > .border-t:not(.bg-surface-inset) {
+  box-shadow: var(--neu-groove-top);
+}
+
+/* ---- Hollows everywhere ---- */
+
+/* Inset boxes (notes, examples, output, progress tracks, skeletons) are
+   hollows. Ones that carry a coloured border keep it, and the trace drawing
+   (.neu-flat) is data, not material, so it is left as drawn. */
+.neu-world :is(.bg-surface-inset, .surface-inset):not(.neu-flat *):not([class*="border-primary"]):not([class*="border-[var"]):not([class*="border-red"]) {
+  border-color: transparent;
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world .surface-inset:not(.neu-flat *) {
+  box-shadow: var(--neu-well);
+}
+
+/* ---- Fields ---- */
+
+/* Every text field is a hollow with a blue focus ring. */
+.neu-world :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"], [type="hidden"], [type="file"], [type="color"]), textarea):not(.bg-transparent, .neu-input):not(.neu-flat *) {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-well);
+}
+
+.neu-world :is(input, textarea).border-blueprint-line {
+  border-color: transparent;
+}
+
+.neu-world :is(input, textarea):not(.bg-transparent, .neu-input):not(.neu-flat *):focus {
+  box-shadow:
+    var(--neu-well),
+    0 0 0 1.5px var(--neu-focus);
+}
+
+/* The form fields drawn as an underline become hollows like every other field. */
+.neu-world .neu-input {
+  border: 0;
+  border-radius: 0.875rem;
+  padding: 0.8rem 1rem;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-well);
+}
+
+.neu-world .neu-input.pr-10 {
+  padding-right: 2.75rem;
+}
+
+.neu-world .neu-input:focus {
+  box-shadow:
+    var(--neu-well),
+    0 0 0 1.5px var(--neu-focus);
+}
+
+.neu-world .neu-input-adornment {
+  right: 0.5rem;
+}
+
+/* A field that wraps its own input (the problem search) is the hollow itself. */
+.neu-world .neu-field:focus-within {
+  box-shadow:
+    var(--neu-well),
+    0 0 0 1.5px var(--neu-focus);
+}
+
+/* Selects are small raised controls that keep their chevron. */
+.neu-world .neu-select {
+  border-color: transparent;
+  background: var(--neu-chevron) no-repeat right 0.85rem center, var(--neu-face);
+  color: var(--foreground);
+  box-shadow: var(--neu-raise-sm);
+  transition: box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world .neu-select:hover {
+  background: var(--neu-chevron) no-repeat right 0.85rem center, var(--neu-face);
+  box-shadow: var(--neu-raise);
+}
+
+.neu-world .neu-select option {
+  background: var(--neu-surface);
+  color: var(--foreground);
+}
+
+/* ---- Chips, page numbers, tags ---- */
+
+.neu-world .neu-chip {
+  border-color: transparent;
+  background: var(--neu-face);
+  color: var(--foreground);
+  box-shadow: var(--neu-raise-sm);
+  transition-property: box-shadow, background-color, color;
+  transition-duration: 260ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world .neu-chip:not(:disabled):hover {
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise);
+}
+
+.neu-world .neu-chip:not(:disabled):active {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-press);
+}
+
+.neu-world .neu-chip:is([aria-pressed="true"], [aria-current="page"]),
+.neu-world .neu-chip:is([aria-pressed="true"], [aria-current="page"]):hover {
+  background: var(--neu-face-pressed);
+  color: var(--fill-blue);
+  font-weight: 600;
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world .neu-chip:disabled {
+  opacity: 0.55;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-rim);
+}
+
+/* Raised chips need room for their light inside a scrolling row. */
+.neu-world .neu-chip-track {
+  padding: 10px 6px;
+}
+
+/* Static labels: raised a little, never pressable. */
+.neu-world .neu-tag {
+  border-color: transparent;
+  background: var(--neu-face-soft);
+  box-shadow: var(--neu-raise-sm);
+}
+
+/* ---- Tabs and switches ---- */
+
+/* A tab track is a hollow; the chosen tab rises out of it. */
+.neu-world [role="tablist"] {
+  border-color: transparent;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world [role="tab"] {
+  transition-property: box-shadow, background-color, color;
+  transition-duration: 260ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.neu-world [role="tab"][aria-selected="true"],
+.neu-world [role="tab"][aria-selected="true"]:hover {
+  background: var(--neu-face);
+  color: var(--fill-blue);
+  box-shadow: var(--neu-raise-sm);
+}
+
+/* A switch is a hollow track with a raised knob; on, the track fills blue. */
+.neu-world [role="switch"] {
+  border-color: transparent;
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world [role="switch"][aria-checked="false"] {
+  background: var(--neu-surface);
+}
+
+.neu-world [role="switch"][aria-checked="false"] > span {
+  background: var(--neu-face);
+}
+
+.neu-world [role="switch"] > span {
+  box-shadow:
+    1px 1px 3px var(--neu-lo-near),
+    -1px -1px 2px var(--neu-hi);
+}
+
+/* ---- Popovers and dialogs ---- */
+
+/* The highlighted option in a list (search results) is pressed in. */
+.neu-world [role="option"][aria-selected="true"] {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+}
+
+/* ---- Pressed-on controls and other states ---- */
+
+/* A raised button that is switched on (an example input in use) stays pressed in. */
+.neu-world .neu-btn[aria-pressed="true"],
+.neu-world .neu-btn[aria-pressed="true"]:hover {
+  border-color: transparent;
+  background: var(--neu-face-pressed);
+  color: var(--fill-blue);
+  box-shadow: var(--neu-well-sm);
+}
+
+/* The step a page is pointing at: raised like its neighbours, ringed in blue. */
+.neu-world .neu-current {
+  box-shadow:
+    var(--neu-raise-lg),
+    0 0 0 1.5px color-mix(in oklab, var(--fill-blue) 55%, transparent);
+}
+
+/* The destructive key: the blue key's shape, in red. */
+.neu-world .neu-danger,
+.neu-world .neu-danger:not(:disabled):hover {
+  transform: none;
+  border-color: transparent;
+  color: #ffffff;
+  background: linear-gradient(145deg, #c9372c, #9b1c13);
+  box-shadow:
+    inset 2px 2px 4px rgba(255, 255, 255, 0.22),
+    inset -3px -3px 6px rgba(60, 0, 0, 0.35),
+    -3px -3px 8px var(--neu-hi),
+    3px 4px 8px rgba(120, 20, 10, 0.28),
+    8px 12px 24px var(--neu-lo-far);
+}
+
+.neu-world .neu-danger:not(:disabled):active {
+  transform: scale(0.985);
+  background: linear-gradient(145deg, #9b1c13, #c9372c);
+  box-shadow:
+    inset 4px 4px 9px rgba(60, 0, 0, 0.4),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.16);
+}
+
+/* ---- Workspace ---- */
+
+/* The zoom control floats over the drawing as one raised pill. */
+.neu-world .neu-pill {
+  border-color: transparent;
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+  backdrop-filter: none;
+}
+
+/* The verdict banner keeps its colours and sits on the same light. */
+.neu-world .judgement-banner {
+  box-shadow: var(--neu-raise-sm);
+}
+
+/* The timeline: a hollow groove with a raised knob. */
+.neu-world .trace-range::-webkit-slider-runnable-track {
+  height: 6px;
+  box-shadow: var(--neu-well-sm);
+  background: linear-gradient(
+    to right,
+    var(--fill-blue) var(--fill, 0%),
+    var(--neu-surface) var(--fill, 0%)
+  );
+}
+
+.neu-world .trace-range::-moz-range-track {
+  height: 6px;
+  box-shadow: var(--neu-well-sm);
+  background: var(--neu-surface);
+}
+
+.neu-world .trace-range::-moz-range-progress {
+  height: 6px;
+  background: var(--fill-blue);
+}
+
+.neu-world .trace-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 0;
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world .trace-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+}
+
+@media (forced-colors: active) {
+  .neu-world :is(.neu-chip, .neu-select, .neu-input, .neu-field, .neu-pill, .neu-tag, .neu-nav, .neu-danger, [role="tablist"], [role="switch"]) {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ---------- Soft UI: legibility ---------- */
+
+/*
+ * Places where a control or a screen was the same colour as everything
+ * around it and only a faint shadow told them apart. Each gets a second cue
+ * that does not depend on the shadow: a recess tone, an edge, a contrasting
+ * knob, a visible groove.
+ */
+
+/* Every hollow takes the recess tone, not the surface colour. */
+.neu-world :is(.neu-well, .neu-field, .neu-input, [role="tablist"]) {
+  background-color: var(--neu-hollow);
+}
+
+.neu-world :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"], [type="hidden"], [type="file"], [type="color"]), textarea):not(.bg-transparent, .neu-input):not(.neu-flat *) {
+  background-color: var(--neu-hollow);
+}
+
+/* Screens (the trace, the 3D view, the editor, the illustrations) are framed
+   by a fine edge as well as the inner shade, so the drawing area is always
+   clear against the panel around it. */
+.neu-world .neu-screen::after {
+  box-shadow:
+    var(--neu-well),
+    inset 0 0 0 1px var(--neu-screen-edge);
+}
+
+/* The playback bar belongs to the panel, not to the screen above it. */
+.neu-world .neu-transport {
+  background: transparent;
+}
+
+/* The timeline: a real groove with a raised knob. */
+.neu-world .trace-range::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--fill-blue) var(--fill, 0%),
+    var(--neu-track) var(--fill, 0%)
+  );
+  box-shadow:
+    inset 1px 1px 2px var(--neu-lo-in),
+    inset -1px -1px 1px var(--neu-hi-in);
+}
+
+.neu-world .trace-range::-moz-range-track {
+  background: var(--neu-track);
+  box-shadow:
+    inset 1px 1px 2px var(--neu-lo-in),
+    inset -1px -1px 1px var(--neu-hi-in);
+}
+
+.neu-world .trace-range::-webkit-slider-thumb {
+  background: var(--neu-knob);
+}
+
+.neu-world .trace-range::-moz-range-thumb {
+  background: var(--neu-knob);
+}
+
+/* Switches: off is a dark groove holding a light knob; on is blue. */
+.neu-world [role="switch"][aria-checked="false"] {
+  background: var(--neu-track);
+  box-shadow:
+    inset 1px 1px 3px var(--neu-lo-in),
+    inset -1px -1px 2px var(--neu-hi-in);
+}
+
+.neu-world [role="switch"][aria-checked="false"] > span {
+  background: var(--neu-knob);
+}
+
+/* Filter chips live in a scrolling row, which clips anything outside it. A
+   chip keeps its light close so no shadow is cut into a hard-edged band. */
+.neu-world .neu-chip-track .neu-chip {
+  box-shadow:
+    var(--neu-rim),
+    -2px -2px 4px var(--neu-hi),
+    2px 3px 5px var(--neu-lo-near);
+}
+
+.neu-world .neu-chip-track .neu-chip:not(:disabled):hover {
+  box-shadow:
+    var(--neu-rim),
+    -2px -2px 5px var(--neu-hi),
+    3px 4px 7px var(--neu-lo-near);
+}
+
+.neu-world .neu-chip-track .neu-chip:is([aria-pressed="true"], [aria-current="page"]) {
+  background: var(--neu-hollow);
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world .neu-chip-track {
+  padding: 8px 6px 12px;
+}
+
+/* Progress bars (dashboard, problem map, classrooms) use the same visible
+   groove as the timeline, so the unfilled part reads in both themes. */
+.neu-world .overflow-hidden.rounded-full.bg-surface-inset:has(> .progress-fill) {
+  background: var(--neu-track);
 }

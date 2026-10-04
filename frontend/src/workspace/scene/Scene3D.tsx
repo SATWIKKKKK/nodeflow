@@ -344,7 +344,7 @@ export default function Scene3D({
           role="note"
           // Top left, clear of the zoom control in the bottom corner; worded
           // for whatever the reader is holding.
-          className="pointer-events-none absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]"
+          className="neu-tag pointer-events-none absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted shadow-[0_10px_26px_rgba(0,0,0,0.07)]"
         >
           {typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches
             ? "Drag to rotate · pinch to zoom"

@@ -175,21 +175,18 @@ export function TraceReplay() {
 
   return (
     <div ref={root} className="surface-frame overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3.5 sm:px-6">
+      <div className="neu-groove-b flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3.5 sm:px-6">
         <div className="flex items-center gap-3">
-          <span className="text-technical-mono text-primary">reverse_list.py</span>
+          <span className="font-mono text-[13px] font-medium text-primary">reverse_list.py</span>
           <span className="language-tag rounded-full border px-2.5 py-1 text-xs font-semibold leading-none">
             Python
           </span>
         </div>
-        <span className="rounded-full border border-blueprint-line px-3 py-1 text-technical-mono text-blueprint-muted">
-          Recorded trace · {count} steps
-        </span>
       </div>
 
-      <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="neu-replay-body grid lg:grid-cols-[0.85fr_1.15fr]">
         {/* Source, with the line about to run highlighted. */}
-        <div className="border-b border-blueprint-line bg-surface-inset py-4 lg:border-b-0 lg:border-r">
+        <div className="neu-screen neu-pane border-b border-blueprint-line bg-surface-inset py-4 lg:border-b-0 lg:border-r">
           <pre className="overflow-x-auto font-mono text-[13px] leading-[1.75]" aria-label="Source code">
             {codeLines.map((line, lineIndex) => {
               const number = lineIndex + 1;

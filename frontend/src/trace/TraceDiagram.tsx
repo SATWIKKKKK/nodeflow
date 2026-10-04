@@ -118,7 +118,7 @@ export function TraceDiagram({
   const tables = model.views.filter((view) => !isGraphLike(view));
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-col bg-card", className)}>
+    <div className={cn("neu-flat flex h-full min-h-0 flex-col bg-card", className)}>
       <div className="min-h-0 flex-1 overflow-auto px-5 py-5 sm:px-6">
         {/* The connector layer sits outside the zoom, so what it measures on
             screen is what it draws in. The drawing inside takes the zoom —

@@ -11,7 +11,7 @@ export default function InfoPage({ page }: { page: InfoPageContent }) {
         <div>
           <SectionHeading as="h1" eyebrow={page.eyebrow} title={page.title} lead={page.lead} />
           {page.draft && (
-            <p className="inline-flex rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted">
+            <p className="neu-tag inline-flex rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted">
               Draft · full text still being written
             </p>
           )}

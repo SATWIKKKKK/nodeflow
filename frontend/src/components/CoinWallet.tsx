@@ -124,13 +124,13 @@ export function CoinWallet({ open, onClose }: { open: boolean; onClose: () => vo
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className="wallet-card relative max-h-[88vh] w-full max-w-sm overflow-y-auto rounded-[28px] border border-blueprint-line bg-card shadow-[0_28px_80px_rgba(0,0,0,0.25)]"
+            className="wallet-card neu-panel relative max-h-[88vh] w-full max-w-sm overflow-y-auto rounded-[28px] border border-blueprint-line bg-card shadow-[0_28px_80px_rgba(0,0,0,0.25)]"
           >
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="no-lift absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-blueprint-muted hover:bg-surface-hover hover:text-primary"
+              className="neu-ghost no-lift absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-blueprint-muted hover:bg-surface-hover hover:text-primary"
               style={{ minHeight: 0 }}
             >
               <X size={16} aria-hidden />
@@ -146,7 +146,7 @@ export function CoinWallet({ open, onClose }: { open: boolean; onClose: () => vo
 
             <div className="px-6 pb-6">
               {failed ? (
-                <p className="rounded-xl border border-blueprint-line px-4 py-3 text-sm text-blueprint-muted">
+                <p className="neu-well rounded-xl border border-blueprint-line px-4 py-3 text-sm text-blueprint-muted">
                   Could not load where your coins came from. Try again in a moment.
                 </p>
               ) : !data ? (

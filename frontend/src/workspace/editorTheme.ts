@@ -21,25 +21,26 @@ interface Palette {
   invalid: string;
 }
 
+// Surfaces match the soft-UI screen paper (--card in .neu-world, index.css).
 const light: Palette = {
-  surface: "#ffffff",
+  surface: "#f4f1f0",
   ink: "#1a1a1a",
   literal: "#4d4d4d",
-  muted: "#9a9292",
+  muted: "#857d7d",
   punctuation: "#6b6464",
-  selection: "#ece8e8",
-  match: "#f3f0f0",
+  selection: "#e4dedd",
+  match: "#ebe6e5",
   invalid: "#b91c1c"
 };
 
 const dark: Palette = {
-  surface: "#171717",
+  surface: "#121111",
   ink: "#f4f4f4",
   literal: "#b7b7b7",
   muted: "#6f6f6f",
   punctuation: "#9a9a9a",
-  selection: "#2c2c2c",
-  match: "#202020",
+  selection: "#2a2727",
+  match: "#1d1b1b",
   invalid: "#fca5a5"
 };
 
@@ -69,7 +70,10 @@ const build = (colors: Palette, isDark: boolean): Extension => {
       },
       "&.cm-focused": { outline: "none" },
       ".cm-scroller": {
-        fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+        // The same self-hosted JetBrains Mono as every other code surface (index.css).
+        fontFamily: "var(--font-mono)",
+        // Show exactly what was typed: no `!=` drawn as ≠, no `->` as an arrow.
+        fontVariantLigatures: "none",
         fontSize: "13.5px",
         lineHeight: "1.7",
         // Smooth, rather than instant, when playback scrolls a line into view.

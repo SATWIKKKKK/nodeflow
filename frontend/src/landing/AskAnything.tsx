@@ -60,7 +60,7 @@ export function AskAnything() {
   };
 
   return (
-    <div className="rounded-xl border border-blueprint-line bg-card p-5 shadow-[0_10px_26px_rgba(0,0,0,0.06)] sm:p-6">
+    <div className="neu-panel rounded-xl border border-blueprint-line bg-card p-5 shadow-[0_10px_26px_rgba(0,0,0,0.06)] sm:p-6">
       <p className="text-technical-mono text-blueprint-muted">Ask me anything</p>
 
       <AnimatePresence mode="wait" initial={false}>
@@ -109,7 +109,7 @@ export function AskAnything() {
               rows={3}
               placeholder="Does the tracer work for recursion?"
               disabled={busy}
-              className="mt-3 w-full resize-none rounded-lg border border-blueprint-line bg-surface-inset px-4 py-3 text-body-md text-primary outline-none transition-colors placeholder:text-blueprint-muted/70 focus:border-primary disabled:opacity-60"
+              className="neu-field mt-3 w-full resize-none rounded-lg border border-blueprint-line bg-surface-inset px-4 py-3 text-body-md text-primary outline-none transition-colors placeholder:text-blueprint-muted/70 focus:border-primary disabled:opacity-60"
             />
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

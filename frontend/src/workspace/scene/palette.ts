@@ -19,10 +19,11 @@ export interface ScenePalette {
 }
 
 export const scenePalettes: Record<ResolvedTheme, ScenePalette> = {
+  // Backgrounds match the soft-UI screen paper (--card in .neu-world, index.css).
   light: {
-    background: "#ffffff",
-    gridCell: "#ece8e8",
-    gridSection: "#d9d2d2",
+    background: "#f4f1f0",
+    gridCell: "#e6e1e0",
+    gridSection: "#d3cbca",
     shadowOpacity: 0.12,
     // Blue blocks on the light canvas; the active one goes deeper, not darker.
     node: new THREE.Color("#2f6fe0"),
@@ -34,9 +35,9 @@ export const scenePalettes: Record<ResolvedTheme, ScenePalette> = {
     edgeActive: new THREE.Color("#2f6fe0")
   },
   dark: {
-    background: "#171717",
-    gridCell: "#232323",
-    gridSection: "#343434",
+    background: "#121111",
+    gridCell: "#1d1c1c",
+    gridSection: "#2e2c2c",
     shadowOpacity: 0.4,
     // The hero word's blue on the dark canvas; the active one is brighter still.
     node: new THREE.Color("#9ecbff"),

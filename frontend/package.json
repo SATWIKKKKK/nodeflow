@@ -17,6 +17,7 @@
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.38.1",
     "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@lezer/highlight": "^1.2.3",
     "@nodeflow/shared": "0.1.0",
     "@react-three/drei": "^10.7.8",

@@ -56,10 +56,9 @@ function SideLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       title={collapsed ? item.label : undefined}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-3 rounded-lg border-l-2 border-transparent px-4 py-3 text-ui-label transition-colors",
-          isActive
-            ? "border-[var(--fill-blue)] bg-[color-mix(in_oklab,var(--fill-blue)_12%,transparent)] font-semibold text-[var(--fill-blue)]"
-            : "text-blueprint-muted hover:bg-surface-hover hover:text-primary",
+          // Raised on hover, pressed in and blue when current (index.css, .neu-nav).
+          "neu-nav flex items-center gap-3 rounded-lg px-4 py-3 text-ui-label transition-colors",
+          isActive ? "font-semibold text-[var(--fill-blue)]" : "text-blueprint-muted hover:text-primary",
           collapsed && "justify-center px-0"
         )
       }
@@ -92,7 +91,7 @@ function SidebarBody({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="no-lift flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-blueprint-muted transition-colors hover:bg-surface-hover hover:text-primary"
+            className="neu-ghost no-lift flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-blueprint-muted transition-colors hover:bg-surface-hover hover:text-primary"
             style={{ minHeight: 0 }}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -158,7 +157,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
         initial={false}
         animate={{ width: collapsed ? 84 : 280 }}
         transition={{ duration: 0.24, ease: "easeOut" }}
-        className="relative hidden shrink-0 overflow-hidden border-r border-blueprint-line bg-background lg:block"
+        className="neu-groove-r relative hidden shrink-0 overflow-hidden border-r border-blueprint-line bg-background lg:block"
       >
         <SidebarBody collapsed={collapsed} onToggleCollapse={toggleCollapse} />
       </motion.aside>
@@ -177,7 +176,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               role="dialog"
               aria-modal="true"
               aria-label="Navigation"
-              className="fixed inset-y-0 left-0 z-50 w-[280px] border-r border-blueprint-line bg-background lg:hidden"
+              className="neu-drawer fixed inset-y-0 left-0 z-50 w-[280px] border-r border-blueprint-line bg-background lg:hidden"
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}

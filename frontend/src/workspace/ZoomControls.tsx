@@ -36,7 +36,7 @@ export function ZoomControls({
   return (
     <div
       className={cn(
-        "flex items-center gap-0.5 rounded-full border border-blueprint-line bg-card/90 px-1 py-0.5 backdrop-blur",
+        "neu-pill flex items-center gap-0.5 rounded-full border border-blueprint-line bg-card/90 px-1 py-0.5 backdrop-blur",
         className
       )}
     >

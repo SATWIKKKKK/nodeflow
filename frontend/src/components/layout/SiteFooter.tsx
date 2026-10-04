@@ -40,7 +40,7 @@ const groups: Array<{ title: string; links: Array<{ to: string; label: string }>
 
 export function SiteFooter() {
   return (
-    <footer className="relative z-10 border-t border-blueprint-line bg-background py-10">
+    <footer className="neu-groove-t relative z-10 border-t border-blueprint-line bg-background py-10">
       <div className={`${container} grid gap-10 lg:grid-cols-[1.1fr_2fr]`}>
         <div className="max-w-sm">
           <Logo markClassName="h-8" />

@@ -110,7 +110,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-xl border border-blueprint-line bg-card shadow-[0_10px_26px_rgba(0,0,0,0.06)]">
+    <div className="neu-panel rounded-xl border border-blueprint-line bg-card shadow-[0_10px_26px_rgba(0,0,0,0.06)]">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -157,7 +157,7 @@ function Section({
       id={id}
       className={cn(
         "pointer-events-auto py-16 sm:py-20",
-        ruled && "border-y border-blueprint-line bg-background/70",
+        ruled && "neu-ruled border-y border-blueprint-line bg-background/70",
         className
       )}
     >
@@ -242,11 +242,11 @@ export default function LandingPage() {
             Replay every line your code ran, and point at exactly where the pointer went wrong.
           </p>
 
-          <div className="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+          <div className="mt-9 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row sm:gap-5">
             <NavLink to="/problems" className={cn(button.hero, "w-full sm:w-auto")}>
               Open a problem <ArrowRight size={14} aria-hidden />
             </NavLink>
-            <a href="#replay" className={cn(button.outline, "w-full sm:w-auto")}>
+            <a href="#replay" className={cn(button.outline, "w-full py-3.5 sm:w-auto")}>
               Watch a real trace
             </a>
           </div>
@@ -277,8 +277,8 @@ export default function LandingPage() {
             {steps.map((step) => {
               const Scene = step.scene;
               return (
-                <li key={step.title} className="border-l border-blueprint-line pl-5">
-                  <div className="mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
+                <li key={step.title} className="neu-groove-l border-l border-blueprint-line pl-5">
+                  <div className="neu-screen mb-6 max-w-55 overflow-hidden rounded-lg border border-blueprint-line">
                     <Scene />
                   </div>
                   <h3 className="text-headline-sm text-primary">{step.title}</h3>
@@ -316,7 +316,7 @@ export default function LandingPage() {
                   className="surface-card transition-transform duration-200 hover:-translate-y-1"
                 >
                   {Graphic && (
-                    <div className="mb-6 overflow-hidden rounded-lg border border-blueprint-line">
+                    <div className="neu-screen mb-6 overflow-hidden rounded-lg border border-blueprint-line">
                       <Graphic />
                     </div>
                   )}
@@ -409,13 +409,13 @@ export default function LandingPage() {
           <div className="flex flex-col gap-3 lg:w-64 lg:shrink-0">
             <NavLink
               to="/workspace/reverse-linked-list"
-              className="lift landing-cta-button inline-flex items-center justify-center gap-2 rounded-full border px-8 py-3.5 text-ui-label"
+              className="lift neu-key landing-cta-button inline-flex items-center justify-center gap-2 rounded-full border px-8 py-3.5 text-ui-label"
             >
               Open the workspace <ArrowRight size={14} aria-hidden />
             </NavLink>
             <NavLink
               to="/problems"
-              className="landing-cta-secondary inline-flex items-center justify-center rounded-full border px-6 py-3 text-ui-label transition-colors"
+              className="neu-btn landing-cta-secondary inline-flex items-center justify-center rounded-full border px-6 py-3 text-ui-label transition-colors"
             >
               Browse all problems
             </NavLink>

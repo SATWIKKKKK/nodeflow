@@ -63,23 +63,27 @@ const HAIRLINE = 1;
 
 /** Dotless i, used only when the display font actually has the glyph. */
 const DOTLESS = "ı";
-const HEADLINE_FONT = 'italic 400 40px "Instrument Serif"';
 
 /**
  * Whether the headline font can draw U+0131. Measured rather than assumed: the
  * face has to be loaded first, because canvas will not pull a webfont in on its
- * own and an unloaded face measures exactly like a missing glyph.
+ * own and an unloaded face measures exactly like a missing glyph. The font is
+ * read off the word itself, since the landing page and the rest of the site set
+ * the headline in different faces.
  */
-async function fontHasDotlessI() {
+async function fontHasDotlessI(word: HTMLElement | null) {
   try {
-    const faces = await document.fonts?.load(HEADLINE_FONT, DOTLESS);
+    if (!word) return false;
+    const style = getComputedStyle(word);
+    const headlineFont = `${style.fontStyle} ${style.fontWeight} 40px ${style.fontFamily}`;
+    const faces = await document.fonts?.load(headlineFont, DOTLESS);
     if (!faces?.length) return false;
 
     const context = document.createElement("canvas").getContext("2d");
     if (!context) return false;
-    context.font = HEADLINE_FONT;
+    context.font = headlineFont;
     const present = context.measureText(DOTLESS).width;
-    context.font = 'italic 400 40px "__nf_absent_family__"';
+    context.font = `${style.fontStyle} ${style.fontWeight} 40px "__nf_absent_family__"`;
     const fallback = context.measureText(DOTLESS).width;
 
     // Were the glyph missing, both measurements would come from the same
@@ -132,7 +136,7 @@ export function RewireWord({
   useEffect(() => {
     if (!iDot) return;
     let live = true;
-    fontHasDotlessI().then((supported) => {
+    fontHasDotlessI(wordRef.current).then((supported) => {
       if (live) setDotless(supported);
     });
     return () => {
