@@ -3,13 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Noesis — watch your own code run</title>
+    <!--
+      Search and share metadata. These are the defaults for the landing page;
+      every route sets its own title, description, canonical and robots
+      (src/lib/seo.ts), and the public pages are prerendered with them at
+      build time (scripts/prerender.mjs). __SITE_URL__ is filled in by the
+      Vite config from VITE_SITE_URL.
+    -->
+    <title>Noesis — See your DSA code run, line by line</title>
     <meta
       name="description"
-      content="Noesis runs your Python, C++ or Java in a sandbox, traces every object at every line, and replays your data structures step by step."
+      content="Noesis runs your Python, C++ or Java in a sandbox and replays every pointer, array and tree your code touched. 372 data structures and algorithms problems, free."
     />
-    <meta name="theme-color" content="#fbf9f9" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="__SITE_URL__/" />
+    <meta name="application-name" content="Noesis" />
+    <meta name="author" content="Satwik Chandra" />
+    <meta name="theme-color" content="#e9e5e4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1919" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Noesis" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:title" content="Noesis — See your DSA code run, line by line" />
+    <meta
+      property="og:description"
+      content="Noesis runs your Python, C++ or Java in a sandbox and replays every pointer, array and tree your code touched. 372 data structures and algorithms problems, free."
+    />
+    <meta property="og:image" content="__SITE_URL__/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Noesis: a linked list being reversed, replayed from a real run." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Noesis — See your DSA code run, line by line" />
+    <meta
+      name="twitter:description"
+      content="Noesis runs your Python, C++ or Java in a sandbox and replays every pointer, array and tree your code touched."
+    />
+    <meta name="twitter:image" content="__SITE_URL__/og.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "__SITE_URL__/#organization",
+            "name": "Noesis",
+            "url": "__SITE_URL__/",
+            "logo": "__SITE_URL__/apple-touch-icon.png",
+            "email": "satwikchandra65@gmail.com",
+            "telephone": "+91-9064226986",
+            "founder": { "@type": "Person", "name": "Satwik Chandra" }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "__SITE_URL__/#website",
+            "name": "Noesis",
+            "alternateName": "Noesis DSA",
+            "url": "__SITE_URL__/",
+            "publisher": { "@id": "__SITE_URL__/#organization" },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "__SITE_URL__/#app",
+            "name": "Noesis",
+            "url": "__SITE_URL__/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web browser",
+            "description": "A data structures and algorithms practice workspace that runs your Python, C++ or Java in a sandbox and replays every step of your own code as a diagram.",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "publisher": { "@id": "__SITE_URL__/#organization" },
+            "featureList": [
+              "Step-by-step tracing of your own code in Python, C++ and Java",
+              "Linked lists, arrays, stacks, queues, trees, graphs, grids and maps drawn from the real heap",
+              "Run, Test and Submit against visible and hidden cases",
+              "372 data structures and algorithms problems"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "__SITE_URL__/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Do I need an account?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes, a free one: email and a password, nothing else. It opens the problem bank and the workspace, and keeps every submission and solved problem under your name." }
+              },
+              {
+                "@type": "Question",
+                "name": "Which languages can I use?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Python, C++ and Java. All three run in the sandbox, are judged against the same tests, and produce the same step-by-step visual trace." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is it safe to run my code?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Every run gets its own container with no network, one CPU, a memory cap, a read-only filesystem and no extra privileges. The container is deleted when the run ends." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
@@ -31,6 +131,12 @@
   <!-- neu-world: the soft-UI material every page is made of (index.css, "Soft UI"). -->
   <body class="neu-world">
     <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 24px; max-width: 640px; margin: 0 auto">
+        Noesis is a data structures and algorithms practice workspace: write Python, C++ or Java, run it in a
+        sandbox, and replay every step of your own code as a diagram. Turn on JavaScript to use it.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

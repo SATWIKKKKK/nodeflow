@@ -38,3 +38,44 @@ export function labelTexture(label: string, color: string): THREE.CanvasTexture 
   cache.set(key, texture);
   return texture;
 }
+
+const tagCache = new Map<string, { texture: THREE.CanvasTexture; aspect: number }>();
+
+/**
+ * A variable-name tag (`head`, `current`): a filled pill, sized to its text,
+ * so the pointers read the same way they do in the 2D diagram.
+ */
+export function tagTexture(text: string, fill: string, ink: string) {
+  const key = `${fill}|${ink}|${text}`;
+  const existing = tagCache.get(key);
+  if (existing) return existing;
+
+  const height = 96;
+  const font = "600 52px 'JetBrains Mono', ui-monospace, monospace";
+  const measure = document.createElement("canvas").getContext("2d")!;
+  measure.font = font;
+  const width = Math.ceil(measure.measureText(text).width + 64);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d")!;
+  context.fillStyle = fill;
+  context.beginPath();
+  context.roundRect(2, 2, width - 4, height - 4, (height - 4) / 2);
+  context.fill();
+  context.fillStyle = ink;
+  context.font = font;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, width / 2, height / 2 + 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.anisotropy = 4;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+
+  const made = { texture, aspect: width / height };
+  tagCache.set(key, made);
+  return made;
+}

@@ -8,7 +8,7 @@ import { getProblem, problems, publicProblem } from "./problems/seeds.js";
 import {
   MAX_TERM,
   createVariant,
-  getVariant,
+  fetchVariant,
   loadVariants,
   variantProblems,
   variantsEnabled
@@ -32,7 +32,7 @@ import { progressForUser } from "./progress/summary.js";
 import { clearDraft, draftFor, saveDraft, touchDraft, unfinishedFor } from "./progress/drafts.js";
 import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
 import { readSubmissions } from "./progress/summary.js";
-import { AskError, MAX_QUESTION, answerQuestion, askEnabled, greetingReply, withinRateLimit } from "./ask/deepseek.js";
+import { AskError, MAX_QUESTION, answerQuestion, askEnabled, cachedAnswer, greetingReply, rateLimitWait } from "./ask/deepseek.js";
 
 export const app = express();
 
@@ -95,6 +95,40 @@ const authToken = (header: string | undefined) => {
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+/**
+ * Running code, and changing a problem, are for signed-in learners only. The
+ * landing page, the explainers and the assistant stay public; everything that
+ * starts a sandbox or a rewrite needs an account, checked here rather than
+ * trusted to the browser.
+ */
+const SIGNED_IN_ONLY = [
+  "/api/run",
+  "/api/live-preview",
+  "/api/expected",
+  "/api/test",
+  "/api/submit"
+];
+app.use(async (request, response, next) => {
+  const gated =
+    request.method === "POST" &&
+    (SIGNED_IN_ONLY.includes(request.path) || /^\/api\/problems\/[^/]+\/variant$/.test(request.path));
+  if (!gated || process.env.NOESIS_ACCOUNTS === "off") {
+    next();
+    return;
+  }
+  try {
+    if (await userForToken(authToken(request.headers.authorization))) {
+      next();
+      return;
+    }
+  } catch (error) {
+    console.error("Could not check the session", error);
+    response.status(503).json({ message: "Sign-in could not be checked just now. Try again in a moment." });
+    return;
+  }
+  response.status(401).json({ message: "Sign in to run code on Noesis." });
+});
+
 const sandboxEnabled = process.env.NOESIS_SANDBOX !== "off";
 const accountsEnabled = process.env.NOESIS_ACCOUNTS !== "off";
 const accountsOff = (response: express.Response) =>
@@ -136,10 +170,11 @@ app.post("/api/ask", async (request, response) => {
     return;
   }
 
-  // A greeting needs no model, no key and no rate-limit slot.
-  const greeting = greetingReply(parsed.data.question);
-  if (greeting) {
-    response.json({ answer: greeting });
+  // A greeting, or a question already answered, needs no model call and
+  // spends no one's budget.
+  const ready = greetingReply(parsed.data.question) ?? cachedAnswer(parsed.data.question);
+  if (ready) {
+    response.json({ answer: ready });
     return;
   }
 
@@ -152,8 +187,11 @@ app.post("/api/ask", async (request, response) => {
     request.headers["x-forwarded-for"] ?? request.socket.remoteAddress ?? "unknown"
   ).split(",")[0].trim();
 
-  if (!withinRateLimit(caller)) {
-    response.status(429).json({ message: "That is a lot of questions. Try again in a few minutes." });
+  const askWait = rateLimitWait("ask", caller);
+  if (askWait) {
+    response.status(429).json({
+      message: `That is 20 questions in ten minutes, the most one person can ask in that time. Ask again in ${askWait} minute${askWait === 1 ? "" : "s"}.`
+    });
     return;
   }
 
@@ -182,7 +220,8 @@ const problemIndex = problems.map(({ id, title, topic, difficulty, structureType
 }));
 
 /** A variant is a problem like any other once it exists. */
-const findProblem = (id: string) => getProblem(id) ?? getVariant(id);
+/** A seeded problem, or a variant from any instance (see loadVariants). */
+const findProblem = async (id: string) => getProblem(id) ?? (await fetchVariant(id));
 
 const indexEntry = (problem: { id: string; title: string; topic: string; difficulty: string; structureType: string }) => ({
   id: problem.id,
@@ -215,16 +254,19 @@ app.post("/api/problems/:id/variant", async (request, response) => {
     return;
   }
 
-  await loadVariants();
-  const source = findProblem(request.params.id);
+  await loadVariants(true);
+  const source = await findProblem(request.params.id);
   if (!source) {
     response.status(404).json({ message: "Problem not found." });
     return;
   }
 
   const caller = String(request.headers["x-forwarded-for"] ?? request.socket.remoteAddress ?? "unknown");
-  if (!withinRateLimit(caller)) {
-    response.status(429).json({ message: "Too many changes just now. Try again in a few minutes." });
+  const changeWait = rateLimitWait("variant", caller.split(",")[0].trim());
+  if (changeWait) {
+    response.status(429).json({
+      message: `That is the most changes one person can make in ten minutes. Try again in ${changeWait} minute${changeWait === 1 ? "" : "s"}.`
+    });
     return;
   }
 
@@ -250,8 +292,8 @@ app.post("/api/problems/:id/variant", async (request, response) => {
   response.end();
 });
 
-app.get("/api/problems/:id", (request, response) => {
-  const problem = findProblem(request.params.id);
+app.get("/api/problems/:id", async (request, response) => {
+  const problem = await findProblem(request.params.id);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -366,7 +408,7 @@ app.post("/api/run", async (request, response) => {
     return;
   }
 
-  const problem = findProblem(parsed.data.problemId);
+  const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -394,7 +436,7 @@ app.post("/api/live-preview", async (request, response) => {
     return;
   }
 
-  const problem = findProblem(parsed.data.problemId);
+  const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -426,7 +468,7 @@ app.post("/api/expected", async (request, response) => {
     return;
   }
 
-  const problem = findProblem(parsed.data.problemId);
+  const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -448,7 +490,7 @@ app.post("/api/test", async (request, response) => {
     return;
   }
 
-  const problem = findProblem(parsed.data.problemId);
+  const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -464,7 +506,7 @@ app.post("/api/submit", async (request, response) => {
     return;
   }
 
-  const problem = findProblem(parsed.data.problemId);
+  const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
     response.status(404).json({ message: "Problem not found." });
     return;
@@ -539,7 +581,7 @@ app.put("/api/drafts/:problemId", async (request, response) => {
     return;
   }
   const problemId = String(request.params.problemId);
-  if (!findProblem(problemId)) {
+  if (!await findProblem(problemId)) {
     response.status(404).json({ message: "Problem not found." });
     return;
   }
@@ -560,7 +602,7 @@ app.post("/api/drafts/:problemId/touch", async (request, response) => {
   }
   const problemId = String(request.params.problemId);
   const parsed = touchSchema.safeParse(request.body ?? {});
-  if (!findProblem(problemId) || !parsed.success) {
+  if (!(await findProblem(problemId)) || !parsed.success) {
     response.status(400).json({ message: "Unknown problem or invalid request." });
     return;
   }
@@ -583,7 +625,7 @@ app.post("/api/drafts/sync", async (request, response) => {
   let kept = 0;
   for (const entry of parsed.data.entries) {
     // A problem the server no longer has is skipped rather than failing the batch.
-    if (!findProblem(entry.problemId)) continue;
+    if (!await findProblem(entry.problemId)) continue;
     await touchDraft(user.id, entry.problemId, entry.language, entry.at);
     kept += 1;
   }

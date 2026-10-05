@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
+import { prerender } from "./prerender.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = path.join(root, ".vercel", "output");
@@ -25,6 +26,10 @@ fs.rmSync(output, { recursive: true, force: true });
 run("npm run build --workspace shared");
 run("npm run build --workspace frontend");
 copy(path.join(root, "frontend", "dist"), path.join(output, "static"));
+
+// Public pages as real HTML for search engines and link previews. Without
+// Chromium this returns null and every route serves the plain shell.
+const overrides = await prerender(path.join(root, "frontend", "dist"), path.join(output, "static"));
 
 await build({
   entryPoints: [path.join(root, "backend", "src", "vercel.ts")],
@@ -65,11 +70,15 @@ fs.writeFileSync(
   JSON.stringify(
     {
       version: 3,
+      // `about.html` is served at /about, and so on for each prerendered page.
+      ...(overrides ? { overrides } : {}),
       routes: [
         { src: "/api/(.*)", dest: "/api" },
         { src: "/assets/(.*)", headers: { "cache-control": "public, max-age=31536000, immutable" }, continue: true },
         { handle: "filesystem" },
-        { src: "/(.*)", dest: "/index.html" }
+        // Everything else is the app: the plain shell when the landing page
+        // has been prerendered into index.html, the shell itself otherwise.
+        { src: "/(.*)", dest: overrides ? "/app.html" : "/index.html" }
       ]
     },
     null,

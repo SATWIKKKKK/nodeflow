@@ -49,7 +49,7 @@ THE WORKSPACE: a problem statement, a code editor (can go fullscreen; code can b
 
 SAFETY: every run gets its own isolated sandbox with no network access, one CPU, a memory cap, a time limit, a read-only filesystem and no extra privileges; it is deleted when the run ends. Runs wait in a bounded queue instead of starting unlimited sandboxes.
 
-ACCOUNTS: optional. Run, Test and Submit work without one. An account (email and password) keeps your submissions, solved problems and progress under your name. Passwords are stored only as salted scrypt hashes; session tokens only as hashes. Password reset sends a one-time link that expires in an hour. Google sign-in is planned, not available.
+ACCOUNTS: a free account (email and password) is needed for the problem bank, the workspace, Run, Test, Submit, progress, classrooms and pricing. The landing page, how it works, the tracing explainer, about, contact, privacy, terms and security pages are open to everyone. An account (email and password) keeps your submissions, solved problems and progress under your name. Passwords are stored only as salted scrypt hashes; session tokens only as hashes. Password reset sends a one-time link that expires in an hour. Google sign-in is planned, not available.
 
 YOUR PROGRESS: a dashboard built from your submissions (attempted, accepted, share of the bank cleared, coverage by structure, recent submissions), a problem map showing coverage per topic, and "Continue solving", which keeps every problem you opened but have not solved, with your code exactly as you left it.
 
@@ -59,11 +59,13 @@ CLASSROOMS: anyone signed in can open a classroom and becomes its owner. The own
 
 FINDING PROBLEMS: the Problems page filters by title, topic, difficulty and (when signed in) status, and the problem map groups the bank by topic.
 
+CONTACT: Satwik Chandra builds Noesis. Email satwikchandra65@gmail.com (best, answered first) or phone +91-9064226986. The Contact page lists both.
+
 PRICING: everything is free today, classrooms included. Paid plans for larger courses and teams are planned; their prices and dates are not decided, and there is no payment system yet.
 
 ROADMAP (planned, no dates): paid plans with reserved sandbox capacity, private problem banks for teams, AI hints, Google sign-in.
 
-NOT AVAILABLE: no mobile app, no other languages beyond Python, C++ and Java, no contests or leaderboards, no public user profiles, no AI hints yet, no published contact channel yet. Noesis has no affiliation with any other DSA course or platform.
+NOT AVAILABLE: no mobile app, no other languages beyond Python, C++ and Java, no contests or leaderboards, no public user profiles, no AI hints yet. Noesis has no affiliation with any other DSA course or platform.
 `.trim();
 
 export const noesisKnowledge = () => `${SHEET}\n\n${bankFacts()}`;

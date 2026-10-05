@@ -7,7 +7,6 @@ const groups: Array<{ title: string; links: Array<{ to: string; label: string }>
     title: "Product",
     links: [
       { to: "/problems", label: "Problems" },
-      { to: "/workspace", label: "Workspace" },
       { to: "/dashboard", label: "Dashboard" },
       { to: "/problem-map", label: "Problem map" }
     ]

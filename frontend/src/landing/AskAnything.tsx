@@ -110,7 +110,10 @@ export function AskAnything() {
               id="ask-question"
               ref={inputRef}
               value={question}
-              onChange={(event) => setQuestion(event.target.value.slice(0, MAX_QUESTION))}
+              onChange={(event) => {
+                setQuestion(event.target.value.slice(0, MAX_QUESTION));
+                if (error) setError("");
+              }}
               onKeyDown={(event) => {
                 // Enter sends; Shift+Enter is a newline.
                 if (event.key === "Enter" && !event.shiftKey) {

@@ -43,8 +43,31 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * The signed-in session's token, read where the session keeps it.
+ *
+ * Attached to every request that does not set one itself, so no call can
+ * forget it: a signed-in learner is never turned away by an endpoint that
+ * simply was not handed the token.
+ */
+const storedToken = (): string | null => {
+  try {
+    const raw = window.localStorage.getItem("noesis:session");
+    return raw ? ((JSON.parse(raw) as { token?: string }).token ?? null) : null;
+  } catch {
+    return null;
+  }
+};
+
+const withSession = (init?: RequestInit): RequestInit => {
+  const headers = new Headers(init?.headers);
+  const token = storedToken();
+  if (token && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+  return { ...init, headers };
+};
+
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
-  const response = await fetch(`${API_BASE}${path}`, init);
+  const response = await fetch(`${API_BASE}${path}`, withSession(init));
   if (!response.ok) {
     const text = await response.text();
     throw new ApiError(text || `Request failed with ${response.status}`, response.status);
@@ -85,11 +108,14 @@ export const api = {
     replacement: string,
     onStage: (stage: VariantStage) => void = () => {}
   ): Promise<VariantOutcome> => {
-    const response = await fetch(`/api/problems/${encodeURIComponent(problemId)}/variant`, {
-      method: "POST",
-      headers: jsonHeaders,
-      body: JSON.stringify({ term, replacement })
-    });
+    const response = await fetch(
+      `${API_BASE}/api/problems/${encodeURIComponent(problemId)}/variant`,
+      withSession({
+        method: "POST",
+        headers: jsonHeaders,
+        body: JSON.stringify({ term, replacement })
+      })
+    );
     if (!response.ok || !response.body) {
       const message = await response.json().catch(() => ({ message: "That change could not be made." }));
       throw new Error((message as { message?: string }).message ?? "That change could not be made.");

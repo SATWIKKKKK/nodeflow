@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { AuthLayout } from "./components/layout/AuthLayout";
@@ -9,6 +9,7 @@ import { INFO_PAGES } from "./pages/infoPages";
 import { useSession } from "./lib/session";
 import { CoinsSync } from "./lib/coins";
 import { CoinCelebration } from "./components/CoinCelebration";
+import { useRouteMeta } from "./lib/seo";
 
 const LandingPage = lazy(() => import("./landing/LandingPage"));
 const WorkspacePage = lazy(() => import("./workspace/WorkspacePage"));
@@ -56,6 +57,29 @@ function ScrollToTop() {
 }
 
 /**
+ * Pages anyone may read. Everything else, the problem bank, the workspace,
+ * progress, classrooms, pricing and the roadmap, is for signed-in learners.
+ */
+const PUBLIC_INFO = new Set(["/about", "/contact", "/privacy", "/terms", "/security"]);
+
+/**
+ * Lets a signed-in learner straight through and sends anyone else to sign in,
+ * then back to where they were going.
+ *
+ * The session is read from storage before the first render, so a learner who
+ * has signed in once is never bounced while it is being checked; only a token
+ * the server has actually rejected (or signing out) ends it.
+ */
+function RequireAuth({ children }: { children: ReactNode }) {
+  const session = useSession();
+  const location = useLocation();
+  if (session.user) return <>{children}</>;
+  if (session.loading) return <PageLoader className="min-h-screen" />;
+  const next = `${location.pathname}${location.search}${location.hash}`;
+  return <Navigate to={`/signin?next=${encodeURIComponent(next)}`} replace />;
+}
+
+/**
  * Home is the dashboard for anyone signed in: they have a record and unfinished
  * problems to get back to, and the pitch on the landing page is for newcomers.
  */
@@ -66,6 +90,7 @@ function Home() {
 }
 
 export default function App() {
+  useRouteMeta();
   return (
     <>
       <RouteProgress />
@@ -80,9 +105,28 @@ export default function App() {
         <Route element={<MarketingLayout />}>
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/tracing" element={<TracingPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
+          <Route
+            path="/pricing"
+            element={
+              <RequireAuth>
+                <PricingPage />
+              </RequireAuth>
+            }
+          />
           {INFO_PAGES.map((page) => (
-            <Route key={page.path} path={page.path} element={<InfoPage page={page} />} />
+            <Route
+              key={page.path}
+              path={page.path}
+              element={
+                PUBLIC_INFO.has(page.path) ? (
+                  <InfoPage page={page} />
+                ) : (
+                  <RequireAuth>
+                    <InfoPage page={page} />
+                  </RequireAuth>
+                )
+              }
+            />
           ))}
         </Route>
 
@@ -94,7 +138,13 @@ export default function App() {
           <Route path="/reset-password" element={<AuthPage mode="reset" />} />
         </Route>
 
-        <Route element={<AppShell />}>
+        <Route
+          element={
+            <RequireAuth>
+              <AppShell />
+            </RequireAuth>
+          }
+        >
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/problem-map" element={<ProblemMapPage />} />
@@ -107,9 +157,11 @@ export default function App() {
         <Route
           path="/workspace/:problemId?"
           element={
-            <Suspense fallback={<PageLoader className="min-h-screen" />}>
-              <WorkspacePage />
-            </Suspense>
+            <RequireAuth>
+              <Suspense fallback={<PageLoader className="min-h-screen" />}>
+                <WorkspacePage />
+              </Suspense>
+            </RequireAuth>
           }
         />
 
@@ -117,9 +169,11 @@ export default function App() {
         <Route
           path="/dev/graphics"
           element={
-            <Suspense fallback={<PageLoader className="min-h-screen" />}>
-              <DevGraphicsPage />
-            </Suspense>
+            <RequireAuth>
+              <Suspense fallback={<PageLoader className="min-h-screen" />}>
+                <DevGraphicsPage />
+              </Suspense>
+            </RequireAuth>
           }
         />
 

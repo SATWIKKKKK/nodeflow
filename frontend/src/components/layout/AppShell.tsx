@@ -10,7 +10,6 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Terminal,
   Users,
   Workflow,
   X,
@@ -33,7 +32,6 @@ interface NavItem {
 
 const primaryNav: NavItem[] = [
   { to: "/problems", label: "Problems", icon: ListChecks },
-  { to: "/workspace", label: "Workspace", icon: Terminal },
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/problem-map", label: "Problem map", icon: Layers3 },
   { to: "/classrooms", label: "Classrooms", icon: Users }
@@ -209,7 +207,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
             >
               <Menu size={16} aria-hidden />
             </button>
-            <div className="hidden min-w-0 flex-1 justify-start lg:flex">
+            <div className="flex min-w-0 flex-1 justify-start">
               <ProblemSearch />
             </div>
             <div className="ml-auto flex items-center gap-4 lg:ml-0">
@@ -217,9 +215,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
               <ThemeToggle />
               <AccountMenu />
             </div>
-          </div>
-          <div className="px-4 pb-3 sm:px-6 lg:hidden">
-            <ProblemSearch compact={false} className="max-w-none" />
           </div>
         </header>
 

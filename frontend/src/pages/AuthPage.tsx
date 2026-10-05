@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import { api } from "../lib/api";
 import { useServerStatus } from "../lib/serverStatus";
@@ -17,7 +17,7 @@ const copy: Record<Mode, { title: string; lead: string; action: string }> = {
   },
   signup: {
     title: "Create your account.",
-    lead: "Free, and optional: an account keeps every submission and accepted problem on your record.",
+    lead: "Free. An account opens the problem bank and the workspace, and keeps every submission and accepted problem on your record.",
     action: "Create account"
   },
   forgot: {
@@ -64,6 +64,14 @@ export default function AuthPage({ mode }: { mode: Mode }) {
   const [busy, setBusy] = useState(false);
 
   const text = copy[mode];
+  const next = params.get("next");
+  // Switching between sign in and sign up keeps where the learner was going.
+  const withNext = (path: string) => (next ? `${path}?next=${encodeURIComponent(next)}` : path);
+
+  // Already signed in: there is nothing to do here, so carry on.
+  if (session.user && (mode === "signin" || mode === "signup")) {
+    return <Navigate to={safeNext(next)} replace />;
+  }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -199,17 +207,17 @@ export default function AuthPage({ mode }: { mode: Mode }) {
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
         {mode !== "signin" && (
-          <NavLink to="/signin" className={button.text}>
+          <NavLink to={withNext("/signin")} className={button.text}>
             Sign in instead
           </NavLink>
         )}
         {mode !== "signup" && (
-          <NavLink to="/signup" className={button.text}>
+          <NavLink to={withNext("/signup")} className={button.text}>
             Create an account
           </NavLink>
         )}
-        <NavLink to="/problems" className={button.text}>
-          Continue without one
+        <NavLink to="/" className={button.text}>
+          Back to Noesis
         </NavLink>
       </div>
     </div>

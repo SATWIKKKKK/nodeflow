@@ -18,9 +18,16 @@ const HINT_KEY = "noesis:scene-hint-seen";
  * dragged the camera to is preserved: only how far along that line it sits
  * changes.
  */
-function Dolly({ level }: { level: number }) {
+/**
+ * The distance the framing settled on, shared by AutoFrame (which sets it) and
+ * Dolly (which zooms relative to it). Without one shared value the two fight:
+ * Dolly would keep pulling the camera back to wherever it started, undoing
+ * every reframe.
+ */
+type BaseDistance = { current: number | null };
+
+function Dolly({ level, base }: { level: number; base: BaseDistance }) {
   const camera = useThree((state) => state.camera);
-  const base = useRef<number | null>(null);
 
   useFrame(() => {
     const to = camera.position.clone();
@@ -99,13 +106,21 @@ const PAD_VERTICAL = 1.36;
  * that keeps every node inside both frustum axes. A naive radius fit badly
  * over-shoots here, because the layout is a flat plane seen at an angle.
  */
-function AutoFrame({ nodes, locked }: { nodes: SceneNode[]; locked: boolean }) {
+function AutoFrame({
+  points,
+  locked,
+  base
+}: {
+  points: Array<[number, number, number]>;
+  locked: boolean;
+  base: BaseDistance;
+}) {
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
   const framed = useRef({ distance: 0, aspect: 0 });
 
   useEffect(() => {
-    if (locked || !nodes.length) return;
+    if (locked || !points.length) return;
 
     const aspect = size.width / Math.max(1, size.height);
     const perspective = camera as THREE.PerspectiveCamera;
@@ -120,8 +135,8 @@ function AutoFrame({ nodes, locked }: { nodes: SceneNode[]; locked: boolean }) {
     const point = new THREE.Vector3();
 
     let required = 6;
-    for (const node of nodes) {
-      point.set(...node.position);
+    for (const position of points) {
+      point.set(...position);
       const depth = point.dot(forward);
       const horizontal = Math.abs(point.dot(right)) + PAD_HORIZONTAL;
       const vertical = Math.abs(point.dot(up)) + PAD_VERTICAL;
@@ -130,16 +145,18 @@ function AutoFrame({ nodes, locked }: { nodes: SceneNode[]; locked: boolean }) {
     }
 
     const distance = required * 1.08;
-    // Only widen, and only meaningfully: playback must not nudge the camera.
-    const grew = distance > framed.current.distance * 1.05;
+    // The points cover the whole replay, so this settles once per trace and
+    // playback never nudges the camera; a new trace or a resize reframes.
+    const changed = Math.abs(distance - framed.current.distance) > framed.current.distance * 0.05;
     const reshaped = Math.abs(aspect - framed.current.aspect) > 0.05;
-    if (!grew && !reshaped) return;
+    if (!changed && !reshaped) return;
 
     framed.current = { distance, aspect };
+    base.current = distance;
     camera.position.copy(VIEW_DIRECTION.clone().multiplyScalar(distance));
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
-  }, [nodes, locked, camera, size.width, size.height]);
+  }, [points, locked, camera, size.width, size.height, base]);
 
   return null;
 }
@@ -176,6 +193,7 @@ export default function Scene3D({
   const { resolved } = useThemePreference();
   const palette = scenePalettes[resolved];
   const previousNodes = useRef<SceneNode[]>([]);
+  const baseDistance = useRef<number | null>(null);
 
   useEffect(() => {
     try {
@@ -274,7 +292,7 @@ export default function Scene3D({
           dpr={[1, 2]}
           // Camera is configured once. Playback never touches it, so the user's
           // framing survives every step, run, and structural change.
-          camera={{ position: [6.5, 7, 11], fov: 42, near: 0.1, far: 200 }}
+          camera={{ position: [6.5, 7, 11], fov: 30, near: 0.1, far: 400 }}
           onPointerMissed={() => onSelectNode(null)}
           gl={{ antialias: true, alpha: true }}
         >
@@ -314,7 +332,7 @@ export default function Scene3D({
             followCamera={false}
           />
 
-          <AutoFrame nodes={graph.nodes} locked={userFramed} />
+          <AutoFrame points={graph.bounds} locked={userFramed} base={baseDistance} />
 
           <Nodes nodes={visuals} palette={palette} onSelect={onSelectNode} onExited={handleExited} />
           <Edges edges={graph.edges} positions={positions} activeEdges={activeEdges} palette={palette} />
@@ -327,7 +345,7 @@ export default function Scene3D({
             zoomSpeed={0.8}
             panSpeed={0.7}
             minDistance={4}
-            maxDistance={Math.max(42, graph.extent * 7)}
+            maxDistance={Math.max(60, graph.extent * 10)}
             // Stops the scene from tipping past level or under the floor.
             minPolarAngle={0.18}
             maxPolarAngle={Math.PI / 2.15}
@@ -335,7 +353,7 @@ export default function Scene3D({
             onStart={() => setUserFramed(true)}
           />
 
-          <Dolly level={zoom} />
+          <Dolly level={zoom} base={baseDistance} />
         </Canvas>
       </SceneBoundary>
 

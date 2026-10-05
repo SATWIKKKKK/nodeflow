@@ -30,6 +30,7 @@ import {
 import { useProblems } from "../lib/problems";
 import { cn } from "../lib/cn";
 import { TraceReplay } from "./TraceReplay";
+import { PRERENDERED } from "../lib/prerendered";
 import { AskAnything } from "./AskAnything";
 
 // Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
@@ -94,7 +95,7 @@ const features: Array<{ icon: LucideIcon; title: string; body: string }> = [
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: "Do I need an account?",
-    a: "No. You can run, test and submit without one. Create an account when you want your submissions and progress kept under your name."
+    a: "Yes, a free one: email and a password, nothing else. It opens the problem bank and the workspace, and keeps every submission and solved problem under your name."
   },
   {
     q: "Which languages can I use?",
@@ -221,7 +222,7 @@ export default function LandingPage() {
       <section className="pointer-events-none flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center py-16 text-center sm:py-20">
         <motion.div
           className={cn(container, "pointer-events-auto flex flex-col items-center")}
-          initial={{ opacity: 0, y: 14 }}
+          initial={PRERENDERED ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >

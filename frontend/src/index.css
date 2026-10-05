@@ -558,10 +558,12 @@
   background: var(--fill-blue);
 }
 
+/* The fill's own text colour, so the tag reads in both themes: white on deep
+   blue in light mode, near-black on light blue in dark. */
 .language-tag {
   background: var(--fill-blue);
-  color: #ffffff;
-  border-color: rgba(147, 197, 253, 0.35);
+  color: var(--fill-blue-text);
+  border-color: transparent;
 }
 
 .badge-current,
@@ -1353,9 +1355,18 @@
   border-radius: 0.875rem;
 }
 
+/* The same margin on every side as the header row above it, so the code
+   pane sits in the frame rather than wedged into its bottom-left corner. */
 .neu-world .neu-replay-body {
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .neu-world .neu-replay-body {
+    gap: 1.5rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
 }
 
 .neu-world .neu-well {
@@ -2049,4 +2060,67 @@
     min-width: 15rem;
     font-size: 13px;
   }
+}
+
+/* ---------- Expanding search ---------- */
+
+/*
+ * Closed, the search is a raised round key; open, it is a hollow field the
+ * cursor sits in. The shape change is animated in the component (width); the
+ * material change, raised to pressed, is animated here.
+ */
+.search-shell {
+  transition:
+    background-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.search-shell-closed {
+  background: var(--neu-face, var(--card));
+  box-shadow: var(--neu-raise-sm, 0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+.search-shell-closed:hover {
+  box-shadow: var(--neu-raise, 0 6px 16px rgba(0, 0, 0, 0.12));
+}
+
+.search-shell-open {
+  background: var(--neu-hollow, var(--card));
+  box-shadow: var(--neu-well, inset 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.search-shell-open:focus-within {
+  box-shadow:
+    var(--neu-well, inset 0 1px 3px rgba(0, 0, 0, 0.1)),
+    0 0 0 1.5px var(--neu-focus, rgba(45, 88, 188, 0.6));
+}
+
+/* The field draws its focus ring on the shell, so the input inside it must
+   not draw the site-wide one too. */
+.neu-world .search-input:focus-visible,
+.search-input:focus-visible {
+  outline: none;
+}
+
+.search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* The highlight is one pressed-in pill that glides between options; the
+   options themselves stay flat so nothing jumps. */
+.neu-world .search-option,
+.neu-world .search-option[aria-selected="true"] {
+  background: transparent;
+  box-shadow: none;
+}
+
+.search-cursor {
+  background: var(--neu-face-pressed, var(--surface-hover));
+  box-shadow: var(--neu-well-sm, none);
+}
+
+/* Sizes the hero's changing word to its longest form without putting that
+   text in the document (components/graphics/RewireWord.tsx). */
+.word-sizer::before {
+  content: attr(data-word);
 }

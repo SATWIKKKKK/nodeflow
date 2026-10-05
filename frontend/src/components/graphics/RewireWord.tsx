@@ -216,14 +216,22 @@ export function RewireWord({
       style={{ justifyItems: "center" }}
     >
       {/* Sized to the longest word, so nothing around it can be pushed about. */}
+      {/* The words are drawn by CSS (::before), not written as text, so the
+          slot is sized without search engines reading every alternative into
+          the headline. */}
       {ALL_SUFFIXES.map((candidate) => (
-        <span key={candidate} aria-hidden className="invisible" style={{ gridArea: "1 / 1" }}>
-          {STEM}
-          {candidate}
-        </span>
+        <span
+          key={candidate}
+          aria-hidden
+          className="word-sizer invisible"
+          data-word={`${STEM}${candidate}`}
+          style={{ gridArea: "1 / 1" }}
+        />
       ))}
 
-      <span className="sr-only">rewire</span>
+      {/* No hidden "rewire" copy here: the headline that uses this word names
+          itself with aria-label, and a second copy would read to search
+          engines as "rewirerelink". */}
 
       <span
         ref={wordRef}

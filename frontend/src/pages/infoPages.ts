@@ -5,11 +5,23 @@
  * (backend/src/execution/dockerRunner.ts). Keep them in step when those change.
  */
 
+export interface InfoLink {
+  kind: "email" | "phone";
+  label: string;
+  /** What is shown, e.g. the address or the number. */
+  value: string;
+  href: string;
+}
+
 export interface InfoSection {
   title: string;
   body?: string;
   points?: string[];
+  links?: InfoLink[];
 }
+
+export const CONTACT_EMAIL = "satwikchandra65@gmail.com";
+export const CONTACT_PHONE = "+91-9064226986";
 
 export interface InfoPageContent {
   path: string;
@@ -77,12 +89,23 @@ export const INFO_PAGES: InfoPageContent[] = [
     path: "/contact",
     eyebrow: "Contact",
     title: "Get in touch.",
-    lead: "Questions about the tracer, the problem bank or classroom access.",
-    draft: true,
+    lead: "Questions about the tracer, the problem bank, classroom access, or something that broke. Write or call, and you will hear back from the person who builds Noesis.",
     sections: [
       {
-        title: "Contact details are on the way",
-        body: "A public contact channel has not been published yet. This page will list it as soon as it exists."
+        title: "Reach Satwik Chandra",
+        body: "Email is best for anything with code or a screenshot attached; it is answered first.",
+        links: [
+          { kind: "email", label: "Email", value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+          { kind: "phone", label: "Phone", value: CONTACT_PHONE, href: "tel:+919064226986" }
+        ]
+      },
+      {
+        title: "When something breaks",
+        points: [
+          "Say which problem, which language, and whether it was Run, Test or Submit.",
+          "Paste the code, or the message from the output panel.",
+          "A screenshot of the trace helps when the drawing looks wrong."
+        ]
       }
     ]
   },

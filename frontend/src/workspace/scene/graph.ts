@@ -14,6 +14,8 @@ export interface SceneNode {
   /** Variable names pointing directly at this node, e.g. `head`. */
   roots: string[];
   position: [number, number, number];
+  /** An empty list, drawn as one hollow cell. */
+  empty?: boolean;
 }
 
 export interface SceneEdge {
@@ -21,11 +23,15 @@ export interface SceneEdge {
   from: string;
   to: string;
   label?: string;
+  /** A pointer (drawn with an arrowhead) rather than a row neighbour. */
+  directed?: boolean;
 }
 
 export interface SceneGraph {
   nodes: SceneNode[];
   edges: SceneEdge[];
+  /** Every position the replay ever uses, so the camera frames it once. */
+  bounds: Array<[number, number, number]>;
   /** Layout radius, used once to frame the camera on first render. */
   extent: number;
 }
@@ -89,170 +95,273 @@ const outgoingRefs = (
   return edges;
 };
 
-/**
- * A list/tuple of plain values is the one case we expand into several spheres —
- * an array reads as a row of cells, not as a single blob.
- */
-const isPrimitiveArray = (object: HeapObject, heap: Record<string, HeapObject>): boolean =>
-  Boolean(object.items?.length) && object.items!.every((item) => !isRef(item, heap));
-
-/**
- * BFS depth per object for one snapshot, seeded from the variables so the entry
- * points are deterministic. Unreferenced objects are still reached, after the
- * ones a variable can see.
- */
-function discover(step: TraceStep): Map<string, number> {
-  const heap = step.heap ?? {};
-  const rooted = new Set<string>();
-  const rootOrder: string[] = [];
-  for (const value of Object.values(step.variables ?? {})) {
-    if (!isRef(value, heap) || rooted.has(value)) continue;
-    rooted.add(value);
-    rootOrder.push(value);
-  }
-
-  const depth = new Map<string, number>();
-  for (const seed of [...rootOrder, ...Object.keys(heap).filter((id) => !rooted.has(id))]) {
-    if (depth.has(seed)) continue;
-    depth.set(seed, 0);
-
-    const queue = [seed];
-    while (queue.length) {
-      const current = queue.shift()!;
-      const object = heap[current];
-      if (!object) continue;
-
-      for (const edge of outgoingRefs(current, object, heap)) {
-        if (depth.has(edge.to)) continue;
-        depth.set(edge.to, (depth.get(current) ?? 0) + 1);
-        queue.push(edge.to);
-      }
-    }
-  }
-  return depth;
-}
-
 /** Where every object sits, for the whole replay. */
 export interface SceneLayout {
   positions: Map<string, [number, number, number]>;
+  /** Cells each array is drawn with, decided once for the whole trace. */
+  cells: Map<string, number>;
   extent: number;
 }
 
-const EMPTY_LAYOUT: SceneLayout = { positions: new Map(), extent: 1 };
+const EMPTY_LAYOUT: SceneLayout = { positions: new Map(), cells: new Map(), extent: 1 };
 
-interface Placement {
-  level: number;
-  slot: number;
-  /** Set for a primitive array: how many cells it ever holds. */
-  cells?: number;
+/** Fields that make an object a tree node, in the order children are drawn. */
+const TREE_FIELDS = ["left", "right"];
+const CHAIN_FIELDS = ["next"];
+/** Rows of empty space between two separate structures. */
+const BAND_GAP = 1.4;
+
+interface Ref {
+  field: string;
+  to: string;
+}
+
+/**
+ * The union of everything the trace ever showed, reduced to what a layout
+ * needs: which objects are arrays (and how wide they get), and, for the rest,
+ * the first target each field ever pointed at.
+ *
+ * First-seen matters. A list being reversed rewires every `next`, and laying
+ * it out from the rewired pointers would scramble it mid-replay. The shape it
+ * had when it first appeared is the shape it is drawn in; the arrows carry
+ * every change after that.
+ */
+function survey(trace: TraceStep[]) {
+  const arrays = new Map<string, number>();
+  const holdsRefs = new Set<string>();
+  const refs = new Map<string, Ref[]>();
+  const firstSeen = new Map<string, number>();
+  const rooted = new Map<string, number>();
+
+  trace.forEach((step, at) => {
+    const heap = step.heap ?? {};
+    for (const value of Object.values(step.variables ?? {})) {
+      if (isRef(value, heap) && !rooted.has(value)) rooted.set(value, at);
+    }
+    for (const [id, object] of Object.entries(heap)) {
+      if (!firstSeen.has(id)) firstSeen.set(id, at);
+      const sequence = object.type === "list" || object.type === "tuple" || Array.isArray(object.items);
+      const mapping = object.type === "dict";
+      if (sequence && object.items?.some((item) => isRef(item, heap))) holdsRefs.add(id);
+      if (mapping && Object.values(object.fields ?? {}).some((value) => isRef(value, heap))) holdsRefs.add(id);
+      if (sequence && !object.fields) arrays.set(id, Math.max(arrays.get(id) ?? 1, object.items?.length ?? 0));
+      if (mapping) arrays.set(id, Math.max(arrays.get(id) ?? 1, Object.keys(object.fields ?? {}).length));
+
+      const known = refs.get(id) ?? [];
+      for (const edge of outgoingRefs(id, object, heap)) {
+        if (!known.some((entry) => entry.field === edge.label)) known.push({ field: edge.label ?? "", to: edge.to });
+      }
+      refs.set(id, known);
+    }
+  });
+
+  // A list that ever held a reference is a container of nodes, not a row of
+  // values, and is drawn as a node with arrows out to what it holds.
+  for (const id of holdsRefs) arrays.delete(id);
+  return { arrays, refs, firstSeen, rooted };
+}
+
+/** Integer grid coordinates for one structure, before it is placed in the scene. */
+type Local = Map<string, [number, number]>;
+
+/** A binary tree drawn the way it is on paper: in-order across, depth down. */
+function layoutTree(root: string, refs: Map<string, Ref[]>, members: Set<string>): Local {
+  const local: Local = new Map();
+  let column = 0;
+  const visit = (id: string, depth: number, seen: Set<string>) => {
+    if (seen.has(id) || !members.has(id)) return;
+    seen.add(id);
+    const out = refs.get(id) ?? [];
+    const left = out.find((ref) => ref.field === "left");
+    const right = out.find((ref) => ref.field === "right");
+    if (left) visit(left.to, depth + 1, seen);
+    local.set(id, [column++, depth]);
+    if (right) visit(right.to, depth + 1, seen);
+    for (const ref of out) {
+      if (!TREE_FIELDS.includes(ref.field)) visit(ref.to, depth + 1, seen);
+    }
+  };
+  visit(root, 0, new Set());
+  return local;
+}
+
+/**
+ * Chains run left to right along `next` (or a node's only pointer). Anything
+ * else a node points at, a child list, a random pointer's target, a graph
+ * neighbour, starts its own run on the row below, under the node it hangs
+ * from.
+ */
+function layoutChains(root: string, refs: Map<string, Ref[]>, members: Set<string>): Local {
+  const local: Local = new Map();
+  const taken = new Set<string>();
+  let lowest = 0;
+
+  const forward = (id: string) => {
+    const out = (refs.get(id) ?? []).filter((ref) => members.has(ref.to));
+    return out.find((ref) => CHAIN_FIELDS.includes(ref.field)) ?? (out.length === 1 ? out[0] : undefined);
+  };
+
+  const run = (start: string, x: number, row: number) => {
+    let y = row;
+    // Slide down until the whole run fits on a free row.
+    for (;;) {
+      let fits = true;
+      let cursor: string | undefined = start;
+      let column = x;
+      const seen = new Set<string>();
+      while (cursor && !local.has(cursor) && !seen.has(cursor)) {
+        seen.add(cursor);
+        if (taken.has(`${column},${y}`)) {
+          fits = false;
+          break;
+        }
+        cursor = forward(cursor)?.to;
+        column += 1;
+      }
+      if (fits) break;
+      y += 1;
+    }
+
+    const placed: string[] = [];
+    let cursor: string | undefined = start;
+    let column = x;
+    while (cursor && !local.has(cursor)) {
+      local.set(cursor, [column, y]);
+      taken.add(`${column},${y}`);
+      placed.push(cursor);
+      cursor = forward(cursor)?.to;
+      column += 1;
+    }
+    lowest = Math.max(lowest, y);
+
+    for (const id of placed) {
+      const [px] = local.get(id)!;
+      for (const ref of refs.get(id) ?? []) {
+        if (members.has(ref.to) && !local.has(ref.to)) run(ref.to, px, y + 1);
+      }
+    }
+  };
+
+  run(root, 0, 0);
+  for (const id of members) if (!local.has(id)) run(id, 0, lowest + 1);
+  return local;
 }
 
 /**
  * Freezes one layout for the entire trace.
  *
- * Positions must not be recomputed per step. Rewiring a pointer changes what
- * BFS reaches first, so a per-step layout makes every node in a linked list
- * teleport the moment the list starts reversing — the structure appears to
- * scramble even though only one field changed. Placing each object once, the
- * first step it appears in, leaves the arrows to carry the change.
+ * Positions must not be recomputed per step, or a list that is being
+ * reversed would appear to scramble. Each separate structure (a list, a
+ * tree, an array, the result being built) gets its own band, stacked front to
+ * back in the order they first appear, every band centred, and the whole
+ * scene centred on the point the camera looks at.
  */
 export function buildSceneLayout(trace: TraceStep[]): SceneLayout {
   if (!trace.length) return EMPTY_LAYOUT;
 
-  // Both of these are decided across the whole trace, so a structure never
-  // switches layout scheme or reflows its cells halfway through playback.
-  let branching = false;
-  const widest = new Map<string, number>();
-  for (const step of trace) {
-    const heap = step.heap ?? {};
-    for (const [id, object] of Object.entries(heap)) {
-      if (outgoingRefs(id, object, heap).length > 1) branching = true;
-      if (isPrimitiveArray(object, heap)) {
-        widest.set(id, Math.max(widest.get(id) ?? 0, object.items!.length));
-      }
+  const { arrays, refs, firstSeen, rooted } = survey(trace);
+  const objects = [...firstSeen.keys()].filter((id) => !arrays.has(id));
+
+  // Separate structures: objects joined by any pointer, either direction.
+  const neighbours = new Map<string, Set<string>>();
+  for (const id of objects) neighbours.set(id, new Set());
+  const incoming = new Map<string, number>();
+  for (const id of objects) {
+    for (const ref of refs.get(id) ?? []) {
+      if (!neighbours.has(ref.to)) continue;
+      neighbours.get(id)!.add(ref.to);
+      neighbours.get(ref.to)!.add(id);
+      incoming.set(ref.to, (incoming.get(ref.to) ?? 0) + 1);
     }
   }
 
-  const placement = new Map<string, Placement>();
-  const usedPerLevel = new Map<number, number>();
-
-  for (const step of trace) {
-    const heap = step.heap ?? {};
-    for (const [id, level] of discover(step)) {
-      const object = heap[id];
-      if (!object || placement.has(id)) continue;
-
-      // An array owns a whole row of cells, so it takes no sibling slot.
-      if (isPrimitiveArray(object, heap)) {
-        placement.set(id, { level, slot: 0, cells: Math.max(1, widest.get(id) ?? 1) });
-        continue;
-      }
-
-      const slot = usedPerLevel.get(level) ?? 0;
-      usedPerLevel.set(level, slot + 1);
-      placement.set(id, { level, slot });
+  const bands: Array<{ at: number; local: Local; array?: string }> = [];
+  const grouped = new Set<string>();
+  for (const id of objects) {
+    if (grouped.has(id)) continue;
+    const members = new Set<string>();
+    const queue = [id];
+    while (queue.length) {
+      const current = queue.pop()!;
+      if (members.has(current)) continue;
+      members.add(current);
+      grouped.add(current);
+      for (const next of neighbours.get(current) ?? []) queue.push(next);
     }
+
+    // The entry point: what nothing points at, preferring what a variable
+    // named first, then what appeared first.
+    const order = [...members].sort((a, b) => {
+      const byIncoming = (incoming.get(a) ?? 0) - (incoming.get(b) ?? 0);
+      if (byIncoming) return byIncoming;
+      const byRoot = (rooted.get(a) ?? Infinity) - (rooted.get(b) ?? Infinity);
+      if (byRoot) return byRoot;
+      return (firstSeen.get(a) ?? 0) - (firstSeen.get(b) ?? 0);
+    });
+    const root = order[0];
+    const tree = [...members].some((member) => (refs.get(member) ?? []).some((ref) => TREE_FIELDS.includes(ref.field)));
+    const local = tree ? layoutTree(root, refs, members) : layoutChains(root, refs, members);
+    // Members a tree walk could not reach (a detached subtree) go on as chains.
+    if (tree && local.size < members.size) {
+      const rest = new Set([...members].filter((member) => !local.has(member)));
+      const below = Math.max(...[...local.values()].map(([, y]) => y), 0) + 1;
+      for (const [member, [x, y]] of layoutChains([...rest][0], refs, rest)) local.set(member, [x, y + below]);
+    }
+    bands.push({ at: Math.min(...[...members].map((member) => firstSeen.get(member) ?? 0)), local });
   }
 
-  const siblings = new Map<number, number>();
-  for (const spot of placement.values()) {
-    if (spot.cells === undefined) siblings.set(spot.level, (siblings.get(spot.level) ?? 0) + 1);
+  // Arrays are rows of cells; long ones wrap like text.
+  const cells = new Map<string, number>();
+  for (const [id, width] of arrays) {
+    const count = Math.max(1, width);
+    cells.set(id, count);
+    const perRow = Math.min(count, ROW_WRAP);
+    const local: Local = new Map();
+    for (let cell = 0; cell < count; cell += 1) local.set(`${id}#${cell}`, [cell % perRow, Math.floor(cell / perRow)]);
+    bands.push({ at: firstSeen.get(id) ?? 0, local, array: id });
   }
+
+  bands.sort((a, b) => a.at - b.at);
 
   const positions = new Map<string, [number, number, number]>();
-  for (const [id, spot] of placement) {
-    if (spot.cells !== undefined) {
-      // Long arrays wrap into rows, read left-to-right like text — a single
-      // 56-wide line is unreadable at any camera distance.
-      const perRow = Math.min(spot.cells, ROW_WRAP);
-      const rows = Math.ceil(spot.cells / perRow);
-      const xOffset = ((perRow - 1) * X_SPACING) / 2;
-      const zOffset = ((rows - 1) * Z_SPACING) / 2;
-      const baseZ = branching ? -spot.level * Z_SPACING : 0;
-
-      for (let cell = 0; cell < spot.cells; cell += 1) {
-        const column = cell % perRow;
-        const row = Math.floor(cell / perRow);
-        positions.set(`${id}#${cell}`, [
-          column * X_SPACING - xOffset,
-          0,
-          baseZ + row * Z_SPACING - zOffset
-        ]);
-      }
-      continue;
+  let row = 0;
+  for (const band of bands) {
+    const xs = [...band.local.values()].map(([x]) => x);
+    const ys = [...band.local.values()].map(([, y]) => y);
+    const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const top = Math.min(...ys);
+    for (const [id, [x, y]] of band.local) {
+      positions.set(id, [(x - mid) * X_SPACING, 0, (row + y - top) * Z_SPACING]);
     }
-
-    // Chains run along +X, branching structures layer back along -Z.
-    const spread = (((siblings.get(spot.level) ?? 1) - 1) * X_SPACING) / 2;
-    positions.set(
-      id,
-      branching
-        ? [spot.slot * X_SPACING - spread, 0, -spot.level * Z_SPACING]
-        : [spot.level * X_SPACING, 0, spot.slot * Z_SPACING]
-    );
+    row += Math.max(...ys) - top + 1 + BAND_GAP;
   }
 
-  // Chains are centred so the structure grows around the origin the camera looks at.
-  if (!branching) {
-    let maxAbsX = 0;
-    for (const position of positions.values()) maxAbsX = Math.max(maxAbsX, Math.abs(position[0]));
-    for (const position of positions.values()) position[0] -= maxAbsX / 2;
+  // Centre the whole scene on the origin the camera aims at.
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+  for (const [x, , z] of positions.values()) {
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minZ = Math.min(minZ, z);
+    maxZ = Math.max(maxZ, z);
   }
-
-  // The true half-span, plus headroom for the sphere radius and the floating
-  // label. Taken over the whole trace, so the camera frames once and holds.
-  let halfX = 1;
-  let halfZ = 1;
+  const cx = (minX + maxX) / 2;
+  const cz = (minZ + maxZ) / 2;
   for (const position of positions.values()) {
-    halfX = Math.max(halfX, Math.abs(position[0]));
-    halfZ = Math.max(halfZ, Math.abs(position[2]));
+    position[0] -= cx;
+    position[2] -= cz;
   }
 
-  return { positions, extent: Math.max(halfX, halfZ) + 1.3 };
+  const halfX = Math.max(1, (maxX - minX) / 2);
+  const halfZ = Math.max(1, (maxZ - minZ) / 2);
+  return { positions, cells, extent: Math.max(halfX, halfZ) + 1.3 };
 }
 
 export function buildSceneGraph(step: TraceStep | undefined, layout: SceneLayout): SceneGraph {
-  if (!step) return { nodes: [], edges: [], extent: layout.extent };
+  const bounds = [...layout.positions.values()];
+  if (!step) return { nodes: [], edges: [], bounds, extent: layout.extent };
 
   const heap = step.heap ?? {};
   const nodes: SceneNode[] = [];
@@ -275,42 +384,48 @@ export function buildSceneGraph(step: TraceStep | undefined, layout: SceneLayout
   for (const [id, object] of Object.entries(heap)) {
     const roots = rootsById.get(id) ?? [];
 
-    if (isPrimitiveArray(object, heap)) {
-      const items = object.items!;
-      items.forEach((item, cell) => {
+    if (layout.cells.has(id)) {
+      // A map reads as its entries, key: value, in insertion order.
+      const labels =
+        object.type === "dict"
+          ? Object.entries(object.fields ?? {}).map(([key, value]) => `${primitiveLabel(key)}: ${primitiveLabel(value)}`)
+          : (object.items ?? []).map(primitiveLabel);
+      // An empty list or map still shows where it is, as one hollow cell.
+      if (!labels.length) {
+        const position = at(`${id}#0`);
+        if (position) {
+          nodes.push({ id: `${id}#0`, label: object.type === "dict" ? "{ }" : "[ ]", roots, position, empty: true });
+        }
+        continue;
+      }
+      const items = labels;
+      items.forEach((label, cell) => {
         const position = at(`${id}#${cell}`);
         if (!position) return;
-        nodes.push({
-          id: `${id}#${cell}`,
-          label: primitiveLabel(item),
-          roots: cell === 0 ? roots : [],
-          position
-        });
+        nodes.push({ id: `${id}#${cell}`, label, roots: cell === 0 ? roots : [], position });
       });
-
-      // Neighbours within a row only; a wrap-around dash would cut straight
-      // back across the grid.
+      // Neighbours within a row only; a wrap-around dash would cut back across.
       for (let cell = 0; cell < items.length - 1; cell += 1) {
         const here = layout.positions.get(`${id}#${cell}`);
         const next = layout.positions.get(`${id}#${cell + 1}`);
         if (!here || !next || here[2] !== next[2]) continue;
-        edges.push({ id: `${id}#${cell}->`, from: `${id}#${cell}`, to: `${id}#${cell + 1}` });
+        edges.push({ id: `${id}#${cell}->`, from: `${id}#${cell}`, to: `${id}#${cell + 1}`, directed: false });
       }
       continue;
     }
 
     const position = at(id);
     if (!position) continue;
-
     nodes.push({ id, label: labelForObject(object, heap), roots, position });
-    edges.push(...outgoingRefs(id, object, heap));
+    edges.push(...outgoingRefs(id, object, heap).map((edge) => ({ ...edge, directed: true })));
   }
 
-  // Drop edges whose target was expanded into cells or never materialised.
+  // Drop edges whose target was never drawn.
   const present = new Set(nodes.map((node) => node.id));
   return {
     nodes,
     edges: edges.filter((edge) => present.has(edge.from) && present.has(edge.to)),
+    bounds,
     extent: layout.extent
   };
 }

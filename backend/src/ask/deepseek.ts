@@ -18,10 +18,15 @@ export const MAX_QUESTION = 400;
 const MAX_ANSWER_TOKENS = 400;
 const TIMEOUT_MS = 25_000;
 
-/** Per-caller budget. Serverless instances are short-lived, so this is a speed
- * bump against a hot loop from one browser, not a billing control. */
+/**
+ * Per-caller budgets, one per feature, so asking questions never uses up the
+ * allowance for changing a word and the other way round. Serverless instances
+ * are short-lived, so this is a speed bump against a hot loop from one
+ * browser, not a billing control.
+ */
 const WINDOW_MS = 10 * 60_000;
-const MAX_PER_WINDOW = 8;
+const BUDGETS = { ask: 20, variant: 12 } as const;
+export type Budget = keyof typeof BUDGETS;
 const recent = new Map<string, number[]>();
 
 const apiKey = () => process.env.DEEPSEEK_API_KEY ?? "";
@@ -37,11 +42,20 @@ export class AskError extends Error {
   }
 }
 
-export function withinRateLimit(caller: string) {
+/**
+ * Records one use and returns 0, or, when the budget is spent, how many
+ * minutes until the oldest use falls out of the window, without recording.
+ */
+export function rateLimitWait(budget: Budget, caller: string): number {
   const now = Date.now();
-  const hits = (recent.get(caller) ?? []).filter((at) => now - at < WINDOW_MS);
+  const key = `${budget}|${caller}`;
+  const hits = (recent.get(key) ?? []).filter((at) => now - at < WINDOW_MS);
+  if (hits.length >= BUDGETS[budget]) {
+    recent.set(key, hits);
+    return Math.max(1, Math.ceil((hits[0] + WINDOW_MS - now) / 60_000));
+  }
   hits.push(now);
-  recent.set(caller, hits);
+  recent.set(key, hits);
 
   // Stop the map growing without bound on a long-lived instance.
   if (recent.size > 500) {
@@ -50,8 +64,27 @@ export function withinRateLimit(caller: string) {
     }
   }
 
-  return hits.length <= MAX_PER_WINDOW;
+  return 0;
 }
+
+/**
+ * Answers already given, by question, for an hour. The suggested questions
+ * and anything asked twice come back at once, free, and do not count against
+ * anyone's budget.
+ */
+const answered = new Map<string, { answer: string; at: number }>();
+const ANSWER_TTL_MS = 60 * 60_000;
+const questionKey = (question: string) => question.toLowerCase().replace(/[^a-z0-9+#]+/g, " ").trim();
+
+export const cachedAnswer = (question: string) => {
+  const hit = answered.get(questionKey(question));
+  return hit && Date.now() - hit.at < ANSWER_TTL_MS ? hit.answer : null;
+};
+
+const rememberAnswer = (question: string, answer: string) => {
+  if (answered.size > 300) answered.delete(answered.keys().next().value!);
+  answered.set(questionKey(question), { answer, at: Date.now() });
+};
 
 /**
  * Noesis questions only. The model answers from the fact sheet in
@@ -134,6 +167,7 @@ export async function answerQuestion(question: string): Promise<string> {
     const answer = body.choices?.[0]?.message?.content?.trim();
     if (!answer) throw new AskError("The assistant returned an empty answer.", 502);
 
+    rememberAnswer(question, answer);
     return answer;
   } catch (error) {
     if (error instanceof AskError) throw error;

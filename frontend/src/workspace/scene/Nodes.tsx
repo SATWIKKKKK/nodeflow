@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import type { SceneNode } from "./graph";
-import { labelTexture } from "./labels";
+import { labelTexture, tagTexture } from "./labels";
 import type { ScenePalette } from "./palette";
 
 /**
@@ -17,6 +17,7 @@ import type { ScenePalette } from "./palette";
 
 const SPHERE = new THREE.SphereGeometry(0.62, 40, 28);
 const LABEL_PLANE = new THREE.PlaneGeometry(1.05, 0.52);
+const TAG_HEIGHT = 0.36;
 
 export interface NodeVisual extends SceneNode {
   active: boolean;
@@ -58,6 +59,16 @@ function NodeMesh({ node, palette, onSelect, onExited }: NodeMeshProps) {
   // Label content changes rarely; swapping the cached texture is cheap.
   labelMaterial.map = labelTexture(node.label, palette.label);
 
+  // The variables pointing here, as one tag above the value: the same pills
+  // the 2D diagram draws, so a pointer moving is visible in both views.
+  const tagMaterial = useMemo(
+    () => new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+    []
+  );
+  const tagText = node.roots.join(", ");
+  const tag = tagText ? tagTexture(tagText, `#${palette.edgeActive.getHexString()}`, palette.background) : null;
+  if (tag) tagMaterial.map = tag.texture;
+
   target.current.set(...node.position);
 
   useFrame((_, delta) => {
@@ -82,8 +93,10 @@ function NodeMesh({ node, palette, onSelect, onExited }: NodeMeshProps) {
     // Positions ease rather than snap, so structural reshuffles read as motion.
     mesh.position.lerp(target.current, Math.min(1, delta * 6));
 
-    material.opacity = eased;
+    // An empty list is a hollow cell: there, but holding nothing.
+    material.opacity = eased * (node.empty ? 0.28 : 1);
     labelMaterial.opacity = eased * (node.active ? 1 : 0.62);
+    tagMaterial.opacity = eased;
 
     // The node the current step touched turns to ink; everything else stays paper.
     const color = node.active ? palette.nodeActive : node.selected ? palette.nodeSelected : palette.node;
@@ -115,6 +128,13 @@ function NodeMesh({ node, palette, onSelect, onExited }: NodeMeshProps) {
       <Billboard position={[0, 1.02, 0]}>
         <mesh ref={labelRef} geometry={LABEL_PLANE} material={labelMaterial} />
       </Billboard>
+      {tag && (
+        <Billboard position={[0, 1.58, 0]}>
+          <mesh material={tagMaterial} scale={[TAG_HEIGHT * tag.aspect, TAG_HEIGHT, 1]}>
+            <planeGeometry args={[1, 1]} />
+          </mesh>
+        </Billboard>
+      )}
     </group>
   );
 }

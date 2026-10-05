@@ -39,9 +39,13 @@ const INPUT_KINDS: ValueKind[] = [
 const RETURN_KINDS: ValueKind[] = [...INPUT_KINDS, "void"];
 
 const ENDPOINT = "https://api.deepseek.com/chat/completions";
-const MODEL = "deepseek-reasoner";
-const TIMEOUT_MS = 60_000;
-const MAX_TOKENS = 2000;
+// The chat model in JSON mode. The reasoner spent its whole token budget
+// thinking and came back empty or cut off mid-JSON, which reached the learner
+// as "the assistant could not answer"; the run in the sandbox is what checks
+// the answers either way.
+const MODEL = "deepseek-chat";
+const TIMEOUT_MS = 45_000;
+const MAX_TOKENS = 4000;
 
 export const MAX_TERM = 60;
 
@@ -145,7 +149,36 @@ const askKey = (sourceId: string, term: string, replacement: string) =>
  */
 const lineage = new Map<string, { sourceId: string; term: string; replacement: string }>();
 
-let loaded = false;
+/**
+ * Variants are shared between server instances through the database.
+ *
+ * On a serverless host each request can land on a different instance, and an
+ * instance only knows the variants it made itself or read at start-up. Read
+ * once and never again, a variant made on one instance was "Problem not
+ * found" on the next request that landed elsewhere: the learner was sent to a
+ * problem that, for that instance, did not exist, and every later change to
+ * it failed the same way. So the list is reread when it is more than a few
+ * seconds old, and a single unknown id is always looked up before anyone is
+ * told it does not exist.
+ */
+let loadedAt = 0;
+const REFRESH_MS = 15_000;
+
+interface VariantRow {
+  id: string;
+  number: number;
+  source_id: string;
+  term: string;
+  replacement: string;
+  data: Problem;
+}
+
+const remember = (row: VariantRow) => {
+  asked.set(askKey(row.source_id, row.term, row.replacement), row.id);
+  lineage.set(row.id, { sourceId: row.source_id, term: row.term, replacement: row.replacement });
+  numbers.set(row.id, row.number);
+  if (!created.some((problem) => problem.id === row.id)) created.push(row.data);
+};
 
 const ensureVariantTable = async () => {
   if (!sql) return;
@@ -161,44 +194,46 @@ const ensureVariantTable = async () => {
   )`;
 };
 
-export const loadVariants = async (): Promise<void> => {
-  if (loaded || !usingDatabase()) {
-    loaded = true;
-    return;
-  }
+export const loadVariants = async (force = false): Promise<void> => {
+  if (!usingDatabase()) return;
+  if (!force && loadedAt && Date.now() - loadedAt < REFRESH_MS) return;
   try {
     await ensureVariantTable();
     const rows = (await sql!`select id, number, source_id, term, replacement, data
-      from noesis_problem_variants order by number`) as Array<{
-      id: string;
-      number: number;
-      source_id: string;
-      term: string;
-      replacement: string;
-      data: Problem;
-    }>;
-    for (const row of rows) {
-      asked.set(askKey(row.source_id, row.term, row.replacement), row.id);
-      lineage.set(row.id, { sourceId: row.source_id, term: row.term, replacement: row.replacement });
-      if (created.some((problem) => problem.id === row.id)) continue;
-      created.push(row.data);
-      numbers.set(row.id, row.number);
-    }
+      from noesis_problem_variants order by number`) as VariantRow[];
+    for (const row of rows) remember(row);
+    loadedAt = Date.now();
   } catch (error) {
     console.error("Could not load problem variants", error);
   }
-  loaded = true;
 };
 
 export const variantProblems = (): Problem[] => created;
 export const variantNumber = (id: string): number | undefined => numbers.get(id);
 export const getVariant = (id: string): Problem | undefined => created.find((problem) => problem.id === id);
 
+/** A variant by id, from this instance or, failing that, from the database. */
+export const fetchVariant = async (id: string): Promise<Problem | undefined> => {
+  const known = getVariant(id);
+  if (known || !usingDatabase()) return known;
+  try {
+    await ensureVariantTable();
+    const rows = (await sql!`select id, number, source_id, term, replacement, data
+      from noesis_problem_variants where id = ${id}`) as VariantRow[];
+    for (const row of rows) remember(row);
+  } catch (error) {
+    console.error("Could not look up problem variant", error);
+  }
+  return getVariant(id);
+};
+
 // ------------------------------------------------------------- the pipeline
 
 interface Rewritten {
   valid: boolean;
   reason?: string;
+  /** Set when the reply could not be used at all, so it is worth asking again. */
+  retry?: boolean;
   title?: string;
   functionName?: string;
   parameters?: Array<{ name: string; kind: string }>;
@@ -222,6 +257,20 @@ When it is valid, return the rewritten problem. Rules:
 - functionName is snake_case, describes the NEW problem, and must differ from the
   original. A statement about even numbers must not be solved by a function called
   count_odds, and a variant must never share its parent's name.
+- When the changed word is a count of inputs ("two lists" becoming "three
+  lists"), the parameters change to match: one parameter per input, named in
+  the same style (list1, list2, list3). Never more than six parameters: if
+  the new count would need more, reply valid=false and say the change needs
+  more than six separate inputs. "one" means a single input.
+- When the changed word is a count of things to find or return ("two
+  elements" becoming "five elements", "two indices" becoming "three"), that is
+  a valid variation: rewrite the problem to find that many, keep the inputs'
+  shape, and make the inputs big enough to contain an answer. Only refuse a
+  count above 20, because the inputs would be too large to read.
+- When the changed word is any other number (a target, a size, an index),
+  keep the parameters and change the statement and inputs to match.
+- Prefer a coherent rewrite over a refusal. Refuse only when no reasonable
+  reading of the changed statement is a well-defined problem.
 - parameters and returnKind describe the NEW problem and may differ from the
   original when the meaning demands it. A statement about a doubly linked list
   takes doubly_linked_list, not linked_list; one that returns the values rather
@@ -243,7 +292,15 @@ Reply with JSON only:
 or
 {"valid":false,"reason":"..."}`;
 
+/** One retry when the first answer is unusable: a transient bad reply is common. */
 const askForRewrite = async (problem: Problem, term: string, replacement: string): Promise<Rewritten> => {
+  const first = await requestRewrite(problem, term, replacement);
+  const unusable = first.valid !== false && (!first.description || !first.referenceCode || !first.inputs?.length);
+  if (first.retry || unusable) return requestRewrite(problem, term, replacement);
+  return first;
+};
+
+const requestRewrite = async (problem: Problem, term: string, replacement: string): Promise<Rewritten> => {
   const key = apiKey();
   if (!key) return { valid: false, reason: "Variants are not enabled on this deployment." };
 
@@ -289,14 +346,15 @@ const askForRewrite = async (problem: Problem, term: string, replacement: string
       return { valid: false, reason: "The assistant could not be reached. Try again shortly." };
     }
     const content = body.choices?.[0]?.message?.content?.trim();
-    if (!content) return { valid: false, reason: "The assistant returned nothing." };
-    return JSON.parse(content) as Rewritten;
+    if (!content) return { valid: false, reason: "The rewrite came back empty. Try again." };
+    const json = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    return JSON.parse(json) as Rewritten;
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       return { valid: false, reason: "That took too long. Try again." };
     }
     console.error("Variant rewrite errored", error);
-    return { valid: false, reason: "The assistant could not answer. Try again shortly." };
+    return { valid: false, retry: true, reason: "The rewrite could not be read. Try again." };
   } finally {
     clearTimeout(timer);
   }
@@ -323,8 +381,9 @@ export const createVariant = async (
   if (normalise(trimmed) === normalise(term)) {
     return { status: "invalid", reason: "That is the word already there." };
   }
-  if (!source.description.includes(term)) {
-    return { status: "invalid", reason: "That word is not in this statement." };
+  const wordPattern = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
+  if (!wordPattern.test(source.description)) {
+    return { status: "invalid", reason: "That word is not in this statement any more. Pick one that is underlined now." };
   }
 
   // Undoing the change that made this problem. The way back is the problem it
@@ -361,7 +420,7 @@ export const createVariant = async (
 
   // What the statement would read as. If some problem already says exactly
   // that, the variation is not new and the learner should be sent to it.
-  const candidate = normalise(source.description.split(term).join(trimmed));
+  const candidate = normalise(source.description.replace(wordPattern, trimmed));
   const already = existing.find((problem) => normalise(problem.description) === candidate);
   if (already) {
     return {
@@ -436,7 +495,8 @@ export const createVariant = async (
   const kindsHold =
     Array.isArray(proposed) &&
     proposed.length > 0 &&
-    proposed.length === source.signature.parameters.length &&
+    proposed.length <= 6 &&
+    new Set(proposed.map((parameter) => parameter?.name)).size === proposed.length &&
     proposed.every(
       (parameter) =>
         typeof parameter?.name === "string" &&

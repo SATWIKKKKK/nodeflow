@@ -45,8 +45,15 @@ export class AuthError extends Error {
   }
 }
 
-const SESSIONS_PER_USER = 10;
-const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+/**
+ * A session lasts as long as it is used. `createdAt` is really "last seen": it
+ * moves forward (at most once a day) whenever the token is checked, so a
+ * learner who keeps coming back is never signed out, and only one left unused
+ * for SESSION_MAX_AGE_MS has to sign in again. Signing out ends it at once.
+ */
+const SESSIONS_PER_USER = 25;
+const SESSION_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
+const SESSION_TOUCH_MS = 24 * 60 * 60 * 1000;
 
 const hashPassword = (password: string, salt: string) => crypto.scryptSync(password, salt, 64).toString("hex");
 const hashToken = (token: string) => crypto.createHash("sha256").update(token).digest("hex");
@@ -194,13 +201,22 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
       on conflict (email) do nothing
       returning id
     `) as Array<{ id: string }>;
-    if (!inserted.length) throw new AuthError("An account already exists for this email.", 409);
+    if (!inserted.length) {
+      // Someone signing up a second time with their own password is a
+      // returning learner, not a conflict: let them in.
+      const rows = (await sql`select * from noesis_users where email = ${normalized}`) as UserRow[];
+      const existing = rows[0] ? rowUser(rows[0]) : null;
+      if (existing && passwordMatches(password, existing)) return dbSession(existing);
+      throw new AuthError("An account already exists for this email. Sign in instead.", 409);
+    }
     return dbSession(user);
   }
 
   return updateFile((store) => {
-    if (store.users.some((entry) => entry.email === normalized)) {
-      throw new AuthError("An account already exists for this email.", 409);
+    const existing = store.users.find((entry) => entry.email === normalized);
+    if (existing) {
+      if (passwordMatches(password, existing)) return fileSession(store, existing);
+      throw new AuthError("An account already exists for this email. Sign in instead.", 409);
     }
     store.users.push(user);
     return fileSession(store, user);
@@ -240,19 +256,30 @@ export const userForToken = async (token: string | undefined): Promise<AuthUser 
     await ensureSchema();
     const cutoff = new Date(Date.now() - SESSION_MAX_AGE_MS).toISOString();
     const rows = (await sql`
-      select u.id, u.email, u.created_at
+      select u.id, u.email, u.created_at, s.created_at as seen_at
       from noesis_sessions s join noesis_users u on u.id = s.user_id
       where s.token_hash = ${tokenHash} and s.created_at > ${cutoff}
-    `) as Array<{ id: string; email: string; created_at: string | Date }>;
+    `) as Array<{ id: string; email: string; created_at: string | Date; seen_at: string | Date }>;
     const row = rows[0];
-    return row ? publicUser({ id: row.id, email: row.email, createdAt: new Date(row.created_at).toISOString() }) : null;
+    if (!row) return null;
+    if (Date.now() - new Date(row.seen_at).getTime() > SESSION_TOUCH_MS) {
+      await sql`update noesis_sessions set created_at = now() where token_hash = ${tokenHash}`;
+    }
+    return publicUser({ id: row.id, email: row.email, createdAt: new Date(row.created_at).toISOString() });
   }
 
   const store = readFile();
   const session = store.sessions.find((entry) => entry.tokenHash === tokenHash);
   if (!session || Date.now() - Date.parse(session.createdAt) > SESSION_MAX_AGE_MS) return null;
   const user = store.users.find((entry) => entry.id === session.userId);
-  return user ? publicUser(user) : null;
+  if (!user) return null;
+  if (Date.now() - Date.parse(session.createdAt) > SESSION_TOUCH_MS) {
+    updateFile((fresh) => {
+      const mine = fresh.sessions.find((entry) => entry.tokenHash === tokenHash);
+      if (mine) mine.createdAt = new Date().toISOString();
+    });
+  }
+  return publicUser(user);
 };
 
 export const signOut = async (token: string | undefined): Promise<void> => {
