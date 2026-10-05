@@ -4,16 +4,23 @@ import { tags } from "@lezer/highlight";
 import type { Extension } from "@codemirror/state";
 
 /**
- * Editor theme in the blueprint palette (DESIGN.md §3).
+ * Editor theme, coloured from the site's own accents (index.css, graphics
+ * tokens) rather than a stock scheme.
  *
- * Monochrome on purpose: ink for code, one muted tone for literals, a lighter
- * one for comments. Rainbow highlighting would fight the scene for attention.
+ * Colour is kept for the words that carry structure, so most of a line stays
+ * ink and the eye still goes to names: keywords in the brand blue, types and
+ * classes in teal, strings in amber, numbers and constants in violet, comments
+ * muted and italic. Function names are ink at a heavier weight. Every colour
+ * clears 4.5:1 against its editor surface.
  */
 
 interface Palette {
   surface: string;
   ink: string;
-  literal: string;
+  keyword: string;
+  type: string;
+  string: string;
+  number: string;
   muted: string;
   punctuation: string;
   selection: string;
@@ -25,7 +32,10 @@ interface Palette {
 const light: Palette = {
   surface: "#f4f1f0",
   ink: "#1a1a1a",
-  literal: "#4d4d4d",
+  keyword: "#2d58bc",
+  type: "#0f766e",
+  string: "#a3470a",
+  number: "#6d33d6",
   muted: "#857d7d",
   punctuation: "#6b6464",
   selection: "#e4dedd",
@@ -36,8 +46,11 @@ const light: Palette = {
 const dark: Palette = {
   surface: "#121111",
   ink: "#f4f4f4",
-  literal: "#b7b7b7",
-  muted: "#6f6f6f",
+  keyword: "#9ecbff",
+  type: "#5eead4",
+  string: "#f0b429",
+  number: "#c4b5fd",
+  muted: "#7a7474",
   punctuation: "#9a9a9a",
   selection: "#2a2727",
   match: "#1d1b1b",
@@ -46,16 +59,27 @@ const dark: Palette = {
 
 const build = (colors: Palette, isDark: boolean): Extension => {
   const highlight = HighlightStyle.define([
-    { tag: [tags.keyword, tags.controlKeyword, tags.moduleKeyword], color: colors.ink, fontWeight: "600" },
-    { tag: [tags.definitionKeyword, tags.operatorKeyword], color: colors.ink, fontWeight: "600" },
-    { tag: [tags.function(tags.variableName), tags.definition(tags.variableName)], color: colors.ink },
     {
-      tag: [tags.string, tags.special(tags.string), tags.number, tags.bool, tags.null],
-      color: colors.literal
+      tag: [tags.keyword, tags.controlKeyword, tags.moduleKeyword, tags.definitionKeyword, tags.operatorKeyword, tags.modifier, tags.self],
+      color: colors.keyword,
+      fontWeight: "500"
     },
-    { tag: [tags.comment, tags.lineComment, tags.blockComment], color: colors.muted, fontStyle: "italic" },
-    { tag: [tags.variableName, tags.propertyName, tags.typeName, tags.className], color: colors.ink },
-    { tag: [tags.operator, tags.punctuation, tags.bracket], color: colors.punctuation },
+    {
+      tag: [tags.typeName, tags.className, tags.standard(tags.typeName), tags.definition(tags.typeName), tags.definition(tags.className), tags.namespace],
+      color: colors.type
+    },
+    {
+      tag: [tags.function(tags.variableName), tags.function(tags.propertyName), tags.function(tags.definition(tags.variableName))],
+      color: colors.ink,
+      fontWeight: "600"
+    },
+    { tag: [tags.definition(tags.variableName)], color: colors.ink },
+    { tag: [tags.string, tags.special(tags.string), tags.character, tags.regexp], color: colors.string },
+    { tag: [tags.number, tags.integer, tags.float, tags.bool, tags.null, tags.atom, tags.constant(tags.variableName)], color: colors.number },
+    { tag: [tags.comment, tags.lineComment, tags.blockComment, tags.docComment], color: colors.muted, fontStyle: "italic" },
+    { tag: [tags.meta, tags.processingInstruction, tags.annotation], color: colors.keyword },
+    { tag: [tags.variableName, tags.propertyName, tags.attributeName], color: colors.ink },
+    { tag: [tags.operator, tags.punctuation, tags.bracket, tags.separator], color: colors.punctuation },
     { tag: [tags.invalid], color: colors.invalid }
   ]);
 
