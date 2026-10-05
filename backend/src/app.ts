@@ -13,7 +13,7 @@ import {
   variantProblems,
   variantsEnabled
 } from "./problems/variants.js";
-import { expectedOutput, previewProblem, runProblemCase, submitProblem, testProblem } from "./execution/service.js";
+import { SubmitTooSoon, expectedOutput, previewProblem, runProblemCase, submitProblem, testProblem } from "./execution/service.js";
 import { validateCustomInput } from "./problems/inputValidation.js";
 import {
   ClassroomError,
@@ -533,7 +533,16 @@ app.post("/api/submit", async (request, response) => {
         (entry) => entry.problemId === problem.id && entry.verdict === "Accepted"
       )
     : true;
-  const result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language);
+  let result: Awaited<ReturnType<typeof submitProblem>>;
+  try {
+    result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language);
+  } catch (error) {
+    if (error instanceof SubmitTooSoon) {
+      response.status(429).json({ message: error.message });
+      return;
+    }
+    throw error;
+  }
   let coinsAwarded = 0;
   if (user && result.verdict === "Accepted") {
     // Solved is finished: it leaves Continue Solving.

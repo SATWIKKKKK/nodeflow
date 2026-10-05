@@ -71,17 +71,62 @@ const fresh = (): Promise<Sandbox> => {
 };
 
 const sandbox = (): Promise<Sandbox> => warm ?? fresh();
+/** One replacement at a time per instance, shared by every run waiting on it. */
+let replacing: Promise<Sandbox> | null = null;
 
-/** Runs `action`, once more on a fresh sandbox if the first one was gone or the call hiccuped. */
+/**
+ * A brand-new sandbox under the same name. A stopped, non-persistent sandbox
+ * still exists by name but has nothing to resume, so fetching it again by
+ * name hands back the same dead one; it has to be deleted and made anew.
+ */
+const replace = (): Promise<Sandbox> => {
+  const creating = (async () => {
+    try {
+      const stale = await Sandbox.get({ name: NAME, resume: false, ...credentials() });
+      await stale.delete();
+    } catch {
+      // Already gone: nothing to clear away.
+    }
+    return Sandbox.create(settings());
+  })();
+  warm = creating.catch((error: unknown) => {
+    warm = null;
+    throw error;
+  });
+  return warm;
+};
+
+/**
+ * Runs `action`, once more if the first attempt failed for a reason a retry
+ * can fix: on a replaced sandbox if it was gone, on a fresh handle if the
+ * network or the provider hiccuped.
+ */
 const withSandbox = async <R>(action: (box: Sandbox) => Promise<R>): Promise<R> => {
   try {
     return await action(await sandbox());
   } catch (error) {
     const text = String(error instanceof Error ? error.message : error);
-    if (FINAL.test(text) || !(GONE.test(text) || TRANSIENT.test(text))) throw error;
-    console.warn(`[run] sandbox handle dropped, retrying on a fresh one: ${text.slice(0, 200)}`);
-    warm = null;
-    return action(await fresh());
+    if (FINAL.test(text)) throw error;
+    if (GONE.test(text)) {
+      // Another server instance may already have replaced it, so look it up
+      // by name first; replace it only if that one is dead too. Replacing
+      // straight away would have instances deleting each other's fresh one.
+      warm = null;
+      try {
+        return await action(await fresh());
+      } catch (again) {
+        const still = String(again instanceof Error ? again.message : again);
+        if (!GONE.test(still)) throw again;
+        console.warn(`[run] sandbox gone, replacing it: ${still.slice(0, 200)}`);
+        return action(await (replacing ??= replace().finally(() => (replacing = null))));
+      }
+    }
+    if (TRANSIENT.test(text)) {
+      console.warn(`[run] sandbox call failed, retrying on a fresh handle: ${text.slice(0, 200)}`);
+      warm = null;
+      return action(await fresh());
+    }
+    throw error;
   }
 };
 

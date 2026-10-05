@@ -17,6 +17,12 @@ import { recordSubmission } from "../progress/summary.js";
 import { runQueued } from "./queue.js";
 
 const submitRateLimit = new Map<string, number>();
+
+export class SubmitTooSoon extends Error {
+  constructor() {
+    super("You just submitted this problem. Give it a few seconds, then submit again.");
+  }
+}
 /** A preview only needs to show the start of a runaway loop, so it gives up quickly. */
 const PREVIEW_CASE_TIMEOUT_MS = 1500;
 
@@ -250,26 +256,11 @@ export const submitProblem = async (
   const previous = submitRateLimit.get(rateKey) ?? 0;
   const now = Date.now();
 
+  // A second Submit of the same problem within a few seconds is almost always
+  // a double click. It is turned away as exactly that (the route answers 429
+  // with this message), never dressed up as an error in the learner's code.
   if (now - previous < 3000) {
-    return {
-      submissionId: `rate-limited-${now}`,
-      persisted: false,
-      userId,
-      verdict: "Runtime Error",
-      runtimeMs: 0,
-      cases: [
-        {
-          id: "rate-limit",
-          visible: true,
-          status: "error",
-          execution: {
-            ok: false,
-            errorType: "Platform Error",
-            message: "Please wait a few seconds before submitting this problem again."
-          }
-        }
-      ]
-    };
+    throw new SubmitTooSoon();
   }
 
   submitRateLimit.set(rateKey, now);
