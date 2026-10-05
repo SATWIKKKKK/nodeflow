@@ -1985,7 +1985,8 @@
 /*
  * The public navbar hangs from two long vertical cords that run from the top
  * edge of the screen down to small rings on the bar, set in from each end.
- * Nothing moves: the cords only say the bar is hung, not pinned.
+ * Nothing moves. The cords are the accent blue (deep in light mode, light in
+ * dark), so they read as part of the brand rather than as stray lines.
  */
 .nav-hang {
   --hang: 40px;
@@ -2016,7 +2017,7 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    color-mix(in oklab, var(--color-blueprint-muted) 55%, transparent) 30%
+    var(--fill-blue) 30%
   );
 }
 
@@ -2030,7 +2031,7 @@
   width: 9px;
   transform: translateX(-50%);
   border-radius: 9999px;
-  border: 1.5px solid color-mix(in oklab, var(--color-blueprint-muted) 75%, transparent);
+  border: 1.5px solid var(--fill-blue);
   background: var(--neu-hollow, var(--card));
 }
 
