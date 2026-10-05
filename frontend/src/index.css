@@ -1983,189 +1983,63 @@
 /* ---------- The hanging navbar ---------- */
 
 /*
- * The public navbar hangs from one cord: a small tab on the top edge of the
- * screen, a short cord, a ring on the bar. The tab holds a three-node list
- * that loops forever, the pointer walking it and the arrows flipping each lap.
- *
- * The bar swings from the hook: once into place on load, and again each time
- * it is touched (pointer arrives, finger lands, focus enters), a damped
- * pendulum that settles in about a second. While a pointer is over the bar
- * the cord tightens and the list walks twice as fast. Reduced motion stops
- * all of it (base layer), leaving a still hanger.
+ * The public navbar hangs from two long vertical cords that run from the top
+ * edge of the screen down to small rings on the bar, set in from each end.
+ * Nothing moves: the cords only say the bar is hung, not pinned.
  */
 .nav-hang {
-  --hang-hook: 20px;
-  --hang-cord: 14px;
-  --swing: 2.4deg;
-  padding-top: calc(var(--hang-hook) + var(--hang-cord));
+  --hang: 40px;
+  --hang-in: 12%;
+  padding-top: var(--hang);
 }
 
-/* A wider bar travels further at its ends for the same angle. */
 @media (min-width: 640px) {
   .nav-hang {
-    --hang-hook: 22px;
-    --hang-cord: 18px;
-    --swing: 1.1deg;
+    --hang: 56px;
+    --hang-in: 9%;
   }
-}
-
-.nav-hang .landing-navbar {
-  transform-origin: 50% calc(-1 * (var(--hang-hook) + var(--hang-cord)));
-}
-
-/* The load-in swing must not share a name with the first touch swing, or the
-   browser treats the touch as the same, finished animation and skips it. */
-.nav-settle {
-  --dir: 1;
-  animation: nav-pendulum-b 1.6s cubic-bezier(0.25, 1, 0.35, 1) 0.15s both;
-}
-
-/* Two names for one motion, so each new touch restarts it, swinging the
-   other way. */
-.nav-swing-a {
-  --dir: 1;
-  animation: nav-pendulum 1.1s cubic-bezier(0.25, 1, 0.35, 1) both;
-}
-
-.nav-swing-b {
-  --dir: -1;
-  animation: nav-pendulum-b 1.1s cubic-bezier(0.25, 1, 0.35, 1) both;
-}
-
-@keyframes nav-pendulum {
-  0% { transform: rotate(0deg) translateY(0); }
-  14% { transform: rotate(calc(var(--swing) * var(--dir))) translateY(2px); }
-  36% { transform: rotate(calc(var(--swing) * var(--dir) * -0.62)) translateY(0); }
-  58% { transform: rotate(calc(var(--swing) * var(--dir) * 0.3)); }
-  80% { transform: rotate(calc(var(--swing) * var(--dir) * -0.1)); }
-  100% { transform: rotate(0deg) translateY(0); }
-}
-
-@keyframes nav-pendulum-b {
-  0% { transform: rotate(0deg) translateY(0); }
-  14% { transform: rotate(calc(var(--swing) * var(--dir))) translateY(2px); }
-  36% { transform: rotate(calc(var(--swing) * var(--dir) * -0.62)) translateY(0); }
-  58% { transform: rotate(calc(var(--swing) * var(--dir) * 0.3)); }
-  80% { transform: rotate(calc(var(--swing) * var(--dir) * -0.1)); }
-  100% { transform: rotate(0deg) translateY(0); }
 }
 
 .nav-hanger {
   position: absolute;
-  left: 50%;
+  inset-inline: 0;
   bottom: 100%;
-  width: 0;
-  height: calc(var(--hang-hook) + var(--hang-cord));
+  height: var(--hang);
 }
 
-.nav-hanger-hook {
+.nav-cord {
   position: absolute;
   top: 0;
-  left: 0;
-  display: flex;
-  height: var(--hang-hook);
-  width: 76px;
-  align-items: center;
-  justify-content: center;
-  transform: translateX(-50%);
-  border-radius: 0 0 12px 12px;
-  background: var(--neu-face, var(--card));
-  box-shadow: var(--neu-raise-sm, 0 4px 12px rgba(0, 0, 0, 0.1));
-}
-
-.nav-hanger-cord {
-  position: absolute;
-  top: var(--hang-hook);
-  left: 0;
+  bottom: 0;
   width: 1.5px;
-  height: var(--hang-cord);
   transform: translateX(-50%);
-  border-radius: 1px;
-  background: color-mix(in oklab, var(--color-blueprint-muted) 60%, transparent);
-  transition: background-color 300ms ease;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--color-blueprint-muted) 55%, transparent) 30%
+  );
 }
 
-.nav-hanger-ring {
+/* The ring where each cord meets the bar. */
+.nav-cord::after {
+  content: "";
   position: absolute;
   bottom: -5px;
-  left: 0;
-  height: 10px;
-  width: 10px;
+  left: 50%;
+  height: 9px;
+  width: 9px;
   transform: translateX(-50%);
   border-radius: 9999px;
   border: 1.5px solid color-mix(in oklab, var(--color-blueprint-muted) 75%, transparent);
   background: var(--neu-hollow, var(--card));
-  transition: border-color 300ms ease;
 }
 
-/* A pointer on the bar pulls the cord taut and lights it blue. */
-.landing-navbar:is(:hover, :focus-within) .nav-hanger-cord {
-  background: var(--fill-blue);
+.nav-cord-l {
+  left: var(--hang-in);
 }
 
-.landing-navbar:is(:hover, :focus-within) .nav-hanger-ring {
-  border-color: var(--fill-blue);
-}
-
-.nav-hanger-arrows path {
-  fill: none;
-  stroke: var(--fill-blue);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.nav-hanger-arrows,
-.nav-hanger-node {
-  animation-duration: var(--nav-lap, 4.8s);
-  animation-iteration-count: infinite;
-}
-
-.nav-hanger-arrows {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation-name: nav-reverse;
-  animation-timing-function: steps(1, jump-end);
-}
-
-.landing-navbar:is(:hover, :focus-within) .nav-hanger {
-  --nav-lap: 2.4s;
-}
-
-.nav-hanger-node {
-  fill: var(--neu-surface, var(--card));
-  stroke: var(--fill-blue);
-  stroke-width: 1.5;
-}
-
-/* Lap one walks 1, 2, 3; the arrows flip; lap two walks 3, 2, 1. */
-.nav-hanger-node:nth-of-type(1) { animation-name: nav-node-a; }
-.nav-hanger-node:nth-of-type(2) { animation-name: nav-node-b; }
-.nav-hanger-node:nth-of-type(3) { animation-name: nav-node-c; }
-
-@keyframes nav-reverse {
-  0% { transform: scaleX(1); }
-  50% { transform: scaleX(-1); }
-}
-
-@keyframes nav-node-a {
-  0%, 15% { fill: var(--fill-blue); }
-  17%, 82% { fill: var(--neu-surface, var(--card)); }
-  84%, 100% { fill: var(--fill-blue); }
-}
-
-@keyframes nav-node-b {
-  0%, 15% { fill: var(--neu-surface, var(--card)); }
-  17%, 32% { fill: var(--fill-blue); }
-  34%, 65% { fill: var(--neu-surface, var(--card)); }
-  67%, 82% { fill: var(--fill-blue); }
-  84%, 100% { fill: var(--neu-surface, var(--card)); }
-}
-
-@keyframes nav-node-c {
-  0%, 32% { fill: var(--neu-surface, var(--card)); }
-  34%, 65% { fill: var(--fill-blue); }
-  67%, 100% { fill: var(--neu-surface, var(--card)); }
+.nav-cord-r {
+  left: calc(100% - var(--hang-in));
 }
 
 /* Hero actions: compact on phones, the two keys one width; unchanged from sm. */

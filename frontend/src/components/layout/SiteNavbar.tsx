@@ -20,27 +20,15 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(button.ghost, isActive && "bg-surface-hover");
 
 /**
- * The hook the navbar hangs from: a small tab on the top edge of the screen
- * and one short cord down to a ring on the bar. The tab holds a three-node
- * list that never stops: a pointer walks it, and every lap the arrows flip,
- * the list reversing. Decoration only, so it is hidden from assistive tech.
+ * Two long vertical cords from the top edge of the screen down to rings on
+ * the bar, set in from each end. Still: the bar hangs, it does not swing.
+ * Decoration only, so it is hidden from assistive tech.
  */
 function NavHanger() {
   return (
     <div aria-hidden className="nav-hanger pointer-events-none">
-      <div className="nav-hanger-hook">
-        <svg viewBox="0 0 64 16" className="h-3.5 w-14">
-          <g className="nav-hanger-arrows">
-            <path d="M 15 8 H 25 M 22.5 5.5 L 25 8 L 22.5 10.5" />
-            <path d="M 37 8 H 47 M 44.5 5.5 L 47 8 L 44.5 10.5" />
-          </g>
-          <circle className="nav-hanger-node" cx="9" cy="8" r="4" />
-          <circle className="nav-hanger-node" cx="31" cy="8" r="4" />
-          <circle className="nav-hanger-node" cx="53" cy="8" r="4" />
-        </svg>
-      </div>
-      <span className="nav-hanger-cord" />
-      <span className="nav-hanger-ring" />
+      <span className="nav-cord nav-cord-l" />
+      <span className="nav-cord nav-cord-r" />
     </div>
   );
 }
@@ -50,10 +38,6 @@ export function SiteNavbar() {
   const session = useSession();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  // Each touch of the bar restarts its swing: a mouse arriving, a finger or
-  // pen landing, or keyboard focus coming in from outside.
-  const [swing, setSwing] = useState(0);
-  const nudge = () => setSwing((value) => value + 1);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
@@ -61,13 +45,7 @@ export function SiteNavbar() {
     <div className="nav-hang sticky top-0 z-40 mx-3 sm:mx-4">
       <nav
         aria-label="Primary"
-        className={cn(
-          "landing-navbar relative mx-auto max-w-5xl rounded-2xl border border-blueprint-line",
-          swing === 0 ? "nav-settle" : swing % 2 ? "nav-swing-a" : "nav-swing-b"
-        )}
-        onPointerEnter={(event) => event.pointerType === "mouse" && nudge()}
-        onPointerDown={(event) => event.pointerType !== "mouse" && nudge()}
-        onFocus={(event) => !event.currentTarget.contains(event.relatedTarget as Node | null) && nudge()}
+        className="landing-navbar relative mx-auto max-w-5xl rounded-2xl border border-blueprint-line"
       >
         <NavHanger />
         {/* Three columns so the links sit on the true centre line, whatever the side widths. */}
