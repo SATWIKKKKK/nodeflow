@@ -1,3 +1,4 @@
+import { platformFailure } from "./messages.js";
 import {
   outputsMatch,
   type CaseResult,
@@ -191,7 +192,7 @@ const runCases = async (
         id: testCase.id,
         visible: testCase.visible,
         status: "error",
-        execution: { ok: false, errorType: "Platform Error", message: "The sandbox returned no result for this case." }
+        execution: platformFailure(`case result (${problem.id})`, "no result for this case")
       });
       return { verdict: "Platform Error", cases: results, runtimeMs: elapsed() };
     }

@@ -87,6 +87,18 @@ const resetConfirmSchema = z.object({
   password: z.string().min(8).max(200)
 });
 
+/**
+ * A rejected request, said the way a person would say it. The validator's own
+ * message is a JSON list of field codes, which means nothing to a learner.
+ */
+const unclear = (error: z.ZodError) => {
+  const field = String(error.issues[0]?.path[0] ?? "");
+  if (field === "email") return "Enter a valid email address.";
+  if (field === "password") return "Use a password of at least 8 characters.";
+  if (field === "code") return "Your code is too long to run. Trim it down and try again.";
+  return "Something in that request was missing. Reload the page and try again.";
+};
+
 const authToken = (header: string | undefined) => {
   if (!header?.startsWith("Bearer ")) return undefined;
   return header.slice("Bearer ".length);
@@ -133,7 +145,7 @@ const sandboxEnabled = process.env.NOESIS_SANDBOX !== "off";
 const accountsEnabled = process.env.NOESIS_ACCOUNTS !== "off";
 const accountsOff = (response: express.Response) =>
   response.status(503).json({
-    message: "Accounts are not available on this deployment yet. Run Noesis locally to sign up and save progress."
+    message: "Accounts aren't available right now. Please try again later."
   });
 
 app.get("/api/health", (_request, response) => {
@@ -179,7 +191,7 @@ app.post("/api/ask", async (request, response) => {
   }
 
   if (!askEnabled()) {
-    response.status(503).json({ message: "Questions are not enabled on this deployment." });
+    response.status(503).json({ message: "The assistant isn't available right now. Please try again later." });
     return;
   }
 
@@ -250,14 +262,14 @@ app.post("/api/problems/:id/variant", async (request, response) => {
     return;
   }
   if (!variantsEnabled()) {
-    response.status(503).json({ message: "Variants are not enabled on this deployment." });
+    response.status(503).json({ message: "Changing a word isn't available right now. Please try again later." });
     return;
   }
 
   await loadVariants(true);
   const source = await findProblem(request.params.id);
   if (!source) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
@@ -295,7 +307,7 @@ app.post("/api/problems/:id/variant", async (request, response) => {
 app.get("/api/problems/:id", async (request, response) => {
   const problem = await findProblem(request.params.id);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
   response.json(publicProblem(problem));
@@ -308,7 +320,7 @@ app.post("/api/auth/signup", async (request, response) => {
   }
   const parsed = authSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
@@ -327,7 +339,7 @@ app.post("/api/auth/signin", async (request, response) => {
   }
   const parsed = authSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
@@ -355,7 +367,7 @@ app.post("/api/auth/signout", async (request, response) => {
 app.post("/api/auth/reset", async (request, response) => {
   const parsed = resetSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
@@ -404,20 +416,20 @@ app.post("/api/auth/reset/confirm", async (request, response) => {
 app.post("/api/run", async (request, response) => {
   const parsed = runSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
   const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
   if (parsed.data.input) {
     const invalid = validateCustomInput(problem, parsed.data.input);
     if (invalid) {
-      response.status(400).json({ message: `Custom input: ${invalid}` });
+      response.status(400).json({ message: `Your custom input doesn't fit this problem: ${invalid}` });
       return;
     }
   }
@@ -432,13 +444,13 @@ app.post("/api/run", async (request, response) => {
 app.post("/api/live-preview", async (request, response) => {
   const parsed = previewSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
   const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
@@ -452,7 +464,7 @@ app.post("/api/live-preview", async (request, response) => {
         quiet: true,
         source: "custom_input",
         inputError: invalid,
-        execution: { ok: false, errorType: "Platform Error", message: `Custom input: ${invalid}` }
+        execution: { ok: false, errorType: "Platform Error", message: `Your custom input doesn't fit this problem: ${invalid}` }
       });
       return;
     }
@@ -464,19 +476,19 @@ app.post("/api/live-preview", async (request, response) => {
 app.post("/api/expected", async (request, response) => {
   const parsed = expectedSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
   const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
   const invalid = validateCustomInput(problem, parsed.data.input);
   if (invalid) {
-    response.json({ ok: false, message: `Custom input: ${invalid}` });
+    response.json({ ok: false, message: `Your custom input doesn't fit this problem: ${invalid}` });
     return;
   }
 
@@ -486,13 +498,13 @@ app.post("/api/expected", async (request, response) => {
 app.post("/api/test", async (request, response) => {
   const parsed = codeSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
   const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
@@ -502,13 +514,13 @@ app.post("/api/test", async (request, response) => {
 app.post("/api/submit", async (request, response) => {
   const parsed = codeSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.message });
+    response.status(400).json({ message: unclear(parsed.error) });
     return;
   }
 
   const problem = await findProblem(parsed.data.problemId);
   if (!problem) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
 
@@ -555,7 +567,7 @@ app.post("/api/coins", async (request, response) => {
   }
   const parsed = coinsSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: "Invalid coin change." });
+    response.status(400).json({ message: "That coin update could not be saved." });
     return;
   }
   response.json({ coins: await addCoins(user.id, parsed.data.delta) });
@@ -582,12 +594,12 @@ app.put("/api/drafts/:problemId", async (request, response) => {
   }
   const problemId = String(request.params.problemId);
   if (!await findProblem(problemId)) {
-    response.status(404).json({ message: "Problem not found." });
+    response.status(404).json({ message: "We couldn't find that problem. Pick one from the problem list." });
     return;
   }
   const parsed = draftSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ message: parsed.error.issues[0]?.message ?? "Invalid draft." });
+    response.status(400).json({ message: parsed.error.issues[0]?.message ?? "That draft could not be saved." });
     return;
   }
   response.json({ draft: await saveDraft(user.id, problemId, parsed.data.language, parsed.data.code) });
@@ -603,7 +615,7 @@ app.post("/api/drafts/:problemId/touch", async (request, response) => {
   const problemId = String(request.params.problemId);
   const parsed = touchSchema.safeParse(request.body ?? {});
   if (!(await findProblem(problemId)) || !parsed.success) {
-    response.status(400).json({ message: "Unknown problem or invalid request." });
+    response.status(400).json({ message: "That draft could not be saved. Reload the page and try again." });
     return;
   }
   await touchDraft(user.id, problemId, parsed.data.language, parsed.data.at);

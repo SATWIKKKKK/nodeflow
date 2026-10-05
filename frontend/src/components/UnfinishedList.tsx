@@ -5,7 +5,7 @@ import type { UnfinishedProblem } from "@nodeflow/shared";
 import { api } from "../lib/api";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
-import { verdictTone } from "../lib/verdict";
+import { verdictLabel, verdictTone } from "../lib/verdict";
 import { markStartedSynced, startedAsUnfinished, unsyncedStarted } from "../lib/started";
 import { UnfinishedMark } from "./UnfinishedMark";
 
@@ -97,7 +97,7 @@ export function UnfinishedRow({ entry, number }: { entry: UnfinishedProblem; num
             verdictTone(entry.lastVerdict)
           )}
         >
-          {entry.lastVerdict}
+          {verdictLabel(entry.lastVerdict)}
         </span>
       ) : (
         <UnfinishedMark className="hidden sm:inline-flex [&>.unfinished-dot]:hidden" />

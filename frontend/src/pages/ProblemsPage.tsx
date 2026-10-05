@@ -6,7 +6,7 @@ import { api } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
-import { verdictTone } from "../lib/verdict";
+import { verdictLabel, verdictTone } from "../lib/verdict";
 import { useUnfinished } from "../components/UnfinishedList";
 import { UnfinishedMark } from "../components/UnfinishedMark";
 import { ChipScroller } from "../components/ChipScroller";
@@ -276,7 +276,7 @@ export default function ProblemsPage() {
                           verdictTone(record.lastVerdict)
                         )}
                       >
-                        {record.lastVerdict}
+                        {verdictLabel(record.lastVerdict)}
                       </span>
                     ) : null}
                     <span className={cn(chip.small, "hidden text-blueprint-muted md:inline-flex")}>

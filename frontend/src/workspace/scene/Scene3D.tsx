@@ -10,35 +10,47 @@ import { useThemePreference } from "../../lib/theme";
 
 const HINT_KEY = "noesis:scene-hint-seen";
 
-/**
- * Walks the camera towards or away from what it is looking at.
- *
- * Distance is divided by the level, so 2x is half as far away, and the move is
- * eased rather than jumped so the scene does not lurch. Whatever the reader has
- * dragged the camera to is preserved: only how far along that line it sits
- * changes.
- */
-/**
- * The distance the framing settled on, shared by AutoFrame (which sets it) and
- * Dolly (which zooms relative to it). Without one shared value the two fight:
- * Dolly would keep pulling the camera back to wherever it started, undoing
- * every reframe.
- */
+/** The distance the automatic framing settled on. */
 type BaseDistance = { current: number | null };
 
-function Dolly({ level, base }: { level: number; base: BaseDistance }) {
+/**
+ * Applies the +/- zoom buttons, and only those.
+ *
+ * It used to hold the camera at a fixed distance on every frame, which undid
+ * whatever the reader did with a mouse: a scroll-wheel zoom or a pan snapped
+ * straight back, so the view seemed to refuse to move. Now a change of level
+ * eases the camera along its current line (towards whatever the controls are
+ * orbiting) and then lets go; between button presses the mouse, trackpad and
+ * touch have the camera to themselves.
+ */
+function Dolly({ level }: { level: number }) {
   const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as unknown as {
+    target?: THREE.Vector3;
+    update?: () => void;
+  } | null;
+  const goal = useRef<number | null>(null);
+  const last = useRef(level);
+
+  useEffect(() => {
+    if (level === last.current) return;
+    const pivot = controls?.target ?? new THREE.Vector3();
+    goal.current = camera.position.distanceTo(pivot) * (last.current / level);
+    last.current = level;
+  }, [level, camera, controls]);
 
   useFrame(() => {
-    const to = camera.position.clone();
-    const length = to.length();
-    if (length < 0.001) return;
-    if (base.current === null) base.current = length;
-
-    const wanted = base.current / level;
-    if (Math.abs(length - wanted) < 0.02) return;
-    camera.position.multiplyScalar(1 + (wanted / length - 1) * 0.18);
-    camera.lookAt(0, 0, 0);
+    if (goal.current === null) return;
+    const pivot = controls?.target ?? new THREE.Vector3();
+    const offset = camera.position.clone().sub(pivot);
+    const length = offset.length();
+    if (length < 0.001 || Math.abs(length - goal.current) < 0.02) {
+      goal.current = null;
+      return;
+    }
+    offset.multiplyScalar(1 + (goal.current / length - 1) * 0.18);
+    camera.position.copy(pivot).add(offset);
+    controls?.update?.();
   });
   return null;
 }
@@ -353,7 +365,7 @@ export default function Scene3D({
             onStart={() => setUserFramed(true)}
           />
 
-          <Dolly level={zoom} base={baseDistance} />
+          <Dolly level={zoom} />
         </Canvas>
       </SceneBoundary>
 

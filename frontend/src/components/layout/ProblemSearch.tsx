@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { loadProblems } from "../../lib/problems";
 import { cn } from "../../lib/cn";
 import type { ProblemSummary } from "@nodeflow/shared";
@@ -240,16 +240,6 @@ export function ProblemSearch({ className }: { className?: string }) {
                     </button>
                   );
                 })}
-                {query.trim() && (
-                  <button
-                    type="button"
-                    onClick={() => go()}
-                    className="no-lift mt-1 flex w-full items-center justify-between gap-3 rounded-full px-4 py-2 text-left text-ui-label text-[var(--fill-blue)]"
-                    style={{ minHeight: 0, width: "100%" }}
-                  >
-                    All matches in the problem bank <ArrowRight size={14} aria-hidden />
-                  </button>
-                )}
               </>
             )}
           </motion.div>

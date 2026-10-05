@@ -2,6 +2,7 @@ import { spawn, spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { platformFailure } from "./messages.js";
 import type { Language, ProblemParameter, ProblemSignature, TraceStep } from "@nodeflow/shared";
 import { configFor, type LanguageConfig } from "./languages.js";
 import { backendRoot } from "../paths.js";
@@ -132,8 +133,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
     return {
       ok: false,
       errorType: "Platform Error",
-      message:
-        "This deployment has no code sandbox, so Run, Test and Submit are unavailable here. Run Noesis locally with Docker to execute code."
+      message: "Running code is switched off on this site for now. Please check back soon."
     };
   }
   const config = configFor(language);
@@ -143,11 +143,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
   try {
     tag = ensureImage(config);
   } catch (error) {
-    return {
-      ok: false,
-      errorType: "Platform Error",
-      message: error instanceof Error ? error.message : "Docker sandbox is unavailable."
-    };
+    return platformFailure(`docker image (${language})`, error);
   }
 
   return new Promise<T | RawRunnerError>((resolve) => {
@@ -192,7 +188,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
       resolve({
         ok: false,
         errorType: "Time Limit Exceeded",
-        message: "The sandbox timed out before your code finished.",
+        message: "Your code ran longer than the time limit. Look for a loop that never ends or work that grows too fast.",
         runtimeMs: Math.round(performance.now() - started)
       });
     }, effectiveTimeout);
@@ -215,11 +211,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      resolve({
-        ok: false,
-        errorType: "Platform Error",
-        message: error.message
-      });
+      resolve(platformFailure(`docker spawn (${language})`, error));
     });
 
     child.on("close", (code) => {
@@ -229,9 +221,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
 
       if (code !== 0) {
         resolve({
-          ok: false,
-          errorType: "Platform Error",
-          message: stderr.trim() || `Sandbox exited with code ${code}.`,
+          ...platformFailure(`docker exit (${language})`, `code ${code}: ${stderr.trim().slice(-400)}`),
           runtimeMs: Math.round(performance.now() - started)
         });
         return;
@@ -241,10 +231,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
         resolve(JSON.parse(stdout) as T);
       } catch {
         resolve({
-          ok: false,
-          errorType: "Platform Error",
-          message: "Sandbox returned malformed JSON.",
-          traceback: stderr || stdout,
+          ...platformFailure(`docker output (${language})`, `not JSON: ${(stderr || stdout).slice(-400)}`),
           runtimeMs: Math.round(performance.now() - started)
         });
       }

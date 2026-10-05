@@ -574,7 +574,9 @@ const VARIANT_LABEL: Record<ArrayViewModel["variant"], string> = {
 export function ArrayView({ view, scope }: { view: ArrayViewModel; scope: string }) {
   return (
     <div>
-      <p className="mb-2 flex items-baseline gap-2">
+      {/* Room between the heading and the cells: it is the lane a value's
+          arrow arrives through, so it must fit a line and its arrowhead. */}
+      <p className="mb-4 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
         <span className="text-technical-mono text-blueprint-muted">
           {VARIANT_LABEL[view.variant]} · {view.cells.length + view.truncated}

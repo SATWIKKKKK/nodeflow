@@ -36,8 +36,13 @@ interface Box {
 }
 
 const PAD = 2;
-const CORNER = 7;
-const GUTTER = 10;
+const CORNER = 9;
+/** Clear of every structure's left edge, so the run down the side reads as a
+ *  connector rather than as a second outline drawn round the box. */
+const GUTTER = 20;
+/** The last straight run into a cell: long enough to carry the arrowhead
+ *  without it landing on the heading above the cell. */
+const HEAD_ROOM = 9;
 
 const toLocal = (rect: DOMRect, origin: DOMRect): Box => ({
   left: rect.left - origin.left,
@@ -116,6 +121,7 @@ const clear = (points: Point[], obstacles: Box[]) =>
   points.every((point, at) => at === 0 || !crosses(points[at - 1], point, obstacles));
 
 const BEND = 24;
+const LANE = 12;
 
 /**
  * The fallback for a cramped drawing: the shortest orthogonal route with the
@@ -144,12 +150,14 @@ const search = (start: Point, end: Point, obstacles: Box[]): Point[] | null => {
     const middles = sorted.slice(1).map((value, at) => (value + sorted[at]) / 2);
     return [...new Set([...sorted, ...middles, ...ends])].sort((a, b) => a - b);
   };
+  // Lanes sit a clear step off every edge: a connector that runs 6px from a
+  // box's border reads as part of the box's outline rather than as an arrow.
   const xs = lanes(
-    near.flatMap((box) => [box.left - PAD - 4, box.right + PAD + 4]).concat(window.left, window.right),
+    near.flatMap((box) => [box.left - LANE, box.right + LANE]).concat(window.left, window.right),
     [start[0], end[0]]
   );
   const ys = lanes(
-    near.flatMap((box) => [box.top - PAD - 4, box.bottom + PAD + 4]).concat(window.top, window.bottom),
+    near.flatMap((box) => [box.top - LANE, box.bottom + LANE]).concat(window.top, window.bottom),
     [start[1], end[1]]
   );
   const W = xs.length;
@@ -343,6 +351,27 @@ export function FlowLinks({
       const ys = bandAbove(from, provisional, obstacles);
       const yt = bandAbove(to, provisional, obstacles);
       const gx = gutterLeftOf(ys, yt);
+
+      // In from the side when nothing stands between the gutter and the
+      // target: the arrow meets the cell at its middle, the way you would
+      // point at it, and never has to squeeze in under the row's heading.
+      const midY = (to.top + to.bottom) / 2;
+      const sideGutter = gutterLeftOf(ys, midY);
+      const side: Point[] = [
+        [sx, from.top],
+        [sx, ys],
+        [sideGutter, ys],
+        [sideGutter, midY],
+        [to.left - 2, midY]
+      ];
+      const sideClear =
+        from.top - ys >= 3 &&
+        !obstacles.some((box) => overlapsY(box, midY - 4, midY + 4) && box.right > sideGutter && box.left < to.left) &&
+        clear(side.slice(1, -1), obstacles);
+      if (sideClear) {
+        next.push({ key: flow.key, kind: flow.kind, d: rounded(side) });
+        continue;
+      }
       const simple: Point[] = [
         [sx, from.top],
         [sx, ys],
@@ -353,7 +382,7 @@ export function FlowLinks({
       ];
       // A band squeezed to nothing between two rows of labels is no band at
       // all; search for a way through instead.
-      const roomy = from.top - ys >= 3 && to.top - yt >= 3 && clear(simple.slice(1, -1), obstacles);
+      const roomy = from.top - ys >= 3 && to.top - yt >= HEAD_ROOM && clear(simple.slice(1, -1), obstacles);
       // The search treats the two end cells as walls too, so it cannot take a
       // short cut through either; it starts and ends just outside them.
       const found = roomy

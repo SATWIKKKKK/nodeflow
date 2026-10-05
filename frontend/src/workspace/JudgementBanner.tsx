@@ -1,3 +1,4 @@
+import { verdictLabel } from "../lib/verdict";
 import { useEffect, useState } from "react";
 import { animate, motion, useReducedMotion } from "framer-motion";
 import { AlertTriangle, CheckCircle2, Clock, Trophy, XCircle } from "lucide-react";
@@ -17,7 +18,11 @@ import { cn } from "../lib/cn";
 type Tone = "pass" | "fail" | "slow";
 
 const toneOf = (verdict: TestResponse["verdict"]): Tone =>
-  verdict === "Accepted" ? "pass" : verdict === "Time Limit Exceeded" || verdict === "Execution Limit" ? "slow" : "fail";
+  verdict === "Accepted"
+    ? "pass"
+    : verdict === "Time Limit Exceeded" || verdict === "Execution Limit" || verdict === "Platform Error"
+      ? "slow"
+      : "fail";
 
 const HEADLINES: Record<Tone, { test: string; submit: string }> = {
   pass: { test: "Every visible case passes", submit: "Accepted" },
@@ -76,9 +81,11 @@ export function JudgementBanner({ judgement, mode }: { judgement: TestResponse; 
   const passed = judgement.cases.filter((entry) => entry.status === "passed").length;
   const total = judgement.cases.length;
   const Icon = tone === "pass" ? (mode === "submit" ? Trophy : CheckCircle2) : tone === "slow" ? Clock : XCircle;
-  const headline = HEADLINES[tone][mode];
-  const detail =
-    tone === "pass"
+  const down = judgement.verdict === "Platform Error";
+  const headline = down ? "We couldn't run this" : HEADLINES[tone][mode];
+  const detail = down
+    ? "This is on our side, not your code. Please try again in a moment."
+    : tone === "pass"
       ? mode === "submit"
         ? "Every case, hidden ones included. Nicely done."
         : "Submit to run the hidden cases too."
@@ -86,7 +93,7 @@ export function JudgementBanner({ judgement, mode }: { judgement: TestResponse; 
         ? "A loop ran past the time limit. Look for one that never exits."
         : judgement.verdict === "Wrong Answer"
           ? `${total - passed} case${total - passed === 1 ? "" : "s"} gave a different answer. The first one is open below.`
-          : `${judgement.verdict}. Details are below.`;
+          : `${verdictLabel(judgement.verdict)}. Details are below.`;
 
   return (
     <motion.div

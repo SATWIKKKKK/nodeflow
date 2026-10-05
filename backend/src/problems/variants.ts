@@ -302,7 +302,7 @@ const askForRewrite = async (problem: Problem, term: string, replacement: string
 
 const requestRewrite = async (problem: Problem, term: string, replacement: string): Promise<Rewritten> => {
   const key = apiKey();
-  if (!key) return { valid: false, reason: "Variants are not enabled on this deployment." };
+  if (!key) return { valid: false, reason: "Changing a word isn't available right now. Please try again later." };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -343,7 +343,7 @@ const requestRewrite = async (problem: Problem, term: string, replacement: strin
     };
     if (!response.ok) {
       console.error("Variant rewrite failed", response.status, body.error?.message ?? "");
-      return { valid: false, reason: "The assistant could not be reached. Try again shortly." };
+      return { valid: false, retry: true, reason: "We couldn't rewrite the problem just now. Please try again in a moment." };
     }
     const content = body.choices?.[0]?.message?.content?.trim();
     if (!content) return { valid: false, reason: "The rewrite came back empty. Try again." };
@@ -574,7 +574,7 @@ export const createVariant = async (
         status: "invalid",
         reason:
           at === 0
-            ? "The rewritten solution would not run, so the answers could not be checked."
+            ? "We couldn't check the answers for that change, so it wasn't made. Try again, or try a different word."
             : "Some of the rewritten inputs could not be solved. Try a different word."
       };
     }

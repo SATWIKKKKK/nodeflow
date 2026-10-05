@@ -41,7 +41,7 @@ import { loadProblems, structureLabel } from "../lib/problems";
 import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
-import { verdictTone } from "../lib/verdict";
+import { verdictLabel, verdictTone } from "../lib/verdict";
 import { creditSolve } from "../lib/coins";
 import { forgetStarted, markSolvedHere, markStarted } from "../lib/started";
 import { JudgementBanner } from "./JudgementBanner";
@@ -69,7 +69,10 @@ import {
   writeDraft,
   writeLanguage
 } from "./persist";
-import { baseNodeId, buildLineIndex, buildSceneGraph, buildSceneLayout } from "./scene/graph";
+import { baseNodeId, buildLineIndex, buildSceneGraph, buildSceneLayout, hasLinkedObjects } from "./scene/graph";
+
+/** Problems whose structures are objects joined by pointers: worth a 3D view. */
+const THREE_D_STRUCTURES = new Set(["linked_list", "tree", "trie"]);
 
 // three.js is ~1MB. Splitting it out lets the editor, problem header and
 // transport paint immediately instead of waiting on the renderer to download.
@@ -78,9 +81,12 @@ const Scene3D = lazy(() => import("./scene/Scene3D"));
 /** Compiled languages pay for a compile per preview, so they wait longer. */
 const PREVIEW_DEBOUNCE_MS: Record<Language, number> = { python: 450, cpp: 1200, java: 1200 };
 const STEP_BASE_MS = 600;
-const STUCK_AFTER_MS = 4500;
+// Long enough that a busy device (a heavy 3D frame, a background tab coming
+// back) is not mistaken for a broken replay.
+const STUCK_AFTER_MS = 15000;
 /** A run this slow means the sandbox is cold, queued, or wedged. */
-const SLOW_RUN_MS = 20000;
+// A first run after a quiet spell can take most of a minute to start.
+const SLOW_RUN_MS = 40000;
 /** Typing, then this long with no Run/Test/Submit, earns a nudge. */
 const IDLE_NUDGE_MS = 30_000;
 
@@ -145,7 +151,7 @@ function ExecutionErrorNote({ execution }: { execution: Extract<ExecutionRespons
     return (
       <div className="status-warning rounded-xl border px-4 py-3 text-sm">
         <p className="flex items-center gap-2 font-semibold">
-          <AlertTriangle size={15} aria-hidden /> Noesis could not run this — not a problem with your code
+          <AlertTriangle size={15} aria-hidden /> We couldn't run this
         </p>
         <p className="mt-1">{execution.message}</p>
       </div>
@@ -736,6 +742,14 @@ export default function WorkspacePage() {
   // failed preview holds the previous scene instead of clearing it.
   const stepCount = traceState.trace.length;
   const hasTrace = stepCount > 0;
+  // 3D earns its place only where objects point at each other: lists, trees,
+  // tries, or any run that builds linked nodes. Arrays, strings, numbers,
+  // matrices and maps are flat, and the 2D diagram already shows them best.
+  const can3D = useMemo(
+    () => THREE_D_STRUCTURES.has(problem?.structureType ?? "") || hasLinkedObjects(traceState.trace),
+    [problem?.structureType, traceState.trace]
+  );
+  const shownMode: SceneMode = can3D ? sceneMode : "trace";
 
   // One preview runs at a time. While it runs, only the newest code waits its
   // turn, so a slow sandbox still shows each result instead of cancelling every
@@ -837,10 +851,12 @@ export default function WorkspacePage() {
 
   // Stuck detection, cause one: playing, but the cursor has not moved.
   useEffect(() => {
-    if (!playing) return;
-    const timer = window.setTimeout(() => setStuck("playback"), STUCK_AFTER_MS);
+    if (!playing || stepCount < 2) return;
+    const timer = window.setTimeout(() => {
+      if (document.visibilityState === "visible") setStuck("playback");
+    }, STUCK_AFTER_MS);
     return () => window.clearTimeout(timer);
-  }, [playing, index]);
+  }, [playing, index, stepCount]);
 
   // Cause two: a run that never comes back.
   useEffect(() => {
@@ -991,7 +1007,9 @@ export default function WorkspacePage() {
           creditSolve(problem, (response as SubmitResponse).coinsAwarded);
           markSolvedHere(problem.id);
         }
-        if (mode === "submit") {
+        // A failure on our side says nothing about the learner's code, so it
+        // never becomes the problem's status badge.
+        if (mode === "submit" && response.verdict !== "Platform Error") {
           setStanding((previous) => ({
             accepted: Boolean(previous?.accepted) || response.verdict === "Accepted",
             lastVerdict: response.verdict
@@ -1021,6 +1039,35 @@ export default function WorkspacePage() {
   };
 
   const failedExecution = execution && !execution.ok ? execution : null;
+  // Test and Submit answer below the editor; bring the answer into view rather
+  // than leaving the learner to scroll for it.
+  const outputRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!judgement) return;
+    // The right column scrolls on its own on desktop and the page scrolls on
+    // a phone, so scroll whichever holds the panel. Done again once the
+    // verdict banner has finished growing, because a smooth scroll started
+    // while the layout is still moving is cancelled by the browser.
+    const reveal = () => {
+      const panel = outputRef.current;
+      if (!panel) return;
+      let scroller: HTMLElement | null = panel.parentElement;
+      while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
+      if (scroller && scroller.scrollHeight > scroller.clientHeight) {
+        const offset = panel.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 12;
+        scroller.scrollTo({ top: offset, behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: panel.getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" });
+      }
+    };
+    const frame = window.requestAnimationFrame(reveal);
+    const settle = window.setTimeout(reveal, 480);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
+    };
+  }, [judgement]);
+
   const passedCount = judgement ? judgement.cases.filter((entry) => entry.status === "passed").length : 0;
   const hasOutput = Boolean(
     loopWarning ||
@@ -1108,6 +1155,7 @@ export default function WorkspacePage() {
           className="surface-frame order-2 flex h-[min(72svh,600px)] min-h-[440px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
         >
           <div className="flex items-center justify-between gap-2 border-b border-blueprint-line px-3 py-2.5 sm:gap-3 sm:px-5">
+            {can3D ? (
             <div
               role="tablist"
               aria-label="Visualization style"
@@ -1118,11 +1166,11 @@ export default function WorkspacePage() {
                   key={mode}
                   type="button"
                   role="tab"
-                  aria-selected={sceneMode === mode}
+                  aria-selected={shownMode === mode}
                   onClick={() => setSceneMode(mode)}
                   className={cn(
                     "no-lift rounded-full px-3 py-1 text-ui-label text-[12px] transition-colors",
-                    sceneMode === mode ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "text-blueprint-muted hover:text-primary"
+                    shownMode === mode ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "text-blueprint-muted hover:text-primary"
                   )}
                   style={{ minHeight: 0, width: "auto" }}
                 >
@@ -1130,35 +1178,29 @@ export default function WorkspacePage() {
                 </button>
               ))}
             </div>
+            ) : (
+              <span />
+            )}
             {/* On phones the zoom sits up here, clear of the drawing and of
                 the step caption below it, where a floating pill covered both. */}
-            {(sceneMode === "trace" ? hasTrace : true) && (
+            {(shownMode === "trace" ? hasTrace : true) && (
               <ZoomControls
                 className="lg:hidden"
                 compact
-                zoom={sceneMode === "trace" ? zoom2d : zoom3d}
+                zoom={shownMode === "trace" ? zoom2d : zoom3d}
                 onZoom={(direction) =>
-                  (sceneMode === "trace" ? setZoom2d : setZoom3d)((level) =>
+                  (shownMode === "trace" ? setZoom2d : setZoom3d)((level) =>
                     clampZoom(level + direction * ZOOM_STEP)
                   )
                 }
-                onReset={() => (sceneMode === "trace" ? setZoom2d : setZoom3d)(1)}
+                onReset={() => (shownMode === "trace" ? setZoom2d : setZoom3d)(1)}
               />
             )}
             <span className="flex items-center gap-2">
               {previewBusy && hasTrace && (
                 <Loader2 size={14} aria-label="Updating trace" className="animate-spin text-blueprint-muted" />
               )}
-              {hasTrace && (
-                <span
-                  className={cn(
-                    "hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold leading-none sm:inline-flex",
-                    traceSource === "preview" ? "badge-current" : "border-blueprint-line text-blueprint-muted"
-                  )}
-                >
-                  {traceSource === "preview" ? (customInput ? "Live · custom input" : "Live preview") : "Run trace"}
-                </span>
-              )}
+
             </span>
           </div>
 
@@ -1171,7 +1213,7 @@ export default function WorkspacePage() {
           )}
 
           <div ref={setScenePanel} className="neu-screen relative min-h-0 flex-1">
-            {sceneMode === "trace" ? (
+            {shownMode === "trace" ? (
               hasTrace ? (
                 <TraceDiagram
                   trace={trace}
@@ -1205,16 +1247,16 @@ export default function WorkspacePage() {
 
             {/* Over the drawing rather than in the toolbar: it belongs to what
                 it scales, and the toolbar is already carrying enough. */}
-            {(sceneMode === "trace" ? hasTrace : true) && (
+            {(shownMode === "trace" ? hasTrace : true) && (
               <ZoomControls
                 className="absolute bottom-3 right-3 z-20 hidden lg:flex"
-                zoom={sceneMode === "trace" ? zoom2d : zoom3d}
+                zoom={shownMode === "trace" ? zoom2d : zoom3d}
                 onZoom={(direction) =>
-                  (sceneMode === "trace" ? setZoom2d : setZoom3d)((level) =>
+                  (shownMode === "trace" ? setZoom2d : setZoom3d)((level) =>
                     clampZoom(level + direction * ZOOM_STEP)
                   )
                 }
-                onReset={() => (sceneMode === "trace" ? setZoom2d : setZoom3d)(1)}
+                onReset={() => (shownMode === "trace" ? setZoom2d : setZoom3d)(1)}
               />
             )}
 
@@ -1261,6 +1303,7 @@ export default function WorkspacePage() {
           )}
 
           <PlaybackControls
+            locked={busy === "run"}
             index={index}
             count={stepCount}
             playing={playing}
@@ -1307,7 +1350,7 @@ export default function WorkspacePage() {
                           verdictTone(standing.accepted ? "Solved" : standing.lastVerdict)
                         )}
                       >
-                        {standing.accepted ? "Solved" : standing.lastVerdict}
+                        {standing.accepted ? "Solved" : verdictLabel(standing.lastVerdict)}
                       </span>
                     )}
                   </h1>
@@ -1472,7 +1515,12 @@ export default function WorkspacePage() {
           )}
 
           {/* Output */}
-          <section aria-label="Output" aria-live="polite" className="surface-frame order-5 shrink-0 overflow-hidden lg:order-none">
+          <section
+            ref={outputRef}
+            aria-label="Output"
+            aria-live="polite"
+            className="surface-frame order-5 shrink-0 scroll-mt-4 overflow-hidden lg:order-none"
+          >
             <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3">
               <span className={panelTitle}>Output</span>
               {judgement && (
@@ -1482,7 +1530,7 @@ export default function WorkspacePage() {
                     verdictTone(judgement.verdict)
                   )}
                 >
-                  {judgement.verdict} · {passedCount}/{judgement.cases.length}
+                  {verdictLabel(judgement.verdict)} · {passedCount}/{judgement.cases.length}
                 </span>
               )}
             </div>
@@ -1609,8 +1657,8 @@ export default function WorkspacePage() {
       <Modal
         open={stuck !== null}
         onClose={() => setStuck(null)}
-        eyebrow={stuck === "sandbox" ? "Sandbox" : "Playback"}
-        title={stuck === "sandbox" ? "Still waiting on the sandbox" : "The replay stopped advancing"}
+        eyebrow={stuck === "sandbox" ? "Running" : "Playback"}
+        title={stuck === "sandbox" ? "This is taking longer than usual" : "The replay stopped advancing"}
         actions={
           <>
             <button
@@ -1640,7 +1688,7 @@ export default function WorkspacePage() {
         }
       >
         {stuck === "sandbox"
-          ? "This run has been going for a while. The sandbox image may be starting cold, or the queue may be backed up."
+          ? "The first run after a quiet spell can take up to a minute to start, and a busy moment can add a short wait. You can keep waiting or try again."
           : "Playback has not moved for a few seconds. The trace may be empty, or the scene may have failed to draw."}
       </Modal>
     </div>

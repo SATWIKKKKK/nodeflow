@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { Sandbox } from "@vercel/sandbox";
 import type { Language } from "@nodeflow/shared";
 import type { RawRunnerError, RunnerPayload } from "./dockerRunner.js";
+import { platformFailure } from "./messages.js";
 
 /**
  * Runs a harness inside Vercel Sandbox instead of Docker, for deployments (like
@@ -23,8 +24,6 @@ const NAME = process.env.NOESIS_SANDBOX_NAME ?? `noesis-${IMAGE.replace(/[^a-zA-
 const SESSION_MS = Number(process.env.NOESIS_SANDBOX_SESSION_MS ?? 15 * 60_000);
 const VCPUS = Number(process.env.NOESIS_SANDBOX_VCPUS ?? 2);
 
-const platformError = (message: string): RawRunnerError => ({ ok: false, errorType: "Platform Error", message });
-
 /** Explicit credentials for environments without an OIDC token (optional). */
 const credentials = () => {
   const token = process.env.NOESIS_VERCEL_TOKEN;
@@ -45,12 +44,25 @@ const settings = () => ({
   ...credentials()
 });
 
-/** A stopped non-persistent sandbox has nothing to resume; it is replaced instead. */
-const GONE = /no snapshot|cannot resume|snapshot_not_found|not running|stopped/i;
+/**
+ * The warm sandbox is cached per server instance, but it does not live
+ * forever: a session ends after SESSION_MS, and the provider then answers
+ * "not found" (404) for it, or says it is stopped or cannot be resumed.
+ * Before, only the last two were recognised, so an expired sandbox reached
+ * learners as a raw "Status code 404" on every run until the instance died.
+ * Now any sign that it is gone drops the cached handle and fetches or makes a
+ * fresh one by name (getOrCreate handles not_found and stale snapshots).
+ */
+const GONE = /no snapshot|cannot resume|snapshot_not_found|not running|stopped|not.?found|\b404\b|\b410\b|expired|terminated|gone/i;
+/** Worth one more try on a fresh handle: the network or the provider hiccuped. */
+const TRANSIENT = /\b5\d\d\b|ECONNRESET|ETIMEDOUT|EAI_AGAIN|socket hang up|fetch failed|network|timeout|conflict|\b409\b/i;
+/** Not worth retrying: retrying would fail the same way. */
+const FINAL = /quota|limit exceeded|payment|forbidden|\b401\b|\b403\b/i;
 
 let warm: Promise<Sandbox> | null = null;
 
-const track = (creating: Promise<Sandbox>) => {
+const fresh = (): Promise<Sandbox> => {
+  const creating = Sandbox.getOrCreate(settings());
   warm = creating.catch((error: unknown) => {
     warm = null;
     throw error;
@@ -58,40 +70,19 @@ const track = (creating: Promise<Sandbox>) => {
   return warm;
 };
 
-const sandbox = (): Promise<Sandbox> => warm ?? track(Sandbox.getOrCreate(settings()));
+const sandbox = (): Promise<Sandbox> => warm ?? fresh();
 
-const replaceSandbox = (): Promise<Sandbox> =>
-  track(
-    (async () => {
-      try {
-        const stale = await Sandbox.get({ name: NAME, resume: false, ...credentials() });
-        await stale.delete();
-      } catch {
-        // Nothing to clear away.
-      }
-      return Sandbox.create(settings());
-    })()
-  );
-
-/** Runs `action`, replacing a sandbox that can no longer be resumed. */
+/** Runs `action`, once more on a fresh sandbox if the first one was gone or the call hiccuped. */
 const withSandbox = async <R>(action: (box: Sandbox) => Promise<R>): Promise<R> => {
   try {
     return await action(await sandbox());
   } catch (error) {
-    if (!GONE.test(String(error))) throw error;
-    return action(await replaceSandbox());
+    const text = String(error instanceof Error ? error.message : error);
+    if (FINAL.test(text) || !(GONE.test(text) || TRANSIENT.test(text))) throw error;
+    console.warn(`[run] sandbox handle dropped, retrying on a fresh one: ${text.slice(0, 200)}`);
+    warm = null;
+    return action(await fresh());
   }
-};
-
-const describe = (error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
-  if (/quota|limit/i.test(message)) {
-    return "The Vercel Sandbox quota for this account is used up, so code cannot run right now.";
-  }
-  if (/image_not_ready|not_found/i.test(message)) {
-    return `The sandbox image (${IMAGE}) is not ready yet. Push it with scripts/push-sandbox-image.mjs.`;
-  }
-  return `The sandbox could not run this: ${message}`;
 };
 
 /** Reads the harness response: the last JSON line the command printed. */
@@ -101,11 +92,11 @@ const parseResponse = <T>(stdout: string): T | RawRunnerError => {
     .map((entry) => entry.trim())
     .filter(Boolean)
     .at(-1);
-  if (!line) return platformError("The sandbox returned no output.");
+  if (!line) return platformFailure("sandbox", "no output");
   try {
     return JSON.parse(line) as T;
   } catch {
-    return platformError("The sandbox returned output that was not a result.");
+    return platformFailure("sandbox", `output was not a result: ${line.slice(0, 200)}`);
   }
 };
 
@@ -133,10 +124,10 @@ export const runInVercelSandbox = async <T>(
 
     if (result.exitCode !== 0) {
       const stderr = (await result.stderr()).slice(-400);
-      return platformError(`The sandbox command failed (exit ${result.exitCode}). ${stderr}`.trim());
+      return platformFailure(`sandbox command (${language})`, `exit ${result.exitCode}: ${stderr}`);
     }
     return parseResponse<T>(await result.stdout());
   } catch (error) {
-    return platformError(describe(error));
+    return platformFailure(`sandbox (${language}, image ${IMAGE})`, error);
   }
 };

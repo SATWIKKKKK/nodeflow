@@ -127,7 +127,7 @@ interface ChatResponse {
 
 export async function answerQuestion(question: string): Promise<string> {
   const key = apiKey();
-  if (!key) throw new AskError("Questions are not enabled on this deployment.", 503);
+  if (!key) throw new AskError("The assistant isn't available right now. Please try again later.", 503);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);

@@ -495,3 +495,19 @@ export function buildLineIndex(trace: TraceStep[], diffs: TraceDiff[]): LineInde
 
 /** Cell ids (`obj_1#3`) resolve back to their container for sync lookups. */
 export const baseNodeId = (id: string): string => id.split("#")[0];
+
+/**
+ * Whether a run built objects that point at each other (list nodes, tree
+ * nodes, any class with a reference field). That is what a 3D view shows
+ * better than 2D; plain arrays, numbers and maps it does not.
+ */
+export function hasLinkedObjects(trace: TraceStep[]): boolean {
+  for (const step of trace) {
+    const heap = step.heap ?? {};
+    for (const object of Object.values(heap)) {
+      if (object.type === "dict" || !object.fields) continue;
+      if (Object.values(object.fields).some((value) => isRef(value, heap))) return true;
+    }
+  }
+  return false;
+}

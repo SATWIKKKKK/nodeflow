@@ -19,6 +19,8 @@ interface PlaybackControlsProps {
   onIndex: (index: number) => void;
   onPlaying: (playing: boolean) => void;
   onSpeed: (speed: number) => void;
+  /** While a run is on its way: nothing to play yet, and it starts by itself. */
+  locked?: boolean;
 }
 
 const transport = cn(button.icon, "h-9 w-9");
@@ -31,9 +33,10 @@ export default function PlaybackControls({
   line,
   onIndex,
   onPlaying,
-  onSpeed
+  onSpeed,
+  locked = false
 }: PlaybackControlsProps) {
-  const empty = count === 0;
+  const empty = count === 0 || locked;
   const canStepBack = !empty && index > 0;
   const canStepForward = !empty && index < count - 1;
   const fill = count > 1 ? (index / (count - 1)) * 100 : 0;
@@ -99,6 +102,7 @@ export default function PlaybackControls({
           <span className="sr-only">Playback speed</span>
           <select
             value={speed}
+            disabled={locked}
             onChange={(event) => onSpeed(Number(event.target.value))}
             className={cn(field.select, "h-9 text-xs")}
           >
