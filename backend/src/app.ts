@@ -32,7 +32,7 @@ import { progressForUser } from "./progress/summary.js";
 import { clearDraft, draftFor, saveDraft, touchDraft, unfinishedFor } from "./progress/drafts.js";
 import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
 import { readSubmissions } from "./progress/summary.js";
-import { AskError, MAX_QUESTION, answerQuestion, askEnabled, withinRateLimit } from "./ask/deepseek.js";
+import { AskError, MAX_QUESTION, answerQuestion, askEnabled, greetingReply, withinRateLimit } from "./ask/deepseek.js";
 
 export const app = express();
 
@@ -120,7 +120,7 @@ const variantSchema = z.object({
 });
 
 const askSchema = z.object({
-  question: z.string().trim().min(3).max(MAX_QUESTION)
+  question: z.string().trim().min(1).max(MAX_QUESTION)
 });
 
 /**
@@ -131,8 +131,15 @@ app.post("/api/ask", async (request, response) => {
   const parsed = askSchema.safeParse(request.body);
   if (!parsed.success) {
     response.status(400).json({
-      message: `Ask a question between 3 and ${MAX_QUESTION} characters.`
+      message: `Type a question about Noesis, up to ${MAX_QUESTION} characters.`
     });
+    return;
+  }
+
+  // A greeting needs no model, no key and no rate-limit slot.
+  const greeting = greetingReply(parsed.data.question);
+  if (greeting) {
+    response.json({ answer: greeting });
     return;
   }
 

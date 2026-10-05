@@ -11,7 +11,7 @@ import { SiteNavbar } from "./SiteNavbar";
  */
 export function MarketingLayout({ variant = "page" }: { variant?: "landing" | "page" }) {
   return (
-    <div className="relative min-h-screen bg-background pt-3 sm:pt-4">
+    <div className="relative min-h-screen bg-background">
       {variant === "landing" ? (
         <>
           <div className="pointer-events-none fixed inset-0 landing-blueprint-grid opacity-30 dark:opacity-25" />

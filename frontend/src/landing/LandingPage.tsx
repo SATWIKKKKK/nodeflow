@@ -242,11 +242,11 @@ export default function LandingPage() {
             Replay every line your code ran, and point at exactly where the pointer went wrong.
           </p>
 
-          <div className="mt-9 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row sm:gap-5">
-            <NavLink to="/problems" className={cn(button.hero, "w-full sm:w-auto")}>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row sm:gap-5">
+            <NavLink to="/problems" className={cn(button.hero, "hero-action px-6 py-3 sm:px-8 sm:py-3.5")}>
               Open a problem <ArrowRight size={14} aria-hidden />
             </NavLink>
-            <a href="#replay" className={cn(button.outline, "w-full py-3.5 sm:w-auto")}>
+            <a href="#replay" className={cn(button.outline, "hero-action px-6 py-3 sm:py-3.5")}>
               Watch a real trace
             </a>
           </div>
@@ -258,10 +258,10 @@ export default function LandingPage() {
           <SectionHeading
             title={
               <>
-                This is what your code <em className="hero-accent italic">did</em>.
+                Every pointer move, <em className="hero-accent italic">replayed</em>.
               </>
             }
-            lead="reverse_list on [1, 2, 3, 4], drawn from the heap the tracer captured at each line."
+            lead="A real recorded run of reverse_list. The highlighted line is the one that just rewired the arrow beside it."
           />
           <TraceReplay />
         </motion.div>
@@ -335,14 +335,8 @@ export default function LandingPage() {
       <Section>
         <motion.div {...reveal} className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <SectionHeading
-              className="mb-8"
-              eyebrow="Scope"
-              title="Honest about what is live."
-              lead="Noesis shows only what works today, and every item below is live."
-            />
-            <p className="text-ui-label text-primary">Live now</p>
-            <ul className="mt-4 grid gap-3">
+            <SectionHeading className="mb-8" title="Live today." />
+            <ul className="grid gap-3">
               {[
                 "Step-by-step tracing for Python, C++ and Java",
                 "Arrays, lists, stacks, queues, trees, graphs, grids and maps in the trace",

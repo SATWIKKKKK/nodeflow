@@ -4,10 +4,11 @@ import { AlertCircle, ArrowRight, Loader2, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import { useServerStatus } from "../lib/serverStatus";
 import { cn } from "../lib/cn";
-import { button } from "../components/ui";
+import { button, chip } from "../components/ui";
 
 /**
- * One free-form question, answered by the assistant behind /api/ask.
+ * One free-form question about Noesis, answered by the assistant behind
+ * /api/ask from a fact sheet of what ships (backend/src/ask/knowledge.ts).
  *
  * One at a time by design: while an answer is on screen the form is gone, and
  * the only way to ask again is to clear this one. There is no limit on how
@@ -15,6 +16,13 @@ import { button } from "../components/ui";
  */
 
 const MAX_QUESTION = 400;
+
+/** Real questions the assistant can answer, one tap each. */
+const SUGGESTIONS = [
+  "How is Run different from Submit?",
+  "Can I use C++ or Java?",
+  "How do I earn coins?"
+];
 
 const readError = (error: unknown) => {
   if (!(error instanceof Error)) return "Something went wrong. Try again.";
@@ -34,10 +42,9 @@ export function AskAnything() {
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const trimmed = question.trim();
-    if (trimmed.length < 3 || busy || asked) return;
+  const ask = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || busy || asked) return;
 
     setError("");
     setBusy(true);
@@ -50,6 +57,11 @@ export function AskAnything() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void ask(question);
   };
 
   const clear = () => {
@@ -92,7 +104,7 @@ export function AskAnything() {
             transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
           >
             <label htmlFor="ask-question" className="mt-3 block text-body-md text-blueprint-muted">
-              Not covered above? Put it in your own words.
+              Anything else about Noesis? Ask it in your own words.
             </label>
             <textarea
               id="ask-question"
@@ -107,10 +119,28 @@ export function AskAnything() {
                 }
               }}
               rows={3}
-              placeholder="Does the tracer work for recursion?"
+              placeholder="Does the trace show recursion?"
               disabled={busy}
               className="neu-field mt-3 w-full resize-none rounded-lg border border-blueprint-line bg-surface-inset px-4 py-3 text-body-md text-primary outline-none transition-colors placeholder:text-blueprint-muted/70 focus:border-primary disabled:opacity-60"
             />
+
+            <div className="mt-3 flex flex-wrap gap-2" aria-label="Suggested questions">
+              {SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  disabled={busy || !server.ask}
+                  onClick={() => {
+                    setQuestion(suggestion);
+                    void ask(suggestion);
+                  }}
+                  className={cn(chip.base, chip.idle, "no-lift normal-case tracking-normal")}
+                  style={{ minHeight: 0 }}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-blueprint-muted">
@@ -119,7 +149,7 @@ export function AskAnything() {
               </span>
               <button
                 type="submit"
-                disabled={busy || question.trim().length < 3 || !server.ask}
+                disabled={busy || !question.trim() || !server.ask}
                 className={cn(button.primary, "min-w-36")}
               >
                 {busy ? <Loader2 size={14} aria-hidden className="animate-spin" /> : null}
