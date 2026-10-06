@@ -107,7 +107,7 @@ const DOT_PATH: Array<[number, number]> = [
 
 export function RunScene() {
   return (
-    <StepFrame count={DOT_PATH.length} intervalMs={480} label="Code running inside a sandbox with no network: an attempt to leave stops at a wall">
+    <StepFrame count={DOT_PATH.length} intervalMs={480} label="Code running in an isolated space with no internet: an attempt to leave stops at a wall">
       {(index) => {
         const [dx, dy] = DOT_PATH[index];
         const escaping = index >= 2;

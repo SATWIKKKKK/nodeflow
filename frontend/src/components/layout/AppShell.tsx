@@ -210,7 +210,8 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <div className="flex min-w-0 flex-1 justify-start">
               <ProblemSearch />
             </div>
-            <div className="ml-auto flex items-center gap-4 lg:ml-0">
+            {/* Room between the three, now that the search sits on its own. */}
+            <div className="ml-auto flex items-center gap-4 sm:gap-6 lg:ml-0">
               <CoinBalance />
               <ThemeToggle />
               <AccountMenu />

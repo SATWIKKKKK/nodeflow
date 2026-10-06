@@ -441,7 +441,6 @@ export default function ClassroomPage() {
       <Modal
         open={confirm !== null}
         onClose={() => setConfirm(null)}
-        eyebrow="Classroom"
         title={confirm === "delete" ? `Delete ${room.name}?` : `Leave ${room.name}?`}
         actions={
           <>

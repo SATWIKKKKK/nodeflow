@@ -14,7 +14,7 @@ const plans = [
     points: [
       "Tracing for Python, C++ and Java",
       "Run, Test, Submit, live preview and custom input",
-      "Every problem on the DSA sheet",
+      "Every problem, from arrays to tries",
       "Classrooms with shared progress, on a free account"
     ]
   },
@@ -24,7 +24,7 @@ const plans = [
     cadence: "planned",
     body: "For instructors running a whole course on data structures.",
     available: false,
-    points: ["Reserved sandbox capacity for a class", "Progress exports and deadlines", "Everything in Free"]
+    points: ["Priority capacity for a whole class", "Progress exports and deadlines", "Everything in Free"]
   },
   {
     name: "Team Lab",
@@ -32,7 +32,7 @@ const plans = [
     cadence: "planned",
     body: "For groups that want their own problems.",
     available: false,
-    points: ["Private problem banks", "Review workflows for new problems", "Everything in Classroom Pro"]
+    points: ["Private problem sets", "Review workflows for new problems", "Everything in Classroom Pro"]
   }
 ];
 
@@ -42,13 +42,8 @@ export default function PricingPage() {
       <div className={container}>
         <SectionHeading
           as="h1"
-          eyebrow="Pricing"
-          title={
-            <>
-              Free while the core gets <em className="hero-accent italic">proven</em>.
-            </>
-          }
-          lead="Everything Noesis does today is free, classrooms included. Paid plans for larger courses and teams are on the roadmap, and their prices have not been decided."
+          title="Pricing"
+          lead="Noesis is free, including classrooms. Paid plans for larger courses and teams are planned; their prices have not been set."
         />
 
         <div className="grid gap-5 lg:grid-cols-3">
@@ -111,8 +106,8 @@ export default function PricingPage() {
 
         <div className="surface-inset mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-2xl text-body-md text-blueprint-muted">
-            Classroom Pro and Team Lab are ideas, not products yet. Their features and prices will be listed here once
-            they are decided.
+            Classroom Pro and Team Lab are not available yet. Their features and prices will be listed here when they
+            launch.
           </p>
           <NavLink to="/roadmap" className={button.text}>
             See the roadmap

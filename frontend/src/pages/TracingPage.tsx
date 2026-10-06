@@ -9,30 +9,29 @@ const pipeline = [
   {
     scene: RunScene,
     title: "Execute",
-    body: "Your code runs in a fresh, network-less container with CPU, memory and time limits."
+    body: "Your code runs in an isolated environment with no internet access and fixed limits on time and memory."
   },
   {
     scene: TraceScene,
     title: "Record",
-    body: "At every line, the tracer snapshots the line number, your variables and every object on the heap, keyed by id."
+    body: "At every line, Noesis records the line number, your variables and every object your code has created."
   },
   {
     scene: DiffScene,
     title: "Diff",
-    body: "Each snapshot is compared with the one before: which objects were created, which fields changed, which disappeared."
+    body: "Each step is compared with the one before it: what was created, what changed, and what was removed."
   },
   {
     scene: ReplayScene,
     title: "Draw",
-    body: "The trace keeps one shape per heap id and only highlights what a diff names, so a moved pointer reads as a moved arrow."
+    body: "Every object keeps its place on screen and only what changed is highlighted, so a moved pointer shows as a moved arrow."
   }
 ];
 
 const limits = [
   { value: "4,000", label: "steps per run", note: "in Python (1,500 in C++ and Java), then the run stops and reports a likely infinite loop" },
   { value: "1,500", label: "steps per live preview", note: "in Python (500 in C++ and Java), since it reruns while you type" },
-  { value: "64", label: "items per list", note: "longer lists are cut off in the snapshot and marked as truncated" },
-  { value: "2", label: "runs at once", note: "by default; the rest wait in a queue instead of piling up" }
+  { value: "64", label: "items per list", note: "longer lists are shortened in the drawing and marked as such" }
 ];
 
 // A real step from the recorded reverse_list trace: the moment node 1 is cut loose.
@@ -47,13 +46,8 @@ export default function TracingPage() {
         <div className={container}>
           <SectionHeading
             as="h1"
-            eyebrow="Tracing"
-            title={
-              <>
-                Your bug, <em className="hero-accent italic">replayed</em> line by line.
-              </>
-            }
-            lead="Noesis never guesses at your data structures. Your code runs for real, the tracer records the heap at every line, and the scene moves only when a diff says something changed."
+            title="How tracing works"
+            lead="Your code runs for real. Noesis records what it does at every line, then draws each step so you can see exactly what changed."
           />
 
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -77,14 +71,13 @@ export default function TracingPage() {
         <div className={`${container} grid gap-6 lg:grid-cols-[0.9fr_1.1fr]`}>
           <div>
             <SectionHeading
-              eyebrow="One step"
-              title="What the tracer actually hands the scene."
-              lead="This is step six of the reverse_list recording on the home page, just after current.next = previous ran. Node 1's next pointer went from node 2 to None."
+              title="One recorded step"
+              lead="This is step six of the reverse_list example on the home page, right after current.next = previous ran: node 1's next pointer changed from node 2 to None."
             />
             <p className="text-body-md text-blueprint-muted">
-              Object references are ids like <code className="font-mono text-primary">obj_1</code>, so the same
-              node keeps the same identity across every step. That is what lets the scene move a pointer instead
-              of redrawing the list.
+              Every object gets a fixed id such as <code className="font-mono text-primary">obj_1</code>, so the
+              same node stays the same node at every step. That is how the drawing can move one arrow instead of
+              redrawing the whole list.
             </p>
             <NavLink to="/#replay" className={`${button.outlineSm} mt-8`}>
               Watch the full replay <ArrowRight size={14} aria-hidden />
@@ -115,11 +108,10 @@ export default function TracingPage() {
       <section className="py-16 sm:py-20">
         <div className={container}>
           <SectionHeading
-            eyebrow="Limits"
-            title="Bounded on purpose."
-            lead="Buggy linked-list code loops forever surprisingly often. These limits keep a bad run from taking the page down with it."
+            title="Limits"
+            lead="These keep a runaway loop from freezing your run."
           />
-          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-3">
             {limits.map((limit) => (
               <article key={limit.label} className="surface-card-compact">
                 <p className="text-technical-mono text-blueprint-muted">{limit.label}</p>
@@ -132,10 +124,9 @@ export default function TracingPage() {
           <div className="surface-inset mt-10 max-w-3xl">
             <p className="text-ui-label text-primary">How each language is traced</p>
             <p className="mt-2 text-body-md text-blueprint-muted">
-              The trace is built from real program state, never from reading your source. Python is recorded with
-              the interpreter's own trace hook, C++ is stepped under gdb, and Java is stepped through the JVM's
-              debugger interface. All three produce the same heap snapshots, so the picture works the same way
-              whichever language you write in.
+              Each step is recorded from your program as it actually runs, never guessed from your source code.
+              Python, C++ and Java are each recorded with their own debugging tools, and all three produce the same
+              kind of steps, so the drawing works the same whichever language you write in.
             </p>
           </div>
         </div>

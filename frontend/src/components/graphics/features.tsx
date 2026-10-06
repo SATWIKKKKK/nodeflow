@@ -341,7 +341,7 @@ export function DiffGraphic() {
 
 export function FaultGraphic() {
   return (
-    <FeatureFrame count={4} intervalMs={900} label="Two lanes: an error raised by your code, and a sandbox timeout, reported separately">
+    <FeatureFrame count={4} intervalMs={900} label="Two lanes: an error raised by your code, and a problem on our side, reported separately">
       {(index) => {
         const yours = index % 2 === 0;
         return (

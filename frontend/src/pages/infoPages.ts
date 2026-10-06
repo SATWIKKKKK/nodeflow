@@ -25,7 +25,6 @@ export const CONTACT_PHONE = "+91-9064226986";
 
 export interface InfoPageContent {
   path: string;
-  eyebrow: string;
   title: string;
   lead: string;
   sections: InfoSection[];
@@ -35,9 +34,8 @@ export interface InfoPageContent {
 export const INFO_PAGES: InfoPageContent[] = [
   {
     path: "/about",
-    eyebrow: "About",
-    title: "Reading an algorithm is not the same as watching it run.",
-    lead: "Noesis is a practice workspace for students learning data structures. You write the code; Noesis shows you what that exact code did, one line at a time.",
+    title: "About Noesis",
+    lead: "Noesis is a place to practise data structures and algorithms. You write the code, and Noesis shows you what that exact code did, one line at a time.",
     sections: [
       {
         title: "Why it exists",
@@ -51,7 +49,7 @@ export const INFO_PAGES: InfoPageContent[] = [
         title: "Where it stands",
         points: [
           "Python, C++ and Java code is traced and visualized.",
-          "Every problem on the DSA sheet is live, each checked against its reference solution in the sandbox.",
+          "Every problem on the DSA sheet is available, each checked against a working solution.",
           "The trace draws arrays, linked lists, stacks, queues, trees, graphs, grids and maps."
         ]
       }
@@ -59,27 +57,26 @@ export const INFO_PAGES: InfoPageContent[] = [
   },
   {
     path: "/roadmap",
-    eyebrow: "Roadmap",
-    title: "What ships now, and what comes next.",
-    lead: "Noesis is being built in phases. Nothing below the first list has a committed date.",
+    title: "Roadmap",
+    lead: "What is available today, and what is planned. Planned items do not have dates yet.",
     sections: [
       {
         title: "Live today",
         points: [
-          "Python, C++ and Java execution in an isolated sandbox, traced line by line.",
+          "Python, C++ and Java, traced line by line.",
           "Step-by-step playback for arrays, lists, stacks, queues, trees, graphs, grids and maps.",
           "The full DSA sheet, from basic maths to tries.",
           "Run, Test and Submit, with a live preview while you type.",
           "Custom input for your own test cases, checked against the reference solution.",
           "Classrooms with join codes, assignments and a shared progress board.",
-          "Local accounts and a progress dashboard built from your submissions."
+          "Accounts and a progress dashboard built from your submissions."
         ]
       },
       {
         title: "Planned",
         points: [
-          "Paid plans with reserved sandbox capacity for larger courses.",
-          "Private problem banks for teams.",
+          "Paid plans for larger courses.",
+          "Private problem sets for teams.",
           "Sign-in with Google."
         ]
       }
@@ -87,9 +84,8 @@ export const INFO_PAGES: InfoPageContent[] = [
   },
   {
     path: "/contact",
-    eyebrow: "Contact",
-    title: "Get in touch.",
-    lead: "Questions about the tracer, the problem bank, classroom access, or something that broke. Write or call, and you will hear back from the person who builds Noesis.",
+    title: "Contact",
+    lead: "Questions about Noesis, classroom access, or something that is not working? Email or call, and you will hear back from the person who builds it.",
     sections: [
       {
         title: "Reach Satwik Chandra",
@@ -111,10 +107,8 @@ export const INFO_PAGES: InfoPageContent[] = [
   },
   {
     path: "/privacy",
-    eyebrow: "Privacy",
-    title: "What Noesis keeps.",
-    lead: "Noesis runs local-first: everything below is stored on the machine that runs the Noesis server.",
-    draft: true,
+    title: "Privacy",
+    lead: "What Noesis stores about you, and why. It is kept in Noesis's own database and is never sold or shared.",
     sections: [
       {
         title: "Your account",
@@ -127,50 +121,49 @@ export const INFO_PAGES: InfoPageContent[] = [
       {
         title: "Your code",
         points: [
-          "Run, Test and live preview do not save your code.",
-          "Submit saves a record of the attempt: your code, the verdict, the runtime and the time you submitted."
+          "Run, Test and live preview do not save a record of your code.",
+          "Code you leave unfinished is saved as a draft so you can continue later.",
+          "Submit saves a record of the attempt: your code, the result, how long it took and when you submitted."
         ]
       },
       {
         title: "Password resets",
-        body: "Reset requests are recorded locally. No email is sent yet."
+        body: "If you ask to reset your password, we email you a one-time link that expires after an hour. Your email address is used for nothing else."
       }
     ]
   },
   {
     path: "/terms",
-    eyebrow: "Terms",
-    title: "Terms of use.",
-    lead: "The terms covering the Noesis workspace and problem bank.",
+    title: "Terms of use",
+    lead: "The terms covering your use of Noesis.",
     draft: true,
     sections: [
       {
         title: "Being written",
-        body: "Formal terms have not been published yet. They will appear here before any hosted or paid plan launches."
+        body: "Formal terms have not been published yet. They will appear here before any paid plan launches."
       }
     ]
   },
   {
     path: "/security",
-    eyebrow: "Security",
-    title: "Your code runs in a locked box.",
-    lead: "Every run is treated as untrusted. Here is what the sandbox allows, and what it does not.",
+    title: "Security",
+    lead: "How Noesis keeps your code, and everyone else's, safely apart.",
     sections: [
       {
-        title: "The sandbox",
+        title: "Running your code",
         points: [
-          "Each run gets a fresh Docker container that is removed when the run ends.",
-          "No network access from inside the container.",
-          "One CPU, a memory cap and a process limit.",
-          "A read-only filesystem, all Linux capabilities dropped, and no privilege escalation."
+          "Every run happens in its own isolated environment, discarded when the run ends.",
+          "Code cannot reach the internet while it runs.",
+          "Each run has strict limits on processor time and memory.",
+          "One person's code can never read another's."
         ]
       },
       {
         title: "Runaway code",
         points: [
           "Each language has a wall-clock time limit.",
-          "The tracer stops after 4,000 steps in Python or 1,500 in C++ and Java, and reports a likely infinite loop.",
-          "Runs wait in a bounded queue instead of starting unlimited containers."
+          "A run stops after 4,000 steps in Python or 1,500 in C++ and Java, and reports a likely infinite loop.",
+          "Your password is stored only as a salted hash, never as the password itself."
         ]
       }
     ]

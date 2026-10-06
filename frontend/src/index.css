@@ -2124,3 +2124,28 @@
 .word-sizer::before {
   content: attr(data-word);
 }
+
+/* Menu rows: flat until the pointer arrives, then gently pressed in. */
+.menu-item {
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+  background: var(--neu-face-pressed, var(--surface-hover));
+  box-shadow: var(--neu-well-sm, none);
+  color: var(--fill-blue);
+}
+
+.menu-item:hover svg,
+.menu-item:focus-visible svg {
+  color: var(--fill-blue);
+}
+
+/* A whole card that is a link rises a little more when the pointer is on it. */
+.neu-world .neu-card-link:hover > .surface-card-compact {
+  box-shadow: var(--neu-raise-hover);
+}

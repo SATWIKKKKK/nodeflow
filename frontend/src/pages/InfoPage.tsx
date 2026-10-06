@@ -9,7 +9,7 @@ export default function InfoPage({ page }: { page: InfoPageContent }) {
     <div className={`${container} py-16 sm:py-20`}>
       <div className="grid gap-10 lg:grid-cols-[0.7fr_1fr]">
         <div>
-          <SectionHeading as="h1" eyebrow={page.eyebrow} title={page.title} lead={page.lead} />
+          <SectionHeading as="h1" title={page.title} lead={page.lead} />
           {page.draft && (
             <p className="neu-tag inline-flex rounded-full border border-blueprint-line bg-card px-3 py-1.5 text-technical-mono text-blueprint-muted">
               Draft · full text still being written

@@ -138,9 +138,8 @@ export default function ProblemsPage() {
         <SectionHeading
           as="h1"
           className="mb-0"
-          eyebrow="Problem bank"
-          title="Pick a problem."
-          lead="Every problem runs your real code in the sandbox and replays it. Start anywhere; the workspace opens with the function signature ready."
+          title="Problems"
+          lead="Choose a problem, write your solution, and step through exactly what your code does."
         />
         <NavLink to="/problem-map" className={cn(button.primary, "self-start lg:self-auto")}>
           <Layers3 size={15} aria-hidden /> Problem map
@@ -204,7 +203,7 @@ export default function ProblemsPage() {
 
       {error ? (
         <div className="status-error rounded-xl border px-5 py-4 text-body-md">
-          Could not load the problem bank. Check that the Noesis backend is running, then reload.
+          We couldn't load the problems. Please reload the page.
         </div>
       ) : loading ? (
         <div className="flex justify-center py-16">

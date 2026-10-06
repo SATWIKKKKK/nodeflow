@@ -45,7 +45,7 @@ const steps: Array<{ title: string; body: string; scene: ComponentType }> = [
   {
     scene: RunScene,
     title: "Run",
-    body: "A fresh sandbox, the problem's own input."
+    body: "Your code runs on the problem's own input."
   },
   {
     scene: TraceScene,
@@ -88,22 +88,22 @@ const features: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
     icon: AlertTriangle,
     title: "Your bug or ours",
-    body: "Your exceptions and sandbox failures are reported apart."
+    body: "Errors in your code and problems on our side are never confused."
   }
 ];
 
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: "Do I need an account?",
-    a: "Yes, a free one: email and a password, nothing else. It opens the problem bank and the workspace, and keeps every submission and solved problem under your name."
+    a: "Yes, a free one: just an email and a password. It gives you every problem, and keeps your submissions and progress."
   },
   {
     q: "Which languages can I use?",
-    a: "Python, C++ and Java. All three run in the sandbox, are judged against the same tests, and produce the same step-by-step visual trace."
+    a: "Python, C++ and Java. All three are judged against the same tests and produce the same step-by-step trace."
   },
   {
     q: "Is it safe to run my code?",
-    a: "Every run gets its own container with no network, one CPU, a memory cap, a read-only filesystem and no extra privileges. The container is deleted when the run ends."
+    a: "Yes. Every run happens in its own isolated environment with no internet access and strict limits on time and memory, and it is discarded when the run ends."
   }
 ];
 
@@ -193,7 +193,7 @@ export default function LandingPage() {
     {
       label: "live now",
       value: bank.total ? String(bank.total) : "—",
-      note: bank.total ? `problems across ${bank.topics} topics` : "Loading the live bank",
+      note: bank.total ? `problems across ${bank.topics} topics` : "Loading problems",
       glyph: bank.total ? <ProblemDots total={bank.total} /> : null
     },
     {
@@ -392,8 +392,7 @@ export default function LandingPage() {
           className="landing-cta-panel flex flex-col gap-8 rounded-xl p-6 shadow-[0_14px_34px_rgba(0,0,0,0.14)] sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-12"
         >
           <div className="max-w-2xl">
-            <p className="landing-cta-muted text-ui-label">Start here</p>
-            <h2 className="mt-3 text-balance text-cta">
+            <h2 className="text-balance text-cta">
               Open a problem. Press <em className="hero-accent italic">Run</em>.
             </h2>
             <p className="landing-cta-muted mt-4 text-body-lg">

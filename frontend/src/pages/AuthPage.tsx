@@ -17,7 +17,7 @@ const copy: Record<Mode, { title: string; lead: string; action: string }> = {
   },
   signup: {
     title: "Create your account.",
-    lead: "Free. An account opens the problem bank and the workspace, and keeps every submission and accepted problem on your record.",
+    lead: "It's free. An account gives you every problem, and keeps your submissions and progress.",
     action: "Create account"
   },
   forgot: {
@@ -104,8 +104,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
 
   return (
     <div className="neu-panel w-full max-w-[480px] rounded-3xl border border-blueprint-line bg-card/90 p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-8">
-      <p className="text-ui-label text-blueprint-muted">Noesis account</p>
-      <h1 className="mt-2 text-headline-lg text-primary">{text.title}</h1>
+      <h1 className="text-headline-lg text-primary">{text.title}</h1>
       <p className="mt-3 text-body-md text-blueprint-muted">{text.lead}</p>
 
       <form className="mt-8 grid gap-6" onSubmit={submit} noValidate={false}>

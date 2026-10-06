@@ -66,12 +66,12 @@ export default function ProblemMapPage() {
   };
 
   const metrics = [
-    { label: "published", value: loading ? "—" : problems.length, note: "playable in the workspace today" },
+    { label: "problems", value: loading ? "—" : problems.length, note: "ready to solve" },
     { label: "topics", value: loading ? "—" : byTopic.length, note: "from basic maths to tries" },
     {
-      label: "sheet coverage",
+      label: "dsa sheet",
       value: summary ? `${summary.covered}/${summary.total}` : "—",
-      note: "problems on the DSA sheet with a verified, playable version"
+      note: "problems from the DSA sheet included"
     }
   ];
 
@@ -79,9 +79,8 @@ export default function ProblemMapPage() {
     <div className={`${container} py-10 sm:py-14`}>
       <SectionHeading
         as="h1"
-        eyebrow="Problem map"
-        title="Where the bank stands."
-        lead="Coverage across every published topic. Bars fill as your submissions get accepted."
+        title="Problem map"
+        lead="Every topic at a glance, with how many problems you have solved in each."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -104,7 +103,7 @@ export default function ProblemMapPage() {
 
         {error ? (
           <p className="status-error m-6 rounded-xl border px-5 py-4 text-body-md">
-            Could not load the problem bank. Check that the Noesis backend is running, then reload.
+            We couldn't load the problems. Please reload the page.
           </p>
         ) : loading ? (
           <div className="flex justify-center py-12">

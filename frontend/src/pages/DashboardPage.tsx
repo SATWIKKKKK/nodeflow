@@ -47,7 +47,7 @@ export default function DashboardPage() {
       .progress(session.token)
       .then((summary) => mounted && setProgress(summary))
       .catch(() => {
-        if (mounted) setError("Could not load progress. Check that the Noesis backend is running, then reload.");
+        if (mounted) setError("We couldn't load your progress. Please reload the page.");
       });
 
     return () => {
@@ -73,11 +73,11 @@ export default function DashboardPage() {
       ].filter((row) => row.total > 0)
     : [];
 
-  const metrics = [
-    { label: "attempted", value: progress?.attempted ?? 0, note: "problems submitted at least once" },
-    { label: "accepted", value: progress?.accepted ?? 0, note: `out of ${progress?.totalProblems ?? "—"} live problems` },
-    { label: "bank cleared", value: `${completion}%`, note: "accepted across the live bank", bar: true },
-    { label: "unfinished", value: unfinished?.length ?? 0, note: "started and waiting for you below" }
+  const metrics: Array<{ label: string; value: number | string; note: string; bar?: boolean; to?: string }> = [
+    { label: "attempted", value: progress?.attempted ?? 0, note: "problems you have submitted" },
+    { label: "solved", value: progress?.accepted ?? 0, note: `of ${progress?.totalProblems ?? "—"} problems` },
+    { label: "completed", value: `${completion}%`, note: "of all problems solved", bar: true },
+    { label: "in progress", value: unfinished?.length ?? 0, note: "started, not solved yet", to: "#continue" }
   ];
 
   return (
@@ -86,13 +86,8 @@ export default function DashboardPage() {
         <SectionHeading
           as="h1"
           className="mb-0"
-          eyebrow={session.user ? `Signed in as ${session.user.email}` : "Local progress"}
-          title={
-            <>
-              Your traces have a <em className="hero-accent italic">memory</em>.
-            </>
-          }
-          lead="Every Submit becomes progress: problems accepted, attempts logged, and the next replay waiting in the workspace."
+          title="Your progress"
+          lead="What you have solved, what you are working on, and where to pick up next."
         />
         <NavLink to="/problems" className={cn(button.primary, "self-start lg:self-auto")}>
           Pick a problem <ArrowRight size={14} aria-hidden />
@@ -108,8 +103,12 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-            {metrics.map((metric) => (
-              <article key={metric.label} className="surface-card-compact">
+            {metrics.map((metric) => {
+              const card = (
+              <article
+                key={metric.label}
+                className={cn("surface-card-compact h-full", metric.to && "transition-shadow")}
+              >
                 <p className="text-technical-mono text-blueprint-muted">{metric.label}</p>
                 <p className="mt-3 text-metric text-primary">{metric.value}</p>
                 <p className="mt-2 text-body-md text-blueprint-muted">{metric.note}</p>
@@ -119,7 +118,24 @@ export default function DashboardPage() {
                   </div>
                 )}
               </article>
-            ))}
+              );
+              // "In progress" takes you straight to the list of those problems.
+              return metric.to ? (
+                <a
+                  key={metric.label}
+                  href={metric.to}
+                  className="neu-card-link block rounded-xl"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    document.getElementById("continue")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  {card}
+                </a>
+              ) : (
+                card
+              );
+            })}
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -134,7 +150,7 @@ export default function DashboardPage() {
               {recent.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <p className="text-body-md text-blueprint-muted">
-                    No submissions yet. Open a problem and press Submit to start your record.
+                    Nothing submitted yet. Solve a problem and press Submit to see it here.
                   </p>
                   <NavLink to="/problems" className={cn(button.outlineSm, "mt-6")}>
                     Browse problems
@@ -184,9 +200,9 @@ export default function DashboardPage() {
 
             <section aria-labelledby="coverage-heading" className="surface-card">
               <h2 id="coverage-heading" className="text-headline-sm text-primary">
-                Coverage by structure
+                By topic
               </h2>
-              <p className="mt-2 text-body-md text-blueprint-muted">Accepted problems out of what is live.</p>
+              <p className="mt-2 text-body-md text-blueprint-muted">Problems solved in each topic.</p>
               <div className="my-6 h-px bg-blueprint-line" />
               <ul className="grid gap-5">
                 {coverage.map((row) => (
@@ -207,7 +223,7 @@ export default function DashboardPage() {
             </section>
           </div>
 
-          <section aria-labelledby="continue-heading" className="surface-frame mt-8 overflow-hidden">
+          <section id="continue" aria-labelledby="continue-heading" className="surface-frame mt-8 scroll-mt-24 overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blueprint-line px-5 py-4 sm:px-6">
               <h2 id="continue-heading" className="flex items-center gap-3 text-headline-sm text-primary">
                 Continue solving
@@ -225,7 +241,7 @@ export default function DashboardPage() {
               </div>
             ) : unfinished.length === 0 ? (
               <p className="px-6 py-10 text-center text-body-md text-blueprint-muted">
-                Nothing left hanging. Open a problem and it waits here if you step away.
+                Nothing in progress. Any problem you start and leave unsolved will appear here.
               </p>
             ) : (
               <ul className="divide-y divide-blueprint-line">
@@ -241,8 +257,7 @@ export default function DashboardPage() {
           {!session.user && (
             <div className="surface-inset mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-body-md text-blueprint-muted">
-                You are not signed in, so this shows progress recorded without an account. Create one to keep
-                future submissions under your name.
+                You are not signed in. Create a free account to keep your progress.
               </p>
               <NavLink to="/signup" className={cn(button.outlineSm, "shrink-0")}>
                 Create an account

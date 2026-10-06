@@ -126,9 +126,8 @@ export default function ClassroomsPage() {
     <div className={`${container} py-10 sm:py-14`}>
       <SectionHeading
         as="h1"
-        eyebrow="Classrooms"
-        title="Practise together, see who is stuck."
-        lead="A teacher opens a classroom, shares its join code and assigns problems. Everyone in the room sees the same progress board, built from real Submit results."
+        title="Classrooms"
+        lead="Learn together. A teacher creates a classroom, shares its join code and assigns problems, and everyone in it can see the class's progress."
       />
 
       {session.loading ? (
@@ -141,8 +140,8 @@ export default function ClassroomsPage() {
         <>
           <div className="grid gap-5 md:grid-cols-2">
             <ActionCard
-              title="Open a classroom"
-              lead="You become its owner: you get the join code, choose the assignments and see everyone's progress."
+              title="Create a classroom"
+              lead="You get a join code to share, choose the problems to assign, and see how everyone is doing."
               label="Classroom name"
               placeholder="DSA batch, spring term"
               action="Create classroom"
@@ -153,7 +152,7 @@ export default function ClassroomsPage() {
             />
             <ActionCard
               title="Join with a code"
-              lead="Your teacher shares a six-character code. Your submissions show up on the room's board."
+              lead="Enter the six-character code your teacher shared to join their classroom."
               label="Join code"
               placeholder="ABC234"
               action="Join classroom"
@@ -181,7 +180,7 @@ export default function ClassroomsPage() {
               </div>
             ) : rooms.length === 0 ? (
               <p className="px-6 py-12 text-center text-body-md text-blueprint-muted">
-                You are not in any classroom yet. Open one or join with a code above.
+                You are not in any classroom yet. Create one or join with a code above.
               </p>
             ) : (
               <ul className="divide-y divide-blueprint-line">

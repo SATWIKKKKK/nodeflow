@@ -36,9 +36,8 @@ export default function ContinuePage() {
         <SectionHeading
           as="h1"
           className="mb-0"
-          eyebrow="Continue solving"
-          title="Pick up where you left off."
-          lead="Every problem you opened and have not solved yet, with your code exactly as you left it."
+          title="Continue solving"
+          lead="Problems you have started but not solved yet, with your code saved as you left it."
         />
         <NavLink to="/dashboard" className={cn(button.outlineSm, "self-start lg:self-auto")}>
           <ArrowLeft size={14} aria-hidden /> Dashboard
@@ -53,7 +52,7 @@ export default function ContinuePage() {
         <div className="surface-card text-center">
           <p className="text-headline-sm text-primary">Nothing left hanging.</p>
           <p className="mt-2 text-body-md text-blueprint-muted">
-            Every problem you started is solved. Pick a new one and it will wait here if you step away.
+            Nothing in progress. Any problem you start and leave unsolved will appear here.
           </p>
           <NavLink to="/problems" className={cn(button.outlineSm, "mt-6")}>
             Browse problems
@@ -64,7 +63,7 @@ export default function ContinuePage() {
           {(!session.user || error) && (
             <p className="mb-4 rounded-xl border border-blueprint-line bg-surface-inset px-4 py-3 text-sm text-blueprint-muted">
               {error
-                ? "Showing what this browser remembers; your account's list could not be reached just now."
+                ? "We couldn't load your full list just now, so this shows what was saved on this device."
                 : "Saved in this browser. "}
               {!session.user && (
                 <NavLink to="/signin?next=/continue" className="font-semibold text-[var(--fill-blue)] hover:underline">

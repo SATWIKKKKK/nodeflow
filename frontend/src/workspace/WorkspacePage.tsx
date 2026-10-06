@@ -434,7 +434,7 @@ export default function WorkspacePage() {
       // /workspace on its own opens the first problem in the bank.
       loadProblems()
         .then((list) => mounted && list[0] && navigate(`/workspace/${list[0].id}`, { replace: true }))
-        .catch(() => mounted && setNotice("Could not load problems. Check that the Noesis backend is running, then reload."));
+        .catch(() => mounted && setNotice("We couldn't load the problems. Please reload the page."));
       return () => {
         mounted = false;
       };
@@ -467,7 +467,7 @@ export default function WorkspacePage() {
           navigate("/problems", { replace: true });
           return;
         }
-        if (!cached) setNotice("Could not load this problem. Check that the Noesis backend is running, then reload.");
+        if (!cached) setNotice("We couldn't load this problem. Please reload the page.");
       });
 
     return () => {
@@ -1133,7 +1133,7 @@ export default function WorkspacePage() {
             {actionButton("test", "Test")}
             {actionButton("submit", "Submit")}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 sm:gap-6">
             <CoinBalance className="hidden sm:inline-flex" />
             <ThemeToggle />
             <AccountMenu />
@@ -1562,7 +1562,7 @@ export default function WorkspacePage() {
               {notice && (
                 <div className="status-warning rounded-xl border px-4 py-3 text-sm">
                   <p className="flex items-center gap-2 font-semibold">
-                    <AlertTriangle size={15} aria-hidden /> Noesis could not complete that request
+                    <AlertTriangle size={15} aria-hidden /> We couldn't complete that
                   </p>
                   <p className="mt-1 break-words">{notice}</p>
                 </div>
@@ -1638,7 +1638,6 @@ export default function WorkspacePage() {
       <Modal
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
-        eyebrow="Editor"
         title="Reset to the starter code?"
         actions={
           <>
@@ -1657,7 +1656,6 @@ export default function WorkspacePage() {
       <Modal
         open={stuck !== null}
         onClose={() => setStuck(null)}
-        eyebrow={stuck === "sandbox" ? "Running" : "Playback"}
         title={stuck === "sandbox" ? "This is taking longer than usual" : "The replay stopped advancing"}
         actions={
           <>

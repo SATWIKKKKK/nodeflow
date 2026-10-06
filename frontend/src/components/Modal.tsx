@@ -8,7 +8,6 @@ import { button } from "./ui";
 export function Modal({
   open,
   onClose,
-  eyebrow,
   title,
   children,
   actions,
@@ -16,7 +15,6 @@ export function Modal({
 }: {
   open: boolean;
   onClose: () => void;
-  eyebrow?: ReactNode;
   title: ReactNode;
   children?: ReactNode;
   actions?: ReactNode;
@@ -63,8 +61,7 @@ export function Modal({
             >
               <X size={16} aria-hidden />
             </button>
-            {eyebrow && <p className="pr-10 text-ui-label text-blueprint-muted">{eyebrow}</p>}
-            <h2 id={titleId} className="mt-2 pr-10 text-headline-md not-italic text-primary">
+            <h2 id={titleId} className="pr-10 text-headline-md not-italic text-primary">
               {title}
             </h2>
             {children && <div className="mt-3 text-body-md text-blueprint-muted">{children}</div>}
