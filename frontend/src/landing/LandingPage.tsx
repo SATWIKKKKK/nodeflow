@@ -303,7 +303,7 @@ export default function LandingPage() {
               }
               lead="Three ways to execute, a preview that keeps up, and errors that say whose fault they are."
             />
-            <NavLink to="/tracing" className={cn(button.outline, "self-start lg:self-auto")}>
+            <NavLink to="/docs#section-4-1" className={cn(button.outline, "self-start lg:self-auto")}>
               How tracing works <ArrowRight size={14} aria-hidden />
             </NavLink>
           </div>

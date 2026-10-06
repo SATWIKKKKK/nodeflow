@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import { BackgroundRippleEffect } from "../BackgroundRippleEffect";
 import { PageLoader } from "../PageLoader";
+import { cn } from "../../lib/cn";
 import { SiteFooter } from "./SiteFooter";
 import { SiteNavbar } from "./SiteNavbar";
 
@@ -26,7 +27,11 @@ export function MarketingLayout({ variant = "page" }: { variant?: "landing" | "p
       <SiteNavbar />
 
       {/* On the landing page, empty hero space passes clicks through to the ripple grid. */}
-      <main className={variant === "landing" ? "pointer-events-none relative z-10" : "relative z-10"}>
+      {/* At least a screen tall, so the footer never jumps into view while a
+          page is still loading. */}
+      <main
+        className={cn("relative z-10 min-h-screen", variant === "landing" && "pointer-events-none")}
+      >
         <Suspense fallback={<PageLoader />}>
           <Outlet />
         </Suspense>

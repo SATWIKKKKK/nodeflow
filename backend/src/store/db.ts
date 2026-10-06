@@ -20,6 +20,14 @@ export const ensureSchema = (): Promise<void> => {
   if (!schemaReady) {
     const db = sql;
     schemaReady = (async () => {
+      // A fresh serverless instance used to run every statement below, one
+      // round trip each, before answering its first request. The statements
+      // run in order and the unique index is the last of them, so if it
+      // exists the schema is complete and one query is enough.
+      const [{ ready }] = (await db`select to_regclass('noesis_coin_solve_once') is not null as ready`) as Array<{
+        ready: boolean;
+      }>;
+      if (ready) return;
       await db`create table if not exists noesis_users (
         id text primary key,
         email text not null unique,

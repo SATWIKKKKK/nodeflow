@@ -5,6 +5,7 @@ import type { ProgressSummary } from "@nodeflow/shared";
 import { api } from "../lib/api";
 import { structureLabel } from "../lib/problems";
 import { useSession } from "../lib/session";
+import { useProgress } from "../lib/progress";
 import { cn } from "../lib/cn";
 import { verdictTone } from "../lib/verdict";
 import { SectionHeading } from "../components/SectionHeading";
@@ -36,24 +37,9 @@ function Bar({ value, total }: { value: number; total: number }) {
 
 export default function DashboardPage() {
   const session = useSession();
-  const [progress, setProgress] = useState<ProgressSummary | null>(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-    setError("");
-
-    api
-      .progress(session.token)
-      .then((summary) => mounted && setProgress(summary))
-      .catch(() => {
-        if (mounted) setError("We couldn't load your progress. Please reload the page.");
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [session.token]);
+  const { progress, error: failed } = useProgress();
+  // Only worth saying when there is nothing to show at all.
+  const error = failed && !progress ? "We couldn't load your progress. Please reload the page." : "";
 
   const completion = progress?.totalProblems
     ? Math.round((progress.accepted / progress.totalProblems) * 100)

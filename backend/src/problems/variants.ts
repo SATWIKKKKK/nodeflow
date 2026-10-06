@@ -180,7 +180,18 @@ const remember = (row: VariantRow) => {
   if (!created.some((problem) => problem.id === row.id)) created.push(row.data);
 };
 
-const ensureVariantTable = async () => {
+/** Created once per instance, not on every refresh of the list. */
+let variantTableReady: Promise<void> | null = null;
+const ensureVariantTable = () => {
+  if (!sql) return Promise.resolve();
+  variantTableReady ??= createVariantTable().catch((error) => {
+    variantTableReady = null;
+    throw error;
+  });
+  return variantTableReady;
+};
+
+const createVariantTable = async () => {
   if (!sql) return;
   await ensureSchema();
   await sql`create table if not exists noesis_problem_variants (

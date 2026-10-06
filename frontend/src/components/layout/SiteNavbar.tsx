@@ -10,7 +10,7 @@ import { button } from "../ui";
 import { AccountMenu } from "./AccountMenu";
 
 export const siteLinks = [
-  { to: "/how-it-works", label: "How it works" },
+  { to: "/docs", label: "Docs" },
   { to: "/problems", label: "Problems" },
   { to: "/classrooms", label: "Classrooms" },
   { to: "/pricing", label: "Pricing" }

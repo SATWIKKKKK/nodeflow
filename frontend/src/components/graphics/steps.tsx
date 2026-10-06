@@ -298,7 +298,7 @@ export function ReplayScene() {
   );
 }
 
-/* ---------- Test, Submit and Diff, for /how-it-works and /tracing ---------- */
+/* ---------- Test, Submit and Diff, for the docs ---------- */
 
 const TICK = "M -3.2 0 L -1 2.4 L 3.3 -2.8";
 const CROSS_MARK = "M -3 -3 L 3 3 M 3 -3 L -3 3";

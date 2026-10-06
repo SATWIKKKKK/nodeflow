@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../lib/cn";
+import { useSession } from "../lib/session";
 import { LogoDrawIn } from "./graphics/LogoDrawIn";
 
 /**
@@ -32,7 +33,7 @@ export function LogoMark({ className }: { className?: string }) {
 }
 
 export function Logo({
-  to = "/",
+  to,
   className,
   markClassName,
   compact = false,
@@ -46,10 +47,13 @@ export function Logo({
   animated?: boolean;
 }) {
   const [playToken, setPlayToken] = useState(0);
+  // Home for a signed-in learner is their dashboard: go there directly.
+  const session = useSession();
+  const target = to ?? (session.user ? "/dashboard" : "/");
 
   return (
     <NavLink
-      to={to}
+      to={target}
       aria-label="Noesis home"
       onMouseEnter={animated ? () => setPlayToken((token) => token + 1) : undefined}
       className={cn("inline-flex items-center gap-2.5 text-primary", className)}

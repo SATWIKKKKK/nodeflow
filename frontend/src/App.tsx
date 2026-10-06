@@ -15,8 +15,7 @@ const LandingPage = lazy(() => import("./landing/LandingPage"));
 const WorkspacePage = lazy(() => import("./workspace/WorkspacePage"));
 const ProblemsPage = lazy(() => import("./pages/ProblemsPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
-const HowItWorksPage = lazy(() => import("./pages/HowItWorksPage"));
-const TracingPage = lazy(() => import("./pages/TracingPage"));
+const DocsPage = lazy(() => import("./pages/DocsPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ProblemMapPage = lazy(() => import("./pages/ProblemMapPage"));
 const ContinuePage = lazy(() => import("./pages/ContinuePage"));
@@ -82,11 +81,15 @@ function RequireAuth({ children }: { children: ReactNode }) {
 /**
  * Home is the dashboard for anyone signed in: they have a record and unfinished
  * problems to get back to, and the pitch on the landing page is for newcomers.
+ *
+ * Decided above the landing layout, not inside it. Redirecting from inside
+ * drew the layout (navbar and footer) for a frame first, so a signed-in
+ * learner saw the footer flash on every trip home.
  */
-function Home() {
+function HomeGate() {
   const session = useSession();
   if (session.user) return <Navigate to="/dashboard" replace />;
-  return <LandingPage />;
+  return <MarketingLayout variant="landing" />;
 }
 
 export default function App() {
@@ -98,13 +101,12 @@ export default function App() {
       <CoinsSync />
       <CoinCelebration />
       <Routes>
-        <Route element={<MarketingLayout variant="landing" />}>
-          <Route index element={<Home />} />
+        <Route element={<HomeGate />}>
+          <Route index element={<LandingPage />} />
         </Route>
 
         <Route element={<MarketingLayout />}>
-          <Route path="/how-it-works" element={<HowItWorksPage />} />
-          <Route path="/tracing" element={<TracingPage />} />
+          <Route path="/docs" element={<DocsPage />} />
           <Route
             path="/pricing"
             element={
@@ -176,6 +178,10 @@ export default function App() {
             </RequireAuth>
           }
         />
+
+        {/* The guide and the tracing explainer became the docs. */}
+        <Route path="/how-it-works" element={<Navigate to="/docs" replace />} />
+        <Route path="/tracing" element={<Navigate to="/docs#section-4-1" replace />} />
 
         {/* Legacy paths and typos fall back to the landing page. */}
         <Route path="*" element={<Navigate to="/" replace />} />

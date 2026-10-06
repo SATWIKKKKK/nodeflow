@@ -23,15 +23,10 @@ export interface PageMeta {
  */
 export const PUBLIC_META: Record<string, PageMeta> = {
   "/": { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
-  "/how-it-works": {
-    title: "How Noesis works — write, run, trace, replay | Noesis",
+  "/docs": {
+    title: "Docs — how to use Noesis | Noesis",
     description:
-      "Pick a DSA problem, write a solution in Python, C++ or Java, and step through a replay of exactly what your code did to every list, tree and array."
-  },
-  "/tracing": {
-    title: "How the tracer works — real execution, not animations | Noesis",
-    description:
-      "Noesis runs your code in an isolated sandbox, records the heap at every line, and draws only what changed. See how a DSA visualizer can show your own bug."
+      "How to use Noesis: find a problem, run and test your code in Python, C++ or Java, read the step-by-step trace, and see how tracing works."
   },
   "/about": {
     title: "About Noesis — a DSA practice workspace that shows your code run",

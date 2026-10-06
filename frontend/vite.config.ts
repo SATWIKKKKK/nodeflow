@@ -28,7 +28,7 @@ const PRIVATE_PREFIXES = [
 function seo(siteUrl: string): Plugin {
   const today = new Date().toISOString().slice(0, 10);
   const priority = (path: string) =>
-    path === "/" ? "1.0" : ["/how-it-works", "/tracing"].includes(path) ? "0.8" : "0.5";
+    path === "/" ? "1.0" : path === "/docs" ? "0.8" : "0.5";
 
   return {
     name: "noesis-seo",

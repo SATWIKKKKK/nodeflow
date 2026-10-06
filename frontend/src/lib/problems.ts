@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ProblemSummary } from "@nodeflow/shared";
 import { api } from "./api";
+import { readCached, writeCached } from "./cached";
 
 /**
  * The problem list is fetched by the search bar, the list page, the landing
@@ -11,18 +12,28 @@ let pending: Promise<ProblemSummary[]> | null = null;
 
 export const loadProblems = () => {
   if (!pending) {
-    pending = api.problems().catch((error) => {
-      pending = null;
-      throw error;
-    });
+    pending = api
+      .problems()
+      .then((list) => {
+        writeCached("problems", "all", list);
+        return list;
+      })
+      .catch((error) => {
+        pending = null;
+        throw error;
+      });
   }
   return pending;
 };
 
+/** The list as last seen, for drawing before the fresh one arrives. */
+export const cachedProblems = () => readCached<ProblemSummary[]>("problems", "all") ?? [];
+
 export function useProblems() {
-  const [problems, setProblems] = useState<ProblemSummary[]>([]);
+  // Last-known list first, so the page draws at once; the fresh one replaces it.
+  const [problems, setProblems] = useState<ProblemSummary[]>(cachedProblems);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => cachedProblems().length === 0);
 
   useEffect(() => {
     let mounted = true;

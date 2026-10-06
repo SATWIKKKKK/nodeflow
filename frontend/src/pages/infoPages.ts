@@ -29,21 +29,24 @@ export interface InfoPageContent {
   lead: string;
   sections: InfoSection[];
   draft?: boolean;
+  /** Heading above, short cards side by side, for pages that fit on a screen. */
+  layout?: "columns";
 }
 
 export const INFO_PAGES: InfoPageContent[] = [
   {
     path: "/about",
+    layout: "columns",
     title: "About Noesis",
     lead: "Noesis is a place to practise data structures and algorithms. You write the code, and Noesis shows you what that exact code did, one line at a time.",
     sections: [
       {
         title: "Why it exists",
-        body: "Most visualizers play an animation someone scripted in advance. When your own solution breaks, that animation cannot show you where. Noesis runs your code for real, records every object at every line, and replays it, so the picture on screen is your program, bug included."
+        body: "Most visualizers play an animation someone scripted in advance, which cannot show where your own solution breaks. Noesis runs your code for real and replays it, so the picture is your program, bug included."
       },
       {
         title: "Who it is for",
-        body: "Students working through data structures and algorithms, who want to understand why a solution works or breaks rather than just clear problems quickly."
+        body: "Students learning data structures and algorithms who want to understand why a solution works or breaks, not just clear problems quickly."
       },
       {
         title: "Where it stands",

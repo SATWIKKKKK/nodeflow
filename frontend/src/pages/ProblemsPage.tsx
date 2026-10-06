@@ -5,6 +5,7 @@ import type { ProgressSummary } from "@nodeflow/shared";
 import { api } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
+import { useProgress } from "../lib/progress";
 import { cn } from "../lib/cn";
 import { verdictLabel, verdictTone } from "../lib/verdict";
 import { useUnfinished } from "../components/UnfinishedList";
@@ -30,7 +31,7 @@ const PAGE_SIZE = 20;
 export default function ProblemsPage() {
   const session = useSession();
   const { problems, error, loading } = useProblems();
-  const [progress, setProgress] = useState<ProgressSummary | null>(null);
+  const { progress } = useProgress();
   const [params, setParams] = useSearchParams();
 
   // Filters and the page live in the URL, so back/forward and shared links keep them.
@@ -57,19 +58,6 @@ export default function ProblemsPage() {
     update({ page: value > 1 ? String(value) : null }, false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  // Progress is what makes the status filter meaningful; it is optional, so a
-  // failure here must not take the list down with it.
-  useEffect(() => {
-    let mounted = true;
-    api
-      .progress(session.token)
-      .then((summary) => mounted && setProgress(summary))
-      .catch(() => undefined);
-    return () => {
-      mounted = false;
-    };
-  }, [session.token]);
 
   const statusById = useMemo(() => {
     const map = new Map<string, { attempts: number; accepted: boolean; lastVerdict?: string }>();

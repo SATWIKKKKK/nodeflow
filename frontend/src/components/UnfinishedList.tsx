@@ -7,6 +7,7 @@ import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { verdictLabel, verdictTone } from "../lib/verdict";
 import { markStartedSynced, startedAsUnfinished, unsyncedStarted } from "../lib/started";
+import { readCached, writeCached } from "../lib/cached";
 import { UnfinishedMark } from "./UnfinishedMark";
 
 const LANGUAGE_NAMES = { python: "Python", cpp: "C++", java: "Java" } as const;
@@ -33,7 +34,10 @@ const ago = (timestamp: string) => {
  */
 export function useUnfinished() {
   const session = useSession();
-  const [problems, setProblems] = useState<UnfinishedProblem[] | null>(null);
+  // Last-known list first (lib/cached.ts), so in-progress marks never blink out.
+  const [problems, setProblems] = useState<UnfinishedProblem[] | null>(() =>
+    session.user ? readCached<UnfinishedProblem[]>("unfinished", session.user.id) : null
+  );
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -44,7 +48,7 @@ export function useUnfinished() {
       return;
     }
     const token = session.token;
-    setProblems(null);
+    setProblems(readCached<UnfinishedProblem[]>("unfinished", userId));
     setError(false);
     const pending = unsyncedStarted(userId);
     const synced = pending.length
@@ -58,7 +62,10 @@ export function useUnfinished() {
       : Promise.resolve();
     synced
       .then(() => api.unfinished(token))
-      .then((response) => mounted && setProblems(response.problems))
+      .then((response) => {
+        writeCached("unfinished", userId, response.problems);
+        if (mounted) setProblems(response.problems);
+      })
       .catch(() => {
         if (!mounted) return;
         setError(true);

@@ -5,6 +5,7 @@ import type { ProgressSummary } from "@nodeflow/shared";
 import { api, type DsaSummary } from "../lib/api";
 import { useProblems } from "../lib/problems";
 import { useSession } from "../lib/session";
+import { useProgress } from "../lib/progress";
 import { cn } from "../lib/cn";
 import { Pagination, paginate } from "../components/Pagination";
 import { SectionHeading } from "../components/SectionHeading";
@@ -17,7 +18,7 @@ export default function ProblemMapPage() {
   const [params, setParams] = useSearchParams();
   const session = useSession();
   const { problems, loading, error } = useProblems();
-  const [progress, setProgress] = useState<ProgressSummary | null>(null);
+  const { progress } = useProgress();
   const [summary, setSummary] = useState<DsaSummary | null>(null);
 
   useEffect(() => {
@@ -28,13 +29,6 @@ export default function ProblemMapPage() {
     };
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    api.progress(session.token).then((value) => mounted && setProgress(value)).catch(() => undefined);
-    return () => {
-      mounted = false;
-    };
-  }, [session.token]);
 
   const solved = useMemo(() => {
     const set = new Set<string>();

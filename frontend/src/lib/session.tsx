@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { AuthUser } from "@nodeflow/shared";
 import { api } from "./api";
+import { forgetCached } from "./cached";
 
 const sessionKey = "noesis:session";
 
@@ -89,7 +90,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         persist(response);
       },
       signOut: async () => {
-        await api.signOut(token);
+        if (user) forgetCached(user.id);
+        await api.signOut(token).catch(() => undefined);
         persist(null);
       },
       adopt: (response) => persist(response)

@@ -14,8 +14,7 @@ const groups: Array<{ title: string; links: Array<{ to: string; label: string }>
   {
     title: "Learn",
     links: [
-      { to: "/how-it-works", label: "How it works" },
-      { to: "/tracing", label: "Tracing" },
+      { to: "/docs", label: "Docs" },
       { to: "/pricing", label: "Pricing" },
       { to: "/roadmap", label: "Roadmap" }
     ]

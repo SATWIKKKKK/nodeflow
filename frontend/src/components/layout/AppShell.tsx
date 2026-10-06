@@ -2,7 +2,7 @@ import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Activity,
+  BookOpen,
   BarChart3,
   CreditCard,
   Layers3,
@@ -11,7 +11,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Users,
-  Workflow,
   X,
   type LucideIcon
 } from "lucide-react";
@@ -38,8 +37,7 @@ const primaryNav: NavItem[] = [
 ];
 
 const learnNav: NavItem[] = [
-  { to: "/how-it-works", label: "How it works", icon: Workflow },
-  { to: "/tracing", label: "Tracing", icon: Activity },
+  { to: "/docs", label: "Docs", icon: BookOpen },
   { to: "/pricing", label: "Pricing", icon: CreditCard }
 ];
 
