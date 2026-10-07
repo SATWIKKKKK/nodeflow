@@ -18,7 +18,6 @@ import {
   FlaskConical,
   History,
   Loader2,
-  NotebookPen,
   Play,
   RefreshCw,
   RotateCcw,
@@ -69,7 +68,7 @@ import { DEFAULT_LAYOUT, clamp, useWorkspaceLayout, type PanelId } from "./layou
 import { Splitter } from "./Splitter";
 import { PanelBar, PanelSizeTools, ToolButton, ToolGroup, type PanelTab } from "./panels/PanelBar";
 import { HoverSelect } from "../components/HoverSelect";
-import { NotesPanel } from "./panels/NotesPanel";
+import { NotesButton } from "./panels/NotesButton";
 import { ResultPanel, type ResultState } from "./panels/ResultPanel";
 import { TestcasePanel } from "./panels/TestcasePanel";
 import { orderedInput, show } from "./panels/values";
@@ -121,14 +120,14 @@ type SceneMode = "trace" | "3d";
 
 const SCENE_MODE_KEY = "noesis:scene-mode";
 
-type ConsoleTab = "testcase" | "result" | "custom" | "notes";
+/** The editor panel: the code, the visible cases, and what the last run said. */
+type WorkTab = "code" | "testcase" | "result";
+type ProblemTab = "description" | "custom";
 
 /** Sizes the splitters keep to, in pixels. */
-const PANEL_BAR_PX = 42;
 const SPLITTER_PX = 12;
 const MIN_PROBLEM_PX = 96;
-const MIN_CODE_PX = 160;
-const MIN_CONSOLE_PX = 120;
+const MIN_WORK_PX = 220;
 
 const ACTIONS = {
   run: { label: "Run", busy: "Running", icon: Play, keys: "Ctrl+Enter", width: "sm:min-w-[92px]" },
@@ -998,24 +997,11 @@ export default function WorkspacePage() {
   const [maximized, setMaximized] = useState<PanelId | null>(null);
   const [traceCollapsed, setTraceCollapsed] = useState(false);
   const [problemCollapsed, setProblemCollapsed] = useState(false);
-  const [consoleCollapsed, setConsoleCollapsed] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
-  const consoleRef = useRef<HTMLElement>(null);
+  const workRef = useRef<HTMLElement>(null);
 
   const toggleMaximized = (panel: PanelId) => setMaximized((current) => (current === panel ? null : panel));
-
-  /** The right column's height in pixels, and what its fixed panels take now. */
-  const columnBox = () => {
-    const box = columnRef.current?.getBoundingClientRect();
-    if (!box) return null;
-    const bar = PANEL_BAR_PX;
-    return {
-      box,
-      problemPx: problemCollapsed ? bar : layout.problem * box.height,
-      consolePx: consoleCollapsed ? bar : layout.console * box.height
-    };
-  };
 
   const moveSplit = (clientX: number) => {
     const box = bodyRef.current?.getBoundingClientRect();
@@ -1025,40 +1011,59 @@ export default function WorkspacePage() {
   };
 
   const moveProblem = (clientY: number) => {
-    const measured = columnBox();
-    if (!measured) return;
-    const { box, consolePx } = measured;
-    const most = box.height - consolePx - MIN_CODE_PX - 2 * SPLITTER_PX;
+    const box = columnRef.current?.getBoundingClientRect();
+    if (!box) return;
+    const most = box.height - MIN_WORK_PX - SPLITTER_PX;
     const px = clamp(clientY - box.top - SPLITTER_PX / 2, MIN_PROBLEM_PX, Math.max(MIN_PROBLEM_PX, most));
     setProblemCollapsed(false);
     setLayout({ problem: px / box.height });
   };
 
-  const moveConsole = (clientY: number) => {
-    const measured = columnBox();
-    if (!measured) return;
-    const { box, problemPx } = measured;
-    const most = box.height - problemPx - MIN_CODE_PX - 2 * SPLITTER_PX;
-    const px = clamp(box.bottom - clientY - SPLITTER_PX / 2, MIN_CONSOLE_PX, Math.max(MIN_CONSOLE_PX, most));
-    setConsoleCollapsed(false);
-    setLayout({ console: px / box.height });
+  // --- tabs ------------------------------------------------------------------------
+
+  const [workTab, setWorkTab] = useState<WorkTab>("code");
+  const workTabRef = useRef(workTab);
+  workTabRef.current = workTab;
+  const [problemTab, setProblemTab] = useState<ProblemTab>("description");
+  /** A result came back while the learner was looking at something else. */
+  const [resultUnseen, setResultUnseen] = useState(false);
+
+  useEffect(() => {
+    if (workTab === "result") setResultUnseen(false);
+  }, [workTab]);
+
+  useEffect(() => {
+    if ((result || notice) && workTabRef.current !== "result") setResultUnseen(true);
+  }, [result, notice]);
+
+  // A new problem starts on its code and its statement.
+  useEffect(() => {
+    setWorkTab("code");
+    setProblemTab("description");
+    setResultUnseen(false);
+  }, [problemId]);
+
+  const openProblemTab = (tab: ProblemTab) => {
+    setProblemTab(tab);
+    setProblemCollapsed(false);
+    setMaximized((current) => (current && current !== "problem" ? null : current));
   };
 
-  // --- console ---------------------------------------------------------------
-
-  const [consoleTab, setConsoleTab] = useState<ConsoleTab>("testcase");
-  const openConsole = (tab: ConsoleTab) => {
-    setConsoleTab(tab);
-    setConsoleCollapsed(false);
-  };
-
-  /** Run, Test and Submit all answer in Test Result, brought into view. */
+  /**
+   * Test and Submit answer in Test Result, brought into view. Run answers on
+   * the left, in the replay, so it leaves the editor where it is; its verdict
+   * waits in Test Result and in the editor's status bar.
+   */
   const showResults = (mode: "run" | "test" | "submit") => {
-    openConsole("result");
-    setMaximized((current) => (current === "trace" && mode === "run" ? current : current === "console" ? current : null));
-    // On a phone the console sits below the editor: bring it up.
-    if (mode !== "run" && window.matchMedia("(max-width: 1023px)").matches) {
-      window.requestAnimationFrame(() => consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    setMaximized((current) => (current === "trace" && mode === "run" ? current : current === "work" ? current : null));
+    if (mode === "run") {
+      setWorkTab((tab) => (tab === "testcase" ? "result" : tab));
+      return;
+    }
+    setWorkTab("result");
+    // On a phone the editor panel sits below the trace: bring it up.
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      window.requestAnimationFrame(() => workRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
   };
 
@@ -1202,19 +1207,65 @@ export default function WorkspacePage() {
   };
 
   const hidden = (panel: PanelId) => maximized !== null && maximized !== panel;
-  const consoleTabs: PanelTab<ConsoleTab>[] = [
+  const dot = (tone: string) => <span className="h-1.5 w-1.5 rounded-full" style={{ background: tone }} aria-hidden />;
+  const resultTone =
+    !result
+      ? "var(--fill-blue)"
+      : result.kind === "run"
+        ? result.execution.ok
+          ? result.match === false
+            ? "var(--verdict-fail)"
+            : "var(--verdict-pass)"
+          : "var(--verdict-fail)"
+        : result.judgement.verdict === "Accepted"
+          ? "var(--verdict-pass)"
+          : "var(--verdict-fail)";
+  const workTabs: PanelTab<WorkTab>[] = [
+    { id: "code", label: "Code", icon: CodeXml },
     { id: "testcase", label: "Testcase", icon: SquareCheckBig },
-    { id: "result", label: "Test Result", icon: SquareTerminal },
     {
-      id: "custom",
-      label: "Custom Input",
-      icon: TextCursorInput,
-      badge: customEnabled ? (
-        <span className="h-1.5 w-1.5 rounded-full bg-[var(--fill-blue)]" aria-label="on" />
-      ) : undefined
-    },
-    { id: "notes", label: "Notes", icon: NotebookPen }
+      id: "result",
+      label: "Test Result",
+      shortLabel: "Result",
+      icon: SquareTerminal,
+      badge:
+        busy && workTab !== "result" ? (
+          <Loader2 size={11} className="animate-spin text-blueprint-muted" aria-label="running" />
+        ) : resultUnseen ? (
+          dot(notice ? "var(--verdict-slow)" : resultTone)
+        ) : undefined
+    }
   ];
+  const problemTabs: PanelTab<ProblemTab>[] = [
+    { id: "description", label: "Description", icon: FileText },
+    { id: "custom", label: "Custom Input", shortLabel: "Input", icon: TextCursorInput, badge: customEnabled ? dot("var(--fill-blue)") : undefined }
+  ];
+
+  /** The last run's verdict, one line, for the editor's status bar. */
+  const resultSummary: { text: string; color: string } | null = busy
+    ? { text: busy === "run" ? "Running…" : busy === "test" ? "Testing…" : "Judging…", color: "var(--muted-foreground)" }
+    : notice
+      ? { text: "Couldn't complete the last run", color: "var(--verdict-slow)" }
+      : !result
+        ? null
+        : result.kind === "run"
+          ? result.execution.ok
+            ? {
+                text:
+                  result.match === null
+                    ? `Ran in ${Math.round(result.execution.runtimeMs)} ms`
+                    : result.match
+                      ? "Correct"
+                      : "Wrong Answer",
+                color: result.match === false ? "var(--verdict-fail)" : result.match ? "var(--verdict-pass)" : "var(--muted-foreground)"
+              }
+            : { text: verdictLabel(result.execution.errorType), color: "var(--verdict-fail)" }
+          : {
+              text: `${verdictLabel(result.judgement.verdict)} · ${result.judgement.cases.filter((entry) => entry.status === "passed").length}/${
+                result.judgement.totalCases ?? result.judgement.cases.length
+              }`,
+              color: result.judgement.verdict === "Accepted" ? "var(--verdict-pass)" : "var(--verdict-fail)"
+            };
   const traceTabs: PanelTab<SceneMode>[] = can3D
     ? [
         { id: "trace", label: "2D trace", icon: Waypoints },
@@ -1224,8 +1275,7 @@ export default function WorkspacePage() {
 
   const layoutVars = {
     "--split": `${layout.split * 100}%`,
-    "--problem-h": `${layout.problem * 100}%`,
-    "--console-h": `${layout.console * 100}%`
+    "--problem-h": `${layout.problem * 100}%`
   } as CSSProperties;
 
   return (
@@ -1235,10 +1285,11 @@ export default function WorkspacePage() {
           <HomeAndBack />
           {/* Centred on the page: the three things a learner reaches for,
               always in the same place. */}
-          <div className="order-last grid w-full grid-cols-3 gap-2 sm:order-none sm:mx-auto sm:flex sm:w-auto sm:items-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+          <div className="order-last grid w-full grid-cols-[1fr_1fr_1fr_auto] gap-2 sm:order-none sm:mx-auto sm:flex sm:w-auto sm:items-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
             {actionButton("run")}
             {actionButton("test")}
             {actionButton("submit")}
+            <NotesButton problemId={problemId} token={session.token} signedIn={Boolean(session.user)} />
           </div>
           <div className="ml-auto flex items-center gap-4 sm:ml-0 sm:gap-6 lg:ml-auto">
             <CoinBalance className="hidden sm:inline-flex" />
@@ -1421,13 +1472,13 @@ export default function WorkspacePage() {
           />
         )}
 
-        {/* Right column: problem, editor, console. On phones its panels join
+        {/* Right column: the problem, then the editor panel. On phones its panels join
             the page so the statement can sit above the trace. */}
         <div
           ref={columnRef}
           className={cn(
             "contents lg:flex lg:min-h-0 lg:min-w-0 lg:flex-1 lg:flex-col",
-            hidden("problem") && hidden("code") && hidden("console") && "lg:hidden"
+            hidden("problem") && hidden("work") && "lg:hidden"
           )}
         >
           {/* Problem */}
@@ -1443,12 +1494,7 @@ export default function WorkspacePage() {
               hidden("problem") && "lg:hidden"
             )}
           >
-            <PanelBar
-              name="Problem"
-              tabs={[{ id: "description", label: "Description", icon: FileText }]}
-              active="description"
-              onTab={() => problemCollapsed && setProblemCollapsed(false)}
-            >
+            <PanelBar name="Problem" tabs={problemTabs} active={problemTab} onTab={openProblemTab}>
               <PanelSizeTools
                 maximized={maximized === "problem"}
                 onMaximize={() => toggleMaximized("problem")}
@@ -1463,7 +1509,16 @@ export default function WorkspacePage() {
                 problemCollapsed && "lg:hidden"
               )}
             >
-              {problem ? (
+              {problemTab === "custom" && problem ? (
+                <CustomInputPanel
+                  problem={problem}
+                  enabled={customEnabled}
+                  text={customText}
+                  error={customError}
+                  onEnabled={setCustomEnabled}
+                  onText={setCustomText}
+                />
+              ) : problem ? (
                 <>
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium">
                     <span className="text-[var(--fill-blue)]">{problem.topic}</span>
@@ -1571,53 +1626,62 @@ export default function WorkspacePage() {
             />
           )}
 
-          {/* Code */}
+          {/* Code, test cases and results: one large panel, the code first. */}
           <section
+            ref={workRef}
             aria-label="Code editor"
             className={cn(
-              "surface-frame order-3 flex flex-col overflow-hidden lg:order-none lg:min-h-[160px] lg:flex-1",
-              hidden("code") && "lg:hidden"
+              "surface-frame relative order-3 flex scroll-mt-3 flex-col overflow-hidden lg:order-none lg:min-h-[220px] lg:flex-1",
+              hidden("work") && "lg:hidden"
             )}
           >
-            <PanelBar name="Code" tabs={[{ id: "code", label: "Code", icon: CodeXml }]} active="code">
-              <HoverSelect
-                label="Language"
-                value={language}
-                options={SUPPORTED_LANGUAGES.map((option) => ({ value: option, label: LANGUAGE_LABELS[option] }))}
-                onChange={(next) => {
-                  languageChosen.current = true;
-                  setLanguage(next);
-                }}
-                align="right"
-                triggerClassName="neu-trigger h-[32px] rounded-full px-3.5 text-[13px] font-medium text-primary"
-              />
-              <ToolGroup>
-                <ToolButton label="Format (Shift+Alt+F)" onClick={() => void formatNow()} disabled={!codeReady || toolBusy !== null}>
-                  {toolBusy === "format" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Braces size={14} aria-hidden />}
-                </ToolButton>
-                <ToolButton label={copied ? "Copied" : "Copy code"} onClick={() => void copyCode()} disabled={!codeReady}>
-                  {copied ? <Check size={14} aria-hidden className="text-[var(--verdict-pass)]" /> : <Copy size={14} aria-hidden />}
-                </ToolButton>
-                <ToolButton
-                  label={session.user ? "Last submitted code" : "Sign in to load your last submission"}
-                  onClick={() => void fetchLastSubmission()}
-                  disabled={!problem || !session.user || toolBusy !== null}
-                >
-                  {toolBusy === "last" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <History size={14} aria-hidden />}
-                </ToolButton>
-                <ToolButton label="Reset to the starter code" onClick={() => setConfirmReset(true)} disabled={!problem}>
-                  <RotateCcw size={14} aria-hidden />
-                </ToolButton>
-                {canFullscreen && (
-                  <ToolButton label={fullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen} pressed={fullscreen}>
-                    {fullscreen ? <Shrink size={14} aria-hidden /> : <Expand size={14} aria-hidden />}
-                  </ToolButton>
-                )}
-              </ToolGroup>
-              <PanelSizeTools maximized={maximized === "code"} onMaximize={() => toggleMaximized("code")} />
+            {busy && <span className="console-progress" aria-hidden />}
+            <PanelBar name="Editor" tabs={workTabs} active={workTab} onTab={setWorkTab}>
+              {workTab === "code" && (
+                <>
+                  <HoverSelect
+                    label="Language"
+                    value={language}
+                    options={SUPPORTED_LANGUAGES.map((option) => ({ value: option, label: LANGUAGE_LABELS[option] }))}
+                    onChange={(next) => {
+                      languageChosen.current = true;
+                      setLanguage(next);
+                    }}
+                    align="right"
+                    triggerClassName="h-7 rounded-md px-2 text-[13px] font-medium text-primary transition-colors hover:bg-surface-hover"
+                  />
+                  <span className="mx-0.5 hidden h-4 w-px bg-blueprint-line sm:block" aria-hidden />
+                  <ToolGroup className="hidden sm:flex">
+                    <ToolButton label="Format (Shift+Alt+F)" onClick={() => void formatNow()} disabled={!codeReady || toolBusy !== null}>
+                      {toolBusy === "format" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Braces size={14} aria-hidden />}
+                    </ToolButton>
+                    <ToolButton label={copied ? "Copied" : "Copy code"} onClick={() => void copyCode()} disabled={!codeReady}>
+                      {copied ? <Check size={14} aria-hidden className="text-[var(--verdict-pass)]" /> : <Copy size={14} aria-hidden />}
+                    </ToolButton>
+                    <ToolButton
+                      label={session.user ? "Last submitted code" : "Sign in to load your last submission"}
+                      onClick={() => void fetchLastSubmission()}
+                      disabled={!problem || !session.user || toolBusy !== null}
+                    >
+                      {toolBusy === "last" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <History size={14} aria-hidden />}
+                    </ToolButton>
+                    <ToolButton label="Reset to the starter code" onClick={() => setConfirmReset(true)} disabled={!problem}>
+                      <RotateCcw size={14} aria-hidden />
+                    </ToolButton>
+                    {canFullscreen && (
+                      <ToolButton label={fullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen} pressed={fullscreen}>
+                        {fullscreen ? <Shrink size={14} aria-hidden /> : <Expand size={14} aria-hidden />}
+                      </ToolButton>
+                    )}
+                  </ToolGroup>
+                </>
+              )}
+              <PanelSizeTools maximized={maximized === "work"} onMaximize={() => toggleMaximized("work")} />
             </PanelBar>
 
-            <div className="neu-screen relative min-h-0 flex-1">
+            {/* The editor stays mounted on every tab, so its undo history and
+                cursor survive a look at the results. */}
+            <div className={cn("neu-screen relative min-h-0 flex-1", workTab !== "code" && "hidden")}>
               <CodeEditorPane
                 value={codeReady ? code : ""}
                 language={language}
@@ -1628,105 +1692,68 @@ export default function WorkspacePage() {
               />
             </div>
 
-            <div className="flex h-7 shrink-0 items-center gap-3 border-t border-blueprint-line px-3 text-[11.5px] text-blueprint-muted">
-              <span className="min-w-0 truncate" aria-live="polite">
-                {codeNote ? (
-                  <span className={codeNote.tone === "warn" ? "text-[var(--verdict-slow)]" : undefined}>{codeNote.text}</span>
-                ) : edits > 0 || draftState === "saving" ? (
-                  draftState === "saving" ? (
-                    "Saving…"
-                  ) : session.user ? (
-                    "Saved"
+            {workTab === "code" ? (
+              <div className="flex h-7 shrink-0 items-center gap-3 border-t border-blueprint-line px-3 text-[11.5px] text-blueprint-muted">
+                <span className="min-w-0 truncate" aria-live="polite">
+                  {codeNote ? (
+                    <span className={codeNote.tone === "warn" ? "text-[var(--verdict-slow)]" : undefined}>{codeNote.text}</span>
+                  ) : edits > 0 || draftState === "saving" ? (
+                    draftState === "saving" ? (
+                      "Saving…"
+                    ) : session.user ? (
+                      "Saved"
+                    ) : (
+                      "Saved on this device"
+                    )
+                  ) : null}
+                </span>
+                {resultSummary && (
+                  <button
+                    type="button"
+                    onClick={() => setWorkTab("result")}
+                    className="no-lift ml-auto flex shrink-0 items-center gap-1.5 rounded px-1.5 py-0.5 text-[11.5px] font-medium transition-colors hover:bg-surface-hover"
+                    style={{ minHeight: 0, color: resultSummary.color }}
+                    title="See the result"
+                  >
+                    {busy ? <Loader2 size={11} className="animate-spin" aria-hidden /> : dot(resultSummary.color)}
+                    {resultSummary.text}
+                    {!busy && <ChevronRight size={12} aria-hidden className="opacity-70" />}
+                  </button>
+                )}
+                <span className={cn("shrink-0 font-mono", !resultSummary && "ml-auto")}>
+                  Ln {cursor.line}, Col {cursor.column}
+                </span>
+              </div>
+            ) : (
+              <div
+                role="tabpanel"
+                aria-label={workTab === "testcase" ? "Testcase" : "Test Result"}
+                className="min-h-[320px] flex-1 overflow-y-auto overscroll-contain px-4 py-4 lg:min-h-0"
+              >
+                {workTab === "testcase" &&
+                  (problem ? (
+                    <TestcasePanel
+                      problem={problem}
+                      onUseAsInput={(input) => {
+                        setCustomText(pretty(input));
+                        setCustomEnabled(true);
+                        openProblemTab("custom");
+                      }}
+                    />
                   ) : (
-                    "Saved on this device"
-                  )
-                ) : null}
-              </span>
-              <span className="ml-auto shrink-0 font-mono">
-                Ln {cursor.line}, Col {cursor.column}
-              </span>
-            </div>
-          </section>
-
-          {!maximized && (
-            <Splitter
-              direction="y"
-              label="Resize the editor and the console"
-              value={100 - layout.console * 100}
-              onMove={(_x, y) => moveConsole(y)}
-              onStep={(step) => setLayout({ console: clamp(layout.console - step * 0.03, 0.12, 0.7) })}
-              onReset={() => {
-                setConsoleCollapsed(false);
-                setLayout({ console: DEFAULT_LAYOUT.console });
-              }}
-              className="hidden lg:block"
-            />
-          )}
-
-          {/* Console: Testcase, Test Result, Custom Input, Notes. */}
-          <section
-            ref={consoleRef}
-            aria-label="Console"
-            className={cn(
-              "surface-frame relative order-4 flex min-h-[360px] scroll-mt-3 flex-col overflow-hidden lg:order-none",
-              maximized === "console"
-                ? "lg:min-h-0 lg:flex-1"
-                : consoleCollapsed
-                  ? "lg:min-h-0 lg:shrink-0"
-                  : "lg:min-h-0 lg:shrink-0 lg:basis-[var(--console-h)]",
-              hidden("console") && "lg:hidden"
-            )}
-          >
-            {busy && <span className="console-progress" aria-hidden />}
-            <PanelBar name="Console" tabs={consoleTabs} active={consoleTab} onTab={openConsole}>
-              <PanelSizeTools
-                maximized={maximized === "console"}
-                onMaximize={() => toggleMaximized("console")}
-                collapsed={consoleCollapsed}
-                onCollapse={() => setConsoleCollapsed((value) => !value)}
-              />
-            </PanelBar>
-            <div
-              role="tabpanel"
-              aria-label={consoleTabs.find((tab) => tab.id === consoleTab)?.label}
-              className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4", consoleCollapsed && "lg:hidden")}
-            >
-              {consoleTab === "testcase" &&
-                (problem ? (
-                  <TestcasePanel
-                    problem={problem}
-                    onUseAsInput={(input) => {
-                      setCustomText(pretty(input));
-                      setCustomEnabled(true);
-                      openConsole("custom");
-                    }}
+                    <span className="skeleton h-24 w-full" aria-hidden />
+                  ))}
+                {workTab === "result" && (
+                  <ResultPanel
+                    result={result}
+                    busy={busy}
+                    notice={problem ? notice : ""}
+                    visibleCount={problem?.visibleTestCases.length || problem?.examples.length || 0}
+                    signature={problem?.signature}
                   />
-                ) : (
-                  <span className="skeleton h-24 w-full" aria-hidden />
-                ))}
-              {consoleTab === "result" && (
-                <ResultPanel
-                  result={result}
-                  busy={busy}
-                  notice={problem ? notice : ""}
-                  visibleCount={problem?.visibleTestCases.length || problem?.examples.length || 0}
-                  signature={problem?.signature}
-                />
-              )}
-              {consoleTab === "custom" && problem && (
-                <CustomInputPanel
-                  problem={problem}
-                  enabled={customEnabled}
-                  text={customText}
-                  error={customError}
-                  onEnabled={setCustomEnabled}
-                  onText={setCustomText}
-                />
-              )}
-              {consoleTab === "notes" && problemId && (
-                <NotesPanel problemId={problemId} token={session.token} signedIn={Boolean(session.user)} />
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </section>
         </div>
       </div>

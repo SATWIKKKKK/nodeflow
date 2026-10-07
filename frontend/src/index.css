@@ -2295,88 +2295,25 @@ body.resizing-y * {
   letter-spacing: 0;
 }
 
-/*
- * Panel tabs: a recessed track with the open tab raised out of it. The raised
- * face is one element that slides between tabs (PanelBar's knob), so the tab
- * buttons themselves stay flat inside the track.
- */
-.neu-world .neu-tabs[role="tablist"] {
-  border-radius: 10px;
-  background: var(--neu-hollow);
-  box-shadow: var(--neu-well-sm);
-}
-
-.neu-world .neu-tabs [role="tab"],
-.neu-world .neu-tabs [role="tab"]:hover,
-.neu-world .neu-tabs [role="tab"][aria-selected="true"],
-.neu-world .neu-tabs [role="tab"][aria-selected="true"]:hover {
+/* Panel tabs and case chips are words, not a raised track: the open one is
+   marked by ink and a blue rule (panels) or a pressed hollow (cases). */
+.neu-world .flat-tabs[role="tablist"] {
   background: transparent;
   box-shadow: none;
 }
 
-.neu-world .neu-tabs [role="tab"][aria-selected="true"] {
-  color: var(--fill-blue);
-}
-
-.panel-tab-knob {
-  border-radius: 7px;
-  background: var(--card);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-}
-
-.neu-world .panel-tab-knob {
-  background: var(--neu-face);
-  box-shadow: var(--neu-raise-sm);
-}
-
-/* Tools: one raised strip, each key pressed in under the pointer. */
-.neu-world .tool-group {
-  border-radius: 999px;
-  background: var(--neu-face-soft);
-  box-shadow: var(--neu-raise-sm);
-}
-
-.neu-world .tool-group .tool-button {
-  border-radius: 999px;
-  transition:
-    box-shadow 180ms ease,
-    background-color 180ms ease,
-    color 180ms ease;
-}
-
-.neu-world .tool-group .tool-button:not(:disabled):hover,
-.neu-world .tool-group .tool-button[aria-pressed="true"] {
-  background: var(--neu-face-pressed);
-  box-shadow: var(--neu-well-sm);
-  color: var(--fill-blue);
-}
-
-.neu-world .tool-group .tool-button:not(:disabled):active {
-  box-shadow: var(--neu-press);
-}
-
-/* Case chips: raised keys; the picked one is pressed in. */
-.neu-world .case-chip {
-  background: var(--neu-face-soft);
-  box-shadow: var(--neu-raise-sm);
-}
-
-.neu-world .case-chip:not(.case-chip-on):hover {
-  color: var(--foreground);
-  box-shadow: var(--neu-raise);
+.neu-world .flat-tabs [role="tab"][aria-selected="true"],
+.neu-world .flat-tabs [role="tab"][aria-selected="true"]:hover {
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
 }
 
 .neu-world .case-chip-on,
 .neu-world .flat-tabs [role="tab"].case-chip-on,
 .neu-world .flat-tabs [role="tab"].case-chip-on:hover {
-  background: var(--neu-face-pressed);
+  background: var(--neu-surface);
   box-shadow: var(--neu-well-sm);
-  color: var(--fill-blue);
-}
-
-.neu-world .flat-tabs[role="tablist"] {
-  background: transparent;
-  box-shadow: none;
 }
 
 /* Hover menus' triggers: a raised pill, pressed in while the menu is open. */

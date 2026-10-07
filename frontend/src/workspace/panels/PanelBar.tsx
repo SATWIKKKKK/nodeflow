@@ -6,14 +6,17 @@ import { cn } from "../../lib/cn";
 /**
  * A panel's title row: its tabs on the left, its tools on the right.
  *
- * Tabs sit in a recessed track, and the open one is raised out of it: one
- * raised face that slides to whichever tab is picked. Tools share a raised
- * strip, and each key presses in under the pointer.
+ * Tabs are words with an icon, not buttons in boxes; the open one is in full
+ * ink with a short blue rule under it that slides to whichever tab is picked.
+ * Tools are bare icons that only take a tint under the pointer, so the row
+ * reads as one quiet strip, the way an IDE's does.
  */
 
 export interface PanelTab<T extends string> {
   id: T;
   label: string;
+  /** What a phone shows when the full label would not fit. */
+  shortLabel?: string;
   icon: ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
   /** A small mark after the label: a dot for "something new here". */
   badge?: ReactNode;
@@ -46,7 +49,7 @@ export function PanelBar<T extends string>({
       <div
         role="tablist"
         aria-label={name}
-        className="neu-tabs flex min-w-0 items-center gap-0.5 overflow-x-auto p-[3px] [scrollbar-width:none]"
+        className="flat-tabs flex min-w-0 items-center gap-0.5 self-stretch overflow-x-auto [scrollbar-width:none]"
       >
         {tabs.map((tab) => {
           const selected = tab.id === active;
@@ -60,37 +63,44 @@ export function PanelBar<T extends string>({
               tabIndex={selected || active === null ? 0 : -1}
               onClick={() => onTab?.(tab.id)}
               className={cn(
-                "no-lift relative flex h-7 shrink-0 items-center gap-1.5 rounded-[7px] px-2.5 text-[13px] font-medium transition-colors",
-                selected ? "text-[var(--fill-blue)]" : "text-blueprint-muted hover:text-primary"
+                "no-lift relative flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium transition-colors",
+                selected ? "text-primary" : "text-blueprint-muted hover:bg-surface-hover hover:text-primary"
               )}
               style={{ minHeight: 0 }}
             >
+              <Icon size={14} aria-hidden className={cn("shrink-0", selected && "text-[var(--fill-blue)]")} />
+              {tab.shortLabel ? (
+                <>
+                  <span className="whitespace-nowrap sm:hidden">{tab.shortLabel}</span>
+                  <span className="hidden whitespace-nowrap sm:inline">{tab.label}</span>
+                </>
+              ) : (
+                <span className="whitespace-nowrap">{tab.label}</span>
+              )}
+              {tab.badge}
               {selected && (
                 <motion.span
                   layoutId={still ? undefined : `panel-tab-${name}`}
-                  className="panel-tab-knob absolute inset-0"
-                  transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                  className="absolute inset-x-2 -bottom-[4px] h-[2px] rounded-full bg-[var(--fill-blue)]"
+                  transition={{ type: "spring", stiffness: 520, damping: 40 }}
                   aria-hidden
                 />
               )}
-              <Icon size={14} aria-hidden className="relative shrink-0" />
-              <span className="relative whitespace-nowrap">{tab.label}</span>
-              {tab.badge && <span className="relative flex">{tab.badge}</span>}
             </button>
           );
         })}
       </div>
-      <div className="ml-auto flex shrink-0 items-center gap-2 pl-2">{children}</div>
+      <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">{children}</div>
     </div>
   );
 }
 
-/** A raised strip holding a few tools. */
+/** A few tools side by side. */
 export function ToolGroup({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn("tool-group flex items-center gap-0.5 p-[3px]", className)}>{children}</span>;
+  return <span className={cn("flex items-center gap-0.5", className)}>{children}</span>;
 }
 
-/** One tool: an icon key inside a ToolGroup. */
+/** A bare icon tool for a panel bar or a toolbar. */
 export function ToolButton({
   label,
   onClick,
@@ -115,7 +125,7 @@ export function ToolButton({
       aria-pressed={pressed}
       data-tip={label}
       className={cn(
-        "tool-button no-lift relative flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md text-blueprint-muted transition-colors",
+        "tool-button no-lift relative flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-blueprint-muted transition-colors",
         "hover:bg-surface-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
         pressed && "text-primary",
         className

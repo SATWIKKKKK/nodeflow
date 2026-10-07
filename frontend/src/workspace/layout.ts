@@ -3,22 +3,22 @@ import { useCallback, useEffect, useState } from "react";
 /**
  * How the workspace is divided on a desktop, remembered between visits the
  * way LeetCode remembers it: the trace's share of the width, and the problem's
- * and the console's share of the right column's height. The editor takes
- * whatever is left. Fractions rather than pixels, so a layout set on one
+ * share of the right column's height. The editor panel (code, test cases,
+ * results) takes whatever is left. Fractions rather than pixels, so a layout set on one
  * window still makes sense on another.
  */
 export interface WorkspaceLayout {
   /** The trace panel's share of the width. */
   split: number;
-  /** The problem panel's share of the right column. */
+  /** The problem panel's share of the right column; the editor takes the rest. */
   problem: number;
-  /** The console's (tests, results, input, notes) share of the right column. */
-  console: number;
 }
 
-export const DEFAULT_LAYOUT: WorkspaceLayout = { split: 0.5, problem: 0.32, console: 0.35 };
+/** The editor gets the larger share: it is where the learner spends their time. */
+export const DEFAULT_LAYOUT: WorkspaceLayout = { split: 0.44, problem: 0.34 };
 
-const KEY = "noesis:workspace-layout";
+// v2: the console joined the editor panel, so older saved heights no longer fit.
+const KEY = "noesis:workspace-layout:v2";
 
 export const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
@@ -30,8 +30,7 @@ const read = (): WorkspaceLayout => {
       typeof value === "number" && Number.isFinite(value) ? value : fallback;
     return {
       split: clamp(pick(saved.split, DEFAULT_LAYOUT.split), 0.22, 0.78),
-      problem: clamp(pick(saved.problem, DEFAULT_LAYOUT.problem), 0.1, 0.7),
-      console: clamp(pick(saved.console, DEFAULT_LAYOUT.console), 0.12, 0.7)
+      problem: clamp(pick(saved.problem, DEFAULT_LAYOUT.problem), 0.1, 0.7)
     };
   } catch {
     return DEFAULT_LAYOUT;
@@ -58,4 +57,4 @@ export function useWorkspaceLayout() {
 }
 
 /** Panels a learner can blow up to fill the workspace. */
-export type PanelId = "trace" | "problem" | "code" | "console";
+export type PanelId = "trace" | "problem" | "work";
