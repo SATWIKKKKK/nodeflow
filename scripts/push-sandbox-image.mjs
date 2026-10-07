@@ -24,7 +24,7 @@ const filesUnder = (dir) =>
     .readdirSync(dir, { withFileTypes: true })
     .flatMap((entry) => {
       const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return entry.name === "__pycache__" ? [] : filesUnder(full);
+      if (entry.isDirectory()) return entry.name === "__pycache__" || entry.name === "node_modules" ? [] : filesUnder(full);
       return [full];
     })
     .sort();
@@ -35,6 +35,8 @@ const inputs = [
   ...filesUnder(path.join(backend, "src", "execution", "python")),
   ...filesUnder(path.join(backend, "src", "execution", "cpp")),
   ...filesUnder(path.join(backend, "src", "execution", "java")),
+  ...filesUnder(path.join(backend, "src", "execution", "c")),
+  ...filesUnder(path.join(backend, "src", "execution", "js")),
   ...filesUnder(path.join(backend, "src", "execution", "common"))
 ];
 

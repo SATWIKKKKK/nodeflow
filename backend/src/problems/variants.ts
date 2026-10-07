@@ -177,7 +177,16 @@ const remember = (row: VariantRow) => {
   asked.set(askKey(row.source_id, row.term, row.replacement), row.id);
   lineage.set(row.id, { sourceId: row.source_id, term: row.term, replacement: row.replacement });
   numbers.set(row.id, row.number);
-  if (!created.some((problem) => problem.id === row.id)) created.push(row.data);
+  if (created.some((problem) => problem.id === row.id)) return;
+  // Starters are rebuilt from the signature rather than read back, so a
+  // variant saved before a language was added still has a stub in it.
+  created.push({
+    ...row.data,
+    starterCodeByLanguage: buildStarterCodeByLanguage(
+      row.data.signature,
+      row.data.starterCodeByLanguage?.python ?? row.data.starterCode
+    )
+  });
 };
 
 /** Created once per instance, not on every refresh of the list. */
@@ -469,7 +478,7 @@ export const createVariant = async (
   /**
    * The name has to move with the meaning.
    *
-   * C++ and Java starters are generated from the signature, and the harness
+   * Starters in the other languages are generated from the signature, and the harness
    * calls whatever it says. Leaving `count_odds` on a problem that now counts
    * evens hands the learner a stub whose name contradicts the question, and
    * the moment they rename it to match, the harness cannot find it. The

@@ -8,7 +8,7 @@
 
 export const DEFAULT_TITLE = "Noesis — See your DSA code run, line by line";
 export const DEFAULT_DESCRIPTION =
-  "Noesis runs your Python, C++ or Java in a sandbox and replays every pointer, array and tree your code touched. 372 data structures and algorithms problems, free.";
+  "Noesis runs your Python, C++, Java, JavaScript, TypeScript or C in a sandbox and replays every pointer, array and tree your code touched. 372 data structures and algorithms problems, free.";
 
 export interface PageMeta {
   title: string;
@@ -26,7 +26,7 @@ export const PUBLIC_META: Record<string, PageMeta> = {
   "/docs": {
     title: "Docs — how to use Noesis | Noesis",
     description:
-      "How to use Noesis: find a problem, run and test your code in Python, C++ or Java, read the step-by-step trace, and see how tracing works."
+      "How to use Noesis: find a problem, run and test your code in Python, C++, Java, JavaScript, TypeScript or C, read the step-by-step trace, and see how tracing works."
   },
   "/about": {
     title: "About Noesis — a DSA practice workspace that shows your code run",

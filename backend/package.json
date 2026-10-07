@@ -30,7 +30,9 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.1",
+    "acorn": "^8.19.0",
     "cross-env": "^10.0.0",
+    "sucrase": "^3.35.1",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   }

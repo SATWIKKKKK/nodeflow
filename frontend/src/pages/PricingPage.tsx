@@ -12,7 +12,7 @@ const plans = [
     body: "The whole workspace, for anyone learning.",
     available: true,
     points: [
-      "Tracing for Python, C++ and Java",
+      "Tracing for Python, C++, Java, JavaScript, TypeScript and C",
       "Run, Test, Submit, live preview and custom input",
       "Every problem, from arrays to tries",
       "Classrooms with shared progress, on a free account"

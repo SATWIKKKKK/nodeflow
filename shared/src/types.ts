@@ -34,15 +34,21 @@ export const STRUCTURE_TYPES: StructureType[] = [
 export type Difficulty = "Easy" | "Medium" | "Hard";
 
 /** Languages the sandbox can execute. Each maps to its own image + tracer harness. */
-export type Language = "python" | "cpp" | "java";
+export type Language = "python" | "cpp" | "java" | "javascript" | "typescript" | "c";
 
-export const SUPPORTED_LANGUAGES: Language[] = ["python", "cpp", "java"];
+export const SUPPORTED_LANGUAGES: Language[] = ["python", "cpp", "java", "javascript", "typescript", "c"];
 
 export const LANGUAGE_LABELS: Record<Language, string> = {
   python: "Python",
   cpp: "C++",
-  java: "Java"
+  java: "Java",
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  c: "C"
 };
+
+export const isLanguage = (value: unknown): value is Language =>
+  typeof value === "string" && (SUPPORTED_LANGUAGES as string[]).includes(value);
 
 /**
  * Whether a language can emit step-by-step traces yet. Correctness (Run/Test/
@@ -53,11 +59,15 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
 export const LANGUAGE_TRACING: Record<Language, boolean> = {
   python: true,
   cpp: true,
-  java: true
+  java: true,
+  javascript: true,
+  typescript: true,
+  c: true
 };
 
 /**
- * Wire types for problem inputs and outputs. Every harness (Python, C++, Java)
+ * Wire types for problem inputs and outputs. Every harness (Python, C++, Java,
+ * JavaScript/TypeScript, C)
  * knows how to build each input kind from JSON and serialise each output kind
  * back to JSON.
  *
@@ -340,8 +350,11 @@ export type JudgeVerdict =
 
 export interface TestResponse {
   verdict: JudgeVerdict;
+  /** The cases that ran: a Submit stops at the first one that fails. */
   cases: CaseResult[];
   runtimeMs: number;
+  /** How many cases were judged in all, run or not. */
+  totalCases?: number;
 }
 
 export interface SubmitResponse extends TestResponse {

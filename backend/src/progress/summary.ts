@@ -54,6 +54,32 @@ const fromRow = (row: SubmissionRow): StoredSubmission => ({
   timestamp: new Date(row.created_at).toISOString()
 });
 
+/**
+ * The code of a learner's most recent submission of a problem in a language,
+ * for "bring back my last submission" in the editor.
+ */
+export const latestSubmission = async (userId: string, problemId: string, language: string) => {
+  if (sql) {
+    await ensureSchema();
+    const rows = (await sql`select code, verdict, created_at from noesis_submissions
+      where user_id = ${userId} and problem_id = ${problemId} and language = ${language}
+      order by created_at desc limit 1`) as Array<{ code: string; verdict: JudgeVerdict; created_at: string | Date }>;
+    const row = rows[0];
+    return row ? { code: row.code, verdict: row.verdict, submittedAt: new Date(row.created_at).toISOString() } : null;
+  }
+  const mine = readSubmissionFile()
+    .filter(
+      (entry) =>
+        (entry.userId ?? "local") === userId &&
+        entry.problemId === problemId &&
+        ((entry as StoredSubmission & { language?: string }).language ?? "python") === language &&
+        entry.code
+    )
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  const last = mine[0];
+  return last ? { code: last.code!, verdict: last.verdict, submittedAt: last.timestamp } : null;
+};
+
 /** Submissions for the given users (all users when omitted), oldest first. Code is not loaded. */
 export const readSubmissions = async (userIds?: string[]): Promise<StoredSubmission[]> => {
   if (sql) {

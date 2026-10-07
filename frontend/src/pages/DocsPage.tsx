@@ -115,8 +115,10 @@ const CHAPTERS: Chapter[] = [
         title: "Choose a language",
         body: (
           <P>
-            Write in Python, C++ or Java; pick one from the menu above the editor. Each language keeps its own draft
-            for each problem, so switching does not lose your work. All three are traced and judged the same way.
+            Write in Python, C++, Java, JavaScript, TypeScript or C; pick one from the menu above the editor. Each language keeps
+            its own draft for each problem, so switching does not lose your work. All six are traced and judged the
+            same way. C follows LeetCode's conventions: an array arrives with its length, and a function that returns
+            an array sets <code>*returnSize</code>.
           </P>
         )
       },
@@ -288,8 +290,7 @@ const CHAPTERS: Chapter[] = [
           <>
             <Figure scene={ReplayScene} />
             <P>
-              Python, C++ and Java are each recorded with their own debugging tools, and all three produce the same
-              kind of steps. Two different correct solutions to a problem produce two different replays, because each
+              Every language is recorded with its own tools, and all six produce the same kind of steps. Two different correct solutions to a problem produce two different replays, because each
               shows what that code did.
             </P>
           </>
@@ -309,7 +310,7 @@ const CHAPTERS: Chapter[] = [
               <><Strong>Accepted</Strong>: every case passed.</>,
               <><Strong>Wrong Answer</Strong>: your code ran but returned a different answer for at least one case.</>,
               <><Strong>Runtime Error</Strong>: your code stopped with an error, such as an index out of range.</>,
-              <><Strong>Compile Error</Strong>: C++ or Java code that does not compile.</>,
+              <><Strong>Compile Error</Strong>: code that does not compile, or has a syntax error.</>,
               <><Strong>Time Limit Exceeded</Strong>: your code took too long, usually a loop that never ends.</>
             ]}
           />
@@ -330,7 +331,8 @@ const CHAPTERS: Chapter[] = [
         title: "Limits",
         body: (
           <P>
-            A run is recorded for up to 4,000 steps in Python and 1,500 in C++ and Java. If your code goes past that,
+            A run is recorded for up to 4,000 steps in Python, 3,000 in JavaScript and TypeScript, and 1,500 in C, C++
+            and Java. If your code goes past that,
             the run stops and tells you it may be stuck in an infinite loop, so a runaway loop never freezes the
             page. Lists longer than 64 items are shortened in the drawing and marked as such.
           </P>

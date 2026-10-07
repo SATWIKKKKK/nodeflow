@@ -1,15 +1,23 @@
-"""Records a line-by-line trace of the user's C++ code. Runs inside gdb (-x).
+"""Records a line-by-line trace of the user's C++ or C code. Runs inside gdb (-x).
 
 The harness calls nf_enter() right before each call into user code. We stop
 there, step into the user's function, and then `step` line by line. Library
 code is skipped by name (`skip -rfu ^std::`); harness helpers are stepped out of, so
 every recorded stop is a user line. Each stop is serialised in the same shape as the Python
 tracer: {line, event, variables, heap, stack?}.
+
+C (NF_LANG=c) differs in one way that matters: an array is only a pointer.
+The C harness notes the size of every block malloc hands out (c/runner.py),
+so a pointer to the start of one is drawn as that many cells; `char*` is
+drawn as the string it points to; a pointer into the middle of a block, or to
+a single value, shows the value it points at.
 """
 
 import glob
 import json
+import struct
 import os
+import re
 import signal
 import sys
 import threading
@@ -31,7 +39,8 @@ OUT_PATH = os.environ.get("NF_TRACE_OUT", "/tmp/work/trace.json")
 STEP_LIMIT = int(os.environ.get("NF_STEP_LIMIT", "1500"))
 VIS_LIMIT = int(os.environ.get("NF_VIS_LIMIT", "64"))
 TIME_BUDGET = float(os.environ.get("NF_TIME_BUDGET", "20"))
-USER_FILE = "user.cpp"
+USER_FILE = os.environ.get("NF_USER_FILE", "user.cpp")
+IS_C = os.environ.get("NF_LANG") == "c"
 
 try:
     with open(os.environ.get("NF_USER_SOURCE", ""), encoding="utf8") as _handle:
@@ -52,9 +61,79 @@ def is_closing_brace(line):
     if not 1 <= line <= len(USER_LINES):
         return False
     return USER_LINES[line - 1].strip() in ("}", "};")
+# --- freed memory ---------------------------------------------------------
+#
+# After `delete head`, the pointer still holds the old address and gdb reads
+# whatever the allocator left there: a garbage value and a `next` into
+# nowhere, drawn as if it were a real node. So the address a line frees is
+# noted before the line runs, and a pointer to it is shown as deleted rather
+# than followed. A later `new` may hand that memory out again, and there is
+# no telling which block it reused, so any allocation clears the list: a live
+# node is never hidden, at the cost of a dangling pointer kept past a later
+# `new` being followed again (rare in practice).
+FREES = re.compile(r"\bdelete\s*(?:\[\s*\])?\s*([^;]+?)\s*;|\bfree\s*\(\s*([^;]+?)\s*\)\s*;")
+ALLOCATES = re.compile(r"\bnew\b|\b(?:malloc|calloc|realloc)\s*\(")
+freed_addresses = set()
+DELETED = "<deleted>"
+
+
+def note_frees(frame, line):
+    """Before `line` runs: remember what it frees, or forget everything if it allocates."""
+    if not 1 <= line <= len(USER_LINES):
+        return
+    text = USER_LINES[line - 1].split("//")[0]
+    if ALLOCATES.search(text):
+        freed_addresses.clear()
+    for match in FREES.finditer(text):
+        expression = (match.group(1) or match.group(2) or "").strip()
+        if not expression:
+            continue
+        try:
+            value = frame.read_var(expression) if re.fullmatch(r"[A-Za-z_]\w*", expression) else gdb.parse_and_eval(expression)
+            address = int(value)
+        except (gdb.error, RuntimeError, ValueError, OverflowError):
+            continue
+        if address:
+            freed_addresses.add(address)
+
+
 MAX_OBJECTS = 160
 MAX_STRING = 240
 CHAR_NAMES = {"char", "signed char", "unsigned char"}
+
+
+def c_scalar(t):
+    return t.code in (gdb.TYPE_CODE_INT, gdb.TYPE_CODE_FLT, gdb.TYPE_CODE_BOOL, gdb.TYPE_CODE_CHAR, gdb.TYPE_CODE_ENUM)
+
+
+class Allocations:
+    """C only: the harness's table of live malloc'd blocks, read once per step."""
+
+    def __init__(self):
+        self.available = IS_C
+        self.sizes = {}
+
+    def refresh(self):
+        self.sizes = {}
+        if not self.available:
+            return
+        try:
+            count = int(gdb.parse_and_eval("nf_alloc_count"))
+            if count <= 0:
+                return
+            count = min(count, 16384)
+            inferior = gdb.selected_inferior()
+            pointers = int(gdb.parse_and_eval("(unsigned long)&nf_alloc_ptr[0]"))
+            lengths = int(gdb.parse_and_eval("(unsigned long)&nf_alloc_len[0]"))
+            raw_pointers = bytes(inferior.read_memory(pointers, 8 * count))
+            raw_lengths = bytes(inferior.read_memory(lengths, 8 * count))
+            for address, length in zip(struct.unpack(f"<{count}Q", raw_pointers), struct.unpack(f"<{count}Q", raw_lengths)):
+                self.sizes[address] = length
+        except (gdb.error, gdb.MemoryError, RuntimeError, ValueError, struct.error):
+            self.sizes = {}
+
+
+allocations = Allocations()
 
 
 def run(command):
@@ -186,9 +265,13 @@ class Serializer:
             address = int(v)
             if address == 0:
                 return None
+            if address in freed_addresses:
+                return DELETED
             target = t.target().strip_typedefs()
             if target.code in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
                 return self.struct(v.dereference(), address)
+            if IS_C:
+                return self.c_pointer(v, address, target)
             return f"0x{address:x}"
         if code == gdb.TYPE_CODE_ARRAY:
             low, high = t.range()
@@ -209,6 +292,32 @@ class Serializer:
             address = int(v.address) if v.address is not None else id(v)
             return self.struct(v, address)
         return str(v)[:MAX_STRING]
+
+    # -- C pointers -----------------------------------------------------------
+
+    def c_pointer(self, v, address, target):
+        size = allocations.sizes.get(address)
+        if target.code == gdb.TYPE_CODE_CHAR or (target.code == gdb.TYPE_CODE_INT and target.sizeof == 1):
+            return self.c_string(address, size)
+        if target.sizeof <= 0 or not (c_scalar(target) or target.code == gdb.TYPE_CODE_PTR):
+            return f"0x{address:x}"
+        if size is None:
+            # Not the start of a block: a pointer to one value, or into an array.
+            return self._value(v.dereference())
+        count = size // target.sizeof
+        key = (address, "array")
+        items = [(v + index).dereference() for index in range(min(count, VIS_LIMIT))]
+        return self.container(key, "list", items, max(0, count - VIS_LIMIT))
+
+    def c_string(self, address, size):
+        limit = MAX_STRING if size is None else min(MAX_STRING, size)
+        try:
+            raw = bytes(gdb.selected_inferior().read_memory(address, max(1, limit)))
+        except (gdb.error, gdb.MemoryError):
+            return f"0x{address:x}"
+        end = raw.find(b"\x00")
+        text = (raw if end < 0 else raw[:end]).decode("utf8", "replace")
+        return text + ("…" if end < 0 and size is None else "")
 
     # -- shapes ---------------------------------------------------------------
 
@@ -298,7 +407,8 @@ class Serializer:
 
     def struct(self, v, address):
         t = v.type.strip_typedefs()
-        name = t.tag or t.name or "struct"
+        # `typedef struct { ... } MinStack;` has no tag: the typedef names it.
+        name = t.tag or t.name or v.type.name or "struct"
         ref = self.ref((address, name))
         if ref in self.heap or ref in self.active or len(self.heap) >= MAX_OBJECTS:
             return ref
@@ -376,6 +486,7 @@ def frame_variables(frame, line):
 
 def capture(frame, event):
     serializer.reset()
+    allocations.refresh()
     frames = []
     current = frame
     while current is not None and in_user_code(current):
@@ -418,6 +529,9 @@ def older_user_frame(frame):
             return True
         current = current.older()
     return False
+
+
+last_key = {"value": None}
 
 
 def main():
@@ -470,8 +584,20 @@ def main():
             if len(steps) >= STEP_LIMIT:
                 truncated = True
                 break
-            if not is_closing_brace(frame.find_sal().line):
+            sal = frame.find_sal()
+            current_line = sal.line
+            # Coming back from a helper (malloc, a library call) lands mid-line,
+            # on a line just recorded: that is the same line, not a new step.
+            repeat = (
+                steps
+                and steps[-1]["line"] == current_line
+                and last_key["value"] == frame_key(frame)
+                and sal.pc != frame.pc()
+            )
+            if not is_closing_brace(current_line) and not repeat:
                 steps.append(capture(frame, "line"))
+                last_key["value"] = frame_key(frame)
+            note_frees(frame, current_line)
             try:
                 guarded("step")
             except gdb.error:

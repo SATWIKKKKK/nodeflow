@@ -36,7 +36,7 @@ export function TimelineView({ view }: { view: TimelineViewModel }) {
     <div>
       <p className="mb-2 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
-        <span className="text-technical-mono text-blueprint-muted">
+        <span className="trace-meta text-blueprint-muted">
           timeline · {view.bars.length} {view.bars.length === 1 ? "range" : "ranges"}
         </span>
       </p>

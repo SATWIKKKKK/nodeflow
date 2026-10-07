@@ -1,4 +1,5 @@
 import type { ExecutionResponse, Language, PublicProblem } from "@nodeflow/shared";
+import { isLanguage } from "@nodeflow/shared";
 
 /**
  * Per-viewer workspace memory: drafts, custom input, and the last problem and
@@ -59,7 +60,7 @@ export const clearDraft = (problemId: string, language: Language) => remove(draf
 
 export const readLanguage = (): Language => {
   const value = read<string>("noesis:language");
-  return value === "cpp" || value === "java" ? value : "python";
+  return isLanguage(value) ? value : "python";
 };
 
 export const writeLanguage = (language: Language) => write("noesis:language", language);

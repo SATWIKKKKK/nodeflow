@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
+import { isLanguage } from "@nodeflow/shared";
 import { AuthError, completePasswordReset, signIn, signOut, signUp, startPasswordReset, userForToken } from "./auth/store.js";
 import { appUrl, emailsEnabled, sendEmail } from "./auth/email.js";
 import { dsaSummary } from "./problems/metadata.js";
@@ -31,12 +32,13 @@ import { queueSnapshot } from "./execution/queue.js";
 import { progressForUser } from "./progress/summary.js";
 import { clearDraft, draftFor, saveDraft, touchDraft, unfinishedFor } from "./progress/drafts.js";
 import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
-import { readSubmissions } from "./progress/summary.js";
+import { latestSubmission, readSubmissions } from "./progress/summary.js";
+import { MAX_NOTE, noteFor, saveNote } from "./progress/notes.js";
 import { AskError, MAX_QUESTION, answerQuestion, askEnabled, cachedAnswer, greetingReply, rateLimitWait } from "./ask/deepseek.js";
 
 export const app = express();
 
-const languageSchema = z.enum(["python", "cpp", "java"]).default("python");
+const languageSchema = z.enum(["python", "cpp", "java", "javascript", "typescript", "c"]).default("python");
 
 const runSchema = z.object({
   problemId: z.string(),
@@ -95,7 +97,11 @@ const unclear = (error: z.ZodError) => {
   const field = String(error.issues[0]?.path[0] ?? "");
   if (field === "email") return "Enter a valid email address.";
   if (field === "password") return "Use a password of at least 8 characters.";
-  if (field === "code") return "Your code is too long to run. Trim it down and try again.";
+  if (field === "code") {
+    return error.issues[0]?.code === "too_big"
+      ? "Your code is too long to run. Trim it down and try again."
+      : "There is no code to run yet. Write your solution first.";
+  }
   return "Something in that request was missing. Reload the page and try again.";
 };
 
@@ -583,6 +589,51 @@ app.post("/api/coins", async (request, response) => {
 });
 
 // ---------------------------------------------------------------- drafts
+
+/** The learner's last submitted code for a problem in one language. */
+app.get("/api/submissions/latest", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to see your submissions." });
+    return;
+  }
+  const problemId = String(request.query.problemId ?? "");
+  const language = String(request.query.language ?? "");
+  if (!problemId || !isLanguage(language)) {
+    response.status(400).json({ message: "Pick a problem and a language." });
+    return;
+  }
+  const last = await latestSubmission(user.id, problemId, language);
+  if (!last) {
+    response.status(404).json({ message: "You have not submitted this problem in this language yet." });
+    return;
+  }
+  response.json(last);
+});
+
+/** A learner's own notes on a problem. */
+app.get("/api/notes/:problemId", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to keep notes." });
+    return;
+  }
+  response.json((await noteFor(user.id, param(request, "problemId"))) ?? { text: "", updatedAt: null });
+});
+
+app.put("/api/notes/:problemId", async (request, response) => {
+  const user = await userForToken(authToken(request.headers.authorization));
+  if (!user) {
+    response.status(401).json({ message: "Sign in to keep notes." });
+    return;
+  }
+  const text = typeof request.body?.text === "string" ? request.body.text : null;
+  if (text === null || text.length > MAX_NOTE) {
+    response.status(400).json({ message: `Notes can be up to ${MAX_NOTE.toLocaleString("en-US")} characters.` });
+    return;
+  }
+  response.json(await saveNote(user.id, param(request, "problemId"), text));
+});
 
 /** Problems started and not solved, for Continue Solving. Signed-in only. */
 app.get("/api/unfinished", async (request, response) => {

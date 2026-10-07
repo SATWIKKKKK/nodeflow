@@ -1,37 +1,47 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { NavLink, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
 import { VariableStatement, VariantDialog, type VariantState } from "./VariableStatement";
 import { ZoomControls, ZOOM_STEP, clampZoom } from "./ZoomControls";
 import {
-  AlertCircle,
   AlertTriangle,
   ArrowLeft,
+  Box,
+  Braces,
   Check,
   ChevronDown,
+  ChevronRight,
+  CloudUpload,
+  CodeXml,
+  Copy,
+  Expand,
+  FileText,
+  FlaskConical,
+  History,
   Loader2,
-  Lock,
-  Maximize2,
-  Minimize2,
+  NotebookPen,
   Play,
   RefreshCw,
   RotateCcw,
+  Shrink,
   Sparkles,
+  SquareCheckBig,
+  SquareTerminal,
+  TextCursorInput,
+  Waypoints,
   X
 } from "lucide-react";
 import {
   computeDiffs,
   expandTrace,
+  isLanguage,
   LANGUAGE_LABELS,
   LANGUAGE_TRACING,
   outputsMatch,
   SUPPORTED_LANGUAGES,
-  type CaseResult,
   type ExecutionResponse,
   type Language,
   type PublicProblem,
   type SubmitResponse,
-  type TestResponse,
   type TraceDiff,
   type TraceStep
 } from "@nodeflow/shared";
@@ -41,20 +51,28 @@ import { loadProblems, structureLabel } from "../lib/problems";
 import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
-import { verdictLabel, verdictTone } from "../lib/verdict";
+import { verdictLabel } from "../lib/verdict";
 import { creditSolve } from "../lib/coins";
 import { forgetStarted, markSolvedHere, markStarted } from "../lib/started";
-import { JudgementBanner } from "./JudgementBanner";
 import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { AccountMenu } from "../components/layout/AccountMenu";
 import { CoinBalance } from "../components/NoesisCoin";
-import { button, chip, field } from "../components/ui";
+import { button } from "../components/ui";
 import { TraceDiagram } from "../trace/TraceDiagram";
 import CodeEditorPane from "./CodeEditorPane";
 import { CustomInputPanel, parseCustomInput, pretty } from "./CustomInputPanel";
 import PlaybackControls from "./PlaybackControls";
+import { formatCode } from "./formatCode";
+import { DEFAULT_LAYOUT, clamp, useWorkspaceLayout, type PanelId } from "./layout";
+import { Splitter } from "./Splitter";
+import { PanelBar, PanelSizeTools, ToolButton, ToolGroup, type PanelTab } from "./panels/PanelBar";
+import { HoverSelect } from "../components/HoverSelect";
+import { NotesPanel } from "./panels/NotesPanel";
+import { ResultPanel, type ResultState } from "./panels/ResultPanel";
+import { TestcasePanel } from "./panels/TestcasePanel";
+import { orderedInput, show } from "./panels/values";
 import {
   clearDraft,
   forgetCachedProblem,
@@ -79,7 +97,14 @@ const THREE_D_STRUCTURES = new Set(["linked_list", "tree", "trie"]);
 const Scene3D = lazy(() => import("./scene/Scene3D"));
 
 /** Compiled languages pay for a compile per preview, so they wait longer. */
-const PREVIEW_DEBOUNCE_MS: Record<Language, number> = { python: 450, cpp: 1200, java: 1200 };
+const PREVIEW_DEBOUNCE_MS: Record<Language, number> = {
+  python: 450,
+  javascript: 450,
+  typescript: 500,
+  c: 1000,
+  cpp: 1200,
+  java: 1200
+};
 const STEP_BASE_MS = 600;
 // Long enough that a busy device (a heavy 3D frame, a background tab coming
 // back) is not mistaken for a broken replay.
@@ -95,6 +120,27 @@ type TraceSource = "preview" | "run";
 type SceneMode = "trace" | "3d";
 
 const SCENE_MODE_KEY = "noesis:scene-mode";
+
+type ConsoleTab = "testcase" | "result" | "custom" | "notes";
+
+/** Sizes the splitters keep to, in pixels. */
+const PANEL_BAR_PX = 42;
+const SPLITTER_PX = 12;
+const MIN_PROBLEM_PX = 96;
+const MIN_CODE_PX = 160;
+const MIN_CONSOLE_PX = 120;
+
+const ACTIONS = {
+  run: { label: "Run", busy: "Running", icon: Play, keys: "Ctrl+Enter", width: "sm:min-w-[92px]" },
+  test: { label: "Test", busy: "Testing", icon: FlaskConical, keys: "Ctrl+'", width: "sm:min-w-[92px]" },
+  submit: { label: "Submit", busy: "Judging", icon: CloudUpload, keys: "Ctrl+Shift+Enter", width: "sm:min-w-[106px]" }
+} as const;
+
+const DIFFICULTY_COLOR: Record<string, string> = {
+  Easy: "var(--difficulty-easy)",
+  Medium: "var(--difficulty-medium)",
+  Hard: "var(--difficulty-hard)"
+};
 
 const readSceneMode = (): SceneMode => {
   try {
@@ -129,109 +175,10 @@ interface PreviewJob {
   input?: Record<string, unknown>;
 }
 
-interface CustomCheck {
-  input: Record<string, unknown>;
-  expected?: unknown;
-  message?: string;
-  pending: boolean;
-}
-
 const EMPTY_TRACE: TraceState = { trace: [], diffs: [], source: "" };
-
-const show = (value: unknown) => JSON.stringify(value);
 
 /** Everything that determines a preview's result. */
 const previewKeyOf = (language: Language, inputKey: string, code: string) => JSON.stringify([language, inputKey, code]);
-
-const panelTitle = "text-ui-label text-blueprint-muted";
-
-function ExecutionErrorNote({ execution }: { execution: Extract<ExecutionResponse, { ok: false }> }) {
-  // Keep "your code failed" visually apart from "Noesis failed".
-  if (execution.errorType === "Platform Error") {
-    return (
-      <div className="status-warning rounded-xl border px-4 py-3 text-sm">
-        <p className="flex items-center gap-2 font-semibold">
-          <AlertTriangle size={15} aria-hidden /> We couldn't run this
-        </p>
-        <p className="mt-1">{execution.message}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="status-error rounded-xl border px-4 py-3 text-sm">
-      <p className="flex items-center gap-2 font-semibold">
-        <AlertCircle size={15} aria-hidden /> Your code raised {execution.errorType}
-      </p>
-      <p className="mt-1 break-words">{execution.message}</p>
-      {execution.traceback && (
-        <pre className="mt-3 max-h-40 overflow-auto whitespace-pre-wrap font-mono text-xs leading-relaxed opacity-90">
-          {execution.traceback}
-        </pre>
-      )}
-    </div>
-  );
-}
-
-function CaseRow({ result, index }: { result: CaseResult; index: number }) {
-  const passed = result.status === "passed";
-  const failedExecution = result.execution && !result.execution.ok ? result.execution : null;
-
-  return (
-    <motion.li
-      className="py-3"
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.2 + index * 0.04, duration: 0.25 }}
-    >
-      <div className="flex items-center gap-3">
-        <span
-          className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
-            passed ? "judgement-seg-pass text-white dark:text-[#0a1728]" : "judgement-seg-fail text-white dark:text-[#2a0f14]"
-          )}
-        >
-          {passed ? <Check size={13} strokeWidth={3} aria-hidden /> : <X size={12} strokeWidth={3} aria-hidden />}
-        </span>
-        <span className="text-sm font-medium text-primary">Case {index + 1}</span>
-        <span className="text-technical-mono text-blueprint-muted">{result.visible ? "visible" : "hidden"}</span>
-        <span
-          className={cn(
-            "ml-auto rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-            passed ? "status-solved" : "status-error"
-          )}
-        >
-          {passed ? "Passed" : result.status === "error" ? "Error" : "Wrong answer"}
-        </span>
-      </div>
-
-      {!passed && !result.visible && (
-        <p className="mt-2 flex items-center gap-2 pl-9 text-xs text-blueprint-muted">
-          <Lock size={12} aria-hidden /> Hidden case: its input and expected output stay sealed.
-        </p>
-      )}
-
-      {!passed && result.visible && (
-        <div className="mt-2 grid gap-1.5 pl-9 font-mono text-xs">
-          {result.input && (
-            <p className="text-blueprint-muted">
-              input <span className="text-primary">{show(result.input)}</span>
-            </p>
-          )}
-          <p className="text-blueprint-muted">
-            expected <span className="text-primary">{show(result.expectedOutput)}</span>
-          </p>
-          {result.status === "failed" && (
-            <p className="text-blueprint-muted">
-              yours <span className="text-primary">{show(result.actualOutput)}</span>
-            </p>
-          )}
-          {failedExecution && <p className="text-red-700 dark:text-red-300">{failedExecution.message}</p>}
-        </div>
-      )}
-    </motion.li>
-  );
-}
 
 export default function WorkspacePage() {
   const session = useSession();
@@ -306,15 +253,10 @@ export default function WorkspacePage() {
 
   const [busy, setBusy] = useState<"run" | "test" | "submit" | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
-  const [execution, setExecution] = useState<ExecutionResponse | null>(null);
-  const [judgement, setJudgement] = useState<TestResponse | null>(null);
-  const [judgedMode, setJudgedMode] = useState<"test" | "submit">("test");
-  const [customCheck, setCustomCheck] = useState<CustomCheck | null>(null);
+  const [result, setResult] = useState<ResultState | null>(null);
   const [notice, setNotice] = useState("");
-  const [ranAt, setRanAt] = useState("");
-  const [statementOpen, setStatementOpen] = useState(true);
-  const [editorFullscreen, setEditorFullscreen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [draftState, setDraftState] = useState<"saved" | "saving">("saved");
 
   // Custom input, per problem.
   const [custom, setCustom] = useState({ owner: "", enabled: false, text: "" });
@@ -326,7 +268,6 @@ export default function WorkspacePage() {
 
   // Edge-case surfaces.
   const [staleTrace, setStaleTrace] = useState(false);
-  const [loopWarning, setLoopWarning] = useState<string | null>(null);
   const [stuck, setStuck] = useState<StuckReason | null>(null);
 
   const previewAbort = useRef<AbortController | null>(null);
@@ -414,8 +355,11 @@ export default function WorkspacePage() {
   // Read once, then dropped from the address so a reload does not undo a
   // later switch.
   const requestedLanguage = searchParams.get("lang");
+  /** A link that names a language wins over the account's latest draft. */
+  const languageChosen = useRef(false);
   useEffect(() => {
-    if (requestedLanguage !== "python" && requestedLanguage !== "cpp" && requestedLanguage !== "java") return;
+    if (!isLanguage(requestedLanguage)) return;
+    languageChosen.current = true;
     if (requestedLanguage !== languageRef.current) setLanguage(requestedLanguage);
     const next = new URLSearchParams(searchParams);
     next.delete("lang");
@@ -515,7 +459,6 @@ export default function WorkspacePage() {
     const saved = readCustomInput(target.id);
     setCustom({ owner: target.id, enabled: saved?.enabled ?? false, text: saved?.text ?? pretty(target.defaultInput) });
     setServerInputError("");
-    setCustomCheck(null);
   }, [problemId]);
 
   useEffect(() => {
@@ -534,9 +477,6 @@ export default function WorkspacePage() {
 
   /** Applies an execution result, preserving the last good trace on failure. */
   const applyExecution = useCallback((response: ExecutionResponse, fromPreview: boolean, source: string) => {
-    // A quiet preview failure must not replace a real run's output.
-    if (!fromPreview || response.ok) setExecution(response);
-
     const usable = response.ok || (response.trace?.length ?? 0) > 0;
     if (usable) {
       const json = JSON.stringify(response.trace ?? []);
@@ -575,16 +515,6 @@ export default function WorkspacePage() {
       // Nothing usable came back — hold whatever was last valid.
       setStaleTrace(fromPreview);
     }
-
-    if (response.ok) {
-      setLoopWarning(null);
-    } else if (!fromPreview && LOOP_ERRORS.has(response.errorType)) {
-      setLoopWarning(
-        response.errorType === "Time Limit Exceeded"
-          ? "Execution hit the time limit. This usually means a loop never exits."
-          : "Execution hit the step limit. This usually means a loop never exits."
-      );
-    }
   }, []);
 
   // Switching problem or language loads the draft (or starter) and, when the
@@ -599,15 +529,12 @@ export default function WorkspacePage() {
     setTraceState(EMPTY_TRACE);
     setTraceSource(null);
     setTraceInfo({ truncated: false });
-    setExecution(null);
-    setJudgement(null);
-    setCustomCheck(null);
+    setResult(null);
+    setNotice("");
     setIndex(0);
     setPlaying(false);
     setSelectedNode(null);
     setStaleTrace(false);
-    setLoopWarning(null);
-    setRanAt("");
     setEdits(0);
     setIdle(false);
     lastPreviewKey.current = "";
@@ -654,6 +581,7 @@ export default function WorkspacePage() {
         if (local !== null && local.trim() !== starterFor(draft.language).trim()) return;
         writeDraft(target.id, draft.language, draft.code);
         if (draft.language !== languageRef.current) {
+          if (languageChosen.current) return;
           const current = readDraft(target.id, languageRef.current);
           const untouched = current === null || current.trim() === starterFor(languageRef.current).trim();
           if (untouched) setLanguageRef.current(draft.language);
@@ -694,7 +622,10 @@ export default function WorkspacePage() {
     if (!pending || !session.token) return;
     // Starter code is saved too: going back to it is still working on the
     // problem, and deleting the draft here would take it off the list.
-    api.saveDraft(pending.problemId, pending.language, pending.code, session.token).catch(() => undefined);
+    api
+      .saveDraft(pending.problemId, pending.language, pending.code, session.token)
+      .catch(() => undefined)
+      .finally(() => setDraftState("saved"));
   }, [session.token]);
 
   useEffect(() => {
@@ -711,6 +642,7 @@ export default function WorkspacePage() {
       code,
       starter: problem.starterCodeByLanguage?.[language] ?? problem.starterCode ?? ""
     };
+    setDraftState("saving");
     const timer = window.setTimeout(flushDraft, 1200);
     return () => window.clearTimeout(timer);
   }, [code, edits, problem, language, session.user, flushDraft]);
@@ -821,14 +753,6 @@ export default function WorkspacePage() {
     const timer = window.setTimeout(() => setIdle(true), IDLE_NUDGE_MS);
     return () => window.clearTimeout(timer);
   }, [edits]);
-
-  // Fullscreen editor closes on Escape.
-  useEffect(() => {
-    if (!editorFullscreen) return;
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setEditorFullscreen(false);
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [editorFullscreen]);
 
   const { trace, diffs } = traceState;
 
@@ -947,42 +871,68 @@ export default function WorkspacePage() {
     if (!problem) return;
     if (customEnabled && !customInput) {
       setNotice(`Fix the custom input first: ${customError || "it is not valid JSON."}`);
+      showResults("run");
       return;
     }
     settleAction();
     setBusy("run");
     setNotice("");
-    setJudgement(null);
-    setCustomCheck(null);
+    showResults("run");
 
+    // When the input is one of the problem's own cases, its answer is already
+    // known; a custom one is put to the reference solution alongside the run.
     const input = customInput ?? problem.defaultInput;
-    const expectedRequest = customInput ? api.expected(problem.id, customInput).catch(() => null) : null;
-    if (customInput) setCustomCheck({ input: customInput, pending: true });
+    const inputJson = JSON.stringify(input);
+    const exampleAt = problem.examples.findIndex((example) => JSON.stringify(example.input) === inputJson);
+    const knownCase = problem.visibleTestCases.find((entry) => JSON.stringify(entry.input) === inputJson);
+    const known =
+      exampleAt >= 0
+        ? { value: problem.examples[exampleAt].output }
+        : knownCase
+          ? { value: knownCase.expectedOutput }
+          : null;
+    const source = exampleAt >= 0 ? `Example ${exampleAt + 1}` : customInput ? "Your input" : "The default input";
+    const expectedRequest = !known && customInput ? api.expected(problem.id, customInput).catch(() => null) : null;
+    const compare = problem.signature.compare ?? "exact";
 
     try {
       const response = await api.run(problem.id, code, input, language);
       applyExecution(response, false, code);
-      // A successful run that prints nothing used to look like nothing happened.
-      setRanAt(
-        response.ok ? `Ran in ${Math.round(response.runtimeMs)}ms and returned ${JSON.stringify(response.result)}` : ""
-      );
-      if (expectedRequest && customInput) {
+      const at = Date.now();
+      const matchOf = (expected: unknown) => (response.ok ? outputsMatch(response.result, expected, compare) : null);
+      setResult({
+        kind: "run",
+        at,
+        input,
+        source,
+        execution: response,
+        expected: known ?? (expectedRequest ? { pending: true } : undefined),
+        match: known ? matchOf(known.value) : null
+      });
+      setBusy(null);
+      if (expectedRequest) {
         const expected = await expectedRequest;
-        setCustomCheck({
-          input: customInput,
-          pending: false,
-          expected: expected?.ok ? expected.expectedOutput : undefined,
-          message: expected?.ok ? undefined : expected?.message ?? "Could not compute the expected output."
-        });
+        setResult((current) =>
+          current?.kind === "run" && current.at === at
+            ? {
+                ...current,
+                expected: expected?.ok
+                  ? { value: expected.expectedOutput }
+                  : { note: expected?.message ?? "We couldn't work out the expected answer for this input." },
+                match: expected?.ok ? matchOf(expected.expectedOutput) : null
+              }
+            : current
+        );
       }
     } catch (error) {
       const message = readError(error, "Run failed.");
       if (message.startsWith("Custom input:")) setServerInputError(message.replace(/^Custom input:\s*/, ""));
       setNotice(message);
-      setCustomCheck(null);
     } finally {
       setBusy(null);
     }
+    // showResults only calls setters and reads refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problem, code, language, applyExecution, customEnabled, customInput, customError]);
 
   const runJudge = useCallback(
@@ -991,16 +941,19 @@ export default function WorkspacePage() {
       settleAction();
       setBusy(mode);
       setNotice("");
-      setRanAt("");
-      setCustomCheck(null);
+      showResults(mode);
 
       try {
         const response =
           mode === "test"
             ? await api.test(problem.id, code, language)
             : await api.submitWithSession(problem.id, code, session.token, language);
-        setJudgedMode(mode);
-        setJudgement(response);
+        setResult({
+          kind: mode,
+          at: Date.now(),
+          judgement: response,
+          coins: mode === "submit" ? (response as SubmitResponse).coinsAwarded : undefined
+        });
         if (mode === "submit" && response.verdict === "Accepted") {
           // Paid once per problem: the server decides for an account, this
           // browser's record for a guest.
@@ -1021,6 +974,7 @@ export default function WorkspacePage() {
         setBusy(null);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [problem, code, language, session.token]
   );
 
@@ -1038,102 +992,255 @@ export default function WorkspacePage() {
     settleAction();
   };
 
-  const failedExecution = execution && !execution.ok ? execution : null;
-  // Test and Submit answer below the editor; bring the answer into view rather
-  // than leaving the learner to scroll for it.
-  const outputRef = useRef<HTMLElement>(null);
+  // --- layout ----------------------------------------------------------------
+
+  const [layout, setLayout] = useWorkspaceLayout();
+  const [maximized, setMaximized] = useState<PanelId | null>(null);
+  const [traceCollapsed, setTraceCollapsed] = useState(false);
+  const [problemCollapsed, setProblemCollapsed] = useState(false);
+  const [consoleCollapsed, setConsoleCollapsed] = useState(false);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null);
+  const consoleRef = useRef<HTMLElement>(null);
+
+  const toggleMaximized = (panel: PanelId) => setMaximized((current) => (current === panel ? null : panel));
+
+  /** The right column's height in pixels, and what its fixed panels take now. */
+  const columnBox = () => {
+    const box = columnRef.current?.getBoundingClientRect();
+    if (!box) return null;
+    const bar = PANEL_BAR_PX;
+    return {
+      box,
+      problemPx: problemCollapsed ? bar : layout.problem * box.height,
+      consolePx: consoleCollapsed ? bar : layout.console * box.height
+    };
+  };
+
+  const moveSplit = (clientX: number) => {
+    const box = bodyRef.current?.getBoundingClientRect();
+    if (!box) return;
+    setTraceCollapsed(false);
+    setLayout({ split: clamp((clientX - box.left) / box.width, 0.22, 0.78) });
+  };
+
+  const moveProblem = (clientY: number) => {
+    const measured = columnBox();
+    if (!measured) return;
+    const { box, consolePx } = measured;
+    const most = box.height - consolePx - MIN_CODE_PX - 2 * SPLITTER_PX;
+    const px = clamp(clientY - box.top - SPLITTER_PX / 2, MIN_PROBLEM_PX, Math.max(MIN_PROBLEM_PX, most));
+    setProblemCollapsed(false);
+    setLayout({ problem: px / box.height });
+  };
+
+  const moveConsole = (clientY: number) => {
+    const measured = columnBox();
+    if (!measured) return;
+    const { box, problemPx } = measured;
+    const most = box.height - problemPx - MIN_CODE_PX - 2 * SPLITTER_PX;
+    const px = clamp(box.bottom - clientY - SPLITTER_PX / 2, MIN_CONSOLE_PX, Math.max(MIN_CONSOLE_PX, most));
+    setConsoleCollapsed(false);
+    setLayout({ console: px / box.height });
+  };
+
+  // --- console ---------------------------------------------------------------
+
+  const [consoleTab, setConsoleTab] = useState<ConsoleTab>("testcase");
+  const openConsole = (tab: ConsoleTab) => {
+    setConsoleTab(tab);
+    setConsoleCollapsed(false);
+  };
+
+  /** Run, Test and Submit all answer in Test Result, brought into view. */
+  const showResults = (mode: "run" | "test" | "submit") => {
+    openConsole("result");
+    setMaximized((current) => (current === "trace" && mode === "run" ? current : current === "console" ? current : null));
+    // On a phone the console sits below the editor: bring it up.
+    if (mode !== "run" && window.matchMedia("(max-width: 1023px)").matches) {
+      window.requestAnimationFrame(() => consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  };
+
+  // --- editor tools ------------------------------------------------------------
+
+  const [cursor, setCursor] = useState({ line: 1, column: 1 });
+  const [codeNote, setCodeNote] = useState<{ text: string; tone: "plain" | "warn" } | null>(null);
+  const [toolBusy, setToolBusy] = useState<"format" | "last" | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [lastSubmission, setLastSubmission] = useState<{ code: string; verdict: string; submittedAt: string } | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const canFullscreen = typeof document !== "undefined" && Boolean(document.fullscreenEnabled);
+
   useEffect(() => {
-    if (!judgement) return;
-    // The right column scrolls on its own on desktop and the page scrolls on
-    // a phone, so scroll whichever holds the panel. Done again once the
-    // verdict banner has finished growing, because a smooth scroll started
-    // while the layout is still moving is cancelled by the browser.
-    const reveal = () => {
-      const panel = outputRef.current;
-      if (!panel) return;
-      let scroller: HTMLElement | null = panel.parentElement;
-      while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
-      if (scroller && scroller.scrollHeight > scroller.clientHeight) {
-        const offset = panel.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 12;
-        scroller.scrollTo({ top: offset, behavior: "smooth" });
+    if (!codeNote) return;
+    const timer = window.setTimeout(() => setCodeNote(null), 4200);
+    return () => window.clearTimeout(timer);
+  }, [codeNote]);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 1600);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  useEffect(() => {
+    const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    else void document.documentElement.requestFullscreen().catch(() => setCodeNote({ text: "Full screen isn't available here.", tone: "warn" }));
+  };
+
+  const formatNow = async () => {
+    if (!codeReady || toolBusy) return;
+    setToolBusy("format");
+    try {
+      const formatted = await formatCode(code, language);
+      if (formatted !== code) {
+        handleCodeChange(formatted);
+        setCodeNote({ text: "Formatted", tone: "plain" });
       } else {
-        window.scrollTo({ top: panel.getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" });
+        setCodeNote({ text: "Already formatted", tone: "plain" });
+      }
+    } catch {
+      setCodeNote({ text: "Couldn't format this. Fix the syntax error first, then try again.", tone: "warn" });
+    } finally {
+      setToolBusy(null);
+    }
+  };
+
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+    } catch {
+      setCodeNote({ text: "Couldn't copy. Select the code and press Ctrl+C.", tone: "warn" });
+    }
+  };
+
+  const fetchLastSubmission = async () => {
+    if (!problem || !session.token || toolBusy) return;
+    setToolBusy("last");
+    try {
+      setLastSubmission(await api.latestSubmission(problem.id, language, session.token));
+    } catch (error) {
+      setCodeNote({
+        text:
+          error instanceof ApiError && error.status === 404
+            ? `You haven't submitted this problem in ${LANGUAGE_LABELS[language]} yet.`
+            : readError(error, "Couldn't load your last submission."),
+        tone: "warn"
+      });
+    } finally {
+      setToolBusy(null);
+    }
+  };
+
+  const restoreLastSubmission = () => {
+    if (!lastSubmission) return;
+    handleCodeChange(lastSubmission.code);
+    setLastSubmission(null);
+    setCodeNote({ text: "Your last submission is back in the editor", tone: "plain" });
+  };
+
+  // Keyboard: Ctrl+Enter runs, Ctrl+' tests, Ctrl+Shift+Enter submits,
+  // Shift+Alt+F formats, Esc leaves a maximised panel. Caught before the
+  // editor sees them, so Ctrl+Enter does not also add a line.
+  const keys = useRef({ runCode, runJudge, formatNow, maximized, busy });
+  keys.current = { runCode, runJudge, formatNow, maximized, busy };
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const mod = event.ctrlKey || event.metaKey;
+      const { runCode: run, runJudge: judge, formatNow: format, maximized: big, busy: working } = keys.current;
+      const take = () => {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+      if (mod && event.key === "Enter") {
+        take();
+        if (!working) void (event.shiftKey ? judge("submit") : run());
+      } else if (mod && (event.key === "'" || event.code === "Quote")) {
+        take();
+        if (!working) void judge("test");
+      } else if (event.shiftKey && event.altKey && event.code === "KeyF") {
+        take();
+        void format();
+      } else if (event.key === "Escape" && big && !document.querySelector("[role=dialog]")) {
+        setMaximized(null);
       }
     };
-    const frame = window.requestAnimationFrame(reveal);
-    const settle = window.setTimeout(reveal, 480);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(settle);
-    };
-  }, [judgement]);
-
-  const passedCount = judgement ? judgement.cases.filter((entry) => entry.status === "passed").length : 0;
-  const hasOutput = Boolean(
-    loopWarning ||
-      notice ||
-      failedExecution ||
-      ranAt ||
-      judgement ||
-      customCheck ||
-      (execution?.ok && execution.stdout) ||
-      busy
-  );
-  const customMatch =
-    customCheck && !customCheck.pending && customCheck.message === undefined && execution?.ok
-      ? outputsMatch(execution.result, customCheck.expected, problem?.signature.compare ?? "exact")
-      : null;
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, []);
 
   const loadingScene = !hasTrace && server.sandbox && (previewBusy || busy === "run" || !problem);
+  const zoomFor = shownMode === "trace" ? zoom2d : zoom3d;
+  const setZoomFor = shownMode === "trace" ? setZoom2d : setZoom3d;
 
-  const actionButton = (mode: "run" | "test" | "submit", label: string, primary = false) => (
-    <button
-      type="button"
-      onClick={() => (mode === "run" ? void runCode() : void runJudge(mode))}
-      disabled={busy !== null || !problem}
-      className={cn(primary ? button.primary : button.outlineSm, "justify-center px-3 py-2 sm:px-4")}
-      style={{ minHeight: 0, width: "auto" }}
-    >
-      {busy === mode ? (
-        <Loader2 size={14} className="animate-spin" aria-hidden />
-      ) : primary ? (
-        <Play size={13} aria-hidden />
-      ) : null}
-      {label}
-    </button>
-  );
+  const actionButton = (mode: "run" | "test" | "submit") => {
+    const meta = ACTIONS[mode];
+    const Icon = meta.icon;
+    const working = busy === mode;
+    return (
+      <button
+        type="button"
+        onClick={() => (mode === "run" ? void runCode() : void runJudge(mode))}
+        disabled={busy !== null || !problem}
+        aria-busy={working}
+        title={`${meta.label} (${meta.keys})`}
+        className={cn(mode === "submit" ? button.primary : button.outlineSm, "workspace-action shadow-none", meta.width)}
+        style={{ minHeight: 0 }}
+      >
+        {working ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Icon size={14} aria-hidden />}
+        <span>{working ? meta.busy : meta.label}</span>
+      </button>
+    );
+  };
+
+  const hidden = (panel: PanelId) => maximized !== null && maximized !== panel;
+  const consoleTabs: PanelTab<ConsoleTab>[] = [
+    { id: "testcase", label: "Testcase", icon: SquareCheckBig },
+    { id: "result", label: "Test Result", icon: SquareTerminal },
+    {
+      id: "custom",
+      label: "Custom Input",
+      icon: TextCursorInput,
+      badge: customEnabled ? (
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--fill-blue)]" aria-label="on" />
+      ) : undefined
+    },
+    { id: "notes", label: "Notes", icon: NotebookPen }
+  ];
+  const traceTabs: PanelTab<SceneMode>[] = can3D
+    ? [
+        { id: "trace", label: "2D trace", icon: Waypoints },
+        { id: "3d", label: "3D view", icon: Box }
+      ]
+    : [{ id: "trace", label: "Trace", icon: Waypoints }];
+
+  const layoutVars = {
+    "--split": `${layout.split * 100}%`,
+    "--problem-h": `${layout.problem * 100}%`,
+    "--console-h": `${layout.console * 100}%`
+  } as CSSProperties;
 
   return (
     <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden">
       <header className="app-header sticky top-0 z-40 shrink-0">
         <div className="relative flex flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 sm:h-14 sm:flex-nowrap sm:gap-3 sm:px-5 sm:py-0">
-          <NavLink to="/dashboard" aria-label="Noesis home" className="flex items-center text-primary">
-            <LogoMark className="h-7" />
-          </NavLink>
-          <span className="mx-1 h-6 w-px bg-blueprint-line" aria-hidden />
-          <NavLink to="/problems" className={cn(button.ghost, "px-2 sm:px-3")}>
-            <ArrowLeft size={14} aria-hidden />
-            <span className="hidden sm:inline">Problems</span>
-          </NavLink>
-          <div className="min-w-0 flex-1">
-            {problem ? (
-              <p className="truncate text-sm font-medium text-primary">
-                {problemNumber !== null && <span className="mr-1.5 font-mono text-blueprint-muted">{problemNumber}.</span>}
-                {problem.title}
-              </p>
-            ) : (
-              <span className="block h-3 w-40 animate-pulse rounded-full bg-surface-inset" aria-hidden />
-            )}
+          <HomeAndBack />
+          {/* Centred on the page: the three things a learner reaches for,
+              always in the same place. */}
+          <div className="order-last grid w-full grid-cols-3 gap-2 sm:order-none sm:mx-auto sm:flex sm:w-auto sm:items-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+            {actionButton("run")}
+            {actionButton("test")}
+            {actionButton("submit")}
           </div>
-          {/* Centred on the page rather than tucked into the editor: these are
-              the three things a learner reaches for, and they should be in the
-              same place whatever is scrolled. */}
-          <div className="order-last grid w-full grid-cols-3 gap-2 sm:order-none sm:flex sm:w-auto sm:items-center lg:absolute lg:left-1/2 lg:-translate-x-1/2">
-            {actionButton("run", "Run", true)}
-            {actionButton("test", "Test")}
-            {actionButton("submit", "Submit")}
-          </div>
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="ml-auto flex items-center gap-4 sm:ml-0 sm:gap-6 lg:ml-auto">
             <CoinBalance className="hidden sm:inline-flex" />
             <ThemeToggle />
             <AccountMenu />
@@ -1144,65 +1251,62 @@ export default function WorkspacePage() {
       {!server.sandbox && (
         <p className="status-warning mx-3 mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm sm:mx-4" role="status">
           <AlertTriangle size={15} aria-hidden className="shrink-0" />
-          This deployment has no code sandbox, so traces, Run, Test and Submit only work when Noesis runs with Docker.
+          Running code is switched off on this copy of Noesis, so traces, Run, Test and Submit are unavailable.
         </p>
       )}
 
-      <div className="grid flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        {/* Scene + transport: half the width on desktop. */}
+      <div
+        ref={bodyRef}
+        style={layoutVars}
+        className="flex flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:flex-row lg:gap-0 lg:p-3"
+      >
+        {/* Trace: the left of the page on desktop. */}
+        {traceCollapsed && !maximized && (
+          <button
+            type="button"
+            onClick={() => setTraceCollapsed(false)}
+            className="surface-frame no-lift hidden w-10 shrink-0 flex-col items-center gap-3 py-3 text-[13px] font-medium text-blueprint-muted hover:text-primary lg:flex"
+            style={{ minHeight: 0 }}
+            aria-label="Show the trace"
+          >
+            <ChevronRight size={15} aria-hidden />
+            <Waypoints size={14} aria-hidden className="text-[var(--fill-blue)]" />
+            <span style={{ writingMode: "vertical-rl" }}>Trace</span>
+          </button>
+        )}
         <section
           aria-label="Data structure visualization"
-          className="surface-frame order-2 flex h-[min(72svh,600px)] min-h-[440px] flex-col overflow-hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0"
+          className={cn(
+            "surface-frame order-2 flex h-[min(72svh,600px)] min-h-[440px] flex-col overflow-hidden lg:order-none lg:h-auto lg:min-h-0 lg:min-w-0",
+            maximized === "trace" ? "lg:flex-1" : "lg:shrink-0 lg:basis-[var(--split)]",
+            (hidden("trace") || traceCollapsed) && "lg:hidden"
+          )}
         >
-          <div className="flex items-center justify-between gap-2 border-b border-blueprint-line px-3 py-2.5 sm:gap-3 sm:px-5">
-            {can3D ? (
-            <div
-              role="tablist"
-              aria-label="Visualization style"
-              className="inline-flex rounded-full border border-blueprint-line bg-background p-0.5"
-            >
-              {(["trace", "3d"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  role="tab"
-                  aria-selected={shownMode === mode}
-                  onClick={() => setSceneMode(mode)}
-                  className={cn(
-                    "no-lift rounded-full px-3 py-1 text-ui-label text-[12px] transition-colors",
-                    shownMode === mode ? "bg-[var(--fill-blue)] text-[var(--fill-blue-text)]" : "text-blueprint-muted hover:text-primary"
-                  )}
-                  style={{ minHeight: 0, width: "auto" }}
-                >
-                  {mode === "trace" ? "2D" : "3D"}
-                </button>
-              ))}
-            </div>
-            ) : (
-              <span />
+          <PanelBar
+            name="Visualization style"
+            tabs={traceTabs}
+            active={shownMode}
+            onTab={(mode) => setSceneMode(mode)}
+          >
+            {previewBusy && hasTrace && (
+              <Loader2 size={14} aria-label="Updating trace" className="mr-1 animate-spin text-blueprint-muted" />
             )}
-            {/* On phones the zoom sits up here, clear of the drawing and of
-                the step caption below it, where a floating pill covered both. */}
             {(shownMode === "trace" ? hasTrace : true) && (
               <ZoomControls
                 className="lg:hidden"
                 compact
-                zoom={shownMode === "trace" ? zoom2d : zoom3d}
-                onZoom={(direction) =>
-                  (shownMode === "trace" ? setZoom2d : setZoom3d)((level) =>
-                    clampZoom(level + direction * ZOOM_STEP)
-                  )
-                }
-                onReset={() => (shownMode === "trace" ? setZoom2d : setZoom3d)(1)}
+                zoom={zoomFor}
+                onZoom={(direction) => setZoomFor((level) => clampZoom(level + direction * ZOOM_STEP))}
+                onReset={() => setZoomFor(1)}
               />
             )}
-            <span className="flex items-center gap-2">
-              {previewBusy && hasTrace && (
-                <Loader2 size={14} aria-label="Updating trace" className="animate-spin text-blueprint-muted" />
-              )}
-
-            </span>
-          </div>
+            <PanelSizeTools
+              maximized={maximized === "trace"}
+              onMaximize={() => toggleMaximized("trace")}
+              onCollapse={() => setTraceCollapsed(true)}
+              collapseAxis="x"
+            />
+          </PanelBar>
 
           {hasTrace && (staleTrace || traceInfo.truncated || traceInfo.note) && (
             <p className="shrink-0 border-b border-blueprint-line bg-surface-inset px-4 py-2 text-center text-xs text-blueprint-muted sm:px-5">
@@ -1245,18 +1349,12 @@ export default function WorkspacePage() {
               </Suspense>
             )}
 
-            {/* Over the drawing rather than in the toolbar: it belongs to what
-                it scales, and the toolbar is already carrying enough. */}
             {(shownMode === "trace" ? hasTrace : true) && (
               <ZoomControls
                 className="absolute bottom-3 right-3 z-20 hidden lg:flex"
-                zoom={shownMode === "trace" ? zoom2d : zoom3d}
-                onZoom={(direction) =>
-                  (shownMode === "trace" ? setZoom2d : setZoom3d)((level) =>
-                    clampZoom(level + direction * ZOOM_STEP)
-                  )
-                }
-                onReset={() => (shownMode === "trace" ? setZoom2d : setZoom3d)(1)}
+                zoom={zoomFor}
+                onZoom={(direction) => setZoomFor((level) => clampZoom(level + direction * ZOOM_STEP))}
+                onReset={() => setZoomFor(1)}
               />
             )}
 
@@ -1276,7 +1374,7 @@ export default function WorkspacePage() {
                 type="button"
                 onClick={() => void runCode()}
                 disabled={busy !== null}
-                className={cn(button.outlineSm, "px-3 py-1.5 text-[11px]")}
+                className={cn(button.outlineSm, "workspace-action h-8 px-3")}
                 style={{ minHeight: 0 }}
               >
                 Run
@@ -1285,20 +1383,16 @@ export default function WorkspacePage() {
                 type="button"
                 onClick={() => void runJudge("test")}
                 disabled={busy !== null}
-                className={cn(button.outlineSm, "hidden px-3 py-1.5 text-[11px] sm:inline-flex")}
+                className={cn(button.outlineSm, "workspace-action hidden h-8 px-3 sm:inline-flex")}
                 style={{ minHeight: 0 }}
               >
                 Test
               </button>
-              <button
-                type="button"
-                onClick={() => setIdle(false)}
-                className={cn(button.icon, "h-7 w-7")}
-                style={{ minHeight: 0 }}
-                aria-label="Dismiss"
-              >
-                <X size={13} aria-hidden />
-              </button>
+              <ToolGroup>
+                <ToolButton label="Dismiss" onClick={() => setIdle(false)}>
+                  <X size={14} aria-hidden />
+                </ToolButton>
+              </ToolGroup>
             </div>
           )}
 
@@ -1315,165 +1409,213 @@ export default function WorkspacePage() {
           />
         </section>
 
-        {/* Right column: the other half on desktop, one scroll from statement to output. On phones its
-            panels join the page grid so the statement can sit above the scene. */}
-        <div className="contents lg:col-start-2 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:gap-4 lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
-          {/* Problem statement */}
-          <section aria-label="Problem" className="surface-frame order-1 shrink-0 overflow-hidden lg:order-none">
-            <div className="flex items-start justify-between gap-3 px-5 pt-4">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  {problem ? (
-                    <>
-                      <span className={cn(chip.small, "text-primary")}>{problem.topic}</span>
-                      <span className={cn(chip.small, "text-blueprint-muted")}>{problem.difficulty}</span>
-                      {structureLabel(problem.structureType).toLowerCase() !== problem.topic.toLowerCase() && (
-                        <span className="text-technical-mono text-blueprint-muted">
-                          {structureLabel(problem.structureType)}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="h-5 w-24 animate-pulse rounded-full bg-surface-inset" aria-hidden />
-                  )}
-                </div>
-                {problem ? (
-                  <h1 className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-headline-sm text-primary">
-                    {problemNumber !== null && (
-                      <span className="font-mono text-blueprint-muted">{problemNumber}.</span>
+        {!traceCollapsed && !maximized && (
+          <Splitter
+            direction="x"
+            label="Resize the trace and the editor"
+            value={layout.split * 100}
+            onMove={(x) => moveSplit(x)}
+            onStep={(step) => setLayout({ split: clamp(layout.split + step * 0.02, 0.22, 0.78) })}
+            onReset={() => setLayout({ split: DEFAULT_LAYOUT.split })}
+            className="hidden lg:block"
+          />
+        )}
+
+        {/* Right column: problem, editor, console. On phones its panels join
+            the page so the statement can sit above the trace. */}
+        <div
+          ref={columnRef}
+          className={cn(
+            "contents lg:flex lg:min-h-0 lg:min-w-0 lg:flex-1 lg:flex-col",
+            hidden("problem") && hidden("code") && hidden("console") && "lg:hidden"
+          )}
+        >
+          {/* Problem */}
+          <section
+            aria-label="Problem"
+            className={cn(
+              "surface-frame order-1 flex flex-col overflow-hidden lg:order-none",
+              maximized === "problem"
+                ? "lg:min-h-0 lg:flex-1"
+                : problemCollapsed
+                  ? "lg:shrink-0"
+                  : "lg:min-h-0 lg:shrink-0 lg:basis-[var(--problem-h)]",
+              hidden("problem") && "lg:hidden"
+            )}
+          >
+            <PanelBar
+              name="Problem"
+              tabs={[{ id: "description", label: "Description", icon: FileText }]}
+              active="description"
+              onTab={() => problemCollapsed && setProblemCollapsed(false)}
+            >
+              <PanelSizeTools
+                maximized={maximized === "problem"}
+                onMaximize={() => toggleMaximized("problem")}
+                collapsed={problemCollapsed}
+                onCollapse={() => setProblemCollapsed((value) => !value)}
+              />
+            </PanelBar>
+            <div
+              id="problem-statement"
+              className={cn(
+                "min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5 pt-4",
+                problemCollapsed && "lg:hidden"
+              )}
+            >
+              {problem ? (
+                <>
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium">
+                    <span className="text-[var(--fill-blue)]">{problem.topic}</span>
+                    <span aria-hidden className="text-blueprint-muted/60">·</span>
+                    <span style={{ color: DIFFICULTY_COLOR[problem.difficulty] }}>{problem.difficulty}</span>
+                    {structureLabel(problem.structureType).toLowerCase() !== problem.topic.toLowerCase() && (
+                      <>
+                        <span aria-hidden className="text-blueprint-muted/60">·</span>
+                        <span className="text-blueprint-muted">{structureLabel(problem.structureType)}</span>
+                      </>
                     )}
-                    <span>{problem.title}</span>
                     {standing && (standing.accepted || standing.lastVerdict) && (
                       <span
-                        className={cn(
-                          "self-center rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                          verdictTone(standing.accepted ? "Solved" : standing.lastVerdict)
-                        )}
+                        className="ml-auto flex items-center gap-1"
+                        style={{
+                          color: standing.accepted
+                            ? "var(--verdict-pass)"
+                            : standing.lastVerdict === "Time Limit Exceeded" ||
+                                standing.lastVerdict === "Execution Limit"
+                              ? "var(--verdict-slow)"
+                              : "var(--verdict-fail)"
+                        }}
                       >
+                        {standing.accepted && <Check size={14} aria-hidden strokeWidth={2.5} />}
                         {standing.accepted ? "Solved" : verdictLabel(standing.lastVerdict)}
                       </span>
                     )}
+                  </p>
+                  <h1 className="mt-1.5 text-headline-sm text-primary">
+                    {problemNumber !== null && <span className="mr-2 font-mono text-blueprint-muted">{problemNumber}.</span>}
+                    {problem.title}
                   </h1>
-                ) : (
-                  <span className="mt-3 block h-6 w-56 animate-pulse rounded-full bg-surface-inset" aria-hidden />
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setStatementOpen((open) => !open)}
-                aria-expanded={statementOpen}
-                aria-controls="problem-statement"
-                className={cn(button.icon, "h-9 w-9")}
-                style={{ minHeight: 0 }}
-                aria-label={statementOpen ? "Collapse problem statement" : "Expand problem statement"}
-              >
-                <ChevronDown
-                  size={16}
-                  aria-hidden
-                  className={cn("transition-transform duration-300", statementOpen && "rotate-180")}
-                />
-              </button>
-            </div>
+                  <VariableStatement
+                    text={problem.description}
+                    busy={variant.kind === "working"}
+                    onPick={(term) => setVariant({ kind: "editing", term })}
+                    className="mt-3 text-body-md text-primary"
+                  />
 
-            {statementOpen ? (
-              <div id="problem-statement" className="px-5 pb-5 pt-3">
-                {problem ? (
-                  <>
-                    <VariableStatement
-                      text={problem.description}
-                      busy={variant.kind === "working"}
-                      onPick={(term) => setVariant({ kind: "editing", term })}
-                      className="text-body-md text-primary"
-                    />
-
-                    {problem.examples.length > 0 && (
-                      <div className="mt-4 grid gap-2">
-                        {problem.examples.slice(0, 3).map((example, exampleIndex) => (
-                          <div key={exampleIndex} className="surface-inset py-3 font-mono text-xs leading-relaxed sm:py-3">
-                            <p className="break-words text-blueprint-muted">
-                              input <span className="text-primary">{show(example.input)}</span>
-                            </p>
-                            <p className="break-words text-blueprint-muted">
-                              output <span className="text-primary">{show(example.output)}</span>
-                            </p>
-                            {example.explanation && (
-                              <p className="mt-1 font-sans text-[13px] text-blueprint-muted">{example.explanation}</p>
-                            )}
-                          </div>
-                        ))}
+                  {problem.examples.slice(0, 3).map((example, exampleIndex) => (
+                    <div key={exampleIndex} className="mt-5">
+                      <p className="text-[13.5px] font-semibold text-primary">Example {exampleIndex + 1}</p>
+                      <div className="mt-2 grid gap-1 rounded-lg bg-surface-inset px-3.5 py-3 font-mono text-[13px] leading-relaxed">
+                        <p className="break-words">
+                          <span className="font-sans font-medium text-blueprint-muted">Input: </span>
+                          <span className="text-primary">
+                            {orderedInput(example.input, problem.signature)
+                              .map(([name, value]) => `${name} = ${show(value)}`)
+                              .join(", ")}
+                          </span>
+                        </p>
+                        <p className="break-words">
+                          <span className="font-sans font-medium text-blueprint-muted">Output: </span>
+                          <span className="text-primary">{show(example.output)}</span>
+                        </p>
+                        {example.explanation && (
+                          <p className="font-sans text-[13px] text-blueprint-muted">
+                            <span className="font-medium">Explanation: </span>
+                            {example.explanation}
+                          </p>
+                        )}
                       </div>
-                    )}
+                    </div>
+                  ))}
 
-                    {problem.constraints.length > 0 && (
-                      <ul className="mt-4 grid gap-1.5">
+                  {problem.constraints.length > 0 && (
+                    <div className="mt-5">
+                      <p className="text-[13.5px] font-semibold text-primary">Constraints</p>
+                      <ul className="mt-2 grid gap-1.5">
                         {problem.constraints.map((constraint) => (
-                          <li key={constraint} className="flex gap-2 text-sm text-blueprint-muted">
-                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blueprint-muted" aria-hidden />
+                          <li key={constraint} className="flex gap-2 text-[13.5px] text-blueprint-muted">
+                            <span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-blueprint-muted" aria-hidden />
                             {constraint}
                           </li>
                         ))}
                       </ul>
-                    )}
-                  </>
-                ) : notice ? (
-                  <p className="text-body-md text-blueprint-muted">{notice}</p>
-                ) : (
-                  <div className="grid gap-2" aria-hidden>
-                    <span className="h-3 w-5/6 animate-pulse rounded-full bg-surface-inset" />
-                    <span className="h-3 w-2/3 animate-pulse rounded-full bg-surface-inset" />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="pb-4" />
-            )}
+                    </div>
+                  )}
+                </>
+              ) : notice ? (
+                <p className="text-body-md text-blueprint-muted">{notice}</p>
+              ) : (
+                <div className="grid gap-3" aria-hidden>
+                  <span className="skeleton h-3.5 w-40" />
+                  <span className="skeleton h-6 w-64" />
+                  <span className="skeleton h-3 w-5/6" />
+                  <span className="skeleton h-3 w-2/3" />
+                </div>
+              )}
+            </div>
           </section>
 
-          {/* Editor */}
+          {!maximized && (
+            <Splitter
+              direction="y"
+              label="Resize the problem and the editor"
+              value={layout.problem * 100}
+              onMove={(_x, y) => moveProblem(y)}
+              onStep={(step) => setLayout({ problem: clamp(layout.problem + step * 0.03, 0.1, 0.7) })}
+              onReset={() => {
+                setProblemCollapsed(false);
+                setLayout({ problem: DEFAULT_LAYOUT.problem });
+              }}
+              className="hidden lg:block"
+            />
+          )}
+
+          {/* Code */}
           <section
             aria-label="Code editor"
             className={cn(
-              "surface-frame order-3 flex flex-col overflow-hidden lg:order-none",
-              editorFullscreen ? "fixed inset-2 z-[60] shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:inset-4" : "min-h-[300px] shrink-0 lg:h-[64vh] lg:min-h-[380px]"
+              "surface-frame order-3 flex flex-col overflow-hidden lg:order-none lg:min-h-[160px] lg:flex-1",
+              hidden("code") && "lg:hidden"
             )}
           >
-            <div className="flex flex-wrap items-center gap-2 border-b border-blueprint-line px-4 py-2.5">
-              <label className="min-w-0 flex-1 sm:flex-none">
-                <span className="sr-only">Language</span>
-                <select
-                  value={language}
-                  onChange={(event) => setLanguage(event.target.value as Language)}
-                  className={cn(field.select, "h-9 w-full text-xs sm:w-auto")}
+            <PanelBar name="Code" tabs={[{ id: "code", label: "Code", icon: CodeXml }]} active="code">
+              <HoverSelect
+                label="Language"
+                value={language}
+                options={SUPPORTED_LANGUAGES.map((option) => ({ value: option, label: LANGUAGE_LABELS[option] }))}
+                onChange={(next) => {
+                  languageChosen.current = true;
+                  setLanguage(next);
+                }}
+                align="right"
+                triggerClassName="neu-trigger h-[32px] rounded-full px-3.5 text-[13px] font-medium text-primary"
+              />
+              <ToolGroup>
+                <ToolButton label="Format (Shift+Alt+F)" onClick={() => void formatNow()} disabled={!codeReady || toolBusy !== null}>
+                  {toolBusy === "format" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Braces size={14} aria-hidden />}
+                </ToolButton>
+                <ToolButton label={copied ? "Copied" : "Copy code"} onClick={() => void copyCode()} disabled={!codeReady}>
+                  {copied ? <Check size={14} aria-hidden className="text-[var(--verdict-pass)]" /> : <Copy size={14} aria-hidden />}
+                </ToolButton>
+                <ToolButton
+                  label={session.user ? "Last submitted code" : "Sign in to load your last submission"}
+                  onClick={() => void fetchLastSubmission()}
+                  disabled={!problem || !session.user || toolBusy !== null}
                 >
-                  {SUPPORTED_LANGUAGES.map((option) => (
-                    <option key={option} value={option}>
-                      {LANGUAGE_LABELS[option]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={() => setConfirmReset(true)}
-                disabled={!problem}
-                className={cn(button.icon, "h-9 w-9")}
-                style={{ minHeight: 0 }}
-                aria-label="Reset code to the starter"
-                title="Reset code"
-              >
-                <RotateCcw size={14} aria-hidden />
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditorFullscreen((value) => !value)}
-                className={cn(button.icon, "h-9 w-9")}
-                style={{ minHeight: 0 }}
-                aria-label={editorFullscreen ? "Exit fullscreen editor" : "Fullscreen editor"}
-                title={editorFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
-              >
-                {editorFullscreen ? <Minimize2 size={14} aria-hidden /> : <Maximize2 size={14} aria-hidden />}
-              </button>
-            </div>
+                  {toolBusy === "last" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <History size={14} aria-hidden />}
+                </ToolButton>
+                <ToolButton label="Reset to the starter code" onClick={() => setConfirmReset(true)} disabled={!problem}>
+                  <RotateCcw size={14} aria-hidden />
+                </ToolButton>
+                {canFullscreen && (
+                  <ToolButton label={fullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen} pressed={fullscreen}>
+                    {fullscreen ? <Shrink size={14} aria-hidden /> : <Expand size={14} aria-hidden />}
+                  </ToolButton>
+                )}
+              </ToolGroup>
+              <PanelSizeTools maximized={maximized === "code"} onMaximize={() => toggleMaximized("code")} />
+            </PanelBar>
 
             <div className="neu-screen relative min-h-0 flex-1">
               <CodeEditorPane
@@ -1482,10 +1624,114 @@ export default function WorkspacePage() {
                 activeLine={activeLine}
                 onChange={handleCodeChange}
                 onLineClick={handleLineClick}
+                onCursor={(line, column) => setCursor({ line, column })}
               />
             </div>
+
+            <div className="flex h-7 shrink-0 items-center gap-3 border-t border-blueprint-line px-3 text-[11.5px] text-blueprint-muted">
+              <span className="min-w-0 truncate" aria-live="polite">
+                {codeNote ? (
+                  <span className={codeNote.tone === "warn" ? "text-[var(--verdict-slow)]" : undefined}>{codeNote.text}</span>
+                ) : edits > 0 || draftState === "saving" ? (
+                  draftState === "saving" ? (
+                    "Saving…"
+                  ) : session.user ? (
+                    "Saved"
+                  ) : (
+                    "Saved on this device"
+                  )
+                ) : null}
+              </span>
+              <span className="ml-auto shrink-0 font-mono">
+                Ln {cursor.line}, Col {cursor.column}
+              </span>
+            </div>
           </section>
-          <VariantDialog
+
+          {!maximized && (
+            <Splitter
+              direction="y"
+              label="Resize the editor and the console"
+              value={100 - layout.console * 100}
+              onMove={(_x, y) => moveConsole(y)}
+              onStep={(step) => setLayout({ console: clamp(layout.console - step * 0.03, 0.12, 0.7) })}
+              onReset={() => {
+                setConsoleCollapsed(false);
+                setLayout({ console: DEFAULT_LAYOUT.console });
+              }}
+              className="hidden lg:block"
+            />
+          )}
+
+          {/* Console: Testcase, Test Result, Custom Input, Notes. */}
+          <section
+            ref={consoleRef}
+            aria-label="Console"
+            className={cn(
+              "surface-frame relative order-4 flex min-h-[360px] scroll-mt-3 flex-col overflow-hidden lg:order-none",
+              maximized === "console"
+                ? "lg:min-h-0 lg:flex-1"
+                : consoleCollapsed
+                  ? "lg:min-h-0 lg:shrink-0"
+                  : "lg:min-h-0 lg:shrink-0 lg:basis-[var(--console-h)]",
+              hidden("console") && "lg:hidden"
+            )}
+          >
+            {busy && <span className="console-progress" aria-hidden />}
+            <PanelBar name="Console" tabs={consoleTabs} active={consoleTab} onTab={openConsole}>
+              <PanelSizeTools
+                maximized={maximized === "console"}
+                onMaximize={() => toggleMaximized("console")}
+                collapsed={consoleCollapsed}
+                onCollapse={() => setConsoleCollapsed((value) => !value)}
+              />
+            </PanelBar>
+            <div
+              role="tabpanel"
+              aria-label={consoleTabs.find((tab) => tab.id === consoleTab)?.label}
+              className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4", consoleCollapsed && "lg:hidden")}
+            >
+              {consoleTab === "testcase" &&
+                (problem ? (
+                  <TestcasePanel
+                    problem={problem}
+                    onUseAsInput={(input) => {
+                      setCustomText(pretty(input));
+                      setCustomEnabled(true);
+                      openConsole("custom");
+                    }}
+                  />
+                ) : (
+                  <span className="skeleton h-24 w-full" aria-hidden />
+                ))}
+              {consoleTab === "result" && (
+                <ResultPanel
+                  result={result}
+                  busy={busy}
+                  notice={problem ? notice : ""}
+                  visibleCount={problem?.visibleTestCases.length || problem?.examples.length || 0}
+                  signature={problem?.signature}
+                />
+              )}
+              {consoleTab === "custom" && problem && (
+                <CustomInputPanel
+                  problem={problem}
+                  enabled={customEnabled}
+                  text={customText}
+                  error={customError}
+                  onEnabled={setCustomEnabled}
+                  onText={setCustomText}
+                />
+              )}
+              {consoleTab === "notes" && problemId && (
+                <NotesPanel problemId={problemId} token={session.token} signedIn={Boolean(session.user)} />
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <VariantDialog
         state={variant}
         statement={problem?.description ?? ""}
         onSubmit={changeTerm}
@@ -1495,145 +1741,6 @@ export default function WorkspacePage() {
           navigate(`/workspace/${id}`);
         }}
       />
-
-      {editorFullscreen && (
-            <div className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm" aria-hidden onClick={() => setEditorFullscreen(false)} />
-          )}
-
-          {/* Custom input */}
-          {problem && (
-            <div className="order-4 lg:order-none">
-              <CustomInputPanel
-                problem={problem}
-                enabled={customEnabled}
-                text={customText}
-                error={customError}
-                onEnabled={setCustomEnabled}
-                onText={setCustomText}
-              />
-            </div>
-          )}
-
-          {/* Output */}
-          <section
-            ref={outputRef}
-            aria-label="Output"
-            aria-live="polite"
-            className="surface-frame order-5 shrink-0 scroll-mt-4 overflow-hidden lg:order-none"
-          >
-            <div className="flex items-center justify-between gap-3 border-b border-blueprint-line px-5 py-3">
-              <span className={panelTitle}>Output</span>
-              {judgement && (
-                <span
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
-                    verdictTone(judgement.verdict)
-                  )}
-                >
-                  {verdictLabel(judgement.verdict)} · {passedCount}/{judgement.cases.length}
-                </span>
-              )}
-            </div>
-
-            <div className="grid gap-3 px-5 py-4">
-              {!hasOutput && (
-                <p className="text-body-md text-blueprint-muted">
-                  <span className="font-medium text-primary">Run</span> executes once and replays the trace.{" "}
-                  <span className="font-medium text-primary">Test</span> checks the visible cases.{" "}
-                  <span className="font-medium text-primary">Submit</span> checks all of them
-                  {session.user ? " and saves the result." : "."}
-                </p>
-              )}
-
-              {busy && (
-                <p className="flex items-center gap-2 text-sm text-blueprint-muted">
-                  <Loader2 size={14} aria-hidden className="animate-spin" />
-                  {busy === "run" ? "Running…" : busy === "test" ? "Testing visible cases…" : "Judging every case…"}
-                </p>
-              )}
-
-              {loopWarning && (
-                <p className="status-warning flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
-                  <AlertTriangle size={15} aria-hidden className="shrink-0" />
-                  {loopWarning}
-                </p>
-              )}
-
-              {notice && (
-                <div className="status-warning rounded-xl border px-4 py-3 text-sm">
-                  <p className="flex items-center gap-2 font-semibold">
-                    <AlertTriangle size={15} aria-hidden /> We couldn't complete that
-                  </p>
-                  <p className="mt-1 break-words">{notice}</p>
-                </div>
-              )}
-
-              {failedExecution && !loopWarning && <ExecutionErrorNote execution={failedExecution} />}
-
-              {ranAt && !failedExecution && (
-                <p className="flex items-center gap-2 text-sm text-primary">
-                  <Check size={14} aria-hidden className="check-icon shrink-0" />
-                  <span className="break-all font-mono text-xs">{ranAt}</span>
-                </p>
-              )}
-
-              {customCheck && (
-                <div className="surface-inset grid gap-1.5 py-3 font-mono text-xs sm:py-3">
-                  <p className="text-technical-mono text-blueprint-muted">custom input</p>
-                  <p className="break-all text-primary">{show(customCheck.input)}</p>
-                  {customCheck.pending ? (
-                    <p className="flex items-center gap-2 text-blueprint-muted">
-                      <Loader2 size={12} aria-hidden className="animate-spin" /> Checking against the reference solution…
-                    </p>
-                  ) : customCheck.message ? (
-                    <p className="font-sans text-[13px] text-blueprint-muted">{customCheck.message}</p>
-                  ) : (
-                    <>
-                      <p className="break-all text-blueprint-muted">
-                        expected <span className="text-primary">{show(customCheck.expected)}</span>
-                      </p>
-                      {customMatch !== null && (
-                        <p
-                          className={cn(
-                            "mt-1 flex items-center gap-2 font-sans text-[13px] font-semibold",
-                            customMatch ? "text-primary" : "text-red-700 dark:text-red-300"
-                          )}
-                        >
-                          {customMatch ? (
-                            <Check size={14} aria-hidden className="check-icon" />
-                          ) : (
-                            <X size={14} aria-hidden />
-                          )}
-                          {customMatch ? "Matches the reference solution" : "Differs from the reference solution"}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {execution?.ok && execution.stdout ? (
-                <div>
-                  <p className="text-technical-mono text-blueprint-muted">stdout</p>
-                  <pre className="surface-inset mt-1.5 max-h-64 overflow-auto py-3 font-mono text-xs leading-relaxed text-primary sm:py-3">
-                    {execution.stdout}
-                  </pre>
-                </div>
-              ) : null}
-
-              {judgement && <JudgementBanner judgement={judgement} mode={judgedMode} />}
-
-              {judgement && (
-                <ul className="divide-y divide-blueprint-line">
-                  {judgement.cases.map((result, caseIndex) => (
-                    <CaseRow key={result.id} result={result} index={caseIndex} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
-        </div>
-      </div>
 
       <Modal
         open={confirmReset}
@@ -1651,6 +1758,29 @@ export default function WorkspacePage() {
         }
       >
         Your saved {LANGUAGE_LABELS[language]} draft for this problem will be replaced.
+      </Modal>
+
+      <Modal
+        open={lastSubmission !== null}
+        onClose={() => setLastSubmission(null)}
+        title="Bring back your last submission?"
+        actions={
+          <>
+            <button type="button" className={button.outlineSm} onClick={() => setLastSubmission(null)}>
+              Keep my code
+            </button>
+            <button type="button" className={button.primary} onClick={restoreLastSubmission}>
+              Load it
+            </button>
+          </>
+        }
+      >
+        {lastSubmission && (
+          <>
+            Your last {LANGUAGE_LABELS[language]} submission ({verdictLabel(lastSubmission.verdict)},{" "}
+            {timeAgo(lastSubmission.submittedAt)}) will replace the code in the editor.
+          </>
+        )}
       </Modal>
 
       <Modal
@@ -1692,3 +1822,45 @@ export default function WorkspacePage() {
     </div>
   );
 }
+
+/**
+ * The logo, and on hover a way back to wherever the learner came from: the
+ * problem list, their dashboard, another problem. It slides out from behind
+ * the mark rather than sitting in the header all the time.
+ */
+function HomeAndBack() {
+  const navigate = useNavigate();
+  const back = () => {
+    const position = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (position > 0) navigate(-1);
+    else navigate("/problems");
+  };
+  return (
+    <div className="logo-back flex items-center">
+      <NavLink to="/dashboard" aria-label="Noesis home" className="flex h-9 items-center text-primary">
+        <LogoMark className="h-7" />
+      </NavLink>
+      <button
+        type="button"
+        onClick={back}
+        className="logo-back-button no-lift flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[13px] font-medium text-blueprint-muted hover:bg-surface-hover hover:text-primary"
+        style={{ minHeight: 0 }}
+      >
+        <ArrowLeft size={14} aria-hidden />
+        Back
+      </button>
+    </div>
+  );
+}
+
+const timeAgo = (iso: string) => {
+  const seconds = Math.max(0, (Date.now() - Date.parse(iso)) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.round(hours / 24);
+  if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};

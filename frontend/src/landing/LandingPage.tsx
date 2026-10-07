@@ -33,7 +33,7 @@ import { TraceReplay } from "./TraceReplay";
 import { PRERENDERED } from "../lib/prerendered";
 import { AskAnything } from "./AskAnything";
 
-// Python run budget; C++ and Java stop at 1,500 steps (see backend/src/execution/languages.ts).
+// Python's run budget; the others stop sooner (see backend/src/execution/languages.ts).
 const STEP_LIMIT = 4000;
 
 const steps: Array<{ title: string; body: string; scene: ComponentType }> = [
@@ -99,7 +99,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: "Which languages can I use?",
-    a: "Python, C++ and Java. All three are judged against the same tests and produce the same step-by-step trace."
+    a: "Python, C++, Java, JavaScript, TypeScript and C. All six are judged against the same tests and produce the same step-by-step trace."
   },
   {
     q: "Is it safe to run my code?",
@@ -204,8 +204,8 @@ export default function LandingPage() {
     },
     {
       label: "languages",
-      value: "3",
-      note: "Python, C++ and Java, all traced",
+      value: "6",
+      note: "From Python to C, all traced",
       glyph: <LanguagePills />
     },
     {
@@ -339,7 +339,7 @@ export default function LandingPage() {
             <SectionHeading className="mb-8" title="Live today." />
             <ul className="grid gap-3">
               {[
-                "Step-by-step tracing for Python, C++ and Java",
+                "Step-by-step tracing for Python, C++, Java, JavaScript, TypeScript and C",
                 "Arrays, lists, stacks, queues, trees, graphs, grids and maps in the trace",
                 "Run, Test, Submit and live preview",
                 "Progress dashboard built from your submissions"

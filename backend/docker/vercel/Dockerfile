@@ -1,9 +1,16 @@
 # One image for Vercel Sandbox with every Noesis harness: Python tracer, C++
-# (g++ + gdb) and Java (JDK + JDI). Layout mirrors Vercel's managed images: an
-# `ubuntu` user with passwordless sudo and /vercel as home.
+# and C (gcc + gdb), Java (JDK + JDI), and JavaScript/TypeScript (Node).
+# Layout mirrors Vercel's managed images: an `ubuntu` user with passwordless
+# sudo and /vercel as home.
 #
 # Build and push (from backend/):
 #   npx vercel@latest vcr build docker . noesis-runner:<tag> -f docker/vercel/Dockerfile --push
+# Node and the JavaScript harness's packages come from Node's own image.
+FROM node:24-bookworm-slim AS js
+WORKDIR /js
+COPY src/execution/js/package.json ./
+RUN npm install --omit=dev --no-audit --no-fund
+
 FROM ubuntu:26.04
 
 ENV LANG=C.UTF-8
@@ -12,7 +19,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates sudo procps util-linux coreutils \
-      python3 g++ gdb openjdk-21-jdk-headless && \
+      python3 g++ gcc gdb uthash-dev openjdk-21-jdk-headless && \
     rm -rf /var/lib/apt/lists/*
 
 RUN printf '%s\n' \
@@ -43,9 +50,14 @@ COPY src/execution/python/tracer.py /runner/tracer.py
 COPY src/execution/cpp/runner.py /runner/cpp_runner.py
 COPY src/execution/cpp/gdb_tracer.py /runner/gdb_tracer.py
 COPY src/execution/java/runner.py /runner/java_runner.py
+COPY src/execution/c/runner.py /runner/c_runner.py
+COPY --from=js /usr/local/bin/node /usr/local/bin/node
+COPY --from=js /js/node_modules /runner/js/node_modules
+COPY src/execution/js/runner.mjs src/execution/js/instrument.mjs src/execution/js/prelude.js /runner/js/
 COPY docker/vercel/nf-run /usr/local/bin/nf-run
 RUN chmod 0755 /usr/local/bin/nf-run && chmod -R a+rX /runner && \
-    python3 --version && g++ --version | head -1 && gdb --version | head -1 && java -version
+    python3 --version && g++ --version | head -1 && gcc --version | head -1 && gdb --version | head -1 && \
+    java -version && node --version
 
 # Payloads are written here by the API before each run: owned by the sandbox
 # user, unreadable by the throwaway users the harnesses run as.

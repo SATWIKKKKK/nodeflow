@@ -33,7 +33,7 @@ const bankFacts = () => {
 const SHEET = `
 WHAT NOESIS IS: a free practice workspace for data structures and algorithms. You write real code for a problem, Noesis runs it in a sandbox, records every variable and heap object at every line, and replays your own run as a diagram you can step through. Nothing is pre-animated: two different solutions produce two different replays. The point is to see the exact line where a solution went wrong.
 
-LANGUAGES: Python, C++ and Java. All three run in the sandbox, are judged against the same cases and produce the same step-by-step trace.
+LANGUAGES: Python, C++, Java, JavaScript, TypeScript and C. All six run in the sandbox, are judged against the same cases and produce the same step-by-step trace. C uses LeetCode's conventions (an array comes with its length; a returned array sets *returnSize).
 
 STRUCTURES THE TRACE DRAWS: arrays, strings, grids/matrices, linked lists (singly, doubly, cyclic, with random or child pointers), stacks, queues, hash maps, trees and BSTs, heaps, graphs, tries, and the recursion call stack. Recursion is supported: each call is shown on the call stack. Very large structures are truncated in the drawing rather than rendered in full.
 
@@ -44,7 +44,7 @@ THE WORKSPACE: a problem statement, a code editor (can go fullscreen; code can b
 - Verdicts: Accepted, Wrong Answer, Time Limit Exceeded, Runtime Error, Compile Error. An error in your code is reported separately from a platform problem.
 - Live preview: the trace updates as you type and keeps the last good picture while the code is mid-edit.
 - Playback: step forward and back, play at 0.5x, 1x, 2x or 4x, reset, scrub the timeline, zoom the drawing. Clicking a node jumps to the line that changed it.
-- Step limit: a run stops after 4,000 traced steps in Python or 1,500 in C++ and Java, and reports a likely infinite loop, so a runaway loop never hangs.
+- Step limit: a run stops after 4,000 traced steps in Python, 3,000 in JavaScript or TypeScript, or 1,500 in C, C++ and Java, and reports a likely infinite loop, so a runaway loop never hangs.
 - Custom input: you can enter your own input as JSON, start from an example, and use it for Run and live preview.
 
 SAFETY: every run gets its own isolated sandbox with no network access, one CPU, a memory cap, a time limit, a read-only filesystem and no extra privileges; it is deleted when the run ends. Runs wait in a bounded queue instead of starting unlimited sandboxes.
@@ -65,7 +65,7 @@ PRICING: everything is free today, classrooms included. Paid plans for larger co
 
 ROADMAP (planned, no dates): paid plans with reserved sandbox capacity, private problem banks for teams, AI hints, Google sign-in.
 
-NOT AVAILABLE: no mobile app, no other languages beyond Python, C++ and Java, no contests or leaderboards, no public user profiles, no AI hints yet. Noesis has no affiliation with any other DSA course or platform.
+NOT AVAILABLE: no mobile app, no other languages beyond Python, C++, Java, JavaScript, TypeScript and C, no contests or leaderboards, no public user profiles, no AI hints yet. Noesis has no affiliation with any other DSA course or platform.
 `.trim();
 
 export const noesisKnowledge = () => `${SHEET}\n\n${bankFacts()}`;

@@ -81,6 +81,55 @@ export const languageConfigs: Record<Language, LanguageConfig> = {
     pidsLimit: 256,
     tmpfs: "/tmp:rw,exec,nosuid,size=512m",
     extraRunArgs: []
+  },
+  javascript: {
+    id: "javascript",
+    image: "nodeflow-js-sandbox",
+    dockerfile: path.join(backendRoot, "docker", "js", "Dockerfile"),
+    contextFiles: ["src/execution/js"],
+    supportsTracing: true,
+    timeoutMs: 25000,
+    caseTimeoutMs: 3000,
+    startupMs: 2000,
+    runStepLimit: 3000,
+    previewStepLimit: 1200,
+    memoryLimit: "512m",
+    pidsLimit: 96,
+    tmpfs: "/tmp:rw,noexec,nosuid,size=16m",
+    extraRunArgs: []
+  },
+  // TypeScript runs in the JavaScript image: its types are removed first.
+  typescript: {
+    id: "typescript",
+    image: "nodeflow-js-sandbox",
+    dockerfile: path.join(backendRoot, "docker", "js", "Dockerfile"),
+    contextFiles: ["src/execution/js"],
+    supportsTracing: true,
+    timeoutMs: 25000,
+    caseTimeoutMs: 3000,
+    startupMs: 2000,
+    runStepLimit: 3000,
+    previewStepLimit: 1200,
+    memoryLimit: "512m",
+    pidsLimit: 96,
+    tmpfs: "/tmp:rw,noexec,nosuid,size=16m",
+    extraRunArgs: []
+  },
+  c: {
+    id: "c",
+    image: "nodeflow-c-sandbox",
+    dockerfile: path.join(backendRoot, "docker", "c", "Dockerfile"),
+    contextFiles: ["src/execution/c", "src/execution/cpp", "src/execution/common"],
+    supportsTracing: true,
+    timeoutMs: 40000,
+    caseTimeoutMs: 3000,
+    startupMs: 8000,
+    runStepLimit: 1500,
+    previewStepLimit: 500,
+    memoryLimit: "512m",
+    pidsLimit: 64,
+    tmpfs: "/tmp:rw,exec,nosuid,size=128m",
+    extraRunArgs: []
   }
 };
 

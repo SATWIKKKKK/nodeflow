@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@nodeflow/shared";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
@@ -10,7 +11,6 @@ import { markStartedSynced, startedAsUnfinished, unsyncedStarted } from "../lib/
 import { readCached, writeCached } from "../lib/cached";
 import { UnfinishedMark } from "./UnfinishedMark";
 
-const LANGUAGE_NAMES = { python: "Python", cpp: "C++", java: "Java" } as const;
 
 const ago = (timestamp: string) => {
   const seconds = Math.max(0, (Date.now() - Date.parse(timestamp)) / 1000);
@@ -94,7 +94,7 @@ export function UnfinishedRow({ entry, number }: { entry: UnfinishedProblem; num
         </span>
         <span className="mt-1 block text-xs text-blueprint-muted">
           {entry.topic} · {entry.difficulty}
-          {entry.language ? ` · ${LANGUAGE_NAMES[entry.language]}` : ""} · {ago(entry.updatedAt)}
+          {entry.language ? ` · ${LANGUAGE_LABELS[entry.language]}` : ""} · {ago(entry.updatedAt)}
         </span>
       </span>
       {entry.lastVerdict ? (

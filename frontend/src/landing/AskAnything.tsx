@@ -20,7 +20,7 @@ const MAX_QUESTION = 400;
 /** Real questions the assistant can answer, one tap each. */
 const SUGGESTIONS = [
   "How is Run different from Submit?",
-  "Can I use C++ or Java?",
+  "Which languages can I use?",
   "How do I earn coins?"
 ];
 

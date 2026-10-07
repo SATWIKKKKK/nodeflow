@@ -51,7 +51,7 @@ export const INFO_PAGES: InfoPageContent[] = [
       {
         title: "Where it stands",
         points: [
-          "Python, C++ and Java code is traced and visualized.",
+          "Python, C++, Java, JavaScript, TypeScript and C code is traced and visualized.",
           "Every problem on the DSA sheet is available, each checked against a working solution.",
           "The trace draws arrays, linked lists, stacks, queues, trees, graphs, grids and maps."
         ]
@@ -66,7 +66,7 @@ export const INFO_PAGES: InfoPageContent[] = [
       {
         title: "Live today",
         points: [
-          "Python, C++ and Java, traced line by line.",
+          "Python, C++, Java, JavaScript, TypeScript and C, traced line by line.",
           "Step-by-step playback for arrays, lists, stacks, queues, trees, graphs, grids and maps.",
           "The full DSA sheet, from basic maths to tries.",
           "Run, Test and Submit, with a live preview while you type.",
@@ -165,7 +165,7 @@ export const INFO_PAGES: InfoPageContent[] = [
         title: "Runaway code",
         points: [
           "Each language has a wall-clock time limit.",
-          "A run stops after 4,000 steps in Python or 1,500 in C++ and Java, and reports a likely infinite loop.",
+          "A run stops after 4,000 steps in Python, 3,000 in JavaScript or TypeScript, or 1,500 in C, C++ and Java, and reports a likely infinite loop.",
           "Your password is stored only as a salted hash, never as the password itself."
         ]
       }

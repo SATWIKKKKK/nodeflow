@@ -132,7 +132,7 @@ export function TraceDiagram({
             {view.kind !== "graph" && (
               <p className="mb-1 flex items-baseline gap-2">
                 <span className="font-mono text-[13px] text-primary">{view.title}</span>
-                <span className="text-technical-mono text-blueprint-muted">
+                <span className="trace-meta text-blueprint-muted">
                   {view.kind === "list" ? "linked list" : view.kind === "trie" ? "trie" : "tree"}
                 </span>
               </p>
@@ -153,7 +153,7 @@ export function TraceDiagram({
 
         {model.variables.length > 0 && (
           <section className={cn(model.views.length > 0 && "mt-6")} aria-label="Variables">
-            <p className="mb-2 text-technical-mono text-blueprint-muted">variables</p>
+            <p className="mb-2 trace-meta text-blueprint-muted">variables</p>
             <div className="flex flex-wrap gap-1.5">
               {model.variables.map((chip) => (
                 <span
@@ -176,7 +176,7 @@ export function TraceDiagram({
 
         {model.frames.length > 1 && (
           <section className="mt-6" aria-label="Call stack">
-            <p className="mb-2 text-technical-mono text-blueprint-muted">call stack · {model.frames.length} deep</p>
+            <p className="mb-2 trace-meta text-blueprint-muted">call stack · {model.frames.length} deep</p>
             <ol className="grid gap-1">
               <AnimatePresence initial={false}>
                 {model.frames

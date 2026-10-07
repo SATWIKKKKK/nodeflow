@@ -1,6 +1,6 @@
 #!/bin/bash
 # Runs one Noesis job inside a shared Vercel Sandbox, as a throwaway user.
-#   sudo nf-run <python|cpp|java> <run-id> <seconds> < payload.json
+#   sudo nf-run <python|cpp|java|javascript|typescript|c> <run-id> <seconds> < payload.json
 # The harness response is the only thing written to stdout.
 set -u
 lang="$1"; id="$2"; limit="$3"
@@ -9,9 +9,11 @@ case "$id" in
   ''|*[!a-z0-9]*) echo '{"ok":false,"errorType":"Platform Error","message":"Bad run id."}'; exit 0 ;;
 esac
 case "$lang" in
-  python) harness=/runner/tracer.py ;;
-  cpp) harness=/runner/cpp_runner.py ;;
-  java) harness=/runner/java_runner.py ;;
+  python) run=(python3 /runner/tracer.py) ;;
+  cpp) run=(python3 /runner/cpp_runner.py) ;;
+  java) run=(python3 /runner/java_runner.py) ;;
+  c) run=(python3 /runner/c_runner.py) ;;
+  javascript|typescript) run=(node /runner/js/runner.mjs) ;;
   *) echo '{"ok":false,"errorType":"Platform Error","message":"Unknown language."}'; exit 0 ;;
 esac
 
@@ -41,7 +43,7 @@ timeout -k 2 "$limit" \
   setpriv --reuid="$user" --regid="$user" --clear-groups --no-new-privs \
   prlimit --nproc=256 --fsize=67108864 --core=0 -- \
   env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$dir" LANG=C.UTF-8 NF_WORK_DIR="$dir/work" \
-  python3 "$harness" < "$dir/payload.json"
+  "${run[@]}" < "$dir/payload.json"
 status=$?
 if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
   echo '{"ok":false,"errorType":"Time Limit Exceeded","message":"Your code ran longer than the time limit."}'

@@ -148,9 +148,15 @@ const runCases = async (
   code: string,
   cases: ProblemTestCase[],
   revealHidden: boolean,
-  language: Language = "python"
+  language: Language = "python",
+  /**
+   * Submit stops at the first case that fails, as judges do. Test reports
+   * every visible case, so each one can be looked at.
+   */
+  stopAtFirstFailure = true
 ): Promise<TestResponse> => {
   const started = performance.now();
+  const totalCases = cases.length;
   const config = configFor(language);
   const payload: RunnerPayload = {
     ...basePayload(problem, code),
@@ -174,6 +180,7 @@ const runCases = async (
     return {
       verdict: batch.errorType,
       runtimeMs: elapsed(),
+      totalCases,
       cases: [
         {
           id: first?.id ?? "compile",
@@ -188,6 +195,8 @@ const runCases = async (
 
   const results: CaseResult[] = [];
   const compare = problem.signature.compare ?? "exact";
+  // The first thing that went wrong decides the verdict.
+  let verdict: TestResponse["verdict"] = "Accepted";
 
   for (const [index, testCase] of cases.entries()) {
     const execution = batch.cases[index] as ExecutionResponse | undefined;
@@ -200,7 +209,7 @@ const runCases = async (
         status: "error",
         execution: platformFailure(`case result (${problem.id})`, "no result for this case")
       });
-      return { verdict: "Platform Error", cases: results, runtimeMs: elapsed() };
+      return { verdict: "Platform Error", cases: results, runtimeMs: elapsed(), totalCases };
     }
 
     if (!execution.ok) {
@@ -212,7 +221,9 @@ const runCases = async (
         expectedOutput: reveal ? testCase.expectedOutput : undefined,
         execution: reveal ? execution : { ...execution, traceback: undefined, stdout: undefined }
       });
-      return { verdict: execution.errorType, cases: results, runtimeMs: elapsed() };
+      if (verdict === "Accepted") verdict = execution.errorType;
+      if (stopAtFirstFailure) return { verdict, cases: results, runtimeMs: elapsed(), totalCases };
+      continue;
     }
 
     const passed = outputsMatch(execution.result, testCase.expectedOutput, compare);
@@ -227,11 +238,12 @@ const runCases = async (
     });
 
     if (!passed) {
-      return { verdict: "Wrong Answer", cases: results, runtimeMs: elapsed() };
+      if (verdict === "Accepted") verdict = "Wrong Answer";
+      if (stopAtFirstFailure) return { verdict, cases: results, runtimeMs: elapsed(), totalCases };
     }
   }
 
-  return { verdict: "Accepted", cases: results, runtimeMs: elapsed() };
+  return { verdict, cases: results, runtimeMs: elapsed(), totalCases };
 };
 
 export const testProblem = (problem: Problem, code: string, language: Language = "python") =>
@@ -240,7 +252,8 @@ export const testProblem = (problem: Problem, code: string, language: Language =
     code,
     problem.testCases.filter((testCase) => testCase.visible),
     true,
-    language
+    language,
+    false
   );
 
 export const verifyProblemReference = (problem: Problem, code: string, language: Language = "python") =>

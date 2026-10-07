@@ -87,7 +87,7 @@ export function GridView({ view }: { view: GridViewModel }) {
     <div>
       <p className="mb-2 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
-        <span className="text-technical-mono text-blueprint-muted">
+        <span className="trace-meta text-blueprint-muted">
           grid · {view.rows.length}×{columns}
         </span>
       </p>

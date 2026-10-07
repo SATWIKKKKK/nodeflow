@@ -131,31 +131,34 @@ export function StructureGraph({ total }: { total: number }) {
   );
 }
 
-/* ---------- Three languages ---------- */
+/* ---------- Six languages ---------- */
 
-const LANGUAGES = ["Py", "C++", "Java"];
+const LANGUAGES = ["Py", "C++", "Java", "JS", "TS", "C"];
 
 export function LanguagePills() {
   return (
-    <Glyph count={LANGUAGES.length + 1} intervalMs={520} label="Python, C++ and Java">
+    <Glyph count={LANGUAGES.length + 1} intervalMs={420} label="Python, C++, Java, JavaScript, TypeScript and C">
       {(index) =>
-        LANGUAGES.map((name, row) => {
-          const on = row === index - 1;
+        LANGUAGES.map((name, at) => {
+          const on = at === index - 1;
+          // Two columns of three.
+          const x = 6 + (at % 2) * 44;
+          const y = 12 + Math.floor(at / 2) * 26;
           return (
             <g key={name}>
               <path
-                d={geometry.roundedRect(10, 12 + row * 26, 76, 20, 10)}
+                d={geometry.roundedRect(x, y, 40, 20, 10)}
                 fill={on ? FILL : PAPER}
                 stroke={on ? FILL : INACTIVE}
                 strokeWidth={1.4}
                 style={{ transition: "fill 400ms linear, stroke 400ms linear" }}
               />
               <text
-                x={48}
-                y={22 + row * 26}
+                x={x + 20}
+                y={y + 10}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fontSize={11}
+                fontSize={10}
                 fill={on ? ON_FILL : INACTIVE}
                 className="font-mono"
                 style={{ transition: "fill 400ms linear" }}

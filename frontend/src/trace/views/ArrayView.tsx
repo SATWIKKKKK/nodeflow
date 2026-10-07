@@ -578,11 +578,11 @@ export function ArrayView({ view, scope }: { view: ArrayViewModel; scope: string
           arrow arrives through, so it must fit a line and its arrowhead. */}
       <p className="mb-4 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
-        <span className="text-technical-mono text-blueprint-muted">
+        <span className="trace-meta text-blueprint-muted">
           {VARIANT_LABEL[view.variant]} · {view.cells.length + view.truncated}
         </span>
         {view.sumSpan && (
-          <span className="text-technical-mono text-[var(--compare-text)]">
+          <span className="trace-meta text-[var(--compare-text)]">
             sum {view.sumSpan.from}…{view.sumSpan.to} = {view.sumSpan.total}
           </span>
         )}

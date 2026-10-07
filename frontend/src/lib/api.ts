@@ -205,6 +205,22 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify({ delta })
     }),
+  /** The learner's last submitted code for this problem in this language. */
+  latestSubmission: (problemId: string, language: Language, token?: string | null) =>
+    request<{ code: string; verdict: string; submittedAt: string }>(
+      `/api/submissions/latest?problemId=${encodeURIComponent(problemId)}&language=${language}`,
+      { headers: authHeaders(token) }
+    ),
+  note: (problemId: string, token?: string | null) =>
+    request<{ text: string; updatedAt: string | null }>(`/api/notes/${encodeURIComponent(problemId)}`, {
+      headers: authHeaders(token)
+    }),
+  saveNote: (problemId: string, text: string, token?: string | null) =>
+    request<{ updatedAt: string }>(`/api/notes/${encodeURIComponent(problemId)}`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify({ text })
+    }),
   unfinished: (token?: string | null) =>
     request<{ problems: UnfinishedProblem[] }>("/api/unfinished", { headers: authHeaders(token) }),
   draft: (problemId: string, token?: string | null) =>

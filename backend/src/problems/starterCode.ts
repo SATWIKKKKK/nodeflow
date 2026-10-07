@@ -1,7 +1,8 @@
 import type { Language, ProblemSignature, ValueKind } from "@nodeflow/shared";
 
 /**
- * Generates C++/Java stubs from a problem's signature metadata.
+ * Generates C++, Java, JavaScript, TypeScript and C stubs from a problem's
+ * signature metadata, in the shape LeetCode uses for each language.
  *
  * The bank authors only Python stubs. Deriving the other languages from the
  * signature keeps one source of truth, and guarantees the stub matches exactly
@@ -370,11 +371,384 @@ ${indent(javaMethod(snakeToCamel(signature.functionName), signature.returnKind, 
 }`;
 };
 
+// ---------------------------------------------------------------------------
+// JavaScript and TypeScript
+// ---------------------------------------------------------------------------
+
+const jsDocType = (kind: ValueKind): string => {
+  switch (kind) {
+    case "int":
+    case "long":
+    case "double":
+      return "number";
+    case "bool":
+      return "boolean";
+    case "string":
+      return "string";
+    case "array":
+    case "long_array":
+    case "double_array":
+      return "number[]";
+    case "bool_array":
+      return "boolean[]";
+    case "string_array":
+      return "string[]";
+    case "matrix":
+    case "graph":
+      return "number[][]";
+    case "char_matrix":
+      return "character[][]";
+    case "string_matrix":
+      return "string[][]";
+    case "void":
+      return "void";
+    default:
+      return nodeOf(kind);
+  }
+};
+
+const tsType = (kind: ValueKind): string => {
+  switch (kind) {
+    case "char_matrix":
+      return "string[][]";
+    case "void":
+      return "void";
+    case "linked_list":
+    case "cyclic_list":
+    case "y_list":
+    case "list_node_value":
+    case "doubly_linked_list":
+    case "random_list":
+    case "child_list":
+    case "tree":
+    case "tree_node_value":
+      return `${nodeOf(kind)} | null`;
+    default:
+      return jsDocType(kind);
+  }
+};
+
+function nodeOf(kind: ValueKind): string {
+  for (const [name, kinds] of Object.entries(NODE_KINDS)) if (kinds.includes(kind)) return name;
+  return "any";
+}
+
+const JS_NODE_DEFINITIONS: Record<string, string> = {
+  ListNode: `Definition for singly-linked list.
+function ListNode(val, next) {
+    this.val = (val===undefined ? 0 : val)
+    this.next = (next===undefined ? null : next)
+}`,
+  DListNode: `Definition for a doubly linked list node.
+function DListNode(val, prev, next) {
+    this.val = (val===undefined ? 0 : val)
+    this.prev = (prev===undefined ? null : prev)
+    this.next = (next===undefined ? null : next)
+}`,
+  RandomNode: `Definition for a list node with a random pointer.
+function RandomNode(val, next, random) {
+    this.val = (val===undefined ? 0 : val)
+    this.next = (next===undefined ? null : next)
+    this.random = (random===undefined ? null : random)
+}`,
+  ChildNode: `Definition for a multilevel list node.
+function ChildNode(val, next, child) {
+    this.val = (val===undefined ? 0 : val)
+    this.next = (next===undefined ? null : next)
+    this.child = (child===undefined ? null : child)
+}`,
+  TreeNode: `Definition for a binary tree node.
+function TreeNode(val, left, right) {
+    this.val = (val===undefined ? 0 : val)
+    this.left = (left===undefined ? null : left)
+    this.right = (right===undefined ? null : right)
+}`
+};
+
+const TS_NODE_DEFINITIONS: Record<string, string> = {
+  ListNode: `Definition for singly-linked list.
+class ListNode {
+    val: number
+    next: ListNode | null
+    constructor(val?: number, next?: ListNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.next = (next===undefined ? null : next)
+    }
+}`,
+  DListNode: `Definition for a doubly linked list node.
+class DListNode {
+    val: number
+    prev: DListNode | null
+    next: DListNode | null
+    constructor(val?: number, prev?: DListNode | null, next?: DListNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.prev = (prev===undefined ? null : prev)
+        this.next = (next===undefined ? null : next)
+    }
+}`,
+  RandomNode: `Definition for a list node with a random pointer.
+class RandomNode {
+    val: number
+    next: RandomNode | null
+    random: RandomNode | null
+    constructor(val?: number, next?: RandomNode | null, random?: RandomNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.next = (next===undefined ? null : next)
+        this.random = (random===undefined ? null : random)
+    }
+}`,
+  ChildNode: `Definition for a multilevel list node.
+class ChildNode {
+    val: number
+    next: ChildNode | null
+    child: ChildNode | null
+    constructor(val?: number, next?: ChildNode | null, child?: ChildNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.next = (next===undefined ? null : next)
+        this.child = (child===undefined ? null : child)
+    }
+}`,
+  TreeNode: `Definition for a binary tree node.
+class TreeNode {
+    val: number
+    left: TreeNode | null
+    right: TreeNode | null
+    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.left = (left===undefined ? null : left)
+        this.right = (right===undefined ? null : right)
+    }
+}`
+};
+
+/** The node definitions, as a comment: the harness defines the classes. */
+const commentedDefinitions = (signature: ProblemSignature, definitions: Record<string, string>) =>
+  nodesUsed(signature)
+    .map((name) => `/**\n${definitions[name].split("\n").map((line) => ` * ${line}`.trimEnd()).join("\n")}\n */`)
+    .join("\n");
+
+const jsDoc = (params: Array<{ name: string; kind: ValueKind }>, returnKind: ValueKind) =>
+  [
+    "/**",
+    ...params.map((parameter) => ` * @param {${jsDocType(parameter.kind)}} ${snakeToCamel(parameter.name)}`),
+    ` * @return {${jsDocType(returnKind)}}`,
+    " */"
+  ].join("\n");
+
+const buildJavaScript = (signature: ProblemSignature) => {
+  const prelude = commentedDefinitions(signature, JS_NODE_DEFINITIONS);
+  const lead = prelude ? `${prelude}\n` : "";
+
+  if (signature.design) {
+    const { className, constructorParameters, methods } = signature.design;
+    const ctorDoc = constructorParameters.length
+      ? `/**\n${constructorParameters.map((parameter) => ` * @param {${jsDocType(parameter.kind)}} ${snakeToCamel(parameter.name)}`).join("\n")}\n */\n`
+      : "";
+    const ctor = `${ctorDoc}var ${className} = function(${constructorParameters.map((parameter) => snakeToCamel(parameter.name)).join(", ")}) {
+    // Set up your fields here.
+};`;
+    const members = methods
+      .map(
+        (method) => `${jsDoc(method.parameters, method.returnKind)}
+${className}.prototype.${method.name} = function(${method.parameters.map((parameter) => snakeToCamel(parameter.name)).join(", ")}) {
+    // Write your solution here.
+};`
+      )
+      .join("\n\n");
+    return `${lead}${ctor}\n\n${members}`;
+  }
+
+  const name = snakeToCamel(signature.functionName);
+  return `${lead}${jsDoc(signature.parameters, signature.returnKind)}
+var ${name} = function(${signature.parameters.map((parameter) => snakeToCamel(parameter.name)).join(", ")}) {
+    // Write your solution here.
+};`;
+};
+
+const buildTypeScript = (signature: ProblemSignature) => {
+  const prelude = commentedDefinitions(signature, TS_NODE_DEFINITIONS);
+  const lead = prelude ? `${prelude}\n\n` : "";
+  const params = (list: Array<{ name: string; kind: ValueKind }>) =>
+    list.map((parameter) => `${snakeToCamel(parameter.name)}: ${tsType(parameter.kind)}`).join(", ");
+
+  if (signature.design) {
+    const { className, constructorParameters, methods } = signature.design;
+    const members = methods
+      .map(
+        (method) => `    ${method.name}(${params(method.parameters)}): ${tsType(method.returnKind)} {
+        // Write your solution here.
+    }`
+      )
+      .join("\n\n");
+    return `${lead}class ${className} {
+    constructor(${params(constructorParameters)}) {
+        // Set up your fields here.
+    }
+
+${members}
+}`;
+  }
+
+  return `${lead}function ${snakeToCamel(signature.functionName)}(${params(signature.parameters)}): ${tsType(signature.returnKind)} {
+    // Write your solution here.
+};`;
+};
+
+// ---------------------------------------------------------------------------
+// C
+// ---------------------------------------------------------------------------
+
+const C_NODE_DEFINITIONS: Record<string, string> = {
+  ListNode: `Definition for singly-linked list.
+struct ListNode {
+    int val;
+    struct ListNode *next;
+};`,
+  DListNode: `Definition for a doubly linked list node.
+struct DListNode {
+    int val;
+    struct DListNode *prev;
+    struct DListNode *next;
+};`,
+  RandomNode: `Definition for a list node with a random pointer.
+struct RandomNode {
+    int val;
+    struct RandomNode *next;
+    struct RandomNode *random;
+};`,
+  ChildNode: `Definition for a multilevel list node.
+struct ChildNode {
+    int val;
+    struct ChildNode *next;
+    struct ChildNode *child;
+};`,
+  TreeNode: `Definition for a binary tree node.
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+};`
+};
+
+const C_ELEMENT: Partial<Record<ValueKind, string>> = {
+  array: "int*",
+  long_array: "long long*",
+  double_array: "double*",
+  bool_array: "bool*",
+  string_array: "char**",
+  matrix: "int**",
+  graph: "int**",
+  char_matrix: "char**",
+  string_matrix: "char***"
+};
+const C_ONE_D = new Set<ValueKind>(["array", "long_array", "double_array", "bool_array", "string_array"]);
+const C_TWO_D = new Set<ValueKind>(["matrix", "graph", "char_matrix", "string_matrix"]);
+
+const cScalar = (kind: ValueKind): string => {
+  switch (kind) {
+    case "int":
+      return "int";
+    case "long":
+      return "long long";
+    case "double":
+      return "double";
+    case "bool":
+      return "bool";
+    case "string":
+      return "char*";
+    case "void":
+      return "void";
+    default:
+      return C_ELEMENT[kind] ?? `struct ${nodeOf(kind)}*`;
+  }
+};
+
+/** LeetCode's C parameters: arrays bring their length, grids their row lengths too. */
+const cParams = (list: Array<{ name: string; kind: ValueKind }>) =>
+  list.flatMap((parameter) => {
+    const name = snakeToCamel(parameter.name);
+    if (C_ONE_D.has(parameter.kind)) return [`${cScalar(parameter.kind)} ${name}`, `int ${name}Size`];
+    if (C_TWO_D.has(parameter.kind)) return [`${cScalar(parameter.kind)} ${name}`, `int ${name}Size`, `int* ${name}ColSize`];
+    return [`${cScalar(parameter.kind)} ${name}`];
+  });
+
+const cReturnParams = (kind: ValueKind) =>
+  C_ONE_D.has(kind) ? ["int* returnSize"] : C_TWO_D.has(kind) ? ["int* returnSize", "int** returnColumnSizes"] : [];
+
+const cDefaultBody = (kind: ValueKind) => {
+  if (C_ONE_D.has(kind)) return ["*returnSize = 0;", "return NULL;"];
+  if (C_TWO_D.has(kind)) return ["*returnSize = 0;", "*returnColumnSizes = NULL;", "return NULL;"];
+  switch (kind) {
+    case "void":
+      return [];
+    case "int":
+    case "long":
+      return ["return 0;"];
+    case "double":
+      return ["return 0.0;"];
+    case "bool":
+      return ["return false;"];
+    case "string":
+      return ['return "";'];
+    default:
+      return ["return NULL;"];
+  }
+};
+
+const cReturnNote = (kind: ValueKind) =>
+  C_ONE_D.has(kind)
+    ? "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\n"
+    : C_TWO_D.has(kind)
+      ? "/**\n * Return an array of arrays of size *returnSize.\n * The sizes of the arrays are returned as *returnColumnSizes array.\n * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().\n */\n"
+      : "";
+
+const cFunction = (name: string, returnKind: ValueKind, params: string[], note = true) => {
+  const body = ["// Write your solution here.", ...cDefaultBody(returnKind)].map((line) => `    ${line}`).join("\n");
+  return `${note ? cReturnNote(returnKind) : ""}${cScalar(returnKind)} ${name}(${[...params, ...cReturnParams(returnKind)].join(", ")}) {
+${body}
+}`;
+};
+
+const lowerFirst = (value: string) => value.slice(0, 1).toLowerCase() + value.slice(1);
+const upperFirst = (value: string) => value.slice(0, 1).toUpperCase() + value.slice(1);
+
+const buildC = (signature: ProblemSignature) => {
+  const prelude = commentedDefinitions(signature, C_NODE_DEFINITIONS);
+  const lead = prelude ? `${prelude}\n` : "";
+
+  if (signature.design) {
+    const { className, constructorParameters, methods } = signature.design;
+    const prefix = lowerFirst(className);
+    const create = `${className}* ${prefix}Create(${cParams(constructorParameters).join(", ")}) {
+    ${className}* obj = malloc(sizeof(${className}));
+    // Set up your fields here.
+    return obj;
+}`;
+    const members = methods.map((method) =>
+      cFunction(`${prefix}${upperFirst(method.name)}`, method.returnKind, [`${className}* obj`, ...cParams(method.parameters)], false)
+    );
+    const free = `void ${prefix}Free(${className}* obj) {
+    free(obj);
+}`;
+    return `${lead}typedef struct {
+    // Add your fields here.
+} ${className};
+
+
+${[create, ...members, free].join("\n\n")}`;
+  }
+
+  return `${lead}${cFunction(snakeToCamel(signature.functionName), signature.returnKind, cParams(signature.parameters))}`;
+};
+
 export const buildStarterCodeByLanguage = (
   signature: ProblemSignature,
   pythonStarter: string
 ): Record<Language, string> => ({
   python: pythonStarter,
   cpp: buildCpp(signature),
-  java: buildJava(signature)
+  java: buildJava(signature),
+  javascript: buildJavaScript(signature),
+  typescript: buildTypeScript(signature),
+  c: buildC(signature)
 });

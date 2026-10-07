@@ -7,8 +7,8 @@ import type { SerializedValue } from "@nodeflow/shared";
  * line, never that `nums[j] > nums[j + 1]` was evaluated. The line's own source
  * does name both cells, though, and the step already carries the variables its
  * index expressions are written in — so reading the line is enough to light the
- * pair before the decision animates, with no new tracer capability in any of the
- * three languages.
+ * pair before the decision animates, with no new tracer capability in any
+ * language.
  *
  * Nothing here executes user code. Index expressions are parsed as sums of
  * products over integer variables and literals; anything else is skipped, so an

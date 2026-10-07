@@ -3,6 +3,7 @@ import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { cpp } from "@codemirror/lang-cpp";
 import { java } from "@codemirror/lang-java";
+import { javascript } from "@codemirror/lang-javascript";
 import {
   Decoration,
   EditorView,
@@ -51,8 +52,11 @@ const playbackGutter = gutterLineClass.compute([playbackLine, "doc"], (state) =>
 });
 
 const languageExtension = (language: Language) => {
-  if (language === "cpp") return cpp();
+  // C reads well with the C++ grammar: it is close to a subset of it.
+  if (language === "cpp" || language === "c") return cpp();
   if (language === "java") return java();
+  if (language === "javascript") return javascript();
+  if (language === "typescript") return javascript({ typescript: true });
   return python();
 };
 
@@ -63,6 +67,8 @@ interface CodeEditorPaneProps {
   activeLine: number | null;
   onChange: (value: string) => void;
   onLineClick: (line: number) => void;
+  /** Where the cursor is, for the status bar: 1-based line and column. */
+  onCursor?: (line: number, column: number) => void;
   readOnly?: boolean;
 }
 
@@ -72,8 +78,21 @@ export default function CodeEditorPane({
   activeLine,
   onChange,
   onLineClick,
+  onCursor,
   readOnly = false
 }: CodeEditorPaneProps) {
+  const cursorRef = useRef(onCursor);
+  cursorRef.current = onCursor;
+  const cursorListener = useMemo(
+    () =>
+      EditorView.updateListener.of((update) => {
+        if (!update.selectionSet && !update.docChanged) return;
+        const head = update.state.selection.main.head;
+        const line = update.state.doc.lineAt(head);
+        cursorRef.current?.(line.number, head - line.from + 1);
+      }),
+    []
+  );
   const editor = useRef<ReactCodeMirrorRef>(null);
   const { resolved } = useThemePreference();
   const lastLine = useRef<number | null>(null);
@@ -99,9 +118,10 @@ export default function CodeEditorPane({
       playbackDecorations,
       playbackGutter,
       clickHandler,
+      cursorListener,
       EditorView.lineWrapping
     ],
-    [language, clickHandler]
+    [language, clickHandler, cursorListener]
   );
 
   // Push the active line into editor state and ease it into view.

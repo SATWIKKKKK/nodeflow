@@ -632,6 +632,10 @@
     height: auto;
   }
 
+  .cm-theme .cm-editor {
+    min-height: 260px;
+  }
+
   .cm-editor .cm-content {
     padding-bottom: 24px !important;
   }
@@ -943,105 +947,6 @@
   .unfinished-tag {
     animation: none;
   }
-}
-
-/* ---------- Test / Submit verdict (workspace/JudgementBanner) ---------- */
-
-.judgement-pass {
-  border-color: rgba(45, 88, 188, 0.35);
-  background: linear-gradient(120deg, #e8f0ff 0%, #dbeafe 45%, #e0f7ff 100%);
-  color: #1e3a8a;
-}
-.judgement-pass .judgement-icon {
-  background: linear-gradient(135deg, #2d58bc, #3b82f6);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(45, 88, 188, 0.35);
-}
-.judgement-pass .judgement-headline {
-  color: #1d4ed8;
-}
-
-.judgement-fail {
-  border-color: rgba(220, 38, 38, 0.3);
-  background: linear-gradient(120deg, #fff1f2 0%, #ffe4e6 50%, #fff7ed 100%);
-  color: #7f1d1d;
-}
-.judgement-fail .judgement-icon {
-  background: linear-gradient(135deg, #dc2626, #f43f5e);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(220, 38, 38, 0.3);
-}
-.judgement-fail .judgement-headline {
-  color: #b91c1c;
-}
-
-.judgement-slow {
-  border-color: rgba(217, 119, 6, 0.35);
-  background: linear-gradient(120deg, #fffbeb 0%, #fef3c7 55%, #fff7ed 100%);
-  color: #78350f;
-}
-.judgement-slow .judgement-icon {
-  background: linear-gradient(135deg, #d97706, #f59e0b);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(217, 119, 6, 0.3);
-}
-.judgement-slow .judgement-headline {
-  color: #b45309;
-}
-
-.judgement-seg-pass {
-  background: linear-gradient(90deg, #2d58bc, #3b82f6);
-}
-.judgement-seg-fail {
-  background: linear-gradient(90deg, #dc2626, #f43f5e);
-}
-
-.dark .judgement-pass {
-  border-color: rgba(158, 203, 255, 0.35);
-  background: linear-gradient(120deg, #0d1b33 0%, #10254a 50%, #0b2236 100%);
-  color: #cfe3ff;
-}
-.dark .judgement-pass .judgement-icon {
-  background: linear-gradient(135deg, #9ecbff, #60a5fa);
-  color: #0a1728;
-  box-shadow: 0 8px 26px rgba(158, 203, 255, 0.28);
-}
-.dark .judgement-pass .judgement-headline {
-  color: #9ecbff;
-}
-
-.dark .judgement-fail {
-  border-color: rgba(248, 113, 113, 0.35);
-  background: linear-gradient(120deg, #2a0f14 0%, #3a1119 55%, #2b1409 100%);
-  color: #fecdd3;
-}
-.dark .judgement-fail .judgement-icon {
-  background: linear-gradient(135deg, #f87171, #fb7185);
-  color: #2a0f14;
-  box-shadow: 0 8px 26px rgba(248, 113, 113, 0.25);
-}
-.dark .judgement-fail .judgement-headline {
-  color: #fca5a5;
-}
-
-.dark .judgement-slow {
-  border-color: rgba(251, 191, 36, 0.35);
-  background: linear-gradient(120deg, #2a1d06 0%, #3a2808 55%, #2b1a09 100%);
-  color: #fde68a;
-}
-.dark .judgement-slow .judgement-icon {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #2a1d06;
-}
-.dark .judgement-slow .judgement-headline {
-  color: #fcd34d;
-}
-
-.dark .judgement-seg-pass {
-  background: linear-gradient(90deg, #9ecbff, #60a5fa);
-}
-.dark .judgement-seg-fail {
-  background: linear-gradient(90deg, #f87171, #fb7185);
 }
 
 /* ---------- Coins (components/NoesisCoin, CoinCelebration) ---------- */
@@ -1839,11 +1744,6 @@
   backdrop-filter: none;
 }
 
-/* The verdict banner keeps its colours and sits on the same light. */
-.neu-world .judgement-banner {
-  box-shadow: var(--neu-raise-sm);
-}
-
 /* The timeline: a hollow groove with a raised knob. */
 .neu-world .trace-range::-webkit-slider-runnable-track {
   height: 6px;
@@ -2148,4 +2048,363 @@
 /* A whole card that is a link rises a little more when the pointer is on it. */
 .neu-world .neu-card-link:hover > .surface-card-compact {
   box-shadow: var(--neu-raise-hover);
+}
+
+/* ---------- Trace labels ---------- */
+
+/*
+ * The small note beside a value's name ("array · 6", "linked list") and the
+ * section labels in the 2D trace. Set in the code font, lowercase and muted,
+ * so it reads as a quiet aside to the name it follows, on the same baseline,
+ * rather than a second heading in another typeface.
+ */
+.trace-meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: lowercase;
+  color: var(--color-blueprint-muted);
+}
+
+/* ---------- Workspace: panels, results, splitters ---------- */
+
+/*
+ * One colour per kind of outcome (blue passed, red failed, amber ran out of
+ * room or failed on our side), and one per difficulty, used as plain text.
+ */
+:root {
+  --verdict-pass: #2d58bc;
+  --verdict-fail: #b91c1c;
+  --verdict-slow: #b45309;
+  --difficulty-easy: #0f766e;
+  --difficulty-medium: #b45309;
+  --difficulty-hard: #be123c;
+  --skeleton-base: rgba(60, 40, 38, 0.075);
+  --skeleton-shine: rgba(60, 40, 38, 0.02);
+}
+
+.dark {
+  --verdict-pass: #9ecbff;
+  --verdict-fail: #fca5a5;
+  --verdict-slow: #f0b429;
+  --difficulty-easy: #5eead4;
+  --difficulty-medium: #f0b429;
+  --difficulty-hard: #fda4af;
+  --skeleton-base: rgba(255, 255, 255, 0.06);
+  --skeleton-shine: rgba(255, 255, 255, 0.13);
+}
+
+.verdict-box-fail {
+  background: color-mix(in oklab, var(--verdict-fail) 8%, transparent);
+  color: var(--verdict-fail);
+}
+
+.verdict-box-slow {
+  background: color-mix(in oklab, var(--verdict-slow) 10%, transparent);
+  color: #92400e;
+}
+
+.dark .verdict-box-fail {
+  background: color-mix(in oklab, var(--verdict-fail) 10%, transparent);
+}
+
+.dark .verdict-box-slow {
+  color: #ffe4b5;
+}
+
+/* The shape of an answer that is on its way. */
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--skeleton-base) 0%, var(--skeleton-shine) 45%, var(--skeleton-base) 90%);
+  background-size: 220% 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* While Run, Test or Submit is out: a line running along the console's top edge. */
+.console-progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.console-progress::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -45%;
+  width: 45%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--fill-blue), transparent);
+  animation: console-progress 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes console-progress {
+  to {
+    left: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .console-progress::before {
+    animation: none;
+  }
+
+  .console-progress::before {
+    left: 0;
+    width: 100%;
+    opacity: 0.6;
+  }
+}
+
+/* The picked case: pressed into the panel. */
+.case-chip-on {
+  background: var(--surface-hover);
+}
+
+.neu-world .case-chip-on {
+  background: var(--neu-surface);
+  box-shadow: var(--neu-well-sm);
+}
+
+.kbd {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 1px 5px;
+  border: 1px solid var(--color-blueprint-line);
+  border-radius: 4px;
+  background: var(--card);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--foreground);
+}
+
+/* Tool tips: quick, small, and only once the pointer has settled. */
+.tool-button[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 70;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.tool-button[data-tip]:hover::after,
+.tool-button[data-tip]:focus-visible::after {
+  opacity: 1;
+  transform: none;
+  transition-delay: 380ms;
+}
+
+.tool-button[data-tip-side="left"]::after {
+  right: auto;
+  left: 0;
+}
+
+/* A drag in progress owns the cursor, and nothing underneath gets selected. */
+body.resizing-x,
+body.resizing-x * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.resizing-y,
+body.resizing-y * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}
+
+/* The logo's back button: tucked away until the logo is hovered or focused. */
+.logo-back-button {
+  max-width: 0;
+  margin-left: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    max-width 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-left 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+}
+
+.logo-back:hover .logo-back-button,
+.logo-back:focus-within .logo-back-button {
+  max-width: 120px;
+  margin-left: 6px;
+  opacity: 1;
+  transform: none;
+}
+
+/* No hover on touch screens, so it simply stays out. */
+@media (hover: none) {
+  .logo-back-button {
+    max-width: 120px;
+    margin-left: 6px;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-back-button {
+    transition: opacity 120ms ease;
+  }
+}
+
+/* Run, Test and Submit: sentence case, sized for a toolbar. */
+.workspace-action {
+  height: 34px;
+  min-height: 0;
+  padding: 0 14px;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/*
+ * Panel tabs: a recessed track with the open tab raised out of it. The raised
+ * face is one element that slides between tabs (PanelBar's knob), so the tab
+ * buttons themselves stay flat inside the track.
+ */
+.neu-world .neu-tabs[role="tablist"] {
+  border-radius: 10px;
+  background: var(--neu-hollow);
+  box-shadow: var(--neu-well-sm);
+}
+
+.neu-world .neu-tabs [role="tab"],
+.neu-world .neu-tabs [role="tab"]:hover,
+.neu-world .neu-tabs [role="tab"][aria-selected="true"],
+.neu-world .neu-tabs [role="tab"][aria-selected="true"]:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.neu-world .neu-tabs [role="tab"][aria-selected="true"] {
+  color: var(--fill-blue);
+}
+
+.panel-tab-knob {
+  border-radius: 7px;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.neu-world .panel-tab-knob {
+  background: var(--neu-face);
+  box-shadow: var(--neu-raise-sm);
+}
+
+/* Tools: one raised strip, each key pressed in under the pointer. */
+.neu-world .tool-group {
+  border-radius: 999px;
+  background: var(--neu-face-soft);
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world .tool-group .tool-button {
+  border-radius: 999px;
+  transition:
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.neu-world .tool-group .tool-button:not(:disabled):hover,
+.neu-world .tool-group .tool-button[aria-pressed="true"] {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+  color: var(--fill-blue);
+}
+
+.neu-world .tool-group .tool-button:not(:disabled):active {
+  box-shadow: var(--neu-press);
+}
+
+/* Case chips: raised keys; the picked one is pressed in. */
+.neu-world .case-chip {
+  background: var(--neu-face-soft);
+  box-shadow: var(--neu-raise-sm);
+}
+
+.neu-world .case-chip:not(.case-chip-on):hover {
+  color: var(--foreground);
+  box-shadow: var(--neu-raise);
+}
+
+.neu-world .case-chip-on,
+.neu-world .flat-tabs [role="tab"].case-chip-on,
+.neu-world .flat-tabs [role="tab"].case-chip-on:hover {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+  color: var(--fill-blue);
+}
+
+.neu-world .flat-tabs[role="tablist"] {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Hover menus' triggers: a raised pill, pressed in while the menu is open. */
+.neu-world .neu-trigger {
+  background: var(--neu-face-soft);
+  box-shadow: var(--neu-raise-sm);
+  transition:
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.neu-world .neu-trigger:not(:disabled):hover {
+  box-shadow: var(--neu-raise);
+}
+
+.neu-world .neu-trigger.is-open,
+.neu-world .neu-trigger.is-open:hover {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+  color: var(--fill-blue);
+}
+
+.neu-world .neu-trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.menu-item.is-active {
+  background: var(--neu-face-pressed, var(--surface-hover));
+  box-shadow: var(--neu-well-sm, none);
 }

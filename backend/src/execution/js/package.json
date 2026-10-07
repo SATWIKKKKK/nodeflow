@@ -1,0 +1,9 @@
+{
+  "name": "noesis-js-harness",
+  "private": true,
+  "description": "Installed into the sandbox image for the JavaScript/TypeScript harness (see docker/js/Dockerfile).",
+  "dependencies": {
+    "acorn": "8.19.0",
+    "sucrase": "3.35.1"
+  }
+}

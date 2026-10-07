@@ -8,7 +8,7 @@ export function MapView({ view }: { view: MapViewModel }) {
     <div>
       <p className="mb-2 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
-        <span className="text-technical-mono text-blueprint-muted">
+        <span className="trace-meta text-blueprint-muted">
           {view.typeName === "dict" ? "map" : view.typeName} · {view.entries.length + view.truncated}
         </span>
       </p>
@@ -64,7 +64,7 @@ export function ObjectView({ view }: { view: ObjectViewModel }) {
     <div>
       <p className="mb-2 flex items-baseline gap-2">
         <span className="font-mono text-[13px] text-primary">{view.title}</span>
-        <span className="text-technical-mono text-blueprint-muted">{view.typeName}</span>
+        <span className="trace-meta text-blueprint-muted">{view.typeName}</span>
       </p>
       {view.fields.length === 0 ? (
         <span className="font-mono text-[12px] text-blueprint-muted">no fields</span>

@@ -22,6 +22,8 @@ export interface RunnerPayload {
   stepLimit: number;
   /** Live preview: stop at stepLimit instead of finishing the run untraced (Python). */
   stopAtStepLimit?: boolean;
+  /** Which language the code is in; one image serves JavaScript and TypeScript. */
+  language?: Language;
   visualizeLimit: number;
   caseTimeoutMs?: number;
 }
@@ -74,7 +76,7 @@ const filesUnder = (dir: string): string[] => {
     .readdirSync(dir, { withFileTypes: true })
     .flatMap((entry) => {
       const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return entry.name === "__pycache__" ? [] : filesUnder(full);
+      if (entry.isDirectory()) return entry.name === "__pycache__" || entry.name === "node_modules" ? [] : filesUnder(full);
       return [full];
     })
     .sort();
@@ -237,7 +239,7 @@ export const runInDocker = async <T = RawRunnerResponse>(
       }
     });
 
-    child.stdin.write(JSON.stringify(payload));
+    child.stdin.write(JSON.stringify({ ...payload, language }));
     child.stdin.end();
   });
 };

@@ -3,7 +3,8 @@ import { problems } from "./seeds.js";
 import type { Language } from "@nodeflow/shared";
 
 /**
- * Compiles and runs every problem's generated C++ and Java starter against its
+ * Compiles and runs every problem's generated starter (every language but
+ * Python, whose stubs are authored) against its
  * visible cases. A starter should be judged (usually Wrong Answer), never fail
  * to compile or crash the harness.
  *
@@ -20,7 +21,7 @@ const option = (name: string) => {
 const BROKEN = new Set(["Compile Error", "Platform Error", "Sandbox Violation"]);
 
 const main = async () => {
-  const languages = (option("language") ?? "cpp,java").split(",") as Language[];
+  const languages = (option("language") ?? "cpp,java,javascript,typescript,c").split(",") as Language[];
   const ids = option("id")?.split(",");
   const selected = ids ? problems.filter((problem) => ids.includes(problem.id)) : problems;
   const concurrency = Number(option("concurrency") ?? 3);

@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Pause, Play, RotateCcw, StepBack, StepForward } from "lucide-react";
-import { button, field } from "../components/ui";
+import { button } from "../components/ui";
+import { HoverSelect } from "../components/HoverSelect";
 import { cn } from "../lib/cn";
 
 /**
@@ -98,21 +99,17 @@ export default function PlaybackControls({
           <StepForward size={15} aria-hidden />
         </button>
 
-        <label className="ml-1">
-          <span className="sr-only">Playback speed</span>
-          <select
-            value={speed}
-            disabled={locked}
-            onChange={(event) => onSpeed(Number(event.target.value))}
-            className={cn(field.select, "h-9 text-xs")}
-          >
-            {SPEEDS.map((option) => (
-              <option key={option} value={option}>
-                {option}×
-              </option>
-            ))}
-          </select>
-        </label>
+        <HoverSelect
+          className="ml-1"
+          label="Playback speed"
+          value={String(speed)}
+          options={SPEEDS.map((option) => ({ value: String(option), label: `${option}×` }))}
+          onChange={(next) => onSpeed(Number(next))}
+          direction="up"
+          disabled={locked}
+          menuClassName="min-w-[116px]"
+          triggerClassName="neu-trigger h-9 rounded-full px-4 font-mono text-[12.5px] font-medium text-primary"
+        />
 
       </div>
 

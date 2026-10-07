@@ -155,7 +155,7 @@ export const runInVercelSandbox = async <T>(
   const inputPath = `/vercel/in/${id}.json`;
 
   const attempt = async (box: Sandbox) => {
-    await box.writeFiles([{ path: inputPath, content: Buffer.from(JSON.stringify(payload)), mode: 0o600 }]);
+    await box.writeFiles([{ path: inputPath, content: Buffer.from(JSON.stringify({ ...payload, language })), mode: 0o600 }]);
     return box.runCommand({
       cmd: "bash",
       args: ["-c", `nf-run ${language} ${id} ${seconds} < ${inputPath}; rm -f ${inputPath}`],
