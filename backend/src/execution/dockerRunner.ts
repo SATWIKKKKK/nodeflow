@@ -25,6 +25,8 @@ export interface RunnerPayload {
   /** Which language the code is in; one image serves JavaScript and TypeScript. */
   language?: Language;
   visualizeLimit: number;
+  /** Batch mode: stop after the first case that crashes or times out (Submit). */
+  stopOnError?: boolean;
   caseTimeoutMs?: number;
 }
 
@@ -239,6 +241,10 @@ export const runInDocker = async <T = RawRunnerResponse>(
       }
     });
 
+    // A container that dies before reading its job (Docker could not start it)
+    // closes the pipe under the write. Unhandled, that EPIPE would take the
+    // whole server down; the exit code above already reports the failure.
+    child.stdin.on("error", () => undefined);
     child.stdin.write(JSON.stringify({ ...payload, language }));
     child.stdin.end();
   });

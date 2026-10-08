@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { SOLVE_REWARD, type CoinBreakdown, type Difficulty } from "@nodeflow/shared";
+import { BADGE_TIERS, SOLVE_REWARD, type BadgeAward, type CoinBreakdown, type Difficulty } from "@nodeflow/shared";
 import { api } from "./api";
 import { useSession } from "./session";
 
@@ -184,6 +184,15 @@ export const creditSolve = (
   writeJson(GUEST_LEDGER_KEY, ledger);
   receive(amount, label, origin);
   writeJson(GUEST_KEY, balance);
+};
+
+/** Badge tiers the server has just paid for: each lands like a solve does. */
+export const creditBadges = (awards: BadgeAward[] | undefined, origin?: { x: number; y: number }) => {
+  if (!signedIn) return;
+  for (const award of awards ?? []) {
+    const tier = award.tiers > 1 ? ` ${BADGE_TIERS[award.tier - 1] ?? ""}` : "";
+    receive(award.coins, `Badge · ${award.name}${tier}`, origin);
+  }
 };
 
 /** Where the coins came from: the account's ledger, or this browser's. */

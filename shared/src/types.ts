@@ -233,11 +233,19 @@ export type VariantOutcome =
   | { status: "exists"; problemId: string; title: string; number: number }
   | { status: "created"; problem: PublicProblem; number: number };
 
+/**
+ * Where a judged case came from: the problem's visible samples, its
+ * hand-written hidden cases, the generated stress suite, or the learner's own.
+ */
+export type CaseGroup = "sample" | "hidden" | "stress" | "custom";
+
 export interface ProblemTestCase {
   id: string;
   input: Record<string, unknown>;
   expectedOutput: unknown;
   visible: boolean;
+  /** Absent on hand-written cases, which are "sample" when visible and "hidden" otherwise. */
+  group?: CaseGroup;
 }
 
 export interface PublicProblem {
@@ -256,6 +264,8 @@ export interface PublicProblem {
   signature: ProblemSignature;
   defaultInput: Record<string, unknown>;
   visibleTestCases: ProblemTestCase[];
+  /** How many cases Submit judges: samples, hidden and stress (the learner's own come on top). */
+  judgeCaseCount?: number;
 }
 
 /** The fields list pages need; the full problem comes from /api/problems/:id. */
@@ -331,6 +341,7 @@ export interface AuthResponse {
 export interface CaseResult {
   id: string;
   visible: boolean;
+  group?: CaseGroup;
   status: "passed" | "failed" | "error";
   actualOutput?: unknown;
   expectedOutput?: unknown;
@@ -355,6 +366,10 @@ export interface TestResponse {
   runtimeMs: number;
   /** How many cases were judged in all, run or not. */
   totalCases?: number;
+  /** How many of those came from each group. */
+  breakdown?: Partial<Record<CaseGroup, number>>;
+  /** The learner's own cases that were left out, and why (1-based, as the Testcase tab numbers them). */
+  skippedCases?: Array<{ index: number; reason: string }>;
 }
 
 export interface SubmitResponse extends TestResponse {
@@ -363,9 +378,59 @@ export interface SubmitResponse extends TestResponse {
   userId?: string;
   /** Coins paid for this submission: only a problem's first accepted one pays. */
   coinsAwarded?: number;
+  /** Badge tiers this submission earned, each with the coins it paid. */
+  badgesEarned?: BadgeAward[];
 }
 
-export type CoinSource = "game" | "solve";
+export type CoinSource = "game" | "solve" | "badge";
+
+/**
+ * Badges are worked out and drawn end to end, but stay off until their final
+ * artwork is in: no badge is computed, paid for or shown while this is false.
+ */
+export const BADGES_ENABLED = false;
+
+/** Bronze, silver, gold, platinum. A one-step badge only has tier 1. */
+export const BADGE_TIERS = ["Bronze", "Silver", "Gold", "Platinum"] as const;
+
+/** Coins a badge pays when a tier is reached, by tier (1-based). */
+export const BADGE_REWARD = [0, 10, 25, 50, 100] as const;
+
+export type BadgeFamily = "milestone" | "difficulty" | "topic" | "consistency" | "monthly" | "coins" | "performance";
+
+/**
+ * One badge and how far along it is. Badges are worked out from submissions
+ * and coins, never stored, so they can always be explained.
+ */
+export interface Badge {
+  /** Stable key: "solver", "topic-tree", "month-2026-10". */
+  id: string;
+  family: BadgeFamily;
+  name: string;
+  /** What earns it, in a line. */
+  description: string;
+  /** Which emblem to draw. */
+  icon: string;
+  /** Tiers reached so far (0 = locked). */
+  tier: number;
+  /** The value each tier needs, lowest first. */
+  thresholds: number[];
+  /** Where the learner is now, in the same unit. */
+  value: number;
+  unit: string;
+  /** When the current tier was reached. */
+  earnedAt?: string;
+}
+
+export interface BadgeAward {
+  id: string;
+  name: string;
+  tier: number;
+  /** How many tiers the badge has, so a one-step badge is not called "Bronze". */
+  tiers: number;
+  icon: string;
+  coins: number;
+}
 
 /** Coins for a problem's first accepted submission, by difficulty. */
 export const SOLVE_REWARD: Record<Difficulty, number> = { Easy: 5, Medium: 10, Hard: 15 };
@@ -384,6 +449,8 @@ export interface CoinBreakdown {
     count: number;
     recent: Array<{ problemId: string; title: string; difficulty?: Difficulty; amount: number; at: string }>;
   };
+  /** Badge tiers reached, each paid once. */
+  badge?: { total: number; count: number };
   /** Coins held from before sources were recorded. */
   earlier: number;
   rewards: Record<Difficulty, number>;
@@ -429,6 +496,17 @@ export interface ProgressSummary {
   acceptedQueues: number;
   /** Per structure type: accepted and live counts. */
   byStructure?: Partial<Record<StructureType, { accepted: number; total: number }>>;
+  /** Solved and live counts by difficulty. */
+  byDifficulty?: Record<Difficulty, { solved: number; total: number }>;
+  /** Every submission ever judged (platform failures aside), and how many were accepted. */
+  submissionCount?: number;
+  acceptedCount?: number;
+  /**
+   * Submissions per day, keyed "YYYY-MM-DD" in the time zone the request
+   * named, over the learner's whole history.
+   */
+  calendar?: Record<string, number>;
+  badges?: Badge[];
   recentSubmissions: SubmissionSummary[];
   problems: ProgressProblemSummary[];
 }

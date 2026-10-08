@@ -10,13 +10,14 @@ import { Coin3D } from "./NoesisCoin";
  * Where the coins came from, opened from the coin counter.
  *
  * The total counts up under a coin that turns once, and a ring splits what was
- * earned between accepted submissions and the change-the-word game, each
+ * earned between accepted submissions, badges and the change-the-word game, each
  * segment drawing itself in. A single line
  * of coloured dots says which is which; nothing else competes with the chart.
  */
 
 const SOURCES = {
   solve: { label: "Submissions", color: "var(--wallet-solve)" },
+  badge: { label: "Badges", color: "var(--wallet-badge)" },
   game: { label: "Word game", color: "var(--wallet-game)" }
 } as const;
 
@@ -100,6 +101,7 @@ export function CoinWallet({ open, onClose }: { open: boolean; onClose: () => vo
     ? (
         [
           { key: "solve", value: data.solve.total },
+          { key: "badge", value: data.badge?.total ?? 0 },
           { key: "game", value: Math.max(0, data.game.net) }
         ] as Array<{ key: SourceKey; value: number }>
       ).filter((part) => part.value > 0)

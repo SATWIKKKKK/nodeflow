@@ -80,6 +80,15 @@ const authHeaders = (token?: string | null) => ({
   ...(token ? { Authorization: `Bearer ${token}` } : {})
 });
 
+/** The viewer's IANA time zone ("Asia/Kolkata"), or UTC when the browser will not say. */
+const viewerTimeZone = () => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+};
+
 export interface DsaSummary {
   /** Problems on the DSA sheet (section headings excluded). */
   total: number;
@@ -142,8 +151,9 @@ export const api = {
     if (!outcome) throw new Error("The server stopped before answering.");
     return outcome;
   },
+  /** Days in the calendar and the day-based badges count from the viewer's midnight. */
   progress: (token?: string | null) =>
-    request<ProgressSummary>("/api/progress", {
+    request<ProgressSummary>(`/api/progress?tz=${encodeURIComponent(viewerTimeZone())}`, {
       headers: authHeaders(token)
     }),
   run: (
@@ -184,11 +194,12 @@ export const api = {
       body: JSON.stringify({ question }),
       signal
     }),
-  test: (problemId: string, code: string, language: Language = "python") =>
+  /** The cases in the Testcase tab, in order; without any, the problem's visible cases. */
+  test: (problemId: string, code: string, language: Language = "python", cases?: Array<Record<string, unknown>>) =>
     request<TestResponse>("/api/test", {
       method: "POST",
       headers: jsonHeaders,
-      body: JSON.stringify({ problemId, code, language })
+      body: JSON.stringify({ problemId, code, language, cases })
     }),
   submit: (problemId: string, code: string, language: Language = "python") =>
     request<SubmitResponse>("/api/submit", {
@@ -252,16 +263,18 @@ export const api = {
       method: "DELETE",
       headers: authHeaders(token)
     }),
+  /** `cases`: the learner's own and edited cases, judged after everything else. */
   submitWithSession: (
     problemId: string,
     code: string,
     token?: string | null,
-    language: Language = "python"
+    language: Language = "python",
+    cases?: Array<Record<string, unknown>>
   ) =>
     request<SubmitResponse>("/api/submit", {
       method: "POST",
       headers: authHeaders(token),
-      body: JSON.stringify({ problemId, code, language })
+      body: JSON.stringify({ problemId, code, language, cases, timeZone: viewerTimeZone() })
     }),
   signUp: (email: string, password: string) =>
     request<AuthResponse>("/api/auth/signup", {

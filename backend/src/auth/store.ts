@@ -55,13 +55,20 @@ const SESSIONS_PER_USER = 25;
 const SESSION_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
 const SESSION_TOUCH_MS = 24 * 60 * 60 * 1000;
 
-const hashPassword = (password: string, salt: string) => crypto.scryptSync(password, salt, 64).toString("hex");
+/**
+ * scrypt off the main thread: the synchronous version holds the whole server
+ * for every sign-in, so a burst of them would queue up behind each other.
+ */
+const hashPassword = (password: string, salt: string) =>
+  new Promise<string>((resolve, reject) =>
+    crypto.scrypt(password, salt, 64, (error, key) => (error ? reject(error) : resolve(key.toString("hex"))))
+  );
 const hashToken = (token: string) => crypto.createHash("sha256").update(token).digest("hex");
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 const newToken = () => crypto.randomBytes(32).toString("base64url");
 
-const passwordMatches = (password: string, user: Pick<StoredUser, "salt" | "passwordHash">) => {
-  const actual = Buffer.from(hashPassword(password, user.salt), "hex");
+const passwordMatches = async (password: string, user: Pick<StoredUser, "salt" | "passwordHash">) => {
+  const actual = Buffer.from(await hashPassword(password, user.salt), "hex");
   const expected = Buffer.from(user.passwordHash, "hex");
   return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 };
@@ -190,7 +197,7 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
     email: normalized,
     createdAt: new Date().toISOString(),
     salt,
-    passwordHash: hashPassword(password, salt)
+    passwordHash: await hashPassword(password, salt)
   };
 
   if (sql) {
@@ -203,21 +210,31 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
     `) as Array<{ id: string }>;
     if (!inserted.length) {
       // Someone signing up a second time with their own password is a
-      // returning learner, not a conflict: let them in.
+      // returning learner, not a conflict: let them in. That answer depends on
+      // the password, so it is braked like a sign-in, or sign-up would be a
+      // way round the guessing limit.
+      checkThrottle(normalized);
       const rows = (await sql`select * from noesis_users where email = ${normalized}`) as UserRow[];
       const existing = rows[0] ? rowUser(rows[0]) : null;
-      if (existing && passwordMatches(password, existing)) return dbSession(existing);
+      if (existing && (await passwordMatches(password, existing))) return dbSession(existing);
+      noteFailure(normalized);
       throw new AuthError("An account already exists for this email. Sign in instead.", 409);
     }
     return dbSession(user);
   }
 
-  return updateFile((store) => {
-    const existing = store.users.find((entry) => entry.email === normalized);
-    if (existing) {
-      if (passwordMatches(password, existing)) return fileSession(store, existing);
+  // The hash is checked before taking the file lock, which it would otherwise hold.
+  const existing = readFile().users.find((entry) => entry.email === normalized);
+  if (existing) {
+    checkThrottle(normalized);
+    if (!(await passwordMatches(password, existing))) {
+      noteFailure(normalized);
       throw new AuthError("An account already exists for this email. Sign in instead.", 409);
     }
+  }
+  return updateFile((store) => {
+    const found = store.users.find((entry) => entry.email === normalized);
+    if (found) return fileSession(store, found);
     store.users.push(user);
     return fileSession(store, user);
   });
@@ -231,19 +248,21 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
     await ensureSchema();
     const rows = (await sql`select * from noesis_users where email = ${normalized}`) as UserRow[];
     const user = rows[0] ? rowUser(rows[0]) : null;
-    if (!user || !passwordMatches(password, user)) {
+    if (!user || !(await passwordMatches(password, user))) {
       noteFailure(normalized);
       throw new AuthError("Invalid email or password.", 401);
     }
     return dbSession(user);
   }
 
+  const known = readFile().users.find((entry) => entry.email === normalized);
+  if (!known || !(await passwordMatches(password, known))) {
+    noteFailure(normalized);
+    throw new AuthError("Invalid email or password.", 401);
+  }
   return updateFile((store) => {
-    const user = store.users.find((entry) => entry.email === normalized);
-    if (!user || !passwordMatches(password, user)) {
-      noteFailure(normalized);
-      throw new AuthError("Invalid email or password.", 401);
-    }
+    const user = store.users.find((entry) => entry.id === known.id);
+    if (!user) throw new AuthError("Invalid email or password.", 401);
     return fileSession(store, user);
   });
 };
@@ -331,7 +350,7 @@ export const startPasswordReset = async (email: string): Promise<{ token: string
 export const completePasswordReset = async (token: string, password: string): Promise<AuthResponse> => {
   const tokenHash = hashToken(token);
   const salt = crypto.randomBytes(16).toString("hex");
-  const passwordHash = hashPassword(password, salt);
+  const passwordHash = await hashPassword(password, salt);
   const expired = new AuthError("That reset link has expired or was already used. Ask for a new one.", 400);
 
   if (sql) {

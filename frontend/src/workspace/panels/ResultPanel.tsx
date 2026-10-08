@@ -1,9 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Lock } from "lucide-react";
-import type { CaseResult, ExecutionResponse, ProblemSignature, TestResponse } from "@nodeflow/shared";
+import { Lock, Plus } from "lucide-react";
+import type { BadgeAward, CaseGroup, CaseResult, ExecutionResponse, ProblemSignature, TestResponse } from "@nodeflow/shared";
 import { verdictLabel } from "../../lib/verdict";
 import { cn } from "../../lib/cn";
+import { BadgeEmblem, tierName } from "../../components/badges/BadgeEmblem";
+import { emblemLabel } from "../../components/badges/badges";
 import { FieldLabel, InputFields, ValueBox } from "./values";
 
 /**
@@ -35,6 +37,8 @@ export type ResultState =
       at: number;
       judgement: TestResponse;
       coins?: number;
+      /** Badge tiers this submission earned. */
+      badges?: BadgeAward[];
     };
 
 type Tone = "pass" | "fail" | "slow" | "plain";
@@ -129,9 +133,31 @@ function Stdout({ execution }: { execution: ExecutionResponse }) {
   );
 }
 
+const GROUP_NAMES: Record<CaseGroup, [string, string]> = {
+  sample: ["sample", "samples"],
+  hidden: ["hidden", "hidden"],
+  stress: ["stress", "stress"],
+  custom: ["yours", "yours"]
+};
+
+const GROUP_ORDER: CaseGroup[] = ["sample", "hidden", "stress", "custom"];
+
+/** "Case 3" by the Testcase tab's numbering, which the server keeps in the id. */
+const caseLabel = (entry: CaseResult, at: number) => `Case ${Number(/^case-(\d+)$/.exec(entry.id)?.[1] ?? at + 1)}`;
+
 /** One case's detail: what went in, what came out, what should have. */
-function CaseDetail({ result, signature }: { result: CaseResult; signature?: ProblemSignature }) {
+function CaseDetail({
+  result,
+  signature,
+  onAddCase
+}: {
+  result: CaseResult;
+  signature?: ProblemSignature;
+  /** Offered for a failing judged case: take its input into the Testcase tab. */
+  onAddCase?: (input: Record<string, unknown>) => void;
+}) {
   const failedExecution = !result.execution.ok ? result.execution : null;
+  const [added, setAdded] = useState(false);
   if (!result.visible) {
     return (
       <p className="flex items-center gap-2 rounded-lg bg-surface-inset px-3 py-3 text-[13px] text-blueprint-muted">
@@ -145,7 +171,29 @@ function CaseDetail({ result, signature }: { result: CaseResult; signature?: Pro
       {failedExecution && <ErrorBox execution={failedExecution} />}
       {result.input && (
         <div>
-          <FieldLabel>Input</FieldLabel>
+          <FieldLabel>
+            {result.group === "stress" ? "Last executed input" : "Input"}
+            {onAddCase && result.status !== "passed" && (
+              <button
+                type="button"
+                disabled={added}
+                onClick={() => {
+                  onAddCase(result.input!);
+                  setAdded(true);
+                }}
+                className="no-lift ml-2 inline-flex items-center gap-1 rounded px-1 text-[11.5px] font-medium text-[var(--fill-blue)] hover:underline disabled:text-blueprint-muted disabled:no-underline"
+                style={{ minHeight: 0 }}
+              >
+                {added ? (
+                  "Added to your cases"
+                ) : (
+                  <>
+                    <Plus size={11} aria-hidden /> Add to my cases
+                  </>
+                )}
+              </button>
+            )}
+          </FieldLabel>
           <InputFields input={result.input} signature={signature} />
         </div>
       )}
@@ -167,13 +215,11 @@ function CaseDetail({ result, signature }: { result: CaseResult; signature?: Pro
 function CaseChips({
   cases,
   selected,
-  onSelect,
-  label
+  onSelect
 }: {
   cases: CaseResult[];
   selected: number;
   onSelect: (at: number) => void;
-  label: (at: number) => string;
 }) {
   const still = useReducedMotion();
   return (
@@ -200,7 +246,8 @@ function CaseChips({
               aria-hidden
               className={cn("h-1.5 w-1.5 rounded-full", passed ? "bg-[var(--verdict-pass)]" : "bg-[var(--verdict-fail)]")}
             />
-            {label(at)}
+            {caseLabel(entry, at)}
+            {entry.group === "custom" && <span className="sr-only">(your case)</span>}
             <span className="sr-only">{passed ? "passed" : "failed"}</span>
           </motion.button>
         );
@@ -209,12 +256,113 @@ function CaseChips({
   );
 }
 
+/**
+ * Every case Submit judged, one cell each, in the order they ran: samples,
+ * hidden, the stress suite, then the learner's own. Passed cells fill in
+ * blue, the one that failed is red, and anything after it stays hollow,
+ * because a judge stops at the first failure. The cells light up in order
+ * as the strip appears, so the count reads as work that was done.
+ */
+function CaseStrip({ judgement }: { judgement: TestResponse }) {
+  const still = useReducedMotion();
+  const total = judgement.totalCases ?? judgement.cases.length;
+  const breakdown = judgement.breakdown;
+  // Without a breakdown (an older server), the strip is one run of cells.
+  const groups = breakdown
+    ? GROUP_ORDER.filter((group) => breakdown[group]).map((group) => ({ group, count: breakdown[group]! }))
+    : [{ group: "sample" as CaseGroup, count: total }];
+  const step = Math.min(8, 700 / Math.max(total, 1));
+  let offset = 0;
+
+  const passed = judgement.cases.filter((entry) => entry.status === "passed").length;
+  return (
+    <div className="grid gap-2">
+      {/* One run of cells; a wider gap where one group of cases gives way to the next. */}
+      <div
+        className="flex max-w-full flex-wrap gap-[3px]"
+        role="img"
+        aria-label={`${passed} of ${total} cases passed${judgement.cases.length < total ? `; judging stopped after case ${judgement.cases.length}` : ""}`}
+      >
+        {groups.map(({ group, count }, groupIndex) => {
+          const start = offset;
+          offset += count;
+          return Array.from({ length: count }, (_, index) => {
+            const at = start + index;
+            const entry = judgement.cases[at];
+            const state = !entry ? "idle" : entry.status === "passed" ? "pass" : "fail";
+            const last = index === count - 1 && groupIndex < groups.length - 1;
+            return (
+              <span
+                key={at}
+                title={`${GROUP_NAMES[group][0]} case ${index + 1}`}
+                className={cn("case-cell", `is-${state}`, last && "mr-2")}
+                style={still ? undefined : { animationDelay: `${Math.round(120 + at * step)}ms` }}
+              />
+            );
+          });
+        })}
+      </div>
+      <p className="text-[11.5px] text-blueprint-muted">
+        {groups.map(({ group, count }, index) => (
+          <span key={group}>
+            {index > 0 && <span aria-hidden> · </span>}
+            <span className="font-mono text-primary">{count}</span> {GROUP_NAMES[group][count === 1 ? 0 : 1]}
+          </span>
+        ))}
+      </p>
+    </div>
+  );
+}
+
+function NewBadges({ badges }: { badges: BadgeAward[] }) {
+  const still = useReducedMotion();
+  return (
+    <div className="grid gap-2" aria-live="polite">
+      {badges.map((badge, at) => (
+        <motion.div
+          key={`${badge.id}:${badge.tier}`}
+          initial={still ? false : { opacity: 0, y: 6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.35 + at * 0.12, duration: 0.32, ease: EASE }}
+          className="badge-toast flex items-center gap-3 rounded-xl px-3 py-2.5"
+        >
+          <BadgeEmblem icon={badge.icon} tier={badge.tier} tiers={badge.tiers} size={38} label={emblemLabel(badge)} />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-blueprint-muted">New badge</p>
+            <p className="truncate text-[14px] font-semibold text-primary">
+              {badge.name}
+              {tierName(badge.tier, badge.tiers) && (
+                <span className="ml-1.5 font-medium text-blueprint-muted">{tierName(badge.tier, badge.tiers)}</span>
+              )}
+            </p>
+          </div>
+          {badge.coins > 0 && <span className="shrink-0 text-[13px] font-semibold text-[var(--difficulty-medium)]">+{badge.coins}</span>}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function Skipped({ skipped }: { skipped: NonNullable<TestResponse["skippedCases"]> }) {
+  return (
+    <div className="verdict-box-slow rounded-lg px-3 py-2.5 text-[12.5px] leading-relaxed">
+      {skipped.map((entry) => (
+        <p key={entry.index}>
+          <span className="font-semibold">Case {entry.index} wasn&apos;t judged.</span> {entry.reason}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function JudgeResult({
   result,
-  signature
+  signature,
+  onAddCase
 }: {
   result: Extract<ResultState, { kind: "test" | "submit" }>;
   signature?: ProblemSignature;
+  onAddCase?: (input: Record<string, unknown>) => void;
 }) {
   const { judgement, kind } = result;
   const total = judgement.totalCases ?? judgement.cases.length;
@@ -226,11 +374,9 @@ function JudgeResult({
   const down = judgement.verdict === "Platform Error";
   const tone = toneOf(judgement.verdict);
   const title = down ? "Couldn't run" : verdictLabel(judgement.verdict);
-
-  // A submit can carry dozens of cases, most of them hidden. Like LeetCode,
-  // it shows the count and the first case that failed, not a wall of chips.
-  const shownCases = kind === "test" ? judgement.cases : firstFailing >= 0 ? [judgement.cases[firstFailing]] : [];
-  const current = kind === "test" ? judgement.cases[selected] : shownCases[0];
+  const failing = firstFailing >= 0 ? judgement.cases[firstFailing] : undefined;
+  const current = kind === "test" ? judgement.cases[selected] : failing;
+  const groupOf = (entry?: CaseResult) => entry?.group ?? (entry?.visible ? "sample" : "hidden");
 
   return (
     <div className="grid gap-4">
@@ -242,29 +388,34 @@ function JudgeResult({
             <span className="font-medium text-primary">
               {passed} / {total}
             </span>{" "}
-            testcases passed{tone === "pass" ? ", hidden ones included" : ""}
+            testcases passed
+            {tone === "pass" && judgement.breakdown?.stress ? ", the stress suite included" : tone === "pass" ? ", hidden ones included" : ""}
             {result.coins ? (
               <span className="ml-2.5 font-medium text-[var(--difficulty-medium)]">+{result.coins} coins</span>
             ) : null}
           </>
         ) : tone === "pass" ? (
-          "Every visible case passes. Submit to run the hidden cases too."
+          `Every case passes${judgement.breakdown?.custom ? ", yours included" : ""}. Submit to run the hidden cases too.`
         ) : (
           <>
             <span className="font-medium text-primary">
               {passed} / {total}
             </span>{" "}
-            visible cases passed
+            cases passed
           </>
         )}
       </Headline>
 
-      {!down && kind === "test" && (
-        <CaseChips cases={judgement.cases} selected={selected} onSelect={setSelected} label={(at) => `Case ${at + 1}`} />
+      {!down && kind === "submit" && total > 0 && <CaseStrip judgement={judgement} />}
+      {result.badges && result.badges.length > 0 && <NewBadges badges={result.badges} />}
+      {judgement.skippedCases && judgement.skippedCases.length > 0 && <Skipped skipped={judgement.skippedCases} />}
+
+      {!down && kind === "test" && judgement.cases.length > 0 && (
+        <CaseChips cases={judgement.cases} selected={selected} onSelect={setSelected} />
       )}
-      {!down && kind === "submit" && firstFailing >= 0 && (
+      {!down && kind === "submit" && failing && (
         <p className="-mb-1 text-xs font-medium text-blueprint-muted">
-          First failing case · {firstFailing + 1} of {total}
+          Failed on {groupOf(failing) === "custom" ? "your" : `a ${GROUP_NAMES[groupOf(failing)][0]}`} case · {firstFailing + 1} of {total}
         </p>
       )}
       {!down && current && (
@@ -274,7 +425,11 @@ function JudgeResult({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.18 }}
         >
-          <CaseDetail result={current} signature={signature} />
+          <CaseDetail
+            result={current}
+            signature={signature}
+            onAddCase={kind === "submit" && groupOf(current) === "stress" ? onAddCase : undefined}
+          />
         </motion.div>
       )}
     </div>
@@ -343,7 +498,15 @@ function RunResult({ result, signature }: { result: Extract<ResultState, { kind:
   );
 }
 
-function Pending({ busy, visibleCount }: { busy: "run" | "test" | "submit"; visibleCount: number }) {
+function Pending({
+  busy,
+  visibleCount,
+  judgeCount
+}: {
+  busy: "run" | "test" | "submit";
+  visibleCount: number;
+  judgeCount: number;
+}) {
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
     const started = Date.now();
@@ -354,8 +517,10 @@ function Pending({ busy, visibleCount }: { busy: "run" | "test" | "submit"; visi
     busy === "run"
       ? "Running your code"
       : busy === "test"
-        ? `Running ${visibleCount} visible case${visibleCount === 1 ? "" : "s"}`
-        : "Judging every case, hidden ones included";
+        ? `Running ${visibleCount} case${visibleCount === 1 ? "" : "s"}`
+        : judgeCount
+          ? `Judging ${judgeCount} cases: samples, hidden cases and the stress suite`
+          : "Judging every case, hidden ones included";
   return (
     <div className="grid gap-4" role="status" aria-live="polite">
       <div className="flex items-center gap-3">
@@ -367,6 +532,14 @@ function Pending({ busy, visibleCount }: { busy: "run" | "test" | "submit"; visi
         {what}…{seconds >= 3 && <span className="ml-1.5 font-mono text-[12px]">{seconds}s</span>}
         {seconds >= 12 && <span className="ml-1.5">The first run after a quiet spell takes a little longer.</span>}
       </p>
+      {busy === "submit" && judgeCount > 0 && (
+        // The cases waiting to be judged; a wave runs through them while they are.
+        <div className="flex max-w-full flex-wrap gap-[3px]" aria-hidden>
+          {Array.from({ length: judgeCount }, (_, at) => (
+            <span key={at} className="case-cell is-waiting" style={{ animationDelay: `${(at % 40) * 35}ms` }} />
+          ))}
+        </div>
+      )}
       {busy === "test" && (
         <div className="flex gap-1.5">
           {Array.from({ length: Math.min(Math.max(visibleCount, 1), 6) }, (_, at) => (
@@ -389,17 +562,24 @@ export function ResultPanel({
   busy,
   notice,
   visibleCount,
-  signature
+  judgeCount = 0,
+  signature,
+  onAddCase
 }: {
   result: ResultState | null;
   busy: "run" | "test" | "submit" | null;
   notice: string;
+  /** Cases Test will run: the Testcase tab's. */
   visibleCount: number;
+  /** Cases Submit will judge, the learner's own included. */
+  judgeCount?: number;
   signature?: ProblemSignature;
+  /** Takes a failing judged input into the Testcase tab. */
+  onAddCase?: (input: Record<string, unknown>) => void;
 }) {
   const still = useReducedMotion();
 
-  if (busy) return <Pending busy={busy} visibleCount={visibleCount} />;
+  if (busy) return <Pending busy={busy} visibleCount={visibleCount} judgeCount={judgeCount} />;
 
   if (notice) {
     return (
@@ -440,7 +620,7 @@ export function ResultPanel({
       {result.kind === "run" ? (
         <RunResult result={result} signature={signature} />
       ) : (
-        <JudgeResult result={result} signature={signature} />
+        <JudgeResult result={result} signature={signature} onAddCase={onAddCase} />
       )}
     </motion.div>
   );

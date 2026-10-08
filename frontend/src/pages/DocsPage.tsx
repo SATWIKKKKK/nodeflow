@@ -127,9 +127,9 @@ const CHAPTERS: Chapter[] = [
         title: "Run",
         body: (
           <P>
-            <Strong>Run</Strong> executes your code once on the problem's example input and replays it in the trace.
-            It shows what your function returned and anything you printed, but it does not judge the answer. Use it
-            to experiment and to watch what your code does.
+            <Strong>Run</Strong> executes your code once on the case selected in the Testcase tab and replays it in
+            the trace. It shows what your function returned, anything you printed, and the expected answer beside
+            yours. Use it to experiment and to watch what your code does.
           </P>
         )
       },
@@ -138,9 +138,9 @@ const CHAPTERS: Chapter[] = [
         title: "Test",
         body: (
           <P>
-            <Strong>Test</Strong> runs the example cases you can see in the statement and shows, for each one, the
-            expected answer next to yours. When a case fails, Run it and step through the trace to find where your
-            code went a different way.
+            <Strong>Test</Strong> runs every case in the Testcase tab, the problem's own and any you added, and
+            shows, for each one, the expected answer next to yours. When a case fails, select it, Run it and step
+            through the trace to find where your code went a different way.
           </P>
         )
       },
@@ -149,20 +149,24 @@ const CHAPTERS: Chapter[] = [
         title: "Submit",
         body: (
           <P>
-            <Strong>Submit</Strong> checks your code against every case, including hidden ones, and records the
-            result. Hidden inputs are never shown; if one fails, you are told which hidden case it was. An accepted
-            submission marks the problem as solved.
+            <Strong>Submit</Strong> judges your code the way LeetCode does: the visible cases, the hand-written
+            hidden ones, then a stress suite of about a hundred generated cases (small, large, sorted, repeated and
+            empty inputs), then any cases of your own. It stops at the first failure and shows how many passed. A
+            hand-written hidden case stays sealed if it fails; a failing stress case is shown in full, so you can add
+            it to your cases and trace it. An accepted submission marks the problem as solved.
           </P>
         )
       },
       {
         id: "custom",
-        title: "Custom input",
+        title: "Your own test cases",
         body: (
           <P>
-            Under the editor, <Strong>Custom input</Strong> lets you run your code on an input of your own, written as
-            JSON. Start from one of the examples and change it. When you Run with custom input, the correct answer for
-            it is shown next to yours.
+            The <Strong>Testcase</Strong> tab holds the cases Run, Test and Submit use. Press{" "}
+            <Strong>Edit cases</Strong> (or click any value) to change an input in place, each one written as JSON,
+            and <Strong>+</Strong> to add a case of your own, which starts as a copy of the one on screen. The
+            expected answer for any input comes from the reference solution. Up to ten cases fit, and Submit judges
+            yours after its own.
           </P>
         )
       },

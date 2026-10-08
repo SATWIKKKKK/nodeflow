@@ -1,0 +1,1146 @@
+{
+ "aggressive-cows": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "alien-dictionary": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "all-traversals-one-pass": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "armstrong-number": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "array-to-doubly-linked-list": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "array-to-linked-list": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "articulation-points": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "assign-cookies": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "asteroid-collision": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "balanced-binary-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "balanced-parentheses": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "bellman-ford": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "bfs-dfs-traversal": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "bipartite-graph": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "book-allocation": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "bottom-view": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "boundary-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "bridges-in-graph": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "bubble-sort": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "build-min-heap": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "burn-binary-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "burst-balloons": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "candy": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "celebrity-problem": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "cheapest-flights-k-stops": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "cherry-pickup-ii": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "city-fewest-neighbours": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "climbing-stairs": {
+  "count": 40,
+  "file": "b15_dp_core.json"
+ },
+ "coin-change-ii": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "combination-sum": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "combination-sum-ii": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "combination-sum-iii": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "connected-components": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "count-and-say": {
+  "count": 9,
+  "file": "b02_strings_hashing.json"
+ },
+ "count-complete-tree-nodes": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "count-digits": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "count-inversions": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "count-odd-digits": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "count-partitions-difference": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "count-primes-in-ranges": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "count-primes-up-to-n": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "count-subsequences-sum-k": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "count-subsets-sum-k": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "course-schedule": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "course-schedule-ii": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "cycle-directed": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "cycle-length": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "cycle-start": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "cycle-undirected": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "delete-node-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "delete-value-linked-list": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "detect-cycle": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "diameter-binary-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "dijkstra": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "distinct-islands": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "distinct-subsequences": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "distinct-substrings": {
+  "count": 100,
+  "file": "b17_tries.json"
+ },
+ "divide-two-integers": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "divisors-of-number": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "dll-delete-all-key": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-delete-head": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-delete-kth": {
+  "count": 19,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-delete-tail": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-delete-value": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-insert-before-head": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-insert-before-kth": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-insert-before-tail": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-insert-before-value": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "dll-remove-duplicates": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "edit-distance": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "eventual-safe-states": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "factorial": {
+  "count": 15,
+  "file": "b01_math.json"
+ },
+ "factorial-recursive": {
+  "count": 16,
+  "file": "b03_recursion_sorting.json"
+ },
+ "fibonacci-number": {
+  "count": 19,
+  "file": "b03_recursion_sorting.json"
+ },
+ "first-last-occurrence": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "flood-fill": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "floor-ceil-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "floor-square-root": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "four-sum": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "frog-jump": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "frog-jump-k": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "fruit-into-baskets": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "gcd-two-numbers": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "generate-parentheses": {
+  "count": 3,
+  "file": "b06_backtracking.json"
+ },
+ "grid-unique-paths": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "heap-sort": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "heapify-update": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "house-robber-circle": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "identical-trees": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "implement-trie": {
+  "count": 100,
+  "file": "b17_tries.json"
+ },
+ "inorder-successor-predecessor": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "inorder-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "insert-interval": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "insert-into-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "insertion-sort": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "is-min-heap": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "isomorphic-strings": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "job-sequencing": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "jump-game": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "kadane-max-subarray": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "knapsack-01": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "koko-eating-bananas": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "kosaraju-scc": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "kth-largest-array": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "kth-smallest-largest-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "largest-bst-in-tree": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "largest-digit": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "largest-divisible-subset": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "largest-element": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "largest-odd-number-string": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "largest-rectangle-histogram": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "lca-binary-tree": {
+  "count": 68,
+  "file": "b10_binary_trees.json"
+ },
+ "lca-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "lcm-two-numbers": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "left-right-view": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "lemonade-change": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "letter-combinations": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "level-order-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "lfu-cache": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "linear-search": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "longest-bitonic-subsequence": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-common-prefix": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "longest-common-subsequence": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-common-substring": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-happy-prefix": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "longest-increasing-subsequence": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-k-distinct": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "longest-palindromic-subsequence": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-repeating-replacement": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "longest-string-chain": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "longest-substring-no-repeat": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "longest-word-all-prefixes": {
+  "count": 100,
+  "file": "b17_tries.json"
+ },
+ "lower-bound": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "lps-array": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "lru-cache": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "m-coloring": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "majority-element-ii": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "making-large-island": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "matrix-chain-multiplication": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "max-consecutive-ones": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "max-consecutive-ones-iii": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "max-depth-binary-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "max-path-sum": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "max-points-from-cards": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "max-sum-non-adjacent": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "max-width-binary-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "max-xor-two-numbers": {
+  "count": 100,
+  "file": "b17_tries.json"
+ },
+ "max-xor-with-limit": {
+  "count": 100,
+  "file": "b17_tries.json"
+ },
+ "maximal-rectangle": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "median-two-sorted-arrays": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "merge-sort": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "min-bit-flips": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "min-bracket-reversals": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "min-cost-cut-stick": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "min-days-bouquets": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "min-falling-path-sum": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "min-heap-to-max-heap": {
+  "count": 100,
+  "file": "b12_heaps.json"
+ },
+ "min-insert-delete-convert": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "min-insertions-palindrome": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "min-stack": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "minimize-gas-station-distance": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "minimum-coins": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "minimum-multiplications": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "minimum-window-substring": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "morris-inorder": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "morris-preorder": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "most-stones-removed": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "move-zeroes": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "mst-weight": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "n-meetings": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "n-queens": {
+  "count": 3,
+  "file": "b06_backtracking.json"
+ },
+ "network-connected": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "next-greater-element": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "next-greater-element-ii": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "next-permutation": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "ninja-training": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "nodes-at-distance-k": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "non-overlapping-intervals": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "nth-root": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "number-of-enclaves": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "number-of-islands": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "number-of-islands-ii": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "number-of-lis": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "number-of-provinces": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "palindrome-number": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "palindrome-partitioning": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "palindrome-partitioning-ii": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "palindrome-string-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "partition-equal-subset": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "partition-min-difference": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "pascal-row": {
+  "count": 25,
+  "file": "b04_arrays.json"
+ },
+ "pascal-triangle": {
+  "count": 15,
+  "file": "b04_arrays.json"
+ },
+ "pascal-value": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "path-minimum-effort": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "perfect-number": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "postorder-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "pow-x-n": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "power-set": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "power-set-bitmask": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "preorder-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "prime-check": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "prime-check-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "prime-factorisation": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "primes-up-to-n": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "print-lis": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "queue-using-array": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "queue-using-linked-list": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "queue-using-stacks": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "quick-sort": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "rabin-karp-search": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "rat-in-maze": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "remove-k-digits": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "reverse-array-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "reverse-number": {
+  "count": 100,
+  "file": "b01_math.json"
+ },
+ "reverse-pairs": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "reverse-string-blocks": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "reverse-string-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "reverse-words": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "rod-cutting": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "root-to-node-path": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "rotate-matrix": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "rotate-string": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "rotting-oranges": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "row-with-max-ones": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "search-2d-matrix": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "search-2d-matrix-ii": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "search-in-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "search-insert-position": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "second-largest-element": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "second-most-frequent": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "selection-sort": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "shortest-common-supersequence": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "shortest-job-first": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "shortest-palindrome": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "shortest-path-dag": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "shortest-path-unit-weights": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "sliding-window-maximum": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "smallest-divisor-threshold": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "sort-characters-by-frequency": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "sort-linked-list": {
+  "count": 100,
+  "file": "b07_linked_lists.json"
+ },
+ "spiral-matrix": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "stack-using-array": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "stack-using-linked-list": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "stack-using-queue": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "stock-buy-sell": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "stock-buy-sell-ii": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "stock-buy-sell-iii": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "stock-buy-sell-iv": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "stock-span": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "stock-transaction-fee": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "subsequence-with-sum-k": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "subset-sum-target": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "subset-sums": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "subsets-with-duplicates": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "substrings-with-all-three": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "sum-array-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "sum-first-n-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "sum-highest-lowest-frequency": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "sum-of-digits-recursive": {
+  "count": 100,
+  "file": "b03_recursion_sorting.json"
+ },
+ "sum-subarray-minimums": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "sum-subarray-ranges": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "surrounded-regions": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "symmetric-tree": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "target-sum": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "three-sum": {
+  "count": 100,
+  "file": "b04_arrays.json"
+ },
+ "top-view": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "topological-sort": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "trapping-rain-water": {
+  "count": 100,
+  "file": "b09_stack_queue.json"
+ },
+ "triangle-min-path": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "two-sum-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "unbounded-knapsack": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "unique-paths-obstacles": {
+  "count": 100,
+  "file": "b15_dp_core.json"
+ },
+ "upper-bound": {
+  "count": 100,
+  "file": "b05_binary_search.json"
+ },
+ "valid-anagram": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "valid-palindrome": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "valid-parenthesis-wildcard": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "validate-bst": {
+  "count": 100,
+  "file": "b11_bst.json"
+ },
+ "vertical-order-traversal": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ },
+ "ways-to-arrive": {
+  "count": 100,
+  "file": "b14_graphs_paths.json"
+ },
+ "wildcard-matching": {
+  "count": 100,
+  "file": "b16_dp_strings.json"
+ },
+ "word-ladder": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "word-ladder-ii": {
+  "count": 100,
+  "file": "b13_graphs_traversal.json"
+ },
+ "word-search": {
+  "count": 100,
+  "file": "b06_backtracking.json"
+ },
+ "xor-range": {
+  "count": 100,
+  "file": "b08_bits_greedy_window.json"
+ },
+ "z-function": {
+  "count": 100,
+  "file": "b02_strings_hashing.json"
+ },
+ "zigzag-level-order": {
+  "count": 100,
+  "file": "b10_binary_trees.json"
+ }
+}

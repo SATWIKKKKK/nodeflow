@@ -46,6 +46,8 @@ await build({
 
 copy(path.join(root, "backend", "data", "reviewed-phase1.json"), path.join(func, "backend", "data", "reviewed-phase1.json"));
 copy(path.join(root, "backend", "data", "problems"), path.join(func, "backend", "data", "problems"));
+// Submit's generated stress suite (problem-src/stress.py).
+copy(path.join(root, "backend", "data", "stress"), path.join(func, "backend", "data", "stress"));
 copy(path.join(root, "DSA.json"), path.join(func, "DSA.json"));
 
 fs.writeFileSync(

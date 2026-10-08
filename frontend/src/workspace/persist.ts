@@ -65,20 +65,39 @@ export const readLanguage = (): Language => {
 
 export const writeLanguage = (language: Language) => write("noesis:language", language);
 
-// --- custom input --------------------------------------------------------------
+// --- test cases ----------------------------------------------------------------
 
-export interface CustomInputState {
-  enabled: boolean;
-  text: string;
+/** One case in the Testcase tab, as typed: each input's text, one field per parameter. */
+export interface StoredCase {
+  id: string;
+  /** "sample" began as one of the problem's visible cases; "custom" was added by the learner. */
+  origin: "sample" | "custom";
+  fields: Record<string, string>;
 }
 
-const inputKey = (problemId: string) => `noesis:custom-input:${problemId}`;
+export interface StoredTestcases {
+  cases: StoredCase[];
+  selected: number;
+}
 
-export const readCustomInput = (problemId: string) => read<CustomInputState>(inputKey(problemId));
+const testcasesKey = (problemId: string) => `noesis:testcases:${problemId}`;
 
-export const writeCustomInput = (problemId: string, state: CustomInputState) => {
-  write(inputKey(problemId), state);
-  touchIndex("noesis:custom-input-index", inputKey(problemId), 80);
+export const readTestcases = (problemId: string) => read<StoredTestcases>(testcasesKey(problemId));
+
+export const writeTestcases = (problemId: string, state: StoredTestcases) => {
+  write(testcasesKey(problemId), state);
+  touchIndex("noesis:testcases-index", testcasesKey(problemId), 80);
+};
+
+/**
+ * The old single Custom Input box. Read once, so a case typed there before
+ * the Testcase tab could hold cases of its own is not lost.
+ */
+export const takeLegacyCustomInput = (problemId: string) => {
+  const key = `noesis:custom-input:${problemId}`;
+  const saved = read<{ enabled: boolean; text: string }>(key);
+  remove(key);
+  return saved?.enabled ? saved.text : null;
 };
 
 // --- problems ----------------------------------------------------------------

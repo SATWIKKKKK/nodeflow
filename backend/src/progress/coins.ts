@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { SOLVE_REWARD, type CoinBreakdown, type CoinSource, type Difficulty } from "@nodeflow/shared";
+import { SOLVE_REWARD, type BadgeAward, type CoinBreakdown, type CoinSource, type Difficulty } from "@nodeflow/shared";
 import { dataDir } from "../paths.js";
 import { ensureSchema, sql } from "../store/db.js";
 import { getProblem } from "../problems/seeds.js";
@@ -121,6 +121,59 @@ export const rewardSolve = async (userId: string, problemId: string, difficulty:
   return amount;
 };
 
+/** Every coin event of a learner, oldest first: what the Collector badge counts. */
+export const coinEventsFor = async (userId: string): Promise<Array<{ source: CoinSource; amount: number; at: string }>> => {
+  if (sql) {
+    await ensureSchema();
+    const rows = (await sql`select source, amount, created_at from noesis_coin_events
+      where user_id = ${userId} order by created_at`) as Array<{ source: CoinSource; amount: number; created_at: string | Date }>;
+    return rows.map((row) => ({ source: row.source, amount: row.amount, at: new Date(row.created_at).toISOString() }));
+  }
+  return readFile()
+    .events.filter((event) => event.userId === userId)
+    .sort((left, right) => Date.parse(left.at) - Date.parse(right.at))
+    .map((event) => ({ source: event.source, amount: event.amount, at: event.at }));
+};
+
+/**
+ * Pays each badge tier once. `awards` is every tier the learner holds; those
+ * already paid are skipped (the tier's key sits in problem_id, under a unique
+ * index like the solve award's). Returns the tiers paid now.
+ */
+export const rewardBadges = async (
+  userId: string,
+  awards: Array<{ key: string; amount: number; award: BadgeAward }>
+): Promise<BadgeAward[]> => {
+  if (!awards.length) return [];
+  const paid: BadgeAward[] = [];
+  if (sql) {
+    await ensureSchema();
+    for (const { key, amount, award } of awards) {
+      const inserted = (await sql`insert into noesis_coin_events (user_id, source, amount, problem_id)
+        values (${userId}, 'badge', ${amount}, ${key})
+        on conflict (user_id, problem_id) where source = 'badge' do nothing
+        returning id`) as Array<{ id: number }>;
+      if (!inserted.length) continue;
+      await sql`insert into noesis_wallets (user_id, coins, updated_at) values (${userId}, ${amount}, now())
+        on conflict (user_id) do update set coins = noesis_wallets.coins + ${amount}, updated_at = now()`;
+      paid.push(award);
+    }
+    return paid;
+  }
+  const data = readFile();
+  const have = new Set(
+    data.events.filter((event) => event.userId === userId && event.source === "badge").map((event) => event.problemId)
+  );
+  for (const { key, amount, award } of awards) {
+    if (have.has(key)) continue;
+    data.events.push({ userId, source: "badge", amount, problemId: key, at: new Date().toISOString() });
+    data.wallets[userId] = (data.wallets[userId] ?? 0) + amount;
+    paid.push(award);
+  }
+  if (paid.length) writeFile(data);
+  return paid;
+};
+
 /** Where a learner's coins came from, for the coin popup. */
 export const breakdownFor = async (userId: string): Promise<CoinBreakdown> => {
   let events: Array<Omit<CoinEvent, "userId">>;
@@ -147,6 +200,8 @@ export const breakdownFor = async (userId: string): Promise<CoinBreakdown> => {
   const coins = await coinsFor(userId);
   const game = events.filter((event) => event.source === "game");
   const solves = events.filter((event) => event.source === "solve");
+  const badges = events.filter((event) => event.source === "badge");
+  const badgeTotal = badges.reduce((sum, event) => sum + event.amount, 0);
   const gameGained = game.filter((event) => event.amount > 0).reduce((sum, event) => sum + event.amount, 0);
   const gameLost = game.filter((event) => event.amount < 0).reduce((sum, event) => sum - event.amount, 0);
   const solveTotal = solves.reduce((sum, event) => sum + event.amount, 0);
@@ -167,7 +222,8 @@ export const breakdownFor = async (userId: string): Promise<CoinBreakdown> => {
         };
       })
     },
-    earlier: Math.max(0, coins - (gameGained - gameLost) - solveTotal),
+    badge: { total: badgeTotal, count: badges.length },
+    earlier: Math.max(0, coins - (gameGained - gameLost) - solveTotal - badgeTotal),
     rewards: SOLVE_REWARD
   };
 };

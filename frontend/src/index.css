@@ -1024,12 +1024,14 @@
 :root {
   --wallet-solve: #2d58bc;
   --wallet-game: #0f766e;
+  --wallet-badge: #c2410c;
   --wallet-earlier: #94a3b8;
 }
 
 .dark {
   --wallet-solve: #5b93f0;
   --wallet-game: #14a394;
+  --wallet-badge: #c8721c;
   --wallet-earlier: #64748b;
 }
 
@@ -2344,4 +2346,295 @@ body.resizing-y * {
 .menu-item.is-active {
   background: var(--neu-face-pressed, var(--surface-hover));
   box-shadow: var(--neu-well-sm, none);
+}
+
+/* ---------- Test cases, the judge's case strip, the dashboard ---------- */
+
+/*
+ * The dashboard's ring arcs: their own steps of the difficulty colours,
+ * checked with the palette validator for colour-blind separation on each
+ * theme's surface. The difficulty *text* keeps --difficulty-*.
+ */
+:root {
+  --arc-easy: #0d9488;
+  --arc-medium: #d97706;
+  --arc-hard: #be123c;
+  /* Activity squares: one hue, light to dark, by how busy the day was. */
+  --heat-0: var(--surface-inset);
+  --heat-1: #b9c9ec;
+  --heat-2: #7f9ddf;
+  --heat-3: #4b73cf;
+  --heat-4: #2d58bc;
+  /* Badge medals. */
+  --badge-face-hi: #f6f3f2;
+  --badge-face-lo: #e3dedd;
+  --badge-locked: rgba(96, 74, 72, 0.32);
+  --badge-locked-ink: rgba(96, 74, 72, 0.45);
+  --tier-1: #b06a3b;
+  --tier-2: #9aa3b0;
+  --tier-3: #d4a017;
+  --tier-4: #6f95e0;
+}
+
+.dark {
+  --arc-easy: #0f968a;
+  --arc-medium: #b98407;
+  --arc-hard: #e14a64;
+  --heat-1: #1d3358;
+  --heat-2: #2e5592;
+  --heat-3: #5a8ed6;
+  --heat-4: #9ecbff;
+  --badge-face-hi: #2c2a2a;
+  --badge-face-lo: #171616;
+  --badge-locked: rgba(255, 255, 255, 0.16);
+  --badge-locked-ink: rgba(255, 255, 255, 0.3);
+  --tier-1: #d08a5a;
+  --tier-2: #c3cad4;
+  --tier-3: #f2c94c;
+  --tier-4: #a9c8ff;
+}
+
+/* A case's input, read-only: a hollow that says it can be clicked to edit. */
+.case-value {
+  transition: box-shadow 200ms ease;
+}
+
+.neu-world .case-value:hover {
+  box-shadow:
+    var(--neu-well-sm),
+    0 0 0 1px color-mix(in oklab, var(--fill-blue) 35%, transparent);
+}
+
+/* The same box, editable: a touch deeper, so the change reads as "now you can type". */
+.neu-world .case-field {
+  transition: box-shadow 200ms ease;
+}
+
+/* One cell per judged case. */
+.case-cell {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--surface-inset);
+  box-shadow: var(--neu-well-sm, none);
+}
+
+.case-cell.is-pass {
+  background: var(--verdict-pass);
+  box-shadow: none;
+  animation: case-cell-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.case-cell.is-fail {
+  background: var(--verdict-fail);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--verdict-fail) 28%, transparent);
+  animation: case-cell-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.case-cell.is-idle {
+  opacity: 0.55;
+}
+
+/* Waiting to be judged: a slow wave runs through the cells. */
+.case-cell.is-waiting {
+  animation: case-cell-wait 1.4s ease-in-out infinite;
+}
+
+@keyframes case-cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes case-cell-wait {
+  0%,
+  100% {
+    background: var(--surface-inset);
+  }
+  45% {
+    background: color-mix(in oklab, var(--fill-blue) 35%, var(--surface-inset));
+  }
+}
+
+/* A badge just earned, under the verdict. */
+.badge-toast {
+  background: var(--neu-face-soft, var(--surface-hover));
+  box-shadow: var(--neu-raise-sm, none);
+}
+
+.badge-emblem {
+  --badge-ink: var(--ink-light);
+}
+
+.dark .badge-emblem {
+  --badge-ink: var(--ink-dark);
+}
+
+.badge-emblem-rim {
+  filter: drop-shadow(1px 2px 2px rgba(60, 40, 38, 0.25));
+}
+
+.dark .badge-emblem-rim {
+  filter: drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.6));
+}
+
+/* Difficulty tiles beside the ring: raised; the one in focus pressed in. */
+.difficulty-tile {
+  background: var(--neu-face-soft, var(--surface-hover));
+  box-shadow: var(--neu-raise-sm, none);
+  transition:
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms ease;
+}
+
+.neu-world .difficulty-tile.is-focused,
+.neu-world .difficulty-tile.is-focused:hover {
+  background: var(--neu-face-pressed);
+  box-shadow: var(--neu-well-sm);
+}
+
+/* Activity calendar. */
+.heat-cell {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--heat-0);
+  transition: transform 120ms ease;
+}
+
+.heat-cell.is-legend {
+  position: static;
+  display: inline-block;
+}
+
+.heat-cell:not(.is-legend):hover {
+  transform: scale(1.3);
+  z-index: 1;
+}
+
+.heat-0 {
+  background: var(--heat-0);
+  box-shadow: var(--neu-well-sm, none);
+}
+
+.heat-1 {
+  background: var(--heat-1);
+}
+
+.heat-2 {
+  background: var(--heat-2);
+}
+
+.heat-3 {
+  background: var(--heat-3);
+}
+
+.heat-4 {
+  background: var(--heat-4);
+}
+
+.heat-cell.is-today {
+  outline: 1.5px solid color-mix(in oklab, var(--foreground) 55%, transparent);
+  outline-offset: 1px;
+}
+
+/* The year fills in from the left, a column at a time. */
+.heatmap.is-entering .heat-cell {
+  animation: heat-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes heat-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.heat-tip {
+  background: var(--foreground);
+  color: var(--background);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* Badge tiles on the dashboard: raised slabs; locked ones sit back. */
+.badge-tile {
+  background: var(--neu-face-soft, var(--surface-hover));
+  box-shadow: var(--neu-raise-sm, none);
+  transition: box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.badge-tile:hover {
+  box-shadow: var(--neu-raise, none);
+}
+
+.badge-tile .badge-tile-emblem {
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.badge-tile:hover .badge-tile-emblem {
+  transform: translateY(-2px) rotate(-4deg);
+}
+
+.badge-tile.is-locked {
+  background: transparent;
+  box-shadow: var(--neu-well-sm, none);
+}
+
+.tier-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-inset);
+  box-shadow: var(--neu-well-sm, none);
+}
+
+.tier-pip.is-on {
+  box-shadow: none;
+}
+
+.tier-pip.tier-1 {
+  background: var(--tier-1);
+}
+
+.tier-pip.tier-2 {
+  background: var(--tier-2);
+}
+
+.tier-pip.tier-3 {
+  background: var(--tier-3);
+}
+
+.tier-pip.tier-4 {
+  background: var(--tier-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-cell.is-pass,
+  .case-cell.is-fail,
+  .case-cell.is-waiting,
+  .heatmap.is-entering .heat-cell {
+    animation: none;
+  }
+
+  .badge-tile:hover .badge-tile-emblem {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .heat-cell,
+  .case-cell {
+    border: 1px solid CanvasText;
+  }
 }

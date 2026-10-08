@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
-import { isLanguage } from "@nodeflow/shared";
+import { BADGE_REWARD, BADGES_ENABLED, isLanguage, type BadgeAward } from "@nodeflow/shared";
 import { AuthError, completePasswordReset, signIn, signOut, signUp, startPasswordReset, userForToken } from "./auth/store.js";
 import { appUrl, emailsEnabled, sendEmail } from "./auth/email.js";
 import { dsaSummary } from "./problems/metadata.js";
@@ -14,7 +14,16 @@ import {
   variantProblems,
   variantsEnabled
 } from "./problems/variants.js";
-import { SubmitTooSoon, expectedOutput, previewProblem, runProblemCase, submitProblem, testProblem } from "./execution/service.js";
+import {
+  MAX_OWN_CASES,
+  NoUsableCases,
+  SubmitTooSoon,
+  expectedOutput,
+  previewProblem,
+  runProblemCase,
+  submitProblem,
+  testProblem
+} from "./execution/service.js";
 import { validateCustomInput } from "./problems/inputValidation.js";
 import {
   ClassroomError,
@@ -29,9 +38,10 @@ import {
   setAssignments
 } from "./classrooms/store.js";
 import { queueSnapshot } from "./execution/queue.js";
-import { progressForUser } from "./progress/summary.js";
+import { badgesFor, progressForUser } from "./progress/summary.js";
+import { earnedTiers } from "./progress/badges.js";
 import { clearDraft, draftFor, saveDraft, touchDraft, unfinishedFor } from "./progress/drafts.js";
-import { addCoins, breakdownFor, coinsFor, rewardSolve } from "./progress/coins.js";
+import { addCoins, breakdownFor, coinsFor, rewardBadges, rewardSolve } from "./progress/coins.js";
 import { latestSubmission, readSubmissions } from "./progress/summary.js";
 import { MAX_NOTE, noteFor, saveNote } from "./progress/notes.js";
 import { AskError, MAX_QUESTION, answerQuestion, askEnabled, cachedAnswer, greetingReply, rateLimitWait } from "./ask/deepseek.js";
@@ -52,6 +62,36 @@ const codeSchema = z.object({
   code: z.string().min(1),
   language: languageSchema
 });
+
+/** Test and Submit may carry the learner's Testcase tab: edited samples and cases of their own. */
+const judgeSchema = codeSchema.extend({
+  cases: z.array(z.record(z.string(), z.unknown())).max(MAX_OWN_CASES).optional(),
+  /** The learner's time zone, so day-based badges count their days. */
+  timeZone: z.string().max(64).optional()
+});
+
+/** A month's badge pays like a gold tier. */
+const MONTH_REWARD = 50;
+
+/**
+ * Pays every badge tier the learner holds and has not been paid for yet.
+ * Idempotent, so it is safe on every Submit and on every dashboard visit.
+ */
+const payBadges = async (userId: string, timeZone?: string): Promise<BadgeAward[]> => {
+  if (!BADGES_ENABLED) return [];
+  const badges = await badgesFor(userId, await readSubmissions([userId]), timeZone);
+  return rewardBadges(
+    userId,
+    earnedTiers(badges).map(({ key, badge, tier }) => {
+      const amount = badge.family === "monthly" ? MONTH_REWARD : BADGE_REWARD[tier] ?? 0;
+      return {
+        key,
+        amount,
+        award: { id: badge.id, name: badge.name, tier, tiers: badge.thresholds.length, icon: badge.icon, coins: amount }
+      };
+    })
+  );
+};
 
 const previewSchema = codeSchema.extend({
   input: z.record(z.string(), z.unknown()).optional()
@@ -76,8 +116,9 @@ const syncSchema = z.object({
 });
 
 const authSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
+  email: z.string().email().max(254),
+  // Bounded above too: every password goes through scrypt.
+  password: z.string().min(8).max(200)
 });
 
 const resetSchema = z.object({
@@ -362,7 +403,11 @@ app.get("/api/auth/me", async (request, response) => {
 });
 
 app.get("/api/progress", async (request, response) => {
-  response.json(await progressForUser(await userForToken(authToken(request.headers.authorization))));
+  const user = await userForToken(authToken(request.headers.authorization));
+  const timeZone = typeof request.query.tz === "string" ? request.query.tz.slice(0, 64) : undefined;
+  // Tiers reached some other way (coins from the waiting game) are paid here.
+  if (user) await payBadges(user.id, timeZone).catch(() => []);
+  response.json(await progressForUser(user, timeZone));
 });
 
 app.post("/api/auth/signout", async (request, response) => {
@@ -502,7 +547,7 @@ app.post("/api/expected", async (request, response) => {
 });
 
 app.post("/api/test", async (request, response) => {
-  const parsed = codeSchema.safeParse(request.body);
+  const parsed = judgeSchema.safeParse(request.body);
   if (!parsed.success) {
     response.status(400).json({ message: unclear(parsed.error) });
     return;
@@ -514,11 +559,19 @@ app.post("/api/test", async (request, response) => {
     return;
   }
 
-  response.json(await testProblem(problem, parsed.data.code, parsed.data.language));
+  try {
+    response.json(await testProblem(problem, parsed.data.code, parsed.data.language, parsed.data.cases));
+  } catch (error) {
+    if (error instanceof NoUsableCases) {
+      response.status(400).json({ message: error.message });
+      return;
+    }
+    throw error;
+  }
 });
 
 app.post("/api/submit", async (request, response) => {
-  const parsed = codeSchema.safeParse(request.body);
+  const parsed = judgeSchema.safeParse(request.body);
   if (!parsed.success) {
     response.status(400).json({ message: unclear(parsed.error) });
     return;
@@ -541,7 +594,7 @@ app.post("/api/submit", async (request, response) => {
     : true;
   let result: Awaited<ReturnType<typeof submitProblem>>;
   try {
-    result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language);
+    result = await submitProblem(problem, parsed.data.code, user?.id, parsed.data.language, parsed.data.cases);
   } catch (error) {
     if (error instanceof SubmitTooSoon) {
       response.status(429).json({ message: error.message });
@@ -555,7 +608,9 @@ app.post("/api/submit", async (request, response) => {
     await clearDraft(user.id, problem.id).catch(() => undefined);
     if (!solvedBefore) coinsAwarded = await rewardSolve(user.id, problem.id, problem.difficulty).catch(() => 0);
   }
-  response.json({ ...result, coinsAwarded });
+  // Any submission can complete a badge (a streak, a month, a long record).
+  const badgesEarned = user && result.persisted ? await payBadges(user.id, parsed.data.timeZone).catch(() => []) : [];
+  response.json({ ...result, coinsAwarded, badgesEarned });
 });
 
 // ---------------------------------------------------------------- coins

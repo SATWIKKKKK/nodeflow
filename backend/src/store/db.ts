@@ -98,6 +98,9 @@ export const ensureSchema = (): Promise<void> => {
       // A problem pays out once per learner, however many times it is accepted.
       await db`create unique index if not exists noesis_coin_solve_once
         on noesis_coin_events(user_id, problem_id) where source = 'solve'`;
+      // Each badge tier pays once; problem_id holds the tier's key ("solver:2").
+      await db`create unique index if not exists noesis_coin_badge_once
+        on noesis_coin_events(user_id, problem_id) where source = 'badge'`;
     })().catch((error) => {
       schemaReady = null;
       throw error;

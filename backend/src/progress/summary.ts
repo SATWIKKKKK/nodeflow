@@ -1,9 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+  BADGES_ENABLED,
   STRUCTURE_TYPES,
   type StructureType,
   type AuthUser,
+  type Difficulty,
   type JudgeVerdict,
   type ProgressProblemSummary,
   type ProgressSummary,
@@ -12,6 +14,8 @@ import {
 import { problems } from "../problems/seeds.js";
 import { ensureSchema, sql } from "../store/db.js";
 import { dataDir } from "../paths.js";
+import { computeBadges } from "./badges.js";
+import { coinEventsFor } from "./coins.js";
 
 export interface StoredSubmission {
   submissionId: string;
@@ -21,6 +25,7 @@ export interface StoredSubmission {
   verdict: JudgeVerdict;
   runtimeMs: number;
   timestamp: string;
+  language?: string;
 }
 
 const submissionsPath = path.join(dataDir, "submissions.json");
@@ -43,6 +48,7 @@ interface SubmissionRow {
   verdict: JudgeVerdict;
   runtime_ms: number;
   created_at: string | Date;
+  language?: string;
 }
 
 const fromRow = (row: SubmissionRow): StoredSubmission => ({
@@ -51,7 +57,8 @@ const fromRow = (row: SubmissionRow): StoredSubmission => ({
   problemId: row.problem_id,
   verdict: row.verdict,
   runtimeMs: row.runtime_ms,
-  timestamp: new Date(row.created_at).toISOString()
+  timestamp: new Date(row.created_at).toISOString(),
+  language: row.language
 });
 
 /**
@@ -86,9 +93,9 @@ export const readSubmissions = async (userIds?: string[]): Promise<StoredSubmiss
     await ensureSchema();
     const rows = (
       userIds
-        ? await sql`select id, user_id, problem_id, verdict, runtime_ms, created_at from noesis_submissions
+        ? await sql`select id, user_id, problem_id, language, verdict, runtime_ms, created_at from noesis_submissions
             where user_id = any(${userIds}) order by created_at`
-        : await sql`select id, user_id, problem_id, verdict, runtime_ms, created_at from noesis_submissions order by created_at`
+        : await sql`select id, user_id, problem_id, language, verdict, runtime_ms, created_at from noesis_submissions order by created_at`
     ) as SubmissionRow[];
     return rows.map(fromRow);
   }
@@ -113,12 +120,46 @@ export const recordSubmission = async (record: StoredSubmission & { language: st
   fs.writeFileSync(submissionsPath, `${JSON.stringify(existing, null, 2)}\n`, "utf8");
 };
 
-export const progressForUser = async (user: AuthUser | null): Promise<ProgressSummary> => {
-  const userId = user?.id ?? "local";
-  const submissions = (await readSubmissions([userId]))
-    .map((submission) => ({ ...submission, userId: submission.userId ?? "local" }))
-    .filter((submission) => submission.userId === userId)
-    .sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp));
+/**
+ * "YYYY-MM-DD" for a moment, in the learner's time zone, so the calendar's
+ * days start at their midnight. An unknown zone falls back to UTC.
+ */
+export const dayKeyer = (timeZone?: string) => {
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" } as const;
+  let format: Intl.DateTimeFormat;
+  try {
+    format = new Intl.DateTimeFormat("en-CA", { ...options, timeZone: timeZone || "UTC" });
+  } catch {
+    format = new Intl.DateTimeFormat("en-CA", { ...options, timeZone: "UTC" });
+  }
+  return (moment: string | Date) => format.format(typeof moment === "string" ? new Date(moment) : moment);
+};
+
+/** The badge picture for a learner, from their full history. */
+export const badgesFor = async (userId: string, submissions: StoredSubmission[], timeZone?: string) => {
+  const dayOf = dayKeyer(timeZone);
+  const coinEvents = await coinEventsFor(userId).catch(() => []);
+  return computeBadges({
+    // Replayed oldest first; the JSON store keeps insertion order, not time order.
+    submissions: [...submissions].sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp)),
+    problems,
+    // Badge coins do not count towards Collector, or badges would feed themselves.
+    coinEvents: coinEvents.filter((event) => event.source !== "badge"),
+    dayOf,
+    today: dayOf(new Date())
+  });
+};
+
+export const progressForUser = async (user: AuthUser | null, timeZone?: string): Promise<ProgressSummary> => {
+  // Without an account there is no history. Submissions from before sign-in
+  // existed were all filed under "local"; they belong to no one, and must never
+  // turn up on a visitor's (or a new learner's) dashboard.
+  const userId = user?.id ?? "guest";
+  const submissions = user
+    ? (await readSubmissions([user.id]))
+        .filter((submission) => submission.userId === user.id)
+        .sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp))
+    : [];
 
   const problemById = new Map(problems.map((problem) => [problem.id, problem]));
   const problemSummaries: ProgressProblemSummary[] = problems.map((problem) => {
@@ -160,9 +201,31 @@ export const progressForUser = async (user: AuthUser | null): Promise<ProgressSu
       };
     });
 
+  const solvedIds = new Set(problemSummaries.filter((problem) => problem.accepted).map((problem) => problem.id));
+  const byDifficulty = Object.fromEntries(
+    (["Easy", "Medium", "Hard"] as Difficulty[]).map((difficulty) => [
+      difficulty,
+      {
+        total: problems.filter((problem) => problem.difficulty === difficulty).length,
+        solved: problems.filter((problem) => problem.difficulty === difficulty && solvedIds.has(problem.id)).length
+      }
+    ])
+  ) as Record<Difficulty, { solved: number; total: number }>;
+  const dayOf = dayKeyer(timeZone);
+  const calendar: Record<string, number> = {};
+  for (const submission of submissions) {
+    const day = dayOf(submission.timestamp);
+    calendar[day] = (calendar[day] ?? 0) + 1;
+  }
+
   return {
     userId,
     userEmail: user?.email,
+    byDifficulty,
+    submissionCount: submissions.length,
+    acceptedCount: submissions.filter((submission) => submission.verdict === "Accepted").length,
+    calendar,
+    badges: BADGES_ENABLED && user ? await badgesFor(userId, submissions, timeZone) : undefined,
     totalProblems: problems.length,
     totalArrays: problems.filter((problem) => problem.structureType === "array").length,
     totalLinkedLists: problems.filter((problem) => problem.structureType === "linked_list").length,

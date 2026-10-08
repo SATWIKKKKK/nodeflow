@@ -1,6 +1,7 @@
 import type { Problem, PublicProblem } from "@nodeflow/shared";
 import { reviewedPhaseOneProblems } from "./reviewedPhase1.js";
 import { buildStarterCodeByLanguage } from "./starterCode.js";
+import { stressCount } from "./stress.js";
 
 const visible = (
   id: string,
@@ -428,7 +429,7 @@ export const problems: Problem[] = allProblems.map((problem) => ({
 
 export const publicProblem = (problem: Problem): PublicProblem => {
   const { referenceCode: _referenceCode, testCases: _testCases, ...safeProblem } = problem;
-  return safeProblem;
+  return { ...safeProblem, judgeCaseCount: problem.testCases.length + stressCount(problem.id) };
 };
 
 export const getProblem = (id: string): Problem | undefined =>

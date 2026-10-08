@@ -25,7 +25,6 @@ import {
   Sparkles,
   SquareCheckBig,
   SquareTerminal,
-  TextCursorInput,
   Waypoints,
   X
 } from "lucide-react";
@@ -51,7 +50,7 @@ import { useServerStatus } from "../lib/serverStatus";
 import { useSession } from "../lib/session";
 import { cn } from "../lib/cn";
 import { verdictLabel } from "../lib/verdict";
-import { creditSolve } from "../lib/coins";
+import { creditBadges, creditSolve } from "../lib/coins";
 import { forgetStarted, markSolvedHere, markStarted } from "../lib/started";
 import { LogoMark } from "../components/Logo";
 import { Modal } from "../components/Modal";
@@ -61,8 +60,8 @@ import { CoinBalance } from "../components/NoesisCoin";
 import { button } from "../components/ui";
 import { TraceDiagram } from "../trace/TraceDiagram";
 import CodeEditorPane from "./CodeEditorPane";
-import { CustomInputPanel, parseCustomInput, pretty } from "./CustomInputPanel";
 import PlaybackControls from "./PlaybackControls";
+import { parseCase, sampleCases, useTestcases } from "./testcases";
 import { formatCode } from "./formatCode";
 import { DEFAULT_LAYOUT, clamp, useWorkspaceLayout, type PanelId } from "./layout";
 import { Splitter } from "./Splitter";
@@ -77,12 +76,11 @@ import {
   forgetCachedProblem,
   readCachedProblem,
   readCachedTrace,
-  readCustomInput,
   readDraft,
   readLanguage,
+  readTestcases,
   writeCachedProblem,
   writeCachedTrace,
-  writeCustomInput,
   writeDraft,
   writeLanguage
 } from "./persist";
@@ -122,7 +120,7 @@ const SCENE_MODE_KEY = "noesis:scene-mode";
 
 /** The editor panel: the code, the visible cases, and what the last run said. */
 type WorkTab = "code" | "testcase" | "result";
-type ProblemTab = "description" | "custom";
+type ProblemTab = "description";
 
 /** Sizes the splitters keep to, in pixels. */
 const SPLITTER_PX = 12;
@@ -201,7 +199,7 @@ export default function WorkspacePage() {
     routeProblemId ? readCachedProblem(routeProblemId) : null
   );
   const [language, setLanguageState] = useState<Language>(readLanguage);
-  // Code and custom input remember which problem (and language) they belong to, so
+  // Code and test cases remember which problem (and language) they belong to, so
   // a render caught mid-switch never previews one problem's code against another.
   const [editor, setEditor] = useState({ owner: "", code: "" });
 
@@ -257,8 +255,8 @@ export default function WorkspacePage() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [draftState, setDraftState] = useState<"saved" | "saving">("saved");
 
-  // Custom input, per problem.
-  const [custom, setCustom] = useState({ owner: "", enabled: false, text: "" });
+  // The Testcase tab's cases, per problem: Run and the live trace use the selected one.
+  const testcases = useTestcases(problem);
   const [serverInputError, setServerInputError] = useState("");
 
   // Idle nudge: counts user edits since the last Run/Test/Submit.
@@ -326,12 +324,8 @@ export default function WorkspacePage() {
   const editorOwner = `${problemId}:${language}`;
   const code = editor.code;
   const codeReady = Boolean(problemId) && editor.owner === editorOwner;
-  const customReady = Boolean(problemId) && custom.owner === problemId;
+  const casesReady = testcases.ready;
   ownerRef.current = editorOwner;
-  const customEnabled = customReady && custom.enabled;
-  const customText = customReady ? custom.text : "";
-  const setCustomEnabled = (enabled: boolean) => setCustom((current) => ({ ...current, enabled }));
-  const setCustomText = (text: string) => setCustom((current) => ({ ...current, text }));
 
   const setSceneMode = (mode: SceneMode) => {
     setSceneModeState(mode);
@@ -447,30 +441,18 @@ export default function WorkspacePage() {
     };
   }, [problem?.id, session.token]);
 
-  // --- custom input ---------------------------------------------------------
+  // --- the selected case ------------------------------------------------------
 
   const problemRef = useRef<PublicProblem | null>(null);
   problemRef.current = problem;
 
-  useEffect(() => {
-    const target = problemRef.current;
-    if (!target) return;
-    const saved = readCustomInput(target.id);
-    setCustom({ owner: target.id, enabled: saved?.enabled ?? false, text: saved?.text ?? pretty(target.defaultInput) });
-    setServerInputError("");
-  }, [problemId]);
+  const selectedCase = testcases.current;
+  /** The selected case's input, once it parses; until then the trace keeps the last good one. */
+  const caseInput = selectedCase?.parsed.input;
+  const caseNumber = testcases.selected + 1;
+  const inputKey = caseInput ? JSON.stringify(caseInput) : "default";
 
-  useEffect(() => {
-    if (!customReady || !customText) return;
-    writeCustomInput(problemId, { enabled: customEnabled, text: customText });
-  }, [customReady, problemId, customEnabled, customText]);
-
-  const parsedInput = useMemo(() => parseCustomInput(customText), [customText]);
-  const customInput = customEnabled && parsedInput.value ? parsedInput.value : undefined;
-  const inputKey = customInput ? JSON.stringify(customInput) : "default";
-  const customError = customEnabled ? parsedInput.error ?? serverInputError : "";
-
-  useEffect(() => setServerInputError(""), [customText]);
+  useEffect(() => setServerInputError(""), [inputKey, problemId]);
 
   // --- traces ---------------------------------------------------------------
 
@@ -546,8 +528,10 @@ export default function WorkspacePage() {
     appliedSeq.current = ++previewSeq.current;
     setPreviewBusy(false);
 
-    const saved = readCustomInput(target.id);
-    const savedInput = saved?.enabled ? parseCustomInput(saved.text).value : undefined;
+    // The case the tab will open on: the one selected last time, or the first sample.
+    const saved = readTestcases(target.id);
+    const savedCase = saved?.cases[saved.selected];
+    const savedInput = savedCase ? parseCase(target, savedCase.fields).input : sampleCases(target)[0]?.input;
     const key = previewKeyOf(language, savedInput ? JSON.stringify(savedInput) : "default", initial);
     const cached = readCachedTrace(target.id, language, key);
     // Painted at once, but never trusted as final: the tracer improves, and a
@@ -723,12 +707,13 @@ export default function WorkspacePage() {
   };
 
   useEffect(() => {
-    if (!server.sandbox || !problem || !codeReady || !customReady || !code.trim() || !LANGUAGE_TRACING[language]) return;
-    if (customEnabled && !customInput) return;
+    if (!server.sandbox || !problem || !codeReady || !casesReady || !code.trim() || !LANGUAGE_TRACING[language]) return;
+    // A case mid-edit does not parse: the trace holds the last one that did.
+    if (selectedCase && !caseInput) return;
 
     const key = previewKeyOf(language, inputKey, code);
     if (key === lastPreviewKey.current) return;
-    const job: PreviewJob = { key, owner: editorOwner, problemId: problem.id, code, language, input: customInput };
+    const job: PreviewJob = { key, owner: editorOwner, problemId: problem.id, code, language, input: caseInput };
 
     const timer = window.setTimeout(
       () => {
@@ -741,7 +726,7 @@ export default function WorkspacePage() {
     return () => window.clearTimeout(timer);
     // hasTrace only picks the delay; it must not re-arm the timer by itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [server.sandbox, problem, code, codeReady, customReady, language, inputKey, customEnabled, editorOwner]);
+  }, [server.sandbox, problem, code, codeReady, casesReady, language, inputKey, editorOwner]);
 
   useEffect(() => () => previewAbort.current?.abort(), []);
 
@@ -868,8 +853,9 @@ export default function WorkspacePage() {
 
   const runCode = useCallback(async () => {
     if (!problem) return;
-    if (customEnabled && !customInput) {
-      setNotice(`Fix the custom input first: ${customError || "it is not valid JSON."}`);
+    if (selectedCase && !caseInput) {
+      const [field, message] = Object.entries(selectedCase.parsed.errors)[0] ?? ["input", "it is not valid JSON."];
+      setNotice(`Fix case ${caseNumber} first: ${field}: ${message}`);
       showResults("run");
       return;
     }
@@ -878,20 +864,12 @@ export default function WorkspacePage() {
     setNotice("");
     showResults("run");
 
-    // When the input is one of the problem's own cases, its answer is already
-    // known; a custom one is put to the reference solution alongside the run.
-    const input = customInput ?? problem.defaultInput;
-    const inputJson = JSON.stringify(input);
-    const exampleAt = problem.examples.findIndex((example) => JSON.stringify(example.input) === inputJson);
-    const knownCase = problem.visibleTestCases.find((entry) => JSON.stringify(entry.input) === inputJson);
-    const known =
-      exampleAt >= 0
-        ? { value: problem.examples[exampleAt].output }
-        : knownCase
-          ? { value: knownCase.expectedOutput }
-          : null;
-    const source = exampleAt >= 0 ? `Example ${exampleAt + 1}` : customInput ? "Your input" : "The default input";
-    const expectedRequest = !known && customInput ? api.expected(problem.id, customInput).catch(() => null) : null;
+    // When the case is one of the problem's own, its answer is already known;
+    // anything else is put to the reference solution alongside the run.
+    const input = caseInput ?? problem.defaultInput;
+    const known = selectedCase?.known ?? null;
+    const source = selectedCase ? `Case ${caseNumber}` : "The default input";
+    const expectedRequest = !known && caseInput ? api.expected(problem.id, caseInput).catch(() => null) : null;
     const compare = problem.signature.compare ?? "exact";
 
     try {
@@ -932,26 +910,50 @@ export default function WorkspacePage() {
     }
     // showResults only calls setters and reads refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [problem, code, language, applyExecution, customEnabled, customInput, customError]);
+  }, [problem, code, language, applyExecution, selectedCase, caseInput, caseNumber]);
 
   const runJudge = useCallback(
     async (mode: "test" | "submit") => {
       if (!problem) return;
+      // Test runs every case in the tab, so each has to parse first.
+      if (mode === "test" && testcases.firstInvalid >= 0) {
+        const broken = testcases.cases[testcases.firstInvalid];
+        const [field, message] = Object.entries(broken.parsed.errors)[0] ?? ["input", "it is not valid JSON."];
+        testcases.select(testcases.firstInvalid);
+        setNotice(`Fix case ${testcases.firstInvalid + 1} first: ${field}: ${message}`);
+        showResults(mode);
+        return;
+      }
       settleAction();
       setBusy(mode);
       setNotice("");
       showResults(mode);
 
+      // Submit leaves out a case of the learner's that does not parse, and says so.
+      const unparsed = testcases.cases.flatMap((view, at) =>
+        !view.parsed.input && (view.origin === "custom" || view.edited)
+          ? [{ index: at + 1, reason: "Its input isn't valid JSON yet, so it wasn't judged." }]
+          : []
+      );
+
       try {
         const response =
           mode === "test"
-            ? await api.test(problem.id, code, language)
-            : await api.submitWithSession(problem.id, code, session.token, language);
+            ? await api.test(problem.id, code, language, testcases.pristine ? undefined : testcases.allInputs ?? undefined)
+            : await api.submitWithSession(
+                problem.id,
+                code,
+                session.token,
+                language,
+                testcases.ownInputs.length ? testcases.ownInputs : undefined
+              );
+        const skipped = [...(response.skippedCases ?? []), ...(mode === "submit" ? unparsed : [])];
         setResult({
           kind: mode,
           at: Date.now(),
-          judgement: response,
-          coins: mode === "submit" ? (response as SubmitResponse).coinsAwarded : undefined
+          judgement: skipped.length ? { ...response, skippedCases: skipped } : response,
+          coins: mode === "submit" ? (response as SubmitResponse).coinsAwarded : undefined,
+          badges: mode === "submit" ? (response as SubmitResponse).badgesEarned : undefined
         });
         if (mode === "submit" && response.verdict === "Accepted") {
           // Paid once per problem: the server decides for an account, this
@@ -959,6 +961,8 @@ export default function WorkspacePage() {
           creditSolve(problem, (response as SubmitResponse).coinsAwarded);
           markSolvedHere(problem.id);
         }
+        // Any submission can finish a badge (a streak, a month); they land after the solve.
+        if (mode === "submit") creditBadges((response as SubmitResponse).badgesEarned);
         // A failure on our side says nothing about the learner's code, so it
         // never becomes the problem's status badge.
         if (mode === "submit" && response.verdict !== "Platform Error") {
@@ -974,7 +978,7 @@ export default function WorkspacePage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [problem, code, language, session.token]
+    [problem, code, language, session.token, testcases]
   );
 
   const resetCode = () => {
@@ -1237,8 +1241,7 @@ export default function WorkspacePage() {
     }
   ];
   const problemTabs: PanelTab<ProblemTab>[] = [
-    { id: "description", label: "Description", icon: FileText },
-    { id: "custom", label: "Custom Input", shortLabel: "Input", icon: TextCursorInput, badge: customEnabled ? dot("var(--fill-blue)") : undefined }
+    { id: "description", label: "Description", icon: FileText }
   ];
 
   /** The last run's verdict, one line, for the editor's status bar. */
@@ -1509,16 +1512,7 @@ export default function WorkspacePage() {
                 problemCollapsed && "lg:hidden"
               )}
             >
-              {problemTab === "custom" && problem ? (
-                <CustomInputPanel
-                  problem={problem}
-                  enabled={customEnabled}
-                  text={customText}
-                  error={customError}
-                  onEnabled={setCustomEnabled}
-                  onText={setCustomText}
-                />
-              ) : problem ? (
+              {problem ? (
                 <>
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium">
                     <span className="text-[var(--fill-blue)]">{problem.topic}</span>
@@ -1732,14 +1726,7 @@ export default function WorkspacePage() {
               >
                 {workTab === "testcase" &&
                   (problem ? (
-                    <TestcasePanel
-                      problem={problem}
-                      onUseAsInput={(input) => {
-                        setCustomText(pretty(input));
-                        setCustomEnabled(true);
-                        openProblemTab("custom");
-                      }}
-                    />
+                    <TestcasePanel problem={problem} testcases={testcases} inputError={serverInputError} />
                   ) : (
                     <span className="skeleton h-24 w-full" aria-hidden />
                   ))}
@@ -1748,8 +1735,17 @@ export default function WorkspacePage() {
                     result={result}
                     busy={busy}
                     notice={problem ? notice : ""}
-                    visibleCount={problem?.visibleTestCases.length || problem?.examples.length || 0}
+                    visibleCount={testcases.cases.length || problem?.visibleTestCases.length || 0}
+                    judgeCount={(problem?.judgeCaseCount ?? 0) + testcases.ownInputs.length}
                     signature={problem?.signature}
+                    onAddCase={
+                      testcases.canAdd
+                        ? (input) => {
+                            testcases.addInput(input);
+                            setWorkTab("testcase");
+                          }
+                        : undefined
+                    }
                   />
                 )}
               </div>

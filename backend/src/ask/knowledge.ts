@@ -1,4 +1,4 @@
-import { GAME_REWARD, SOLVE_REWARD } from "@nodeflow/shared";
+import { BADGES_ENABLED, GAME_REWARD, SOLVE_REWARD } from "@nodeflow/shared";
 import { problems } from "../problems/seeds.js";
 
 /**
@@ -38,22 +38,24 @@ LANGUAGES: Python, C++, Java, JavaScript, TypeScript and C. All six run in the s
 STRUCTURES THE TRACE DRAWS: arrays, strings, grids/matrices, linked lists (singly, doubly, cyclic, with random or child pointers), stacks, queues, hash maps, trees and BSTs, heaps, graphs, tries, and the recursion call stack. Recursion is supported: each call is shown on the call stack. Very large structures are truncated in the drawing rather than rendered in full.
 
 THE WORKSPACE: a problem statement, a code editor (can go fullscreen; code can be reset to the starter), a 2D trace view with a 3D view one toggle away, and an output panel.
-- Run: executes once on the problem's default input (or your custom input) and replays the trace. It does not judge. With custom input, the reference answer is shown beside yours.
-- Test: runs the visible example cases and shows expected versus actual output for each.
-- Submit: runs every case, hidden ones included, and records the verdict. Hidden inputs and outputs are never revealed, only which hidden case failed.
+- Run: executes once on the case selected in the Testcase tab and replays the trace. It does not judge; the expected answer (from the reference solution) is shown beside yours.
+- Test: runs every case in the Testcase tab (the problem's visible cases, edited or not, plus any you added) and shows expected versus actual output for each.
+- Submit: judges like LeetCode: the visible cases, the hand-written hidden ones, then a stress suite of about a hundred generated cases per problem, then your own cases. It stops at the first failure and shows how many of the total passed. A failing hand-written hidden case stays sealed; a failing stress case is shown in full and can be added to your cases with one click.
 - Verdicts: Accepted, Wrong Answer, Time Limit Exceeded, Runtime Error, Compile Error. An error in your code is reported separately from a platform problem.
 - Live preview: the trace updates as you type and keeps the last good picture while the code is mid-edit.
 - Playback: step forward and back, play at 0.5x, 1x, 2x or 4x, reset, scrub the timeline, zoom the drawing. Clicking a node jumps to the line that changed it.
 - Step limit: a run stops after 4,000 traced steps in Python, 3,000 in JavaScript or TypeScript, or 1,500 in C, C++ and Java, and reports a likely infinite loop, so a runaway loop never hangs.
-- Custom input: you can enter your own input as JSON, start from an example, and use it for Run and live preview.
+- Test cases: in the Testcase tab, "Edit cases" (or clicking a value) edits a case's inputs in place as JSON, and + adds a case of your own (a copy of the one on screen). Up to ten cases. The live preview traces the selected case.
 
 SAFETY: every run gets its own isolated sandbox with no network access, one CPU, a memory cap, a time limit, a read-only filesystem and no extra privileges; it is deleted when the run ends. Runs wait in a bounded queue instead of starting unlimited sandboxes.
 
 ACCOUNTS: a free account (email and password) is needed for the problem bank, the workspace, Run, Test, Submit, progress, classrooms and pricing. The landing page, how it works, the tracing explainer, about, contact, privacy, terms and security pages are open to everyone. An account (email and password) keeps your submissions, solved problems and progress under your name. Passwords are stored only as salted scrypt hashes; session tokens only as hashes. Password reset sends a one-time link that expires in an hour. Google sign-in is planned, not available.
 
-YOUR PROGRESS: a dashboard built from your submissions (attempted, accepted, share of the bank cleared, coverage by structure, recent submissions), a problem map showing coverage per topic, and "Continue solving", which keeps every problem you opened but have not solved, with your code exactly as you left it.
+YOUR PROGRESS: a dashboard built from your submissions: a ring of problems solved by difficulty (Easy, Medium, Hard) with acceptance rate, submission count and share of the bank completed; a year-long submission heatmap with active days, longest streak and current streak (any earlier year can be picked); coverage by structure; and recent submissions. Also a problem map showing coverage per topic, and "Continue solving", which keeps every problem you opened but have not solved, with your code exactly as you left it.${BADGES_ENABLED ? `
 
-COINS: Noesis coins are earned two ways. The first time a problem is accepted it pays by difficulty: ${SOLVE_REWARD.Easy} for Easy, ${SOLVE_REWARD.Medium} for Medium, ${SOLVE_REWARD.Hard} for Hard (solving it again pays nothing). While a run is waiting, a small game pays ${GAME_REWARD.right} for a right pick and takes ${Math.abs(GAME_REWARD.wrong)} for a wrong one. The wallet shows where your coins came from.
+BADGES: worked out from your submissions and coins. Tiered bronze, silver, gold, platinum: Solver (problems solved), Climber (Medium), Summit (Hard), a badge per topic (a quarter, half, then all of its problems), Streak (days in a row), Regular (active days), Clean Sheet (solved on the first submission), Comeback (solved after three or more failed submissions), Sharpshooter (acceptance rate over enough submissions), Polyglot (languages accepted), Collector (coins earned). One-step badges: First Accepted, and one for every month with submissions on 20 different days. Each tier pays coins once: 10, 25, 50, 100 from bronze to platinum, 50 for a month.` : ""}
+
+COINS: Noesis coins are earned ${BADGES_ENABLED ? "three ways. Each badge tier pays once (see BADGES)." : "two ways."} The first time a problem is accepted it pays by difficulty: ${SOLVE_REWARD.Easy} for Easy, ${SOLVE_REWARD.Medium} for Medium, ${SOLVE_REWARD.Hard} for Hard (solving it again pays nothing). While a run is waiting, a small game pays ${GAME_REWARD.right} for a right pick and takes ${Math.abs(GAME_REWARD.wrong)} for a wrong one. The wallet shows where your coins came from.
 
 CLASSROOMS: anyone signed in can open a classroom and becomes its owner. The owner gets a six-character join code, assigns problems and sees a shared progress board built from real Submit results. Students join with the code. Both teachers and students need an account.
 

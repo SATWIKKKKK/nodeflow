@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { AuthUser } from "@nodeflow/shared";
 import { api } from "./api";
 import { forgetCached } from "./cached";
+import { claimDevice } from "./deviceOwner";
 
 const sessionKey = "noesis:session";
 
@@ -33,11 +34,18 @@ const readStoredSession = (): StoredSession | null => {
 };
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => readStoredSession()?.token ?? null);
+  const [token, setToken] = useState<string | null>(() => {
+    const stored = readStoredSession();
+    // Before anything reads local work: it must be this person's.
+    claimDevice(stored?.user.id ?? "guest");
+    return stored?.token ?? null;
+  });
   const [user, setUser] = useState<AuthUser | null>(() => readStoredSession()?.user ?? null);
   const [loading, setLoading] = useState(Boolean(token));
 
   const persist = (next: StoredSession | null) => {
+    // A different person (or nobody) from here on: the last one's local work goes.
+    claimDevice(next ? next.user.id : "guest");
     if (!next) {
       window.localStorage.removeItem(sessionKey);
       setToken(null);

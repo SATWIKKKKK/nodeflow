@@ -267,6 +267,8 @@ async function main() {
       const spec = JSON.stringify({ ...baseSpec, input: item.input || {}, trace: false });
       const report = await runWorker({ code: prepared.code, spec, entry }, caseTimeout);
       cases.push(shapeCase(report, caseStarted, 0).response);
+      // Submit stops at the first crash or timeout: the rest could only repeat it.
+      if (payload.stopOnError && !cases[cases.length - 1].ok) break;
     }
     process.stdout.write(JSON.stringify({ ok: true, cases }));
     return;

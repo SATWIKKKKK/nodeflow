@@ -834,7 +834,12 @@ def run(payload):
     if "cases" in payload:
         if error:
             return error
-        results = [run_case(payload, compiled, case.get("input") or {}, None) for case in payload["cases"]]
+        results = []
+        for case in payload["cases"]:
+            results.append(run_case(payload, compiled, case.get("input") or {}, None))
+            # Submit stops at the first crash or timeout: the rest could only repeat it.
+            if payload.get("stopOnError") and not results[-1].get("ok"):
+                break
         return {"ok": True, "cases": results}
 
     if error:
